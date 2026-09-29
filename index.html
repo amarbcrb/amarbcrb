@@ -3,8 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Amar Bouchareb | Microbiologiste & créateur de BioStudy</title>
-<meta name="description" content="Amar Bouchareb, étudiant en Master 1 Microbiologie à Lyon 1 et créateur de BioStudy : des outils web pour les sciences du vivant.">
+<title>Amar Bouchareb | Étudiant en microbiologie, créateur de BioStudy</title>
+<meta name="description" content="Amar Bouchareb, étudiant en Master 1 Microbiologie à Lyon 1 et créateur de BioStudy, une plateforme de cours et ressources pour les étudiants en biologie.">
+<meta name="author" content="Amar Bouchareb">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<link rel="canonical" href="https://amarbcrb.pages.dev/">
+<link rel="sitemap" type="application/xml" href="/sitemap.xml">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<!-- Favicon : aucun fichier n'existe encore. Ajoutez favicon.ico (48x48 min) + apple-touch-icon.png (180x180) à la racine, puis décommentez :
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"> -->
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Amar Bouchareb">
+<meta property="og:title" content="Amar Bouchareb | Étudiant en microbiologie, créateur de BioStudy">
+<meta property="og:description" content="Amar Bouchareb, étudiant en Master 1 Microbiologie à Lyon 1 et créateur de BioStudy, une plateforme de cours et ressources pour les étudiants en biologie.">
+<meta property="og:url" content="https://amarbcrb.pages.dev/">
+<meta property="og:locale" content="fr_FR">
+<!-- og:image : ajoutez une vraie image 1200x630 (ex. /og-image.jpg) puis :
+<meta property="og:image" content="https://amarbcrb.pages.dev/og-image.jpg">
+<meta property="og:image:alt" content="Amar Bouchareb, microbiologiste et créateur de BioStudy">
+<meta name="twitter:image" content="https://amarbcrb.pages.dev/og-image.jpg"> -->
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Amar Bouchareb | Étudiant en microbiologie, créateur de BioStudy">
+<meta name="twitter:description" content="Amar Bouchareb, étudiant en Master 1 Microbiologie à Lyon 1 et créateur de BioStudy, une plateforme de cours et ressources pour les étudiants en biologie.">
+<!-- Google Search Console : collez ici la balise meta de vérification si vous choisissez cette méthode -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebSite","@id":"https://amarbcrb.pages.dev/#website","url":"https://amarbcrb.pages.dev/","name":"Amar Bouchareb","description":"Amar Bouchareb, étudiant en Master 1 Microbiologie à Lyon 1 et créateur de BioStudy, une plateforme de cours et ressources pour les étudiants en biologie.","inLanguage":"fr","publisher":{"@id":"https://amarbcrb.pages.dev/#person"},"about":{"@id":"https://amarbcrb.pages.dev/#person"}},
+{"@type":"Person","@id":"https://amarbcrb.pages.dev/#person","name":"Amar Bouchareb","url":"https://amarbcrb.pages.dev/","description":"Étudiant en Master 1 Microbiologie à l'Université Claude Bernard Lyon 1 et créateur de BioStudy.","affiliation":{"@type":"CollegeOrUniversity","name":"Université Claude Bernard Lyon 1"},"knowsAbout":["Microbiologie","Biologie moléculaire","Immunologie","Bioinformatique"],"knowsLanguage":["fr","kab","en","es"],"sameAs":["https://www.linkedin.com/in/amar-bouchareb/"],"mainEntityOfPage":{"@id":"https://amarbcrb.pages.dev/#website"}}
+]}
+</script>
+<noscript><style>.rv{opacity:1;transform:none;filter:none}</style></noscript>
 <style>
 :root{--bg-glass:rgba(20,20,22,.4);--bg-soft:rgba(255,255,255,.05);--text:#fff;--text2:rgba(255,255,255,.62);--text3:rgba(255,255,255,.4);
 --b1:rgba(255,255,255,.08);--b2:rgba(255,255,255,.16);--shadow:0 24px 48px rgba(0,0,0,.4),inset 0 1px 1px rgba(255,255,255,.15);
@@ -28,6 +60,7 @@ header{position:fixed;top:0;left:0;right:0;margin:0 auto;max-width:1100px;paddin
 header::before{content:'';position:fixed;top:0;left:0;right:0;height:calc(84px + env(safe-area-inset-top));z-index:-1;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.75),rgba(0,0,0,.4) 65%,transparent);backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%);-webkit-mask-image:linear-gradient(to bottom,#000 68%,transparent);mask-image:linear-gradient(to bottom,#000 68%,transparent)}
 body.theme-light header::before{background:linear-gradient(to bottom,rgba(242,242,247,.88),rgba(242,242,247,.5) 65%,transparent)}
 @keyframes down{from{transform:translateY(-100%);opacity:0}}
+.skip{position:fixed;left:12px;top:-70px;z-index:10002;padding:10px 18px;border-radius:99px;background:var(--ui-accent);color:#fff;font-weight:700;font-size:.85rem;transition:top .3s var(--ease)}.skip:focus{top:12px}
 .logo{pointer-events:auto;font-size:1.3rem;font-weight:800;letter-spacing:-.5px}.logo b{color:var(--ui-accent);transition:color .5s}
 .logo small{display:block;font-size:.55rem;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);font-weight:600}
 .glass{background:rgba(22,22,26,.45);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(36px) saturate(210%);-webkit-backdrop-filter:blur(36px) saturate(210%);box-shadow:0 20px 45px rgba(0,0,0,.4),inset 0 1.5px 2px rgba(255,255,255,.35),inset 0 -1px 2px rgba(255,255,255,.1)}
@@ -138,11 +171,12 @@ nav a.on{color:#fff;font-weight:800}
 </style>
 </head>
 <body class="theme-dark">
+<a class="skip" href="#top" data-en="Skip to content">Aller au contenu</a>
 <div id="progress"></div>
 
 <header>
-  <a class="logo" href="#top">Amar<b>Bouchareb</b><small data-en="Microbiologist · Builder">Microbiologiste · Créateur</small></a>
-  <div class="tools glass">
+  <a class="logo" href="#top" aria-label="Amar Bouchareb, retour en haut">Amar<b>Bouchareb</b><small data-en="Microbiologist · Builder">Microbiologiste · Créateur</small></a>
+  <div class="tools glass" role="group" aria-label="Préférences">
     <button id="langBtn" aria-label="Changer de langue" title="FR / EN"><svg viewBox="0 0 24 24"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg></button>
     <button id="themeBtn" aria-label="Changer de thème"></button>
   </div>
@@ -152,8 +186,8 @@ nav a.on{color:#fff;font-weight:800}
 
 <section class="hero" data-tab="0">
   <div class="status glass"><span class="dot"></span><span data-en="Master 1 Microbiology · Lyon 1">Master 1 Microbiologie · Lyon 1</span></div>
-  <h1 aria-label="Amar Bouchareb"><span class="ln">AMAR</span><span class="ln">BOUCHAREB</span></h1>
-  <p class="hook"><span data-en="I turn lab needs into ">Je transforme les besoins du labo en </span><em id="typed"></em></p>
+  <h1 aria-label="Amar Bouchareb"><span class="ln">AMAR</span> <span class="ln">BOUCHAREB</span></h1>
+  <p class="hook"><span data-en="I turn lab needs into ">Je transforme les besoins du labo en </span><em id="typed">outils utiles.</em></p>
   <p class="lead" data-en="Microbiology student and creator of BioStudy, a platform that helps biology students find the right courses and resources, fast.">Étudiant en microbiologie et créateur de BioStudy, une plateforme qui aide les étudiants en biologie à trouver rapidement les bons cours et les bonnes ressources.</p>
   <div class="actions">
     <a href="#biostudy" class="btn p mag" data-en="See BioStudy">Découvrir BioStudy</a>
@@ -163,12 +197,12 @@ nav a.on{color:#fff;font-weight:800}
 </section>
 
 <div class="stats">
-  <div class="stat card rv"><b data-count="8">0</b><span data-en="tools in BioStudy">outils dans BioStudy</span></div>
-  <div class="stat card rv" style="--d:.08s"><b data-count="4">0</b><span data-en="languages spoken">langues parlées</span></div>
-  <div class="stat card rv" style="--d:.16s"><b data-count="2022">0</b><span data-en="year BioStudy was created">année de création de BioStudy</span></div>
-  <div class="stat card rv" style="--d:.24s"><b data-count="7">0</b><span data-en="certifications earned">certifications obtenues</span></div>
+  <div class="stat card rv"><b data-count="8">8</b><span data-en="tools in BioStudy">outils dans BioStudy</span></div>
+  <div class="stat card rv" style="--d:.08s"><b data-count="4">4</b><span data-en="languages spoken">langues parlées</span></div>
+  <div class="stat card rv" style="--d:.16s"><b data-count="2022">2022</b><span data-en="year BioStudy was created">année de création de BioStudy</span></div>
+  <div class="stat card rv" style="--d:.24s"><b data-count="7">7</b><span data-en="certifications earned">certifications obtenues</span></div>
 </div>
-<div class="marquee rv"><div class="track" id="track"></div></div>
+<div class="marquee rv" aria-hidden="true"><div class="track" id="track"></div></div>
 
 <section id="profil" data-tab="0">
   <div class="head rv"><span class="kicker" data-en="Profile">Profil</span>
@@ -194,10 +228,10 @@ nav a.on{color:#fff;font-weight:800}
     <h2 data-en="Everything starts at the bench.">Tout commence à la paillasse.</h2>
     <p class="sub" data-en="Four fields of hands-on practice, from the cell to the sequence.">Quatre domaines de pratique concrète, de la cellule à la séquence.</p></div>
   <div class="grid2">
-    <article class="card sci tilt rv"><div class="ico">🧬</div><div><h3 data-en="Molecular biology">Biologie moléculaire</h3><p data-en="From extracting nucleic acids to amplifying them.">De l'extraction des acides nucléiques à leur amplification.</p><div class="chips"><span data-en="DNA/RNA extraction">Extraction ADN/ARN</span><span data-en="Cloning">Clonage</span><span data-en="Electrophoresis">Électrophorèse</span><span>PCR</span><span>RT-PCR</span></div></div></article>
-    <article class="card sci tilt rv" style="--d:.08s"><div class="ico">🛡️</div><div><h3>Immunologie</h3><p data-en="Detecting and visualizing proteins and antibodies.">Détecter et visualiser protéines et anticorps.</p><div class="chips"><span>ELISA</span><span>Western blot</span><span>Dot blot</span><span data-en="Flow cytometry">Cytométrie en flux</span><span data-en="Immunofluorescence">Immunofluorescence</span></div></div></article>
-    <article class="card sci tilt rv" style="--d:.16s"><div class="ico">🦠</div><div><h3 data-en="Microbiology">Microbiologie</h3><p data-en="Culturing, isolating and identifying microorganisms.">Cultiver, isoler et identifier les microorganismes.</p><div class="chips"><span data-en="Staining">Colorations</span><span data-en="Isolation">Isolement</span><span data-en="Culture media">Milieux de culture</span><span data-en="Identification tests">Tests d'identification</span><span data-en="Antibiogram">Antibiogramme</span></div></div></article>
-    <article class="card sci tilt rv" style="--d:.24s"><div class="ico">💻</div><div><h3 data-en="Bioinformatics">Bioinformatique</h3><p data-en="Reading sequences and drawing biological conclusions.">Lire des séquences et en tirer des conclusions biologiques.</p><div class="chips"><span>BLAST</span><span>ORF Finder</span><span>InterProScan</span><span data-en="Alignments">Alignements</span><span data-en="Phylogeny">Phylogénie</span></div></div></article>
+    <article class="card sci tilt rv"><div class="ico" aria-hidden="true">🧬</div><div><h3 data-en="Molecular biology">Biologie moléculaire</h3><p data-en="From extracting nucleic acids to amplifying them.">De l'extraction des acides nucléiques à leur amplification.</p><div class="chips"><span data-en="DNA/RNA extraction">Extraction ADN/ARN</span><span data-en="Cloning">Clonage</span><span data-en="Electrophoresis">Électrophorèse</span><span>PCR</span><span>RT-PCR</span></div></div></article>
+    <article class="card sci tilt rv" style="--d:.08s"><div class="ico" aria-hidden="true">🛡️</div><div><h3>Immunologie</h3><p data-en="Detecting and visualizing proteins and antibodies.">Détecter et visualiser protéines et anticorps.</p><div class="chips"><span>ELISA</span><span>Western blot</span><span>Dot blot</span><span data-en="Flow cytometry">Cytométrie en flux</span><span data-en="Immunofluorescence">Immunofluorescence</span></div></div></article>
+    <article class="card sci tilt rv" style="--d:.16s"><div class="ico" aria-hidden="true">🦠</div><div><h3 data-en="Microbiology">Microbiologie</h3><p data-en="Culturing, isolating and identifying microorganisms.">Cultiver, isoler et identifier les microorganismes.</p><div class="chips"><span data-en="Staining">Colorations</span><span data-en="Isolation">Isolement</span><span data-en="Culture media">Milieux de culture</span><span data-en="Identification tests">Tests d'identification</span><span data-en="Antibiogram">Antibiogramme</span></div></div></article>
+    <article class="card sci tilt rv" style="--d:.24s"><div class="ico" aria-hidden="true">💻</div><div><h3 data-en="Bioinformatics">Bioinformatique</h3><p data-en="Reading sequences and drawing biological conclusions.">Lire des séquences et en tirer des conclusions biologiques.</p><div class="chips"><span>BLAST</span><span>ORF Finder</span><span>InterProScan</span><span data-en="Alignments">Alignements</span><span data-en="Phylogeny">Phylogénie</span></div></div></article>
   </div>
 </section>
 
@@ -209,14 +243,14 @@ nav a.on{color:#fff;font-weight:800}
       <a href="https://www.biostudy.xyz/" target="_blank" rel="noopener noreferrer" class="btn p mag" data-en="Visit BioStudy ↗">Visiter BioStudy ↗</a></div>
     <p class="d" data-en="Created in August 2022, BioStudy helps biology students find courses and relevant resources easily. It has since grown into a set of practical tools for everyday lab work.">Créé en août 2022, BioStudy aide les étudiants en biologie à trouver facilement des cours et des ressources pertinentes. Il s'est depuis enrichi d'outils pratiques pour le travail de labo.</p>
     <div class="tools4">
-      <div class="tool"><b>BioPCR</b><span data-en="PCR reaction setup">Préparer une réaction PCR</span></div>
-      <div class="tool"><b>DiluCalc</b><span data-en="Dilution calculations">Calculer des dilutions</span></div>
-      <div class="tool"><b>GelMaster</b><span data-en="Gel preparation">Préparer un gel</span></div>
-      <div class="tool"><b>CFUMaster</b><span data-en="CFU quantification">Quantifier les UFC</span></div>
-      <div class="tool"><b>GeneCode</b><span data-en="Sequence tools">Travailler sur les séquences</span></div>
-      <div class="tool"><b>BioConverter</b><span data-en="Unit conversion">Convertir des unités</span></div>
-      <div class="tool"><b>LabFlow</b><span data-en="Protocol organization">Organiser ses protocoles</span></div>
-      <div class="tool"><b>BioCampus</b><span data-en="Student resources">Ressources pour étudiants</span></div>
+      <div class="tool" tabindex="0" role="button"><b>BioPCR</b><span data-en="PCR reaction setup">Préparer une réaction PCR</span></div>
+      <div class="tool" tabindex="0" role="button"><b>DiluCalc</b><span data-en="Dilution calculations">Calculer des dilutions</span></div>
+      <div class="tool" tabindex="0" role="button"><b>GelMaster</b><span data-en="Gel preparation">Préparer un gel</span></div>
+      <div class="tool" tabindex="0" role="button"><b>CFUMaster</b><span data-en="CFU quantification">Quantifier les UFC</span></div>
+      <div class="tool" tabindex="0" role="button"><b>GeneCode</b><span data-en="Sequence tools">Travailler sur les séquences</span></div>
+      <div class="tool" tabindex="0" role="button"><b>BioConverter</b><span data-en="Unit conversion">Convertir des unités</span></div>
+      <div class="tool" tabindex="0" role="button"><b>LabFlow</b><span data-en="Protocol organization">Organiser ses protocoles</span></div>
+      <div class="tool" tabindex="0" role="button"><b>BioCampus</b><span data-en="Student resources">Ressources pour étudiants</span></div>
     </div>
   </div>
 </section>
@@ -267,9 +301,9 @@ nav a.on{color:#fff;font-weight:800}
   <div class="head rv"><span class="kicker" data-en="Beyond the lab">Au-delà du labo</span>
     <h2 style="font-size:clamp(1.8rem,4.5vw,3.2rem)" data-en="Curiosity doesn't stop at the door.">La curiosité ne s'arrête pas à la porte.</h2></div>
   <div class="grid3">
-    <article class="card bey tilt rv"><div class="ico">✦</div><h3 data-en="Astronomy">Astronomie</h3><p data-en="A taste for large scales, space and the questions they raise.">Le goût des grandes échelles, de l'espace et des questions qu'il pose.</p></article>
-    <article class="card bey tilt rv" style="--d:.08s"><div class="ico">♠</div><h3 data-en="Card magic">Cartomagie</h3><p data-en="Precision, perception, practice and creativity.">Précision, perception, pratique et créativité.</p></article>
-    <article class="card bey tilt rv" style="--d:.16s"><div class="ico">◐</div><h3>Design</h3><p data-en="The thread linking it all: turning an idea into an experience.">Le fil rouge : transformer une idée en expérience.</p></article>
+    <article class="card bey tilt rv"><div class="ico" aria-hidden="true">✦</div><h3 data-en="Astronomy">Astronomie</h3><p data-en="A taste for large scales, space and the questions they raise.">Le goût des grandes échelles, de l'espace et des questions qu'il pose.</p></article>
+    <article class="card bey tilt rv" style="--d:.08s"><div class="ico" aria-hidden="true">♠</div><h3 data-en="Card magic">Cartomagie</h3><p data-en="Precision, perception, practice and creativity.">Précision, perception, pratique et créativité.</p></article>
+    <article class="card bey tilt rv" style="--d:.16s"><div class="ico" aria-hidden="true">◐</div><h3>Design</h3><p data-en="The thread linking it all: turning an idea into an experience.">Le fil rouge : transformer une idée en expérience.</p></article>
   </div>
 </section>
 
@@ -279,17 +313,17 @@ nav a.on{color:#fff;font-weight:800}
     <p class="sub" data-en="A scientific collaboration, a digital project, or just a chat? Write to me.">Une collaboration scientifique, un projet numérique, ou simplement envie d'échanger ? Écrivez-moi.</p>
     <div class="links">
       <button class="glass" id="mailBtn" data-en="Copy my email">Copier mon e-mail</button>
-      <a class="glass" href="https://www.linkedin.com/in/amar-bouchareb/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
-      <a class="glass" href="https://www.biostudy.xyz/" target="_blank" rel="noopener noreferrer">BioStudy ↗</a>
+      <a class="glass" href="https://www.linkedin.com/in/amar-bouchareb/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn : profil d'Amar Bouchareb (nouvel onglet)">LinkedIn ↗</a>
+      <a class="glass" href="https://www.biostudy.xyz/" target="_blank" rel="noopener noreferrer" aria-label="BioStudy, le site créé par Amar Bouchareb (nouvel onglet)">BioStudy ↗</a>
     </div></div>
 </section>
 </main>
 
 <footer><span><b>Amar Bouchareb</b> · <span data-en="Microbiologist & scientific designer">Microbiologiste & designer scientifique</span></span><span>© 2026</span></footer>
 
-<div class="bottom"><nav class="glass"><div class="slider" id="slider"></div>
+<div class="bottom"><nav class="glass" aria-label="Navigation principale"><div class="slider" id="slider"></div>
   <a href="#top" class="on" data-en="Profile">Profil</a><a href="#science">Science</a><a href="#biostudy">BioStudy</a><a href="#parcours" data-en="Journey">Parcours</a><a href="#contact">Contact</a></nav></div>
-<div id="toast" class="glass"></div>
+<div id="toast" class="glass" role="status" aria-live="polite"></div>
 
 <script>
 const CONFIG={email:"amarxbcrb@gmail.com"};
@@ -326,6 +360,7 @@ let wi=0,ci=0,del=false;const typed=$("#typed");
  setTimeout(tick,d)})();
 
 /* révélations + compteurs */
+$$("[data-count]").forEach(n=>n.textContent="0");
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;e.target.classList.add("visible");
  e.target.querySelectorAll("[data-count]").forEach(n=>{const to=+n.dataset.count;let s=null;
   const f=t=>{s=s||t;const p=Math.min((t-s)/1200,1);n.textContent=Math.round(to*(1-Math.pow(1-p,3)));p<1&&requestAnimationFrame(f)};requestAnimationFrame(f)});
@@ -334,7 +369,7 @@ $$(".rv").forEach(e=>io.observe(e));
 
 /* accent + slider selon la section visible (scroll-spy) */
 const navs=$$("nav a");
-function setTab(i){$("#slider").style.transform=`translateX(${i*100}%)`;navs.forEach((a,k)=>a.classList.toggle("on",k===i));
+function setTab(i){$("#slider").style.transform=`translateX(${i*100}%)`;navs.forEach((a,k)=>{a.classList.toggle("on",k===i);k===i?a.setAttribute("aria-current","true"):a.removeAttribute("aria-current")});
  root.style.setProperty("--ui-accent",COLORS[i][0]);root.style.setProperty("--glow",`rgba(${COLORS[i][1]},.5)`)}
 setTab(0);
 const spy=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)setTab(+e.target.dataset.tab)}),{rootMargin:"-45% 0px -50% 0px"});
@@ -354,7 +389,7 @@ if(fine&&!reduced){
  $$(".mag").forEach(b=>{b.addEventListener("pointermove",e=>{const r=b.getBoundingClientRect();b.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.25}px,${(e.clientY-r.top-r.height/2)*.35}px)`});b.addEventListener("pointerleave",()=>b.style.transform="")});
 }
 /* outils BioStudy : mise en avant au toucher */
-$$(".tool").forEach(t=>t.addEventListener("click",()=>{$$(".tool").forEach(x=>x.classList.remove("on"));t.classList.add("on")}));
+$$(".tool").forEach(t=>{const on=()=>{$$(".tool").forEach(x=>x.classList.remove("on"));t.classList.add("on")};t.addEventListener("click",on);t.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();on()}})});
 
 /* contact */
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
