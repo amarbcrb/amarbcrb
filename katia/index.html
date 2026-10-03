@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S3CUR3 V4ULT // ONION_NET</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --term-green: #00ff41;
+            --error-red: #ff003c;
+            --glow: 0 0 10px var(--term-green), 0 0 20px var(--term-green);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none; /* Empêche la sélection de texte */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--term-green);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Écran d'initialisation (Pour forcer le clic, le plein écran et le son) */
+        #init-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            cursor: pointer;
+        }
+
+        .blink-text {
+            font-size: 20px;
+            letter-spacing: 4px;
+            animation: blink 1.5s infinite;
+            text-shadow: var(--glow);
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Arrière-plan Matrix */
+        canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        /* Scanlines cathodiques par-dessus tout */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .container {
+            border: 2px solid var(--term-green);
+            padding: 40px;
+            width: 90%;
+            max-width: 650px;
+            box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.1), 0 0 30px rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(3px);
+            position: relative;
+            z-index: 10;
+            transition: all 0.3s ease;
+            display: none; /* Caché jusqu'au clic initial */
+        }
+
+        /* Animation d'erreur (Tremblement) */
+        .shake {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+            border-color: var(--error-red) !important;
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.4) !important;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        /* Effet Glitch sur le titre principal */
+        .glitch-title {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+            text-shadow: var(--glow);
+            letter-spacing: 3px;
+            position: relative;
+            background: rgba(0,0,0,0.5);
+            display: inline-block;
+            width: 100%;
+        }
+
+        p { margin-bottom: 20px; font-size: 15px; opacity: 0.9; line-height: 1.5; text-shadow: 0 0 5px var(--term-green); }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--term-green);
+            padding: 12px;
+            box-shadow: inset 0 0 10px rgba(0, 255, 65, 0.1);
+        }
+
+        .prompt { margin-right: 10px; font-weight: bold; }
+
+        input {
+            background: transparent;
+            border: none;
+            color: var(--term-green);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 18px;
+            width: 100%;
+            outline: none;
+            letter-spacing: 4px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--term-green);
+            color: var(--term-green);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        button:hover {
+            background: var(--term-green);
+            color: var(--bg-color);
+            box-shadow: var(--glow);
+        }
+
+        #status-message {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+            height: 20px;
+            letter-spacing: 1px;
+        }
+
+        .error-text { color: var(--error-red); text-shadow: 0 0 10px var(--error-red); }
+        .hidden { display: none !important; }
+
+        /* Écran de succès */
+        #success-content { text-align: center; }
+
+        .welcome-msg {
+            font-size: 26px;
+            font-weight: bold;
+            text-shadow: var(--glow);
+            margin-bottom: 30px;
+            min-height: 35px;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 12px;
+            height: 24px;
+            background-color: var(--term-green);
+            animation: blink-cursor 0.8s infinite;
+            vertical-align: text-bottom;
+            margin-left: 5px;
+        }
+
+        @keyframes blink-cursor {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        .drive-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 15px 30px;
+            border: 1px solid var(--term-green);
+            color: var(--term-green);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+            background: rgba(0, 255, 65, 0.1);
+            transition: 0.3s;
+            opacity: 0;
+            animation: fade-in 1s forwards;
+            animation-delay: 2.5s;
+        }
+
+        .drive-btn:hover {
+            background: var(--term-green);
+            color: var(--bg-color);
+            box-shadow: var(--glow);
+            transform: scale(1.05);
+        }
+
+        @keyframes fade-in { to { opacity: 1; } }
+    </style>
+</head>
+<body>
+    <!-- Écran cliquable pour lancer Fullscreen & Audio -->
+    <div id="init-overlay">
+        <span class="blink-text">>> CLIQUEZ POUR INITIALISER LA CONNEXION <<</span>
+    </div>
+
+    <!-- Canvas pour l'effet Matrix 0 et 1 -->
+    <canvas id="matrix-canvas"></canvas>
+    
+    <div class="overlay"></div>
+
+    <div class="container" id="main-container">
+        <!-- Interface de connexion -->
+        <div id="vault-interface">
+            <h2 class="glitch-title">>>> SYSTÈME VERROUILLÉ <<<</h2>
+            <p>Accès crypté niveau 9. Saisissez la clé d'identification pour lancer la procédure d'extraction :</p>
+            
+            <div class="input-group">
+                <span class="prompt">root@onion:~#</span>
+                <input type="password" id="password-input" placeholder="********" autocomplete="off">
+            </div>
+            
+            <button id="unlock-btn">DÉCHIFFRER_</button>
+            <div id="status-message"></div>
+        </div>
+
+        <!-- Contenu caché (Succès) -->
+        <div id="success-content" class="hidden">
+            <div class="welcome-msg">
+                <span id="typed-text"></span><span class="cursor"></span>
+            </div>
+            <p style="animation: fade-in 1s forwards; opacity: 0; animation-delay: 2s;">
+                [Authentification biométrique confirmée]<br>
+                Le coffre-fort sécurisé est désormais ouvert.
+            </p>
+            
+            <a href="https://drive.google.com/drive/folders/1F1SejHw6A3Sy0sbu6mIXjn9gULtjDKi6" target="_blank" class="drive-btn">[ OUVRIR LE COFFRE DRIVE ]</a>
+        </div>
+    </div>
+
+    <script>
+        // --- 0. PLEIN ÉCRAN & INITIALISATION ---
+        const initOverlay = document.getElementById('init-overlay');
+        const mainContainer = document.getElementById('main-container');
+        const input = document.getElementById('password-input');
+
+        function enterFullScreen() {
+            const docElm = document.documentElement;
+            if (docElm.requestFullscreen) { docElm.requestFullscreen(); }
+            else if (docElm.webkitRequestFullscreen) { docElm.webkitRequestFullscreen(); } // Safari
+            else if (docElm.mozRequestFullScreen) { docElm.mozRequestFullScreen(); } // Firefox
+            else if (docElm.msRequestFullscreen) { docElm.msRequestFullscreen(); } // IE/Edge
+        }
+
+        initOverlay.addEventListener('click', () => {
+            enterFullScreen();
+            initAudio(); // Débloque le son
+            initOverlay.style.display = 'none'; // Cache l'overlay
+            mainContainer.style.display = 'block'; // Affiche le terminal
+            input.focus(); // Met le curseur dans la case mot de passe
+        });
+
+        // --- 1. EFFET MATRIX (0 et 1) ---
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const chars = '01';
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        
+        for (let x = 0; x < columns; x++) drops[x] = 1;
+        
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0F0'; 
+            ctx.font = fontSize + 'px monospace';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 40);
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // --- 2. GESTION DES SONS PRO (Web Audio API) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        // Son de frappe (Clic high-tech très sec)
+        function soundType() {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1200, audioCtx.currentTime); // Fréquence de départ
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05); // Chute très rapide
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        }
+
+        // Son Erreur (Double son métallique/alarme)
+        function soundError() {
+            if (!audioCtx) return;
+            const playBuzz = (timeOffset) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(120, audioCtx.currentTime + timeOffset);
+                osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + timeOffset + 0.2);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime + timeOffset);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + timeOffset + 0.2);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(audioCtx.currentTime + timeOffset);
+                osc.stop(audioCtx.currentTime + timeOffset + 0.2);
+            };
+            playBuzz(0);
+            playBuzz(0.15); // Deuxième buzz rapproché
+        }
+
+        // Son Accès Autorisé (Accord futuriste ascendant)
+        function soundSuccess() {
+            if (!audioCtx) return;
+            // Notes : Do5, Mi5, Sol5, Do6
+            const frequencies = [523.25, 659.25, 783.99, 1046.50];
+            frequencies.forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05); // Attack
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5); // Decay long
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 1.5);
+                }, i * 150); // Arpège
+            });
+        }
+
+        // --- 3. LOGIQUE DE CONNEXION ---
+        const btn = document.getElementById('unlock-btn');
+        const statusMsg = document.getElementById('status-message');
+        const vaultInterface = document.getElementById('vault-interface');
+        const successContent = document.getElementById('success-content');
+        const typedTextElement = document.getElementById('typed-text');
+
+        const SECRET_CODE = "25052003";
+        const WELCOME_MESSAGE = "Bienvenue mademoiselle Katia Talbi.";
+
+        // Son de frappe
+        input.addEventListener('input', soundType);
+
+        // Effet machine à écrire
+        function typeWriter(text, i) {
+            if (i < text.length) {
+                typedTextElement.innerHTML += text.charAt(i);
+                soundType(); 
+                let speed = Math.random() * (120 - 40) + 40; 
+                setTimeout(() => typeWriter(text, i + 1), speed);
+            }
+        }
+
+        function checkPassword() {
+            const enteredCode = input.value;
+            
+            if (enteredCode === SECRET_CODE) {
+                mainContainer.classList.remove('shake');
+                
+                statusMsg.textContent = "DÉCHIFFREMENT EN COURS...";
+                statusMsg.style.color = "var(--term-green)";
+                input.disabled = true;
+                btn.disabled = true;
+                
+                soundSuccess();
+                
+                setTimeout(() => {
+                    vaultInterface.classList.add('hidden');
+                    successContent.classList.remove('hidden');
+                    
+                    setTimeout(() => {
+                        typeWriter(WELCOME_MESSAGE, 0);
+                    }, 500);
+
+                }, 1500);
+            } else {
+                soundError();
+                statusMsg.textContent = "ACCÈS REFUSÉ : TRACE ENREGISTRÉE";
+                statusMsg.className = "error-text";
+                
+                mainContainer.classList.remove('shake');
+                void mainContainer.offsetWidth; // Force le reflow CSS
+                mainContainer.classList.add('shake');
+                
+                input.value = "";
+                input.focus();
+            }
+        }
+
+        btn.addEventListener('click', checkPassword);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPassword();
+        });
+    </script>
+</body>
+</html>
