@@ -39,6 +39,8 @@ h1{font-weight:400;font-size:clamp(22px,6vw,30px);line-height:1.3;text-shadow:va
 .sub{margin-top:14px;font-size:15px;line-height:1.6;color:#7dffa0;opacity:.9}
 .hint{margin-top:22px;font-size:12px;opacity:.55;line-height:1.5}
 
+#gate{cursor:pointer}#gt{font-size:clamp(14px,4.2vw,20px);letter-spacing:3px;text-shadow:var(--glow);animation:bl 1.8s ease-in-out infinite}
+@keyframes bl{50%{opacity:.3}}
 /* Intro */
 #intro .lines{max-width:520px;min-height:150px}
 #intro h1{min-height:2.6em;letter-spacing:2px}
@@ -54,6 +56,13 @@ h1{font-weight:400;font-size:clamp(22px,6vw,30px);line-height:1.3;text-shadow:va
 .caret{display:inline-block;width:.6em;height:1.05em;background:var(--g);margin-left:3px;vertical-align:-.15em;animation:cb .8s steps(1) infinite}
 @keyframes cb{50%{opacity:0}}
 
+/* Messages d'Amar */
+.msg{width:min(92vw,460px);text-align:left;background:rgba(0,6,0,.82);border:1px solid var(--gd);box-shadow:inset 0 0 30px rgba(0,255,65,.08),0 0 60px #000;backdrop-filter:blur(4px);padding:clamp(20px,5vw,30px);margin-top:18px;min-height:120px}
+.from{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--gd);margin-bottom:16px}
+.from i{width:9px;height:9px;border-radius:50%;background:var(--g);box-shadow:var(--glow)}
+.from.typing .st{animation:bl 1s ease-in-out infinite}
+.msg .body p{font-size:clamp(16px,4.4vw,19px);line-height:1.6;margin-bottom:12px;min-height:1.6em;text-shadow:0 0 6px rgba(0,255,65,.4)}
+.msg .body p:last-child{margin-bottom:0}
 /* Coffre */
 #vault .panel{position:relative;animation:boot .9s cubic-bezier(.2,.8,.2,1) both}
 @keyframes boot{0%{opacity:0;transform:scaleY(.02);filter:brightness(3)}60%{opacity:1;transform:scaleY(1.02)}100%{transform:none;filter:none}}
@@ -65,8 +74,6 @@ h1{font-weight:400;font-size:clamp(22px,6vw,30px);line-height:1.3;text-shadow:va
 .slot.cur{border-color:var(--g);animation:cb 1s steps(1) infinite}
 #hints{list-style:none;margin:16px 0 0;text-align:left;font-size:13px;line-height:1.5;color:#7dffa0}
 #hints li{border-left:2px solid var(--g);padding:2px 0 2px 10px;margin-bottom:6px;animation:focus .8s both}
-#hbtn{margin-top:12px;width:100%;padding:10px;font:inherit;font-size:14px;color:var(--g);background:transparent;border:1px dashed var(--gd);cursor:pointer}
-#hbtn:active{background:rgba(0,255,65,.15)}
 #vault{overflow-y:auto;justify-content:flex-start}#vault .panel{margin:auto}
 #status{height:22px;margin:8px 0 14px;font-size:13px;letter-spacing:1px}
 .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -95,12 +102,10 @@ h1{font-weight:400;font-size:clamp(22px,6vw,30px);line-height:1.3;text-shadow:va
 <button id="mute" aria-label="Couper ou activer le son"></button>
 
 <!-- 1. Intro -->
-<section class="screen on" id="intro">
-  <div class="lines">
-    <div id="log"></div>
-    <h1 id="t1"></h1>
-    <p class="sub" id="t2"></p>
-  </div>
+<section class="screen on" id="gate"><p id="gt">&gt; APPUIE POUR ÉTABLIR LA CONNEXION<span class="caret"></span></p></section>
+
+<section class="screen" id="intro">
+  <div class="msg" id="msg1"><div class="from"><i></i><span class="st">Amar</span></div><div class="body"></div></div>
   <button id="enter">Ouvrir le coffre</button>
 </section>
 
@@ -109,19 +114,18 @@ h1{font-weight:400;font-size:clamp(22px,6vw,30px);line-height:1.3;text-shadow:va
   <div class="panel" id="panel"><div class="scan"></div>
     <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="#00ff41" stroke-width="1.6"><rect x="4" y="10" width="16" height="11"/><path class="shackle" d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.4" fill="#00ff41"/></svg>
     <h1>Accès restreint</h1>
-    <p class="sub">Une seule date ouvre ce coffre.<br>Huit chiffres. Aucune seconde chance.</p>
+    <p class="sub">Une seule date ouvre ce coffre.<br>Huit chiffres. Chaque erreur laisse une trace… et un indice.</p>
+    <ul id="hints"></ul>
     <div class="slots" id="slots"></div>
     <div id="status">&nbsp;</div>
     <div class="pad" id="pad"></div>
-    <ul id="hints"></ul>
-    <button id="hbtn">Un indice (3 restants)</button>
   </div>
 </section>
 
 <!-- 3. Succès -->
 <section class="screen" id="win">
   <h1 id="welcome"></h1>
-  <p class="sub" id="wsub" style="opacity:0;transition:opacity 1s">Accès autorisé. Ce qu'Amar t'a laissé t'attend.</p>
+  <div class="msg" id="msg2"><div class="from"><i></i><span class="st">Amar</span></div><div class="body"></div></div>
   <a class="drive" id="drive" href="https://drive.google.com/drive/folders/1F1SejHw6A3Sy0sbu6mIXjn9gULtjDKi6" target="_blank" rel="noopener">Ouvrir le Drive</a>
 </section>
 
@@ -149,29 +153,33 @@ setInterval(()=>{
 },45);
 
 /* ---------- AUDIO ---------- */
-let ac,master,muted=false,ambient;
+let ac,master,muted=false,ambient,ambientOn=true;const oscs=[];
 function initAudio(){
  if(ac)return;const A=window.AudioContext||window.webkitAudioContext;if(!A)return;ac=new A();
  master=ac.createGain();master.gain.value=.9;master.connect(ac.destination);
  // Nappe sombre continue : deux sinus désaccordés + souffle filtré
  const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=220;const g=ac.createGain();g.gain.value=.0;
- g.gain.linearRampToValueAtTime(.09,ac.currentTime+4);lp.connect(g);g.connect(master);
- [55,55.4,82.5].forEach(f=>{const o=ac.createOscillator();o.type=f>80?'sine':'sawtooth';o.frequency.value=f;o.connect(lp);o.start()});
- const lfo=ac.createOscillator(),lg=ac.createGain();lfo.frequency.value=.12;lg.gain.value=80;lfo.connect(lg);lg.connect(lp.frequency);lfo.start();
+ g.gain.linearRampToValueAtTime(.09,ac.currentTime+2.5);lp.connect(g);g.connect(master);
+ [55,55.4,82.5].forEach(f=>{const o=ac.createOscillator();o.type=f>80?'sine':'sawtooth';o.frequency.value=f;o.connect(lp);o.start();oscs.push(o)});
+ const lfo=ac.createOscillator(),lg=ac.createGain();lfo.frequency.value=.12;lg.gain.value=80;lfo.connect(lg);lg.connect(lp.frequency);lfo.start();oscs.push(lfo);
  ambient=g;
  // Petits "bips de données" aléatoires
- (function blip(){if(!muted){const o=ac.createOscillator(),v=ac.createGain();o.type='square';o.frequency.value=600+Math.random()*1800;
+ (function blip(){if(ambientOn&&!muted){const o=ac.createOscillator(),v=ac.createGain();o.type='square';o.frequency.value=600+Math.random()*1800;
   v.gain.setValueAtTime(.012,ac.currentTime);v.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.06);o.connect(v);v.connect(master);o.start();o.stop(ac.currentTime+.07)}
   setTimeout(blip,250+Math.random()*1400)})();
 }
 function tone(f,d=.08,type='sine',v=.08,t0=0){if(!ac||muted)return;const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+t0;o.type=type;o.frequency.setValueAtTime(f,t);
  g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(master);o.start(t);o.stop(t+d+.02)}
 const DT={1:[697,1209],2:[697,1336],3:[697,1477],4:[770,1209],5:[770,1336],6:[770,1477],7:[852,1209],8:[852,1336],9:[852,1477],0:[941,1336]};
+function stopAmbient(){ambientOn=false;if(!ac||!ambient)return;const t=ac.currentTime;ambient.gain.cancelScheduledValues(t);ambient.gain.setValueAtTime(ambient.gain.value,t);ambient.gain.linearRampToValueAtTime(0,t+1.2);setTimeout(()=>oscs.forEach(o=>{try{o.stop()}catch(e){}}),1400)}
 const sKey=k=>{(DT[k]||[800,1200]).forEach(f=>tone(f,.09,'sine',.05))};
 const sDel=()=>tone(300,.07,'triangle',.08);
 const sErr=()=>{tone(110,.25,'sawtooth',.14);tone(90,.25,'sawtooth',.14,.18)};
 const sOk=()=>[523.25,659.25,783.99,1046.5,1318.5].forEach((f,i)=>{tone(f,1.6,'sine',.09,i*.14)});
-const sType=()=>tone(1400+Math.random()*400,.03,'square',.02);
+const sType=()=>{if(!ac||muted)return;const t=ac.currentTime,o=ac.createOscillator(),f=ac.createBiquadFilter(),g=ac.createGain();
+ o.type='square';o.frequency.setValueAtTime(900+Math.random()*700,t);o.frequency.exponentialRampToValueAtTime(260,t+.035);
+ f.type='lowpass';f.frequency.value=2600;g.gain.setValueAtTime(.035,t);g.gain.exponentialRampToValueAtTime(.0001,t+.045);
+ o.connect(f);f.connect(g);g.connect(master);o.start(t);o.stop(t+.05)};
 const IC_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>',
  IC_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
 $('mute').innerHTML=IC_ON;
@@ -179,29 +187,34 @@ $('mute').onclick=()=>{muted=!muted;$('mute').innerHTML=muted?IC_OFF:IC_ON;if(am
 
 /* ---------- INTRO ---------- */
 const G='01#%$@&<>/\\';
-async function type(el,txt,sp=45,tick){el.textContent='';const n=txt.length,steps=n*3;
+async function type(el,txt,sp=45,tick=sType){el.textContent='';const n=txt.length,steps=n*3;
  for(let i=0;i<=steps;i++){const k=Math.floor(i/3);let o=txt.slice(0,k);
   for(let j=k;j<Math.min(n,k+6);j++)o+=txt[j]===' '?' ':G[Math.random()*G.length|0];
   el.textContent=o;if(tick&&i%3===0)tick();await sleep(sp/2.2)}
  el.textContent=txt}
 const setBlur=on=>cv.classList.toggle('blur',on);
-(async()=>{
- await sleep(1200);setBlur(true);
- const L=["> connexion au réseau onion … <b>OK</b>","> 7 nœuds traversés. <b>trace effacée.</b>","> message intercepté.","> destinataire identifié … <b>1 / 1</b>","> déchiffrement du paquet …"];
- for(const l of L){const d=document.createElement('div');$('log').appendChild(d);const plain=l.replace(/<[^>]+>/g,'');
-  for(let k=1;k<=plain.length;k++){d.innerHTML=l.length===plain.length?plain.slice(0,k):(k===plain.length?l:plain.slice(0,k));await sleep(14)}await sleep(260)}
- await sleep(500);$('log').classList.add('off');await sleep(900);
- await type($('t1'),"BIENVENUE.",70);await sleep(1300);
- await type($('t1'),"AMAR A LAISSÉ QUELQUE CHOSE POUR TOI.",42);await sleep(700);
- await type($('t2'),"Ce message ne s'affichera qu'une seule fois.",30);
+async function amarWrite(box,lines){
+ const from=box.querySelector('.from'),st=from.querySelector('.st'),body=box.querySelector('.body');
+ st.textContent='Amar écrit…';from.classList.add('typing');await sleep(1600);
+ for(const l of lines){const p=document.createElement('p'),c=document.createElement('span');c.className='caret';body.appendChild(p);
+  for(let i=0;i<l.length;i++){p.textContent=l.slice(0,i+1);p.appendChild(c);const ch=l[i];if(ch!==' ')sType();
+   await sleep(/[.,…]/.test(ch)?300:45+Math.random()*60)}
+  c.remove();await sleep(700)}
+ from.classList.remove('typing');st.textContent='Amar';
+}
+async function startIntro(){
+ await sleep(500);setBlur(true);
+ await amarWrite($('msg1'),["Bonjour…","Si tu lis ces lignes, c'est que tu as ouvert le lien.","Je t'ai laissé quelque chose, bien caché derrière un code.","Je ne te dirai pas lequel… mais tu le connais déjà.","Bonne chance.","— Amar"]);
  $('enter').classList.add('show');
-})();
+}
 
 function fullscreen(){const e=document.documentElement;try{(e.requestFullscreen||e.webkitRequestFullscreen||e.mozRequestFullScreen||e.msRequestFullscreen).call(e)}catch(_){}}
-$('enter').onclick=async()=>{
+$('gate').onclick=()=>{
  fullscreen();initAudio();if(ac&&ac.state==='suspended')ac.resume();
+ $('mute').style.display='flex';$('gate').classList.remove('on');$('intro').classList.add('on');startIntro();
+};
+$('enter').onclick=()=>{
  [330,440,660].forEach((f,i)=>tone(f,.4,'sine',.07,i*.09));
- $('mute').style.display='flex';
  $('intro').classList.remove('on');$('vault').classList.add('on');
 };
 
@@ -226,9 +239,10 @@ draw();
 
 const HINTS=["Huit chiffres qui racontent le jour où tout a commencé.","Le jour d'abord, puis le mois, puis l'année. Dans cet ordre, sans rien d'autre.","Si tu n'as aucune idée : c'est la date de ton anniversaire."];
 let hn=0;
-$('hbtn').onclick=()=>{if(hn>=3||busy)return;const li=document.createElement('li');li.textContent=HINTS[hn++];$('hints').appendChild(li);
+async function showHint(){
+ if(hn>=3)return;const n=++hn,li=document.createElement('li');$('hints').appendChild(li);
  [660,880].forEach((f,i)=>tone(f,.15,'sine',.06,i*.08));
- const left=3-hn;if(left)$('hbtn').textContent='Un indice ('+left+' restant'+(left>1?'s':'')+')';else $('hbtn').style.display='none'};
+ await type(li,'Indice '+n+' : '+HINTS[n-1],26);}
 
 async function check(){
  busy=true;draw();const st=$('status'),p=$('panel');
@@ -236,11 +250,11 @@ async function check(){
  if(hash(val)!==CODE_HASH){
   sErr();if(navigator.vibrate)navigator.vibrate([80,40,80]);
   st.textContent='Accès refusé. Tentative enregistrée.';
-  p.classList.remove('shake');void p.offsetWidth;p.classList.add('shake');
+  p.classList.remove('shake');void p.offsetWidth;p.classList.add('shake');showHint();
   await sleep(500);p.classList.remove('shake');val='';busy=false;draw();return;
  }
  // Succès
- p.classList.add('ok');sOk();speed=4;setBlur(false);
+ p.classList.add('ok');stopAmbient();sOk();speed=4;setBlur(false);
  const chars='01#%$@&ABCDEF';let pct=0;st.innerHTML='Déchiffrement <div class="bar"><i id="pb"></i></div>';
  [...slots.children].forEach(s=>s.style.borderColor='#00ff41');
  for(pct=0;pct<=100;pct+=4){$('pb').style.width=pct+'%';[...slots.children].forEach(s=>{if(pct<100)s.textContent=chars[Math.random()*chars.length|0]});sType();await sleep(40)}
@@ -248,8 +262,9 @@ async function check(){
  $('wave').classList.add('go');$('flash').classList.add('go');await sleep(450);
  $('vault').classList.remove('on');$('win').classList.add('on');speed=1.6;setTimeout(()=>setBlur(true),1400);
  await sleep(400);
- await type($('welcome'),WELCOME,70,sType);
- $('wsub').style.opacity=1;await sleep(1200);$('drive').classList.add('show');
+ await type($('welcome'),"ACCÈS AUTORISÉ.",70,sType);await sleep(700);
+ await amarWrite($('msg2'),["Bravo Katia, tu as trouvé le code.","Tes documents sont à toi.","Prends ton temps… ils t'attendent.","— Amar"]);
+ await sleep(400);$('drive').classList.add('show');
 }
 })();
 </script>
