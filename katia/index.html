@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S3CUR3 V4ULT // ONION_NET</title>
+    <title>Le Grimoire Scellé</title>
+    <!-- Importation de polices médiévales et calligraphiques -->
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Great+Vibes&display=swap');
+
         :root {
-            --bg-color: #000000;
-            --term-green: #00ff41;
-            --error-red: #ff003c;
-            --glow: 0 0 10px var(--term-green), 0 0 20px var(--term-green);
+            --ink-color: #2c1b18; /* Marron très foncé, type encre séchée */
+            --parchment-bg: #e8dcc4;
+            --highlight: #8c2626; /* Rouge sceau de cire */
         }
 
         * {
@@ -20,9 +22,9 @@
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--term-green);
-            font-family: 'Courier New', Courier, monospace;
+            /* Effet vieux parchemin avec un vignettage sombre sur les bords */
+            background: radial-gradient(circle at center, #f0e6d2 0%, #d4b886 60%, #4a331c 100%);
+            color: var(--ink-color);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -31,240 +33,227 @@
             position: relative;
         }
 
-        /* Écran d'initialisation mystérieux */
+        /* Écran d'initialisation (Pour forcer le clic, le plein écran et le son) */
         #init-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
+            background: rgba(10, 5, 0, 0.95);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 999;
             cursor: pointer;
-            font-size: 14px;
-            color: rgba(0, 255, 65, 0.7);
+            font-family: 'Cinzel Decorative', serif;
+            color: #d4b886;
         }
 
-        .boot-sequence {
-            text-align: left;
-            width: 80%;
-            max-width: 600px;
+        .pulse-text {
+            font-size: 20px;
+            letter-spacing: 2px;
+            animation: pulse-light 2s infinite;
+            text-shadow: 0 0 15px rgba(212, 184, 134, 0.5);
         }
 
-        .boot-sequence p {
-            margin: 5px 0;
-            text-shadow: none;
+        @keyframes pulse-light {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; text-shadow: 0 0 25px rgba(212, 184, 134, 1); }
         }
 
-        .blink-text {
-            color: var(--term-green);
-            font-weight: bold;
-            margin-top: 20px;
-            display: block;
-            animation: blink 1.2s infinite;
-            text-shadow: 0 0 5px var(--term-green);
-        }
-
-        @keyframes blink {
-            0%, 49% { opacity: 1; }
-            50%, 100% { opacity: 0; }
-        }
-
-        /* Arrière-plan Matrix */
-        canvas {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1;
-        }
-
-        /* Scanlines */
-        .overlay {
+        /* Effet de lueur de bougie en surimpression */
+        .candle-flicker {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 4px, 3px 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 150, 50, 0.05), rgba(0, 0, 0, 0.3));
             pointer-events: none;
             z-index: 100;
+            animation: flicker 4s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.8; }
+            25% { opacity: 0.9; }
+            50% { opacity: 0.7; }
+            75% { opacity: 1; }
+            100% { opacity: 0.85; }
         }
 
         .container {
-            border: 1px solid rgba(0, 255, 65, 0.3);
-            padding: 40px;
+            padding: 50px;
             width: 90%;
-            max-width: 650px;
-            box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.05), 0 0 30px rgba(0, 0, 0, 0.9);
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(5px);
+            max-width: 700px;
+            background: url('https://www.transparenttextures.com/patterns/old-wall.png');
             position: relative;
             z-index: 10;
-            transition: all 0.3s ease;
+            transition: all 0.5s ease;
             display: none;
+            text-align: center;
         }
 
-        /* Tremblement d'erreur */
+        /* Secousse en cas de mauvaise réponse (coffre verrouillé) */
         .shake {
-            animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
-            border-color: var(--error-red) !important;
-            box-shadow: 0 0 20px rgba(255, 0, 60, 0.2) !important;
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
 
         @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
         }
 
-        .glitch-title {
-            text-align: center;
+        h2 {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 32px;
             margin-bottom: 25px;
-            font-size: 22px;
-            text-shadow: var(--glow);
-            letter-spacing: 4px;
-            position: relative;
+            color: var(--ink-color);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
 
-        p.desc { margin-bottom: 20px; font-size: 14px; opacity: 0.8; line-height: 1.6; }
+        /* La fameuse police calligraphique ancienne */
+        p { 
+            font-family: 'Great Vibes', cursive; 
+            font-size: 32px; 
+            margin-bottom: 30px; 
+            line-height: 1.4;
+            color: var(--ink-color);
+        }
 
         .input-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 25px;
-            background: #000;
-            border: 1px solid rgba(0, 255, 65, 0.5);
-            padding: 12px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--ink-color);
+            padding: 5px 0;
+            display: inline-block;
+            width: 60%;
         }
-
-        .prompt { margin-right: 10px; font-weight: bold; opacity: 0.8; }
 
         input {
             background: transparent;
             border: none;
-            color: var(--term-green);
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 18px;
+            color: var(--highlight);
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 24px;
             width: 100%;
+            text-align: center;
             outline: none;
             letter-spacing: 5px;
         }
 
         button {
-            width: 100%;
-            padding: 15px;
-            background: rgba(0, 255, 65, 0.05);
-            border: 1px solid var(--term-green);
-            color: var(--term-green);
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 15px;
+            padding: 15px 40px;
+            background: transparent;
+            border: 2px solid var(--ink-color);
+            color: var(--ink-color);
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.2s;
-            letter-spacing: 3px;
+            transition: 0.3s;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         button:hover {
-            background: var(--term-green);
-            color: var(--bg-color);
-            box-shadow: var(--glow);
+            background: var(--ink-color);
+            color: var(--parchment-bg);
+            box-shadow: 0 5px 15px rgba(44, 27, 24, 0.4);
         }
 
         #status-message {
-            margin-top: 15px;
-            text-align: center;
-            font-weight: bold;
-            height: 20px;
-            letter-spacing: 1px;
-            font-size: 14px;
+            margin-top: 20px;
+            font-family: 'Great Vibes', cursive;
+            font-size: 28px;
+            height: 30px;
         }
 
-        .error-text { color: var(--error-red); text-shadow: 0 0 10px rgba(255,0,60,0.5); }
+        .error-text { color: var(--highlight); font-weight: bold; }
         .hidden { display: none !important; }
 
+        /* Écran de succès */
         #success-content { text-align: center; }
 
         .welcome-msg {
-            font-size: 22px;
-            font-weight: bold;
-            text-shadow: var(--glow);
-            margin-bottom: 30px;
-            min-height: 35px;
+            font-family: 'Great Vibes', cursive;
+            font-size: 42px;
+            margin-bottom: 20px;
+            min-height: 50px;
+            color: var(--ink-color);
         }
 
-        .cursor {
+        .ink-cursor {
             display: inline-block;
-            width: 10px;
-            height: 20px;
-            background-color: var(--term-green);
-            animation: blink-cursor 0.8s infinite;
+            width: 3px;
+            height: 40px;
+            background-color: var(--ink-color);
+            animation: blink-cursor 1s infinite;
             vertical-align: text-bottom;
             margin-left: 5px;
         }
 
+        @keyframes blink-cursor {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
         .drive-btn {
             display: inline-block;
-            margin-top: 25px;
+            margin-top: 35px;
             padding: 15px 30px;
-            border: 1px solid var(--term-green);
-            color: var(--term-green);
+            border: 2px solid var(--highlight);
+            color: var(--highlight);
+            font-family: 'Cinzel Decorative', serif;
             text-decoration: none;
             font-weight: bold;
-            font-size: 16px;
-            background: rgba(0, 255, 65, 0.05);
-            transition: 0.3s;
+            font-size: 18px;
+            transition: 0.4s;
             opacity: 0;
-            animation: fade-in 1s forwards;
-            animation-delay: 2s;
+            animation: fade-in 2s forwards;
+            animation-delay: 3s;
         }
 
         .drive-btn:hover {
-            background: var(--term-green);
-            color: var(--bg-color);
-            box-shadow: var(--glow);
+            background: var(--highlight);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(140, 38, 38, 0.6);
         }
 
         @keyframes fade-in { to { opacity: 1; } }
     </style>
 </head>
 <body>
-    <!-- Écran mystérieux d'attente (remplace le bouton basique) -->
+    
+    <!-- Lueur de la bougie -->
+    <div class="candle-flicker"></div>
+
+    <!-- Écran cliquable pour lancer Fullscreen & Audio -->
     <div id="init-overlay">
-        <div class="boot-sequence">
-            <p>> root_kernel loaded.</p>
-            <p>> enc_protocol: RSA-4096 [OK]</p>
-            <p>> noeud_anonyme: connecté (ping 12ms)</p>
-            <p>> attente_opérateur_local...</p>
-            <span class="blink-text">_ APPUYEZ POUR DÉVERROUILLER L'INTERFACE _</span>
-        </div>
+        <span class="pulse-text">Apposez votre main pour dévoiler le grimoire...</span>
     </div>
 
-    <canvas id="matrix-canvas"></canvas>
-    <div class="overlay"></div>
-
     <div class="container" id="main-container">
+        <!-- Interface de connexion -->
         <div id="vault-interface">
-            <h2 class="glitch-title">TARGET_LOCKED // VAULT_9</h2>
-            <p class="desc">Déchiffrement requis. Entrez la clé cryptographique pour outrepasser le pare-feu :</p>
+            <h2>~ Le Sceau Millénaire ~</h2>
+            <p>Oyez, noble voyageur. Nul ne franchit cette porte sans la clé ancienne. Inscrivez le code secret pour révéler les mystères enfouis dans ce coffre.</p>
             
             <div class="input-group">
-                <span class="prompt">sys.auth></span>
-                <input type="password" id="password-input" placeholder="********" autocomplete="off">
+                <input type="password" id="password-input" placeholder="••••••••" autocomplete="off">
             </div>
-            
-            <button id="unlock-btn">EXÉCUTER_</button>
+            <br>
+            <button id="unlock-btn">Briser le sceau</button>
             <div id="status-message"></div>
         </div>
 
+        <!-- Contenu caché (Succès) -->
         <div id="success-content" class="hidden">
             <div class="welcome-msg">
-                <span id="typed-text"></span><span class="cursor"></span>
+                <span id="typed-text"></span><span class="ink-cursor"></span>
             </div>
-            <p class="desc" style="animation: fade-in 1s forwards; opacity: 0; animation-delay: 1.5s;">
-                [ PARE-FEU DÉSACTIVÉ ]<br>
-                Tunnel sécurisé établi avec succès.
+            <p style="animation: fade-in 2s forwards; opacity: 0; animation-delay: 1.5s; font-size: 34px;">
+                C’est avec un profond respect que je reconnais la grandeur de ton âme.<br>
+                Le vieux mécanisme cède... le trésor t'est offert.
             </p>
             
-            <a href="https://drive.google.com/drive/folders/1F1SejHw6A3Sy0sbu6mIXjn9gULtjDKi6" target="_blank" class="drive-btn">>> ENTRER DANS LE COFFRE <<</a>
+            <a href="https://drive.google.com/drive/folders/1F1SejHw6A3Sy0sbu6mIXjn9gULtjDKi6" target="_blank" class="drive-btn">~ Découvrir le Trésor ~</a>
         </div>
     </div>
 
@@ -284,44 +273,18 @@
 
         initOverlay.addEventListener('click', () => {
             enterFullScreen();
-            initAudio(); // Débloque le système sonore
-            initOverlay.style.display = 'none'; 
-            mainContainer.style.display = 'block'; 
-            input.focus(); 
+            initAudio(); // Débloque le son
+            initOverlay.style.opacity = '0';
+            setTimeout(() => {
+                initOverlay.style.display = 'none'; 
+                mainContainer.style.display = 'block'; 
+                // Petite animation d'apparition douce
+                mainContainer.animate([{opacity: 0}, {opacity: 1}], {duration: 1500, fill: 'forwards'});
+                input.focus(); 
+            }, 500);
         });
 
-        // --- 1. EFFET MATRIX (0 et 1) ---
-        const canvas = document.getElementById('matrix-canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        
-        const chars = '01';
-        const fontSize = 14;
-        const columns = canvas.width / fontSize;
-        const drops = [];
-        for (let x = 0; x < columns; x++) drops[x] = 1;
-        
-        function drawMatrix() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'; 
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#0F0'; 
-            ctx.font = fontSize + 'px monospace';
-            
-            for (let i = 0; i < drops.length; i++) {
-                const text = chars.charAt(Math.floor(Math.random() * chars.length));
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
-            }
-        }
-        setInterval(drawMatrix, 50);
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-
-        // --- 2. GESTION DES SONS HACKER (Web Audio API) ---
+        // --- 1. GESTION DES SONS ACOUSTIQUES (Web Audio API) ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
 
@@ -330,79 +293,61 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        // Frappe de clavier : Cliquetis très sec de vieux terminal
-        function soundType() {
+        // Son de frappe : Bruit sec façon plume grattant le papier
+        function soundQuill() {
             if (!audioCtx) return;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(1500 + Math.random() * 1000, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.02);
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(200 + Math.random() * 50, audioCtx.currentTime); // Basse fréquence étouffée
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.02);
+            osc.stop(audioCtx.currentTime + 0.08);
         }
 
-        // Erreur : Bourdonnement de piratage échoué (Glitch)
-        function soundError() {
+        // Son Erreur : Lourd battant de bois / Tambour sourd
+        function soundThud() {
             if (!audioCtx) return;
-            const playGlitch = (time, freq) => {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime + time);
-                gain.gain.setValueAtTime(0.08, audioCtx.currentTime + time);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + time + 0.1);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start(audioCtx.currentTime + time);
-                osc.stop(audioCtx.currentTime + time + 0.1);
-            };
-            playGlitch(0, 150);
-            playGlitch(0.08, 100);
-            playGlitch(0.16, 50);
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.3); // Chute très grave
+            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.5);
         }
 
-        // Succès : Décryptage de données rapide puis validation
-        function soundSuccess() {
+        // Son Accès Autorisé : Carillon magique / Harpe ancienne
+        function soundChime() {
             if (!audioCtx) return;
-            
-            // Phase 1 : Séquence de données rapide
-            for (let i = 0; i < 10; i++) {
+            // Arpège féérique
+            const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; 
+            notes.forEach((freq, i) => {
                 setTimeout(() => {
                     const osc = audioCtx.createOscillator();
                     const gain = audioCtx.createGain();
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(800 + Math.random() * 800, audioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05); 
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.5); // Résonance longue
+                    
                     osc.connect(gain);
                     gain.connect(audioCtx.destination);
                     osc.start();
-                    osc.stop(audioCtx.currentTime + 0.05);
-                }, i * 40);
-            }
-
-            // Phase 2 : Son d'ouverture propre
-            setTimeout(() => {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(2000, audioCtx.currentTime + 0.5);
-                gain.gain.setValueAtTime(0, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.1);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 1);
-            }, 450);
+                    osc.stop(audioCtx.currentTime + 2.5);
+                }, i * 120);
+            });
         }
 
-        // --- 3. LOGIQUE ---
+        // --- 2. LOGIQUE DE CONNEXION ---
         const btn = document.getElementById('unlock-btn');
         const statusMsg = document.getElementById('status-message');
         const vaultInterface = document.getElementById('vault-interface');
@@ -410,15 +355,18 @@
         const typedTextElement = document.getElementById('typed-text');
 
         const SECRET_CODE = "25052003";
-        const WELCOME_MESSAGE = "Bienvenue mademoiselle Katia Talbi.";
+        // Le message écrit façon ancienne lettre
+        const WELCOME_MESSAGE = "Salutations, noble Dame Katia Talbi.";
 
-        input.addEventListener('input', soundType);
+        // Son de plume à chaque touche pressée
+        input.addEventListener('input', soundQuill);
 
+        // Effet d'écriture manuelle calligraphique
         function typeWriter(text, i) {
             if (i < text.length) {
                 typedTextElement.innerHTML += text.charAt(i);
-                soundType(); 
-                let speed = Math.random() * (90 - 30) + 30; 
+                if(text.charAt(i) !== ' ') soundQuill(); // Jouer le son de plume sauf sur les espaces
+                let speed = Math.random() * (150 - 60) + 60; // Vitesse variable simulant l'écriture humaine
                 setTimeout(() => typeWriter(text, i + 1), speed);
             }
         }
@@ -428,21 +376,27 @@
             
             if (enteredCode === SECRET_CODE) {
                 mainContainer.classList.remove('shake');
-                statusMsg.textContent = "BYPASS DU FIREWALL...";
-                statusMsg.style.color = "var(--term-green)";
+                
+                statusMsg.textContent = "Le sceau fond sous la chaleur de la vérité...";
+                statusMsg.style.color = "var(--ink-color)";
                 input.disabled = true;
                 btn.disabled = true;
                 
-                soundSuccess();
+                soundChime(); // Déclenchement de la musique magique
                 
                 setTimeout(() => {
                     vaultInterface.classList.add('hidden');
                     successContent.classList.remove('hidden');
-                    setTimeout(() => typeWriter(WELCOME_MESSAGE, 0), 300);
-                }, 1200);
+                    
+                    // Lancer l'animation d'écriture après un instant
+                    setTimeout(() => {
+                        typeWriter(WELCOME_MESSAGE, 0);
+                    }, 600);
+
+                }, 2000);
             } else {
-                soundError();
-                statusMsg.textContent = "CLÉ REJETÉE - ALERTE DÉCLENCHÉE";
+                soundThud(); // Bruit du coffre fermé
+                statusMsg.textContent = "Mots maudits ! Le sceau résiste.";
                 statusMsg.className = "error-text";
                 
                 mainContainer.classList.remove('shake');
