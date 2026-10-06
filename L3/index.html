@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome to Miss Halli's Course – Introduction to Marketing</title>
+<style>
+:root{--blue:#1e3cff;--ink:#101a4a;--sun:#ffc933;--pink:#ff5c8a;--mint:#12b886;--paper:#fff9ec;--card:#fff;--line:#e6dcc3}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{font-family:"Avenir Next","Trebuchet MS","Segoe UI",sans-serif;background:var(--paper);color:var(--ink);line-height:1.55}
+h1,h2,h3{font-family:Georgia,"Palatino Linotype",serif;line-height:1.1}
+button{font:inherit;cursor:pointer;border:0}
+:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+#bar{position:fixed;top:0;left:0;height:5px;width:0;background:linear-gradient(90deg,var(--pink),var(--sun));z-index:50;transition:width .2s}
+nav{position:sticky;top:5px;z-index:40;display:flex;gap:6px;overflow-x:auto;padding:10px 14px;background:rgba(255,249,236,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav a{white-space:nowrap;text-decoration:none;color:var(--ink);font-weight:700;font-size:.85rem;padding:6px 12px;border-radius:99px}
+nav a:hover{background:var(--sun)}
+#score-pill{margin-left:auto;background:var(--ink);color:var(--sun);padding:6px 14px;border-radius:99px;font-weight:800;font-size:.85rem;white-space:nowrap}
+.hero{background:var(--blue);color:#fff;padding:70px 20px 90px;position:relative;overflow:hidden;text-align:center}
+.hero .tag{display:inline-block;transform-origin:50% -40px;animation:swing 3s ease-in-out infinite;background:var(--sun);color:var(--ink);padding:26px 30px 20px;border-radius:12px 12px 22px 22px;position:relative;margin-bottom:34px;box-shadow:0 14px 30px rgba(0,0,0,.25)}
+.hero .tag::before{content:"";position:absolute;top:8px;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--blue)}
+.hero .tag::after{content:"";position:absolute;top:-40px;left:50%;width:2px;height:48px;background:#fff}
+.tag small{display:block;font-weight:800;margin-top:10px;font-size:.8rem}
+.tag b{font-family:Georgia,serif;font-size:2.4rem}
+@keyframes swing{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+.hero h1{font-size:clamp(2.2rem,7vw,4.6rem);max-width:900px;margin:0 auto 16px}
+.hero h1 span{display:inline-block;opacity:0;transform:translateY(30px) rotate(4deg);animation:pop .6s forwards}
+@keyframes pop{to{opacity:1;transform:none}}
+.hero p{max-width:600px;margin:0 auto 26px;font-size:1.1rem;opacity:.92}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:760px;margin:0 auto 30px}
+.chips i{font-style:normal;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);padding:6px 14px;border-radius:99px;font-size:.88rem}
+.btn{background:var(--sun);color:var(--ink);font-weight:800;padding:14px 30px;border-radius:99px;font-size:1.05rem;text-decoration:none;display:inline-block;box-shadow:0 5px 0 #c9971a;transition:transform .15s}
+.btn:hover{transform:translateY(-3px)}.btn:active{transform:translateY(3px);box-shadow:none}
+.blob{position:absolute;border-radius:50%;opacity:.5;animation:float 8s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-30px) scale(1.08)}}
+section{padding:64px 20px;max-width:980px;margin:auto}
+section>h2{font-size:clamp(1.8rem,4vw,2.6rem);margin-bottom:8px}
+.sub{margin-bottom:26px;max-width:640px;color:#44507f}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.card{background:var(--card);border:2px solid var(--ink);border-radius:16px;padding:18px;box-shadow:5px 5px 0 var(--ink)}
+.reveal{opacity:0;transform:translateY(24px);transition:.7s}.reveal.in{opacity:1;transform:none}
+.q{cursor:pointer;min-height:90px;display:flex;align-items:center;font-weight:700;transition:transform .2s}
+.q:hover{transform:rotate(-1.5deg)}
+.flip{perspective:700px;height:150px;cursor:pointer;background:none;border:0;padding:0;text-align:left}
+.flip>div{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
+.flip.on>div{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border:2px solid var(--ink);border-radius:16px;padding:14px;display:flex;flex-direction:column;justify-content:center}
+.flip .f{background:var(--card);font-family:Georgia,serif;font-size:1.4rem;font-weight:700;align-items:center;text-align:center}
+.flip .b{background:var(--pink);color:#fff;transform:rotateY(180deg);font-size:.88rem}
+.flip .b em{font-size:.8rem;opacity:.9;margin-top:6px}
+.steps{display:flex;flex-direction:column;gap:12px}
+.step{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:2px solid var(--ink);border-radius:16px;padding:14px 18px;text-align:left;width:100%;transition:.3s;opacity:.55}
+.step.on{opacity:1;background:var(--sun);transform:translateX(10px)}
+.step b{background:var(--ink);color:var(--sun);width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:none}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.tab{background:var(--card);border:2px solid var(--ink);padding:10px 20px;border-radius:99px;font-weight:800}
+.tab.on{background:var(--ink);color:var(--sun)}
+.panel{display:none;animation:pop .5s forwards;opacity:0}.panel.on{display:block}
+.panel li{margin:6px 0 6px 20px}
+table{width:100%;border-collapse:collapse;background:var(--card);border:2px solid var(--ink);border-radius:12px;overflow:hidden;margin-top:10px}
+td,th{padding:10px 14px;border-bottom:1px solid var(--line);text-align:left}th{background:var(--ink);color:var(--sun)}
+.game{background:var(--ink);color:#fff;border-radius:24px;padding:28px;text-align:center}
+.game h3{font-size:1.5rem;margin-bottom:6px}
+.stmt{background:#fff;color:var(--ink);border-radius:16px;padding:22px;margin:18px auto;max-width:520px;font-weight:700;font-size:1.1rem;min-height:70px;display:grid;place-items:center;transition:transform .3s}
+.stmt.shake{animation:shake .4s}.stmt.ok{animation:jump .5s}
+@keyframes shake{25%{transform:translateX(-12px)}75%{transform:translateX(12px)}}
+@keyframes jump{40%{transform:translateY(-16px) scale(1.04)}}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.opt{background:var(--sun);color:var(--ink);font-weight:800;padding:12px 22px;border-radius:14px;box-shadow:0 4px 0 #c9971a;transition:transform .1s}
+.opt:hover{transform:translateY(-2px)}
+.opt.good{background:var(--mint);color:#fff;box-shadow:0 4px 0 #0a7d5b}.opt.bad{background:var(--pink);color:#fff;box-shadow:0 4px 0 #b8335a}
+.meta{font-weight:800;color:var(--sun);margin-top:8px;min-height:1.5em}
+.field{display:grid;gap:10px;margin-bottom:14px}
+.field label{font-weight:800;font-size:.9rem}
+input,textarea{font:inherit;width:100%;padding:10px 14px;border:2px solid var(--ink);border-radius:12px;background:#fff}
+.out{background:var(--card);border:2px dashed var(--ink);border-radius:16px;padding:18px;margin-top:14px;white-space:pre-wrap;display:none}
+.timer{font-family:Georgia,serif;font-size:2.4rem;font-weight:700}
+.phrases{display:flex;flex-wrap:wrap;gap:8px}
+.phrases button{background:var(--card);border:2px solid var(--ink);padding:8px 14px;border-radius:99px;font-weight:600}
+.phrases button:hover{background:var(--sun)}
+details{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:12px 16px;margin-bottom:10px}
+summary{font-weight:800;cursor:pointer}
+footer{background:var(--ink);color:#fff;text-align:center;padding:40px 20px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,100px);background:var(--ink);color:var(--sun);padding:12px 22px;border-radius:99px;font-weight:800;transition:.4s;z-index:60}
+#toast.show{transform:translate(-50%,0)}
+canvas{position:fixed;inset:0;pointer-events:none;z-index:70}
+.arena{background:#fff;color:var(--ink);border:2px solid var(--ink);border-radius:28px;box-shadow:8px 8px 0 var(--sun);overflow:hidden;text-align:left}
+.ahead{display:flex;align-items:center;gap:14px;padding:16px 22px;background:var(--blue);color:#fff;font-weight:800}
+.pbar{flex:1;height:12px;border-radius:9px;background:rgba(255,255,255,.25);overflow:hidden}
+.pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--sun),var(--pink));border-radius:9px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.abody{padding:26px 22px;min-height:400px}
+.slide{animation:slideIn .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes slideIn{from{opacity:0;transform:translateX(50px)}}
+.cat{display:inline-block;background:var(--sun);font-weight:800;font-size:.8rem;padding:4px 12px;border-radius:99px;margin-bottom:12px}
+.aq{font-size:clamp(1.3rem,3vw,1.8rem);margin-bottom:20px}
+.ao{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-radius:16px;padding:13px 16px;margin-bottom:10px;font-weight:700;transition:transform .2s,background .3s,box-shadow .2s}
+.ao:hover:not(:disabled){transform:translateX(8px);background:#fff3c4;box-shadow:-5px 0 0 var(--sun)}
+.ao b{width:34px;height:34px;flex:none;border-radius:10px;background:var(--ink);color:var(--sun);display:grid;place-items:center;transition:.3s}
+.ao.good{background:var(--mint);color:#fff;animation:jump .5s}.ao.good b{background:#fff;color:var(--mint)}
+.ao.bad{background:var(--pink);color:#fff;animation:shake .4s}.ao.bad b{background:#fff;color:var(--pink)}
+.ao:disabled{cursor:default}.ao:disabled:not(.good):not(.bad){opacity:.45}
+.why{max-height:0;overflow:hidden;opacity:0;transition:max-height .5s,opacity .5s,margin .5s,padding .5s;background:#eaf0ff;border-left:6px solid var(--blue);border-radius:12px;padding:0 16px}
+.why.show{max-height:180px;opacity:1;margin-top:8px;padding:12px 16px}
+.anext{display:flex;justify-content:flex-end;margin-top:14px;min-height:50px}
+.anext .opt{animation:pop .4s forwards;opacity:0}
+.ring{display:block;margin:0 auto 10px}.ring circle{fill:none;stroke-width:12;stroke-linecap:round}
+.ring .tr{stroke:var(--line)}.ring .pg{stroke:var(--mint);stroke-dasharray:339.3;stroke-dashoffset:339.3;transition:stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1);transform:rotate(-90deg);transform-origin:50% 50%}
+.res{text-align:center}.res h3{font-size:1.8rem}
+.cats{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+.cats button{background:var(--paper);border:2px solid var(--ink);border-radius:99px;padding:10px 18px;font-weight:800;transition:.2s}
+.cats button.on{background:var(--ink);color:var(--sun);transform:scale(1.05)}
+.keys{font-size:.8rem;color:#6b749c;margin-top:8px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.hero h1 span{opacity:1;transform:none}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<canvas id="cv"></canvas>
+<div id="toast"></div>
+<nav>
+<a href="#warm">Warm-up</a><a href="#vocab">Vocabulary</a><a href="#vs">Marketing vs Selling</a><a href="#process">Process</a><a href="#ps">The 4 Ps</a><a href="#games">Games</a><a href="#team">Marketing Team</a><a href="#exit">Exit</a>
+<span id="score-pill">⭐ 0 pts</span>
+</nav>
+
+<header class="hero">
+<div class="blob" style="width:220px;height:220px;background:var(--pink);left:-60px;top:80px"></div>
+<div class="blob" style="width:160px;height:160px;background:var(--sun);right:-30px;bottom:30px;animation-delay:-3s"></div>
+<div class="tag"><b>Lesson 1</b><small>L3 MARKETING</small></div>
+<h1 id="title"></h1>
+<p>Specialised English: Introduction to Marketing. Learn the words, play the games, and build your own marketing pitch.</p>
+<div class="chips"><i>Explain what marketing is</i><i>Marketing vs selling</i><i>Identify the 4Ps</i><i>Use marketing vocabulary</i><i>Write a marketing description</i></div>
+<a class="btn" href="#warm">Start the lesson</a>
+</header>
+
+<section id="warm">
+<h2>Why do we buy?</h2>
+<p class="sub">Think of a product you bought recently. Tap a card, then discuss it with a partner.</p>
+<div class="grid" id="warmGrid"></div>
+</section>
+
+<section id="vocab">
+<h2>What is marketing?</h2>
+<p class="sub reveal">Marketing is the process of understanding customers, creating value for them, communicating with them, and making products or services available to the right people. It is not only advertising. Tap each card to flip it.</p>
+<div class="grid" id="vocabGrid"></div>
+<p class="meta" id="vocabMeta" style="color:var(--blue)"></p>
+<h3 style="margin:34px 0 12px">Why is marketing important?</h3>
+<div class="grid">
+<div class="card reveal">🔍 Understand customer needs</div><div class="card reveal">🏆 Stand out from competitors (Apple vs Samsung)</div><div class="card reveal">💙 Build brand and loyalty</div><div class="card reveal">📈 Grow the business and sales</div><div class="card reveal">🎁 Give customers good value</div>
+</div>
+</section>
+
+<section id="vs">
+<h2>Marketing vs. selling</h2>
+<p class="sub">Selling is only one part of the process. Sort each statement into the right side.</p>
+<div class="game">
+<h3>Sort it!</h3><div class="meta" id="sortMeta"></div>
+<div class="stmt" id="sortCard"></div>
+<div class="row"><button class="opt" data-a="S">💰 Selling</button><button class="opt" data-a="M">🧭 Marketing</button></div>
+</div>
+</section>
+
+<section id="process">
+<h2>The marketing process</h2>
+<p class="sub">Tap the steps in order to follow what a company does.</p>
+<div class="steps" id="steps"></div>
+</section>
+
+<section id="ps">
+<h2>The marketing mix: the 4 Ps</h2>
+<p class="sub">The set of decisions a company makes to offer a product successfully.</p>
+<div class="tabs" id="tabs"></div><div id="panels"></div>
+<h3 style="margin:30px 0 4px">Real-life example: Starbucks</h3>
+<table><tr><th>P</th><th>Starbucks</th></tr>
+<tr><td>Product</td><td>Coffee, tea, snacks and a comfortable place to relax</td></tr>
+<tr><td>Price</td><td>Higher than ordinary cafes (premium image)</td></tr>
+<tr><td>Place</td><td>Stores in many countries, drive-thru, mobile ordering</td></tr>
+<tr><td>Promotion</td><td>Rewards app, seasonal drinks, social media</td></tr></table>
+<p style="margin-top:10px"><b>Target market:</b> young professionals and students who want quality and a pleasant atmosphere.</p>
+</section>
+
+<section id="games">
+<h2>Game zone</h2>
+<p class="sub">Two challenges. Build a streak for bonus points.</p>
+<div class="game" style="margin-bottom:26px">
+<h3>Which P is it?</h3><div class="meta" id="pMeta"></div>
+<div class="stmt" id="pCard"></div>
+<div class="row" id="pBtns"></div>
+</div>
+<h3 style="font-size:1.8rem;margin:34px 0 14px">Quiz arena: 24 multiple-choice questions</h3>
+<div class="arena" id="arena"></div>
+</section>
+
+<section id="team">
+<h2>Be the marketing team</h2>
+<p class="sub">Choose a product (smartphone, coffee shop, sports shoes, cosmetics, delivery app, clothing brand). Fill in your 4Ps, build your pitch, then present in 1–2 minutes.</p>
+<div class="phrases" id="phrases" style="margin-bottom:20px"></div>
+<div class="field">
+<label>Product name and type<input id="f0" placeholder="e.g. Brew Lab – a coffee shop"></label>
+<label>Target market<input id="f5" placeholder="e.g. students and young professionals"></label>
+<label>Product: features and benefits<textarea id="f1" rows="2"></textarea></label>
+<label>Price: what and why?<textarea id="f2" rows="2"></textarea></label>
+<label>Place: where will customers buy?<textarea id="f3" rows="2"></textarea></label>
+<label>Promotion: which channel?<textarea id="f4" rows="2"></textarea></label>
+</div>
+<div class="row" style="justify-content:flex-start"><button class="opt" id="build">Build my pitch</button><button class="opt" id="start" style="background:var(--pink);color:#fff;box-shadow:0 4px 0 #b8335a">Start 2-minute timer</button><span class="timer" id="tm">2:00</span></div>
+<div class="out" id="out"></div>
+</section>
+
+<section id="exit">
+<h2>Exit questions</h2>
+<p class="sub">Think of your answer first, then open the card to check.</p>
+<details><summary>1. What is marketing?</summary>Understanding customers, creating value, communicating with them and making products available to the right people.</details>
+<details><summary>2. What is the difference between marketing and selling?</summary>Selling is one part of the process aimed at a quick sale. Marketing is the whole process aimed at long-term relationships.</details>
+<details><summary>3. What are the 4Ps?</summary>Product, Price, Place, Promotion.</details>
+<details><summary>4. Why is knowing the target market important?</summary>It helps the company create, price, promote and sell to the right customers.</details>
+<details><summary>5. Give one example of a promotional channel.</summary>Social media, TV or online ads, influencers, discounts, loyalty cards.</details>
+<div class="card" style="margin-top:20px;background:var(--sun)"><b>Homework:</b> Choose a brand you know well. Find or observe one example of its marketing activity. Prepare a 1-minute explanation of how it uses at least two of the 4Ps.</div>
+</section>
+
+<footer><h3 style="font-size:1.6rem;margin-bottom:8px">Well done! 🎉</h3><p>See you next lesson. – Miss Halli</p></footer>
+
+<script>
+const $=s=>document.querySelector(s),el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h)e.innerHTML=h;return e};
+const shuffle=a=>[...a].sort(()=>Math.random()-.5);
+let pts=0;
+function add(n){pts+=n;$('#score-pill').textContent='⭐ '+pts+' pts';toast('+'+n+' pts')}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1100)}
+
+/* title animation */
+"Welcome to Miss Halli's course".split(' ').forEach((w,i)=>{const s=el('span','',w+'&nbsp;');s.style.animationDelay=(i*.15+.2)+'s';$('#title').append(s)});
+
+/* progress + reveal */
+addEventListener('scroll',()=>{const h=document.documentElement;$('#bar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%'});
+const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting&&e.target.classList.add('in')),{threshold:.2});
+document.querySelectorAll('.reveal').forEach(e=>io.observe(e));
+
+/* confetti */
+const cv=$('#cv'),cx=cv.getContext('2d');let ps=[];
+function burst(){cv.width=innerWidth;cv.height=innerHeight;for(let i=0;i<90;i++)ps.push({x:innerWidth/2,y:innerHeight/2,vx:(Math.random()-.5)*16,vy:Math.random()*-14-2,c:['#ffc933','#ff5c8a','#12b886','#1e3cff'][i%4],s:Math.random()*8+4});if(ps.length<=90)tick()}
+function tick(){cx.clearRect(0,0,cv.width,cv.height);ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.45;cx.fillStyle=p.c;cx.fillRect(p.x,p.y,p.s,p.s)});ps=ps.filter(p=>p.y<cv.height);ps.length?requestAnimationFrame(tick):cx.clearRect(0,0,cv.width,cv.height)}
+
+/* warm-up */
+const wq=["Why did you choose this product?","How did you hear about it?","What made you prefer it to another product?","What do you think the company did to attract you?"];
+wq.forEach((q,i)=>{const c=el('button','card q',['💭','📣','⚖️','🎯'][i]+'&nbsp;'+q);c.onclick=()=>{c.style.background='var(--sun)'};$('#warmGrid').append(c)});
+
+/* vocab */
+const V=[["Customer","a person who buys or uses a product or service","The company wants to understand its customers."],["Market","customers and businesses that buy and sell","The company entered a new market."],["Product","a good or service offered to customers","The company launched a new product."],["Service","an activity provided for a customer","The bank offers online services."],["Brand","a name, identity or image that makes a product different","The brand has a strong identity."],["Target market","the group of customers a company wants to reach","Teenagers are the target market."],["Competitor","a company that offers a similar product","Our main competitor has lower prices."],["Value","the benefits customers believe they receive","Customers expect good value for money."],["Promotion","communication used to inform or persuade customers","The company uses social media for promotion."]];
+let seen=new Set;
+V.forEach((v,i)=>{const b=el('button','flip','<div><div class="f">'+v[0]+'</div><div class="b"><span>'+v[1]+'</span><em>“'+v[2]+'”</em></div></div>');b.onclick=()=>{b.classList.toggle('on');if(!seen.has(i)){seen.add(i);add(2);$('#vocabMeta').textContent=seen.size+' / 9 words discovered';if(seen.size==9)burst()}};$('#vocabGrid').append(b)});
+
+/* sorting game */
+const S=[["Persuading customers to buy","S"],["Understanding customer needs","M"],["Starts when the product is ready","S"],["Starts before the product exists","M"],["One part of the process","S"],["The whole process","M"],["Goal: a quick sale","S"],["Goal: long-term relationships","M"]];
+let si=0,sOrder=shuffle(S),sOk=0;
+function sShow(){const c=$('#sortCard');if(si>=sOrder.length){c.textContent='Finished! '+sOk+' / '+sOrder.length+' correct. Tap to replay.';c.onclick=()=>{si=0;sOk=0;sOrder=shuffle(S);c.onclick=null;sShow()};if(sOk>=6)burst();return}c.textContent=sOrder[si][0];$('#sortMeta').textContent='Card '+(si+1)+' / '+sOrder.length}
+document.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{if(si>=sOrder.length)return;const c=$('#sortCard'),ok=b.dataset.a==sOrder[si][1];c.classList.remove('shake','ok');void c.offsetWidth;c.classList.add(ok?'ok':'shake');if(ok){sOk++;add(3)}si++;setTimeout(sShow,450)});
+sShow();
+
+/* process */
+const P=[["Research","Finds out what customers want and who the competitors are"],["Develop the product","Creates something that gives value"],["Set the price","Chooses a price customers accept"],["Promote","Tells customers about the product"],["Distribute and build relationships","Makes the product available and keeps customers happy"]];
+let stp=0;
+P.forEach((p,i)=>{const b=el('button','step','<b>'+(i+1)+'</b><span><strong>'+p[0]+'</strong><br>'+p[1]+'</span>');b.onclick=()=>{if(i==stp){b.classList.add('on');stp++;add(2);if(stp==5){burst();stp=0;setTimeout(()=>document.querySelectorAll('.step').forEach(s=>s.classList.remove('on')),2500)}}else toast('Follow the order: step '+(stp+1)+' next')};$('#steps').append(b)});
+
+/* 4Ps */
+const F=[["Product","What are we offering? What features and benefits?",["A good (smartphone, sports shoes) or a service (a bank, a delivery app)","Features = what it has. Benefits = how it helps the customer","A brand is its name and image (Nike, Apple)","Coffee shop: specialty coffee, pastries, a comfortable study space"]],["Price","How much will customers pay?",["The company thinks about costs, competitors' prices, the value customers expect and the target market","Low price: IKEA. Premium price: Rolex. Discounts: Black Friday","Coffee shop: affordable for students and young professionals"]],["Place","Where and how will customers buy it?",["Shops (Zara), online (Amazon), delivery (Uber Eats)","Coca-Cola is sold almost everywhere: supermarkets, cafes, vending machines","Coffee shop: city-centre location + online ordering and delivery"]],["Promotion","How will we communicate with and persuade customers?",["Social media, TV and online ads, influencers, discounts, loyalty cards","Slogan example: Nike – “Just Do It”","Coffee shop: Instagram content, opening discounts, loyalty offers"]]];
+F.forEach((f,i)=>{const t=el('button','tab'+(i?'':' on'),f[0]);const p=el('div','panel card'+(i?'':' on'),'<h3>'+f[0]+'</h3><p><i>'+f[1]+'</i></p><ul>'+f[2].map(x=>'<li>'+x+'</li>').join('')+'</ul>');t.onclick=()=>{document.querySelectorAll('.tab,.panel').forEach(e=>e.classList.remove('on'));t.classList.add('on');p.classList.add('on')};$('#tabs').append(t);$('#panels').append(p)});
+
+/* generic quiz engine */
+function quiz(card,btns,meta,items,opts,done){let i=0,ok=0,streak=0,list=shuffle(items);
+function show(){const c=$(card),b=$(btns);b.innerHTML='';if(i>=list.length){c.textContent='Score: '+ok+' / '+list.length;$(meta).textContent='';if(ok>=list.length-1)burst();const r=el('button','opt','Play again');r.onclick=()=>{i=0;ok=0;streak=0;list=shuffle(items);show()};b.append(r);return}
+c.textContent=list[i][0];$(meta).textContent='Question '+(i+1)+' / '+list.length+(streak>1?'  🔥 streak '+streak:'');
+(list[i][2]||opts).forEach(o=>{const x=el('button','opt',o);x.onclick=()=>{const good=o==list[i][1];b.querySelectorAll('button').forEach(y=>{y.disabled=true;if(y.textContent==list[i][1])y.classList.add('good')});if(good){ok++;streak++;add(3+(streak>2?2:0))}else{x.classList.add('bad');streak=0}i++;setTimeout(show,900)};b.append(x)})}
+show()}
+quiz('#pCard','#pBtns','#pMeta',[["Instagram posts and opening discounts","Promotion"],["City-centre shops and online delivery","Place"],["How much will customers pay?","Price"],["Features and benefits of a smartphone","Product"],["Rolex sets a premium image","Price"],["Coca-Cola in supermarkets and vending machines","Place"],["Nike's slogan 'Just Do It'","Promotion"],["A delivery app is a service customers use","Product"]],["Product","Price","Place","Promotion"]);
+
+/* QUIZ ARENA: first option in each list is the correct one (shuffled at display) */
+const QZ=[
+["Vocabulary","The group of customers a company wants to reach is the…",["target market","competitor","brand","service"],"The target market is the group of customers a company wants to reach."],
+["Vocabulary","A company that offers a similar product is a…",["competitor","customer","brand","market"],"Example: “Our main competitor has lower prices.”"],
+["Vocabulary","The benefits customers believe they receive are called…",["value","promotion","service"],"Customers expect good value for money."],
+["Vocabulary","A name, identity or image that makes a product different is a…",["brand","market","customer"],"Nike and Apple are strong brands."],
+["Vocabulary","“The bank offers online services.” What is a service?",["an activity provided for a customer","a name or image","a group of customers"],"A service is an activity provided for a customer, not a physical good."],
+["Vocabulary","Which sentence uses “market” correctly?",["The company entered a new market.","The market is a person who buys.","The market is a slogan."],"A market is made of customers and businesses that buy and sell."],
+["Vocabulary","A person who buys or uses a product or service is a…",["customer","competitor","brand"],"The company wants to understand its customers."],
+["Selling vs Marketing","Marketing is…",["broader than selling","only advertising","only pricing"],"Marketing is the whole process. Selling is just one part."],
+["Selling vs Marketing","Which one starts before the product exists?",["Marketing","Selling","Neither"],"Marketing starts with research, before the product is made. Selling starts when it is ready."],
+["Selling vs Marketing","The main goal of selling is…",["a quick sale","long-term relationships","understanding needs"],"Marketing aims at long-term relationships."],
+["Selling vs Marketing","Which statement is true?",["Selling is one part of the marketing process","Selling and marketing are the same","Marketing only happens after the sale"],"Research, product, price, promotion and distribution all come with marketing."],
+["Selling vs Marketing","Which focus belongs to marketing?",["Understanding customer needs","Persuading customers to buy","Making a quick sale"],"Selling focuses on persuasion. Marketing focuses on needs."],
+["The 4 Ps","“How much will customers pay?” is about…",["Price","Place","Product","Promotion"],"Price: the amount customers will pay."],
+["The 4 Ps","Instagram posts and discounts belong to…",["Promotion","Product","Place"],"Promotion = communication to inform or persuade."],
+["The 4 Ps","City-centre shops and online delivery are examples of…",["Place","Price","Promotion"],"Place = where and how customers can buy."],
+["The 4 Ps","Features are what a product has. Benefits are…",["how it helps the customer","its price","where it is sold"],"Benefits explain how the product helps the customer."],
+["The 4 Ps","Rolex is an example of a…",["premium price","low price","free product"],"IKEA = low price. Rolex = premium price."],
+["The 4 Ps","Coca-Cola sold in supermarkets, cafes and vending machines shows strong…",["Place","Price","Product"],"Being available almost everywhere is a Place decision."],
+["The 4 Ps","Nike's “Just Do It” is a…",["slogan used in promotion","price strategy","distribution channel"],"A slogan is a promotional message."],
+["Process","What is the first step of the marketing process?",["Research","Set the price","Promote"],"Companies first find out what customers want and who the competitors are."],
+["Process","Which step chooses a price customers accept?",["Set the price","Research","Promote"],"Step 3 of the process."],
+["Process","The Starbucks rewards app is mainly a…",["promotion tool","price cut","new product"],"Rewards apps, seasonal drinks and social media are Starbucks promotion."],
+["Process","Why is knowing the target market important?",["to create, price and promote for the right customers","to copy competitors","to avoid using social media"],"The target market guides every decision of the 4Ps."],
+["Process","Step 5 of the marketing process is…",["Distribute and build relationships","Research","Set the price"],"The company makes the product available and keeps customers happy."]];
+const CATS=["All",...new Set(QZ.map(q=>q[0]))],AR=$('#arena');
+let L=[],qi=0,qok=0,qs=0,miss=[],locked=false;
+function qMenu(){AR.innerHTML='<div class="abody slide"><h3 style="font-size:1.7rem">Pick a topic</h3><p class="sub" style="margin-bottom:0">Answer, read the explanation, move on. 3 points per correct answer, bonus for streaks.</p><div class="cats">'+CATS.map((c,i)=>'<button class="'+(i?'':'on')+'">'+c+'</button>').join('')+'</div><button class="opt" id="go">Start quiz</button><p class="keys">Tip: use keys 1–4 to answer and Enter for next.</p></div>';
+let cat='All';AR.querySelectorAll('.cats button').forEach(b=>b.onclick=()=>{AR.querySelectorAll('.cats button').forEach(x=>x.classList.remove('on'));b.classList.add('on');cat=b.textContent});
+$('#go').onclick=()=>qStart(shuffle(QZ.filter(q=>cat=='All'||q[0]==cat)).slice(0,cat=='All'?12:99))}
+function qStart(list){L=list;qi=0;qok=0;qs=0;miss=[];qShow()}
+function qShow(){if(qi>=L.length)return qEnd();locked=false;const q=L[qi],o=shuffle(q[2]);
+AR.innerHTML='<div class="ahead"><span>'+(qi+1)+' / '+L.length+'</span><div class="pbar"><i style="width:'+(qi/L.length*100)+'%"></i></div><span>🔥 '+qs+'</span></div><div class="abody slide"><span class="cat">'+q[0]+'</span><h3 class="aq">'+q[1]+'</h3>'+o.map((t,i)=>'<button class="ao"><b>'+'ABCD'[i]+'</b><span>'+t+'</span></button>').join('')+'<div class="why"></div><div class="anext"></div></div>';
+requestAnimationFrame(()=>setTimeout(()=>AR.querySelector('.pbar i').style.width=((qi+1)/L.length*100)+'%',60));
+AR.querySelectorAll('.ao').forEach(b=>b.onclick=()=>{if(locked)return;locked=true;const good=b.querySelector('span').textContent==q[2][0];
+AR.querySelectorAll('.ao').forEach(x=>{x.disabled=true;if(x.querySelector('span').textContent==q[2][0])x.classList.add('good')});
+if(good){qok++;qs++;add(3+(qs>2?2:0))}else{b.classList.add('bad');qs=0;miss.push(q)}
+const w=AR.querySelector('.why');w.innerHTML=(good?'✅ <b>Correct!</b> ':'❌ <b>Not quite.</b> ')+q[3];w.classList.add('show');
+const n=el('button','opt',qi+1==L.length?'See my score':'Next question');n.onclick=()=>{qi++;qShow()};AR.querySelector('.anext').append(n);n.focus()})}
+function qEnd(){const p=qok/L.length,g=p>=.9?['Marketing star! 🌟','You really know your 4Ps.']:p>=.65?['Great work! 👏','Review the questions you missed.']:['Keep practising 💪','Re-read the lesson and try again.'];
+AR.innerHTML='<div class="abody slide res"><svg class="ring" width="150" height="150" viewBox="0 0 120 120"><circle class="tr" cx="60" cy="60" r="54"/><circle class="pg" cx="60" cy="60" r="54"/><text x="60" y="68" text-anchor="middle" font-size="26" font-weight="800" fill="#101a4a">'+qok+'/'+L.length+'</text></svg><h3>'+g[0]+'</h3><p class="sub" style="margin:6px auto 18px">'+g[1]+'</p><div class="row"><button class="opt" id="r1">New quiz</button>'+(miss.length?'<button class="opt" id="r2" style="background:var(--pink);color:#fff;box-shadow:0 4px 0 #b8335a">Retry '+miss.length+' missed</button>':'')+'</div></div>';
+setTimeout(()=>AR.querySelector('.pg').style.strokeDashoffset=339.3*(1-p),80);if(p>=.65)burst();
+$('#r1').onclick=qMenu;if(miss.length)$('#r2').onclick=()=>qStart(shuffle(miss))}
+document.addEventListener('keydown',e=>{if(!AR.querySelector('.ao'))return;const k=e.key,i='1234'.indexOf(k);if(i>=0&&!locked){const b=AR.querySelectorAll('.ao')[i];b&&b.click()}});
+qMenu();
+
+/* useful language */
+["The product is aimed at...","The target market is...","The company offers...","The product is available through...","The company promotes the product by...","The main benefit of the product is...","The product is different from its competitors because..."].forEach(t=>{const b=el('button','',t);b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(t);toast('Copied!')};$('#phrases').append(b)});
+
+/* pitch builder */
+$('#build').onclick=()=>{const v=i=>$('#f'+i).value.trim()||'...';const txt=`${v(0)} is a great example of effective marketing.\nThe product is aimed at ${v(5)}.\nThe company offers ${v(1)}.\nIts price: ${v(2)}.\nThe product is available through ${v(3)}.\nThe company promotes the product by ${v(4)}.`;
+const all=[...$('.field').querySelectorAll('input,textarea')].map(e=>e.value).join(' ').toLowerCase();const used=V.filter(w=>all.includes(w[0].toLowerCase())).length;
+const o=$('#out');o.style.display='block';o.textContent=txt+'\n\nVocabulary used: '+used+' / 5 needed. '+(used>=5?'Challenge complete! 🎉':'Add more marketing words.');if(used>=5){burst();add(10)}};
+let tI;$('#start').onclick=()=>{clearInterval(tI);let s=120;const u=()=>{$('#tm').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};u();tI=setInterval(()=>{s--;u();if(s<=0){clearInterval(tI);toast('Time is up!')}},1000)};
+</script>
+</body>
+</html>
