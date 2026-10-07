@@ -11,9 +11,13 @@
 <link rel="sitemap" type="application/xml" href="/sitemap.xml">
 <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-<!-- Favicon : aucun fichier n'existe encore. Ajoutez favicon.ico (48x48 min) + apple-touch-icon.png (180x180) à la racine, puis décommentez :
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png"> -->
+<!-- Favicons -->
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Amar Bouchareb">
@@ -33,8 +37,8 @@
 <meta name="google-site-verification" content="8mrla2AwShFye2DZkgchHarkF3wfO_oDLuuJvuc6spU">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
-{"@type":"WebSite","@id":"https://amarbcrb.pages.dev/#website","url":"https://amarbcrb.pages.dev/","name":"Amar Bouchareb","description":"Amar Bouchareb, étudiant en Master 1 Microbiologie à Lyon 1 et créateur de BioStudy, une plateforme de cours et ressources pour les étudiants en biologie.","inLanguage":"fr","publisher":{"@id":"https://amarbcrb.pages.dev/#person"},"about":{"@id":"https://amarbcrb.pages.dev/#person"}},
-{"@type":"Person","@id":"https://amarbcrb.pages.dev/#person","name":"Amar Bouchareb","url":"https://amarbcrb.pages.dev/","description":"Étudiant en Master 1 Microbiologie à l'Université Claude Bernard Lyon 1 et créateur de BioStudy.","affiliation":{"@type":"CollegeOrUniversity","name":"Université Claude Bernard Lyon 1"},"knowsAbout":["Microbiologie","Biologie moléculaire","Immunologie","Bioinformatique"],"knowsLanguage":["fr","kab","en","es"],"sameAs":["https://www.linkedin.com/in/amar-bouchareb/"],"mainEntityOfPage":{"@id":"https://amarbcrb.pages.dev/#website"}}
+{"@type":"WebSite","@id":"https://amarbcrb.pages.dev/#website","url":"https://amarbcrb.pages.dev/","name":"Amar Bouchareb","alternateName":["Amar Bouchareb","Amar BCRB"],"description":"Amar Bouchareb, étudiant en Master 1 Microbiologie à Lyon 1 et créateur de BioStudy, une plateforme de cours et ressources pour les étudiants en biologie.","inLanguage":"fr","publisher":{"@id":"https://amarbcrb.pages.dev/#person"},"about":{"@id":"https://amarbcrb.pages.dev/#person"}},
+{"@type":"Person","@id":"https://amarbcrb.pages.dev/#person","name":"Amar Bouchareb","url":"https://amarbcrb.pages.dev/","image":"https://amarbcrb.pages.dev/android-chrome-512x512.png","description":"Étudiant en Master 1 Microbiologie à l'Université Claude Bernard Lyon 1 et créateur de BioStudy.","affiliation":{"@type":"CollegeOrUniversity","name":"Université Claude Bernard Lyon 1"},"knowsAbout":["Microbiologie","Biologie moléculaire","Immunologie","Bioinformatique"],"knowsLanguage":["fr","kab","en","es"],"sameAs":["https://www.linkedin.com/in/amar-bouchareb/"],"mainEntityOfPage":{"@id":"https://amarbcrb.pages.dev/#website"}}
 ]}
 </script>
 <noscript><style>.rv{opacity:1;transform:none;filter:none}</style></noscript>
@@ -73,12 +77,15 @@ body.theme-light .glass{background:rgba(255,255,255,.6);border-color:rgba(255,25
 /* layout */
 main{max-width:1100px;margin:0 auto;padding:0 16px calc(120px + env(safe-area-inset-bottom))}
 section{padding:90px 0 20px;min-height:auto}
-.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding-top:110px;text-align:center;align-items:center}
+.hero{min-height:100svh;display:flex;align-items:center;justify-content:center;gap:clamp(28px,6vw,80px);padding-top:110px;text-align:left}
+.hero-txt{max-width:640px}.hero-txt .lead{margin-left:0}.hero-txt .actions{justify-content:flex-start}
+.hero-photo{flex:none;width:clamp(150px,26vw,300px);aspect-ratio:1;border-radius:50%;padding:5px;background:linear-gradient(135deg,var(--ui-accent),transparent 60%);box-shadow:0 0 70px var(--glow);order:2;transition:box-shadow .5s;animation:down .9s var(--ease)}
+.hero-photo img{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:50% 40%;border:3px solid var(--bg-soft)}
 .status{display:inline-flex;gap:9px;align-items:center;padding:8px 15px;border-radius:var(--pill);font-size:12px;font-weight:600;color:var(--text2)}
 .dot{width:8px;height:8px;border-radius:50%;background:#30D158;animation:pulse 2s infinite}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(48,209,88,.6)}100%{box-shadow:0 0 0 10px transparent}}
-h1{margin-top:26px;font-size:clamp(3.2rem,12vw,8.5rem);line-height:.92;letter-spacing:-.07em;font-weight:800}
-h1 .ln{display:block}h1 .ch{display:inline-block;opacity:0;transform:translateY(60%) rotateX(-70deg);filter:blur(8px);animation:ch .9s var(--ease) forwards;animation-delay:calc(var(--i)*45ms + .3s)}
+h1{margin-top:22px;font-size:clamp(2.6rem,7vw,5.2rem);line-height:.92;letter-spacing:-.07em;font-weight:800}
+h1 .ln{display:inline-block}h1 .ch{display:inline-block;opacity:0;transform:translateY(60%) rotateX(-70deg);filter:blur(8px);animation:ch .9s var(--ease) forwards;animation-delay:calc(var(--i)*45ms + .3s)}
 @keyframes ch{to{opacity:1;transform:none;filter:none}}
 h1 .ln:last-child{background:linear-gradient(90deg,var(--text),var(--ui-accent),var(--text));background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
 h1 .ln:last-child .ch{-webkit-text-fill-color:transparent}
@@ -167,7 +174,7 @@ nav a.on{color:#fff;font-weight:800}
 /* reveal */
 .rv{opacity:0;transform:translateY(30px) scale(.97);filter:blur(6px);transition:opacity .8s var(--ease),transform .8s var(--ease),filter .8s var(--ease);transition-delay:var(--d,0s)}
 .rv.visible{opacity:1;transform:none;filter:none}
-@media(max-width:820px){.about,.journey,.grid2,.grid3,.certs{grid-template-columns:1fr}.tools4{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}.steps{padding-left:58px}.step::before{left:-58px;width:44px;height:44px}.line{left:21px}}
+@media(max-width:820px){.hero{flex-direction:column;text-align:center;padding-top:96px;gap:26px}.hero-photo{order:0}.hero-txt .lead{margin-left:auto}.hero-txt .actions{justify-content:center}.about,.journey,.grid2,.grid3,.certs{grid-template-columns:1fr}.tools4{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}.steps{padding-left:58px}.step::before{left:-58px;width:44px;height:44px}.line{left:21px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.rv,h1 .ch{opacity:1;transform:none;filter:none}}
 </style>
 </head>
@@ -176,7 +183,7 @@ nav a.on{color:#fff;font-weight:800}
 <div id="progress"></div>
 
 <header>
-  <a class="logo" href="#top" aria-label="Amar Bouchareb, retour en haut">Amar<b>Bouchareb</b><small data-en="Microbiologist · Builder">Microbiologiste · Créateur</small></a>
+  <a class="logo" href="#top" aria-label="Amar Bouchareb, retour en haut">Amar <b>Bouchareb</b><small data-en="Microbiologist · Builder">Microbiologiste · Créateur</small></a>
   <div class="tools glass" role="group" aria-label="Préférences">
     <button id="langBtn" aria-label="Changer de langue" title="FR / EN"><svg viewBox="0 0 24 24"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg></button>
     <button id="themeBtn" aria-label="Changer de thème"></button>
@@ -186,15 +193,17 @@ nav a.on{color:#fff;font-weight:800}
 <main id="top">
 
 <section class="hero" data-tab="0">
-  <div class="status glass"><span class="dot"></span><span data-en="Master 1 Microbiology · Lyon 1">Master 1 Microbiologie · Lyon 1</span></div>
-  <h1 aria-label="Amar Bouchareb"><span class="ln">AMAR</span> <span class="ln">BOUCHAREB</span></h1>
-  <p class="hook"><span data-en="I turn lab needs into ">Je transforme les besoins du labo en </span><em id="typed">outils utiles.</em></p>
-  <p class="lead" data-en="Microbiology student and creator of BioStudy, a platform that helps biology students find the right courses and resources, fast.">Étudiant en microbiologie et créateur de BioStudy, une plateforme qui aide les étudiants en biologie à trouver rapidement les bons cours et les bonnes ressources.</p>
-  <div class="actions">
-    <a href="#biostudy" class="btn p mag" data-en="See BioStudy">Découvrir BioStudy</a>
-    <a href="#contact" class="btn s mag" data-en="Get in touch">Me contacter</a>
+  <div class="hero-photo"><img src="/android-chrome-512x512.png" width="512" height="512" alt="Portrait d'Amar Bouchareb" fetchpriority="high"></div>
+  <div class="hero-txt">
+    <div class="status glass"><span class="dot"></span><span data-en="Master 1 Microbiology · Lyon 1">Master 1 Microbiologie · Lyon 1</span></div>
+    <h1 aria-label="Amar Bouchareb"><span class="ln">Amar</span> <span class="ln">Bouchareb</span></h1>
+    <p class="hook"><span data-en="I turn lab needs into ">Je transforme les besoins du labo en </span><em id="typed">outils utiles.</em></p>
+    <p class="lead" data-en="Microbiology student and creator of BioStudy, a platform that helps biology students find the right courses and resources, fast.">Étudiant en microbiologie et créateur de BioStudy, une plateforme qui aide les étudiants en biologie à trouver rapidement les bons cours et les bonnes ressources.</p>
+    <div class="actions">
+      <a href="#biostudy" class="btn p mag" data-en="See BioStudy">Découvrir BioStudy</a>
+      <a href="#contact" class="btn s mag" data-en="Get in touch">Me contacter</a>
+    </div>
   </div>
-  <div class="scroll" aria-hidden="true"></div>
 </section>
 
 <div class="stats">
@@ -320,7 +329,7 @@ nav a.on{color:#fff;font-weight:800}
 </section>
 </main>
 
-<footer><span><b>Amar Bouchareb</b> · <span data-en="Microbiologist & scientific designer">Microbiologiste & designer scientifique</span></span><span>© 2026</span></footer>
+<footer data-nosnippet><span><b>Amar Bouchareb</b> · <span data-en="Microbiologist & scientific designer">Microbiologiste & designer scientifique</span></span><span>© 2026</span></footer>
 
 <div class="bottom"><nav class="glass" aria-label="Navigation principale"><div class="slider" id="slider"></div>
   <a href="#top" class="on" data-en="Profile">Profil</a><a href="#science">Science</a><a href="#biostudy">BioStudy</a><a href="#parcours" data-en="Journey">Parcours</a><a href="#contact">Contact</a></nav></div>
