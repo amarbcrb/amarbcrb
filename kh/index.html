@@ -1,1402 +1,674 @@
-<!DOCTYPE html>
-<html lang="fr" data-haptic="own">
+<!doctype html>
+<html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Miss K. Halli | Enseignante de langue anglaise · Commerce, Marketing & Finance</title>
-<meta name="description" content="Espace pédagogique de Miss K. Halli, enseignante de langue anglaise : supports de cours en PDF pour L1 Commerce, L2 Commerce, L3 Marketing, M1 Marketing et M1 Finance et Commerce international.">
-<meta name="author" content="Miss K. Halli">
-<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-<meta name="theme-color" id="metaTheme" content="#000000">
-<meta name="color-scheme" content="dark light">
-
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230a84ff'/%3E%3Cstop offset='100%25' stop-color='%235e5ce6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='60' cy='60' r='60' fill='url(%23g)'/%3E%3Ctext x='60' y='74' font-family='-apple-system,BlinkMacSystemFont,sans-serif' font-size='42' font-weight='700' fill='%23fff' text-anchor='middle' letter-spacing='-1'%3EKH%3C/text%3E%3C/svg%3E">
-
-<meta property="og:type" content="profile">
-<meta property="og:site_name" content="Miss K. Halli">
-<meta property="og:title" content="Miss K. Halli | Enseignante de langue anglaise">
-<meta property="og:description" content="Supports de cours d'anglais en PDF : L1 Commerce, L2 Commerce, L3 Marketing, M1 Marketing, M1 Finance et Commerce international.">
-<meta property="og:locale" content="fr_FR">
-<meta property="og:locale:alternate" content="en_GB">
-
-<script>
-/* Application immédiate du thème sauvegardé ou système */
-(()=>{let t=null;try{t=localStorage.getItem('kh-theme')}catch(e){}
-document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')})();
-</script>
-<noscript><style>.rv{opacity:1!important;transform:none!important;filter:none!important}.view{display:block!important}.nav{display:none}</style></noscript>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Miss Halli, cours d'anglais</title>
+<meta name="description" content="Les supports de cours d'anglais de Miss K. Halli, classés par niveau, de la Licence 1 au Master 1.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
-:root{--font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
---ease:cubic-bezier(.22,1,.36,1);--spring:cubic-bezier(.34,1.45,.64,1);--navh:60px;--gx:20px;--top:72px;--blur:22px;--max:1120px;
---bg:#000;--sf:#111113;--sf2:#1c1c1e;--fill:rgba(255,255,255,.07);--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
---tx:#f5f5f7;--tx2:#a1a1a6;--tx3:#6e6e73;--sep:rgba(255,255,255,.09);--hair:rgba(255,255,255,.08);--shadow:0 1px 0 rgba(255,255,255,.04) inset;
---lg-rgb:28,28,30;--lg-a:.68;--lg-hi:rgba(255,255,255,.3);--lg-sh:rgba(0,0,0,.5);--lens:rgba(255,255,255,.17);--lens-line:rgba(255,255,255,.26);
---acc:#0a84ff;--acc-tx:#4da3ff;
---c-blue:#0a84ff;--c-indigo:#5e5ce6;--c-purple:#bf5af2;--c-pink:#ff375f;--c-red:#ff453a;--c-orange:#ff9f0a;--c-yellow:#ffd60a;--c-green:#30d158;--c-teal:#40cbe0;--c-cyan:#64d2ff;color-scheme:dark}
-[data-theme=light]{--bg:#f5f5f7;--sf:#fff;--sf2:#f5f5f7;--fill:rgba(0,0,0,.05);--line:rgba(0,0,0,.07);--line2:rgba(0,0,0,.12);
---tx:#1d1d1f;--tx2:#6e6e73;--tx3:#8e8e93;--sep:rgba(0,0,0,.08);--hair:rgba(0,0,0,.09);--shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px -12px rgba(0,0,0,.08);
---lg-rgb:255,255,255;--lg-a:.68;--lg-hi:#fff;--lg-sh:rgba(0,0,0,.12);--lens:rgba(120,120,128,.16);--lens-line:rgba(255,255,255,.9);
---acc:#007aff;--acc-tx:#0066cc;
---c-blue:#007aff;--c-indigo:#5856d6;--c-purple:#af52de;--c-pink:#ff2d55;--c-red:#ff3b30;--c-orange:#ff9500;--c-yellow:#ffcc00;--c-green:#34c759;--c-teal:#30b0c7;--c-cyan:#32ade6;color-scheme:light}
-@media(min-width:600px){:root{--gx:28px;--top:80px}}
+/* Tokens. Lamp on = light theme, lamp off = dark theme. */
+:root{
+--ink:#1d2b4f;--ink2:#4a5675;--bg:#f6f6f2;--bg2:#ecede7;--rule:rgba(110,140,185,.18);--margin:#c4382c;
+--card:#ffffff;--line:rgba(29,43,79,.14);--brass:#c49a45;--brass2:#8f6a24;
+--wood1:#7b5638;--wood2:#4c321f;--woodlip:#9a7050;
+--glow:rgba(255,210,130,.42);--hdr:rgba(246,246,242,.78);--focus:#1d2b4f;
+--paper:#fbfbf8;--pink:#2a2f3f;--pmut:#626a80;
+--disp:"Libre Caslon Display","Libre Caslon Text",Georgia,serif;--serif:"Libre Caslon Text",Georgia,serif;
+--ui:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+--ink:#e7ebf4;--ink2:#a5aec4;--bg:#0f1524;--bg2:#0b101c;--rule:rgba(140,165,210,.07);--margin:#e0685c;
+--card:#161e31;--line:rgba(231,235,244,.13);--wood1:#3d2a1e;--wood2:#22170f;--woodlip:#54392a;
+--glow:rgba(255,210,130,0);--hdr:rgba(15,21,36,.78);--focus:#e7ebf4;--paper:#ecebe5;color-scheme:dark}}
+:root[data-theme="dark"]{
+--ink:#e7ebf4;--ink2:#a5aec4;--bg:#0f1524;--bg2:#0b101c;--rule:rgba(140,165,210,.07);--margin:#e0685c;
+--card:#161e31;--line:rgba(231,235,244,.13);--wood1:#3d2a1e;--wood2:#22170f;--woodlip:#54392a;
+--glow:rgba(255,210,130,0);--hdr:rgba(15,21,36,.78);--focus:#e7ebf4;--paper:#ecebe5;color-scheme:dark}
 
-/* Base */
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{-webkit-text-size-adjust:100%;overflow-x:clip;background:var(--bg)}
-body{min-height:100dvh;overflow-x:clip;background:var(--bg);color:var(--tx);font:16px/1.5 var(--font);-webkit-font-smoothing:antialiased;transition:background .4s,color .3s}
-a{color:inherit;text-decoration:none}
-button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
-svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
-img{display:block;max-width:100%}
-[hidden]{display:none!important}
-:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:12px}
-.skip{position:fixed;left:12px;top:-80px;z-index:100;padding:10px 18px;border-radius:999px;background:var(--acc);color:#fff;font-weight:600;font-size:14px;transition:top .3s var(--ease)}.skip:focus{top:12px}
-@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html.lock,html.lock body{overflow:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 var(--ui);transition:background-color .5s,color .5s;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:4px}
+.wrap{width:100%;max-width:1120px;margin-inline:auto;padding-inline:max(20px,env(safe-area-inset-left,0px))}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
-/* Verre Liquid Glass */
-.glass{position:relative;background:rgba(var(--lg-rgb),var(--lg-a));-webkit-backdrop-filter:blur(var(--blur)) saturate(190%);backdrop-filter:blur(var(--blur)) saturate(190%);
-box-shadow:inset 0 1px 0 var(--lg-hi),0 0 0 .5px var(--hair),0 12px 30px var(--lg-sh)}
-.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(circle 90px at var(--mx,50%) var(--my,50%),rgba(255,255,255,.28),transparent 70%)}
-.glass.lit::after{opacity:1}
-@media(prefers-reduced-transparency:reduce){.glass{background:var(--sf2)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}}
+/* Lamplight pooled on the page */
+.light{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(60vmax 46vmax at var(--lx,85%) -6vmax,var(--glow),transparent 70%);transition:opacity .5s}
 
-/* En-tête */
-.top{position:fixed;top:0;left:0;right:0;z-index:20;padding-top:env(safe-area-inset-top);pointer-events:none}
-.top::before{content:"";position:absolute;inset:0 0 -28px;z-index:-1;pointer-events:none;background:linear-gradient(color-mix(in srgb,var(--bg) 88%,transparent) 40%,color-mix(in srgb,var(--bg) 55%,transparent) 75%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);-webkit-mask-image:linear-gradient(#000 62%,transparent);mask-image:linear-gradient(#000 62%,transparent)}
-.hin{margin:auto;padding:12px var(--gx);display:flex;align-items:center;gap:10px;animation:rise .6s var(--ease)}
-.brand{flex:1;min-width:0;display:flex;align-items:center;gap:10px;pointer-events:auto;font-weight:700;font-size:17px;letter-spacing:-.02em}
-.brand img{width:34px;height:34px;border-radius:50%;object-fit:cover}
-.brand small{display:block;font-size:11.5px;font-weight:500;color:var(--tx3);letter-spacing:0;line-height:1.2}
-.tools{pointer-events:auto;height:48px;padding:0 4px;border-radius:999px;display:flex;align-items:center;gap:2px}
-.tb{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;position:relative;z-index:1;font-size:12.5px;font-weight:700;letter-spacing:.02em;transition:transform .35s var(--spring),background .3s}
-.tb:active{transform:scale(.86);background:var(--fill)}
-@media(hover:hover){.tb:hover{background:var(--fill)}}
+/* Header */
+.hdr{position:sticky;top:0;z-index:40;background:var(--hdr);-webkit-backdrop-filter:blur(16px) saturate(160%);backdrop-filter:blur(16px) saturate(160%);transition:background-color .5s}
+.hdr::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--line)}
+.hdr .wrap{display:flex;align-items:center;height:calc(64px + env(safe-area-inset-top,0px));gap:28px;padding-top:env(safe-area-inset-top,0px)}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;margin-right:auto}
+.mono{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--bg);font:400 17px/1 var(--disp);letter-spacing:-.02em;transition:background-color .5s,color .5s}
+.brand b{display:block;font:400 21px/1.05 var(--disp);letter-spacing:-.01em}
+.brand small{display:block;font-size:12.5px;color:var(--ink2)}
+.nav{display:flex;gap:24px;font-size:15px}
+.nav a{text-decoration:none;padding:8px 0;color:var(--ink2)}
+.nav a:hover{color:var(--ink)}
+.lampslot{width:58px;flex:none}
+@media (max-width:620px){.nav{display:none}.hdr .wrap{gap:12px}}
 
-/* Mise en page : une vue par onglet */
-.shell{max-width:var(--max);margin:auto;padding:calc(var(--top) + env(safe-area-inset-top)) var(--gx) calc(var(--navh) + 40px + env(safe-area-inset-bottom))}
-.view{display:none}
-.view.on{display:block}
-.sec{padding-top:88px;scroll-margin-top:calc(var(--top) + 10px)}
-.lbl{display:block;font-size:14px;font-weight:600;color:var(--acc-tx);letter-spacing:.01em}
-h2{text-wrap:balance;margin-top:8px;font-size:clamp(30px,7.4vw,48px);font-weight:700;letter-spacing:-.035em;line-height:1.08;max-width:760px}
-.lead{margin-top:14px;font-size:clamp(17px,4.3vw,19px);color:var(--tx2);max-width:660px;line-height:1.55}
-.center{text-align:center}.center h2,.center .lead{margin-inline:auto}
+/* Lamp */
+.lamp{position:absolute;top:0;width:58px;height:150px;margin-top:calc(-1 * env(safe-area-inset-top,0px));touch-action:none;-webkit-tap-highlight-color:transparent}
+.lamp svg{display:block;width:58px;height:150px;overflow:visible}
+.lamp #lsw{transform-origin:29px 0}
+.lamp .bulb{fill:#fff3cf;transition:fill .35s}
+.lamp .halo{opacity:1;transition:opacity .35s}
+.lamp.off .bulb{fill:#4a4f5c}
+.lamp.off .halo{opacity:0}
+.lamp .shade{fill:var(--ink);transition:fill .5s}
+.lamp .cord{stroke:var(--ink2)}
+.lamp .bead{fill:var(--brass);stroke:var(--brass2)}
+.lamp:focus-visible{outline:none}
+.lamp:focus-visible .shade{stroke:var(--brass);stroke-width:2}
+.lamptip{position:absolute;right:62px;top:96px;white-space:nowrap;font-size:13px;color:var(--ink2);opacity:0;transform:translateX(6px);transition:opacity .25s,transform .25s;pointer-events:none}
+.lamp:hover+.lamptip,.lamp:focus-visible+.lamptip{opacity:1;transform:none}
 
-/* Animation des titres mot par mot */
-.sw .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.14em;margin-bottom:-.14em}
-.sw .w>span{display:inline-block;transform:translateY(105%);transition:transform .9s var(--ease);transition-delay:calc(var(--d,0)*45ms)}
-.sw.in .w>span{transform:none}
+/* Hero */
+main{position:relative;z-index:1}
+.hero{padding-block:clamp(56px,10vw,120px) clamp(40px,6vw,64px);background-image:repeating-linear-gradient(180deg,transparent 0 33px,var(--rule) 33px 34px)}
+.hero .wrap{position:relative}
+.hero .wrap::before{content:"";position:absolute;left:max(4px,calc(env(safe-area-inset-left,0px) - 16px));top:-200px;bottom:-80px;width:1px;background:var(--margin);opacity:.45}
+.who{font-size:16px;color:var(--ink2);margin:0 0 18px}
+h1{font:400 clamp(44px,9vw,104px)/.98 var(--disp);letter-spacing:-.025em;margin:0;max-width:13ch;text-wrap:balance}
+.lede{font:400 clamp(18px,2.2vw,21px)/1.6 var(--serif);color:var(--ink2);max-width:36em;margin:26px 0 34px}
+.tabs{display:flex;flex-wrap:wrap;gap:10px;margin:0;padding:0;list-style:none}
+.tabs a{display:inline-flex;align-items:baseline;gap:10px;padding:12px 18px 12px 16px;border-radius:4px 14px 14px 4px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--tc);text-decoration:none;transition:transform .2s,box-shadow .2s;box-shadow:0 1px 0 var(--line)}
+.tabs a:hover{transform:translateY(-2px);box-shadow:0 8px 18px -10px rgba(20,30,60,.4)}
+.tabs a:active{transform:scale(.97)}
+.tabs b{font:400 20px/1 var(--disp)}
+.tabs span{font-size:14px;color:var(--ink2)}
 
-/* Révélation au défilement */
-.rv{opacity:0;transform:translateY(22px);filter:blur(6px);transition:opacity .8s var(--ease),transform .9s var(--ease),filter .8s var(--ease);transition-delay:calc(var(--d,0)*70ms)}
-.rv.in{opacity:1;transform:none;filter:none}
+/* Library */
+.lib{padding-block:clamp(40px,7vw,80px) 30px}
+.lib-h{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 24px;margin-bottom:clamp(24px,4vw,40px)}
+h2{font:400 clamp(32px,5vw,48px)/1.05 var(--disp);letter-spacing:-.015em;margin:0}
+.lib-h p{margin:0;color:var(--ink2);font-size:15px}
+.shelves{display:flex;flex-wrap:wrap;justify-content:center;row-gap:48px}
+.lvl{display:flex;flex-direction:column;scroll-margin-top:110px}
+.lvl-books{display:flex;align-items:flex-end;justify-content:center;gap:clamp(16px,2.4vw,28px);padding:20px clamp(14px,2.4vw,26px) 0;min-height:10px;perspective:1100px}
+.board{position:relative;height:22px;background:linear-gradient(var(--woodlip),var(--wood1) 30%,var(--wood2));box-shadow:0 18px 22px -14px rgba(10,15,30,.55);transition:background .5s}
+.board::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 3px,transparent 3px 11px)}
+.plaque{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:2px 12px;border-radius:3px;font:400 13px/1.35 var(--serif);color:#2b1f0a;background:linear-gradient(#ead29a,#c49a45);box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 1px 2px rgba(0,0,0,.45);white-space:nowrap}
+.lvl.flash .plaque{animation:flash 1.2s ease}
+@keyframes flash{30%{box-shadow:0 0 0 4px rgba(196,154,69,.5),0 1px 2px rgba(0,0,0,.45)}}
 
-/* Boutons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 24px;border-radius:999px;font-size:16px;font-weight:600;background:var(--sf);border:1px solid var(--line2);transition:transform .35s var(--spring),background .25s,border-color .25s}
-.btn:active{transform:scale(.96)}
-.btn.pri{background:var(--acc);border-color:transparent;color:#fff}
-@media(hover:hover){.btn:hover{border-color:var(--tx3)}.btn.pri:hover{background:color-mix(in srgb,var(--acc) 88%,#fff)}}
-.btn svg{width:19px;height:19px}
-.acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
-.lnk{display:inline-flex;align-items:center;gap:4px;font-size:15px;font-weight:600;color:var(--acc-tx);flex-shrink:0}
-.lnk svg{width:16px;height:16px;transition:transform .35s var(--spring)}
-@media(hover:hover){.lnk:hover svg,a.row:hover .lnk svg{transform:translate(2px,-2px)}}
+.bk{--W:var(--bw);--bw:clamp(124px,34vw,176px);position:relative;flex:none;width:var(--bw);aspect-ratio:.707;transform-origin:50% 100%;transform:rotateY(-9deg);transition:transform .35s cubic-bezier(.2,.8,.2,1);-webkit-tap-highlight-color:transparent}
+.bk:hover,.bk:focus-visible{transform:rotateY(-2deg) translateY(-10px)}
+.bk:active{transform:rotateY(-2deg) translateY(-6px) scale(.98);transition-duration:.1s}
+.bk:focus-visible{outline-offset:6px}
+.bk .edge{position:absolute;right:-6px;top:1.5%;bottom:1.5%;width:7px;border-radius:0 2px 2px 0;background:repeating-linear-gradient(0deg,#f4f2ea 0 2px,#cfcbbd 2px 3px);box-shadow:inset 2px 0 3px rgba(0,0,0,.25)}
+.bk::after{content:"";position:absolute;left:3%;right:-8%;bottom:-6px;height:10px;background:radial-gradient(ellipse,rgba(10,15,30,.45),transparent 70%);z-index:-1}
+.bk.away{visibility:hidden}
 
-/* Surfaces et cartes */
-.box{position:relative;border-radius:28px;background:var(--sf);border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
-.box::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(circle 220px at var(--mx,50%) var(--my,0%),rgba(255,255,255,.06),transparent 70%)}
-[data-theme=light] .box::before{background:radial-gradient(circle 220px at var(--mx,50%) var(--my,0%),rgba(0,0,0,.025),transparent 70%)}
-.box.lit::before{opacity:1}
-.ic{width:44px;height:44px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff}
-.ic svg{width:22px;height:22px}
-.ic.n{background:var(--fill);color:var(--tx)}
-.tags{display:flex;flex-wrap:wrap;gap:6px}
-.tags span{min-height:30px;padding:0 12px;border-radius:999px;display:inline-flex;align-items:center;font-size:13px;font-weight:600;color:var(--tx2);background:var(--fill)}
-
-/* Navigation rapide des catégories de cours */
-.qnav{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
-.qnav a{min-height:36px;padding:0 15px;border-radius:999px;display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--tx2);background:var(--sf);border:1px solid var(--line2);transition:transform .3s var(--spring),background .25s,color .25s}
-.qnav a:active{transform:scale(.95)}
-.qnav a i{width:8px;height:8px;border-radius:50%;background:var(--c)}
-@media(hover:hover){.qnav a:hover{background:var(--fill);color:var(--tx)}}
-
-/* Listes de lignes (style Réglages iOS) */
-.rows{list-style:none}
-.row{position:relative;display:flex;align-items:center;gap:14px;min-height:58px;padding:12px 20px}
-.row+.row::before,.rows>li+li>.row::before{content:"";position:absolute;top:0;left:20px;right:0;height:1px;background:var(--sep)}
-.row .k{flex:1;min-width:0;color:var(--tx2);font-size:15px}
-.row .v{font-weight:600;font-size:15px;text-align:right}
-.row .ic{width:38px;height:38px}.row .ic svg{width:19px;height:19px}
-.row .t{flex:1;min-width:0;display:flex;flex-direction:column}
-.row .t b{font-size:16px;font-weight:600;line-height:1.35}
-.row .t small{font-size:13.5px;color:var(--tx2);line-height:1.4}
-a.row,button.row{width:100%;text-align:left;transition:background .25s}
-@media(hover:hover){a.row:hover,button.row:hover{background:var(--fill)}}
-.gh{display:block;margin:0 20px 8px;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--tx3)}
-
-/* Bouton badge PDF sur les lignes de cours */
-.pdf-btn{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 13px;border-radius:999px;font-size:13px;font-weight:600;color:var(--acc-tx);background:color-mix(in srgb,var(--acc) 12%,transparent);flex-shrink:0}
-.pdf-btn svg{width:15px;height:15px;transition:transform .35s var(--spring)}
-@media(hover:hover){a.row:hover .pdf-btn svg{transform:translate(2px,-2px)}}
-a[data-soon]{opacity:.55}
-
-/* Section Hero (Profil) */
-.hero{display:grid;gap:44px;align-items:center;padding-top:28px}
-.pill{display:inline-flex;align-items:center;gap:8px;min-height:34px;padding:0 14px;border-radius:999px;font-size:13.5px;font-weight:600;color:var(--tx2);background:var(--sf);border:1px solid var(--line)}
-.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--c-green);box-shadow:0 0 0 0 color-mix(in srgb,var(--c-green) 60%,transparent);animation:pulse 2.4s infinite}
-@keyframes pulse{to{box-shadow:0 0 0 8px transparent}}
-.hero h1{text-wrap:balance;margin-top:18px;font-size:clamp(44px,12vw,72px);font-weight:700;letter-spacing:-.045em;line-height:1}
-.hero h1 .hl .w>span{background:linear-gradient(90deg,var(--c-blue),var(--c-indigo));-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero .sub{margin-top:14px;font-size:clamp(20px,5vw,26px);font-weight:600;letter-spacing:-.02em;line-height:1.3;max-width:620px}
-.hero .lead{margin-top:16px}
-.who4{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px;list-style:none}
-.who4 li{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 14px 0 6px;border-radius:999px;font-size:14px;font-weight:600;color:var(--tx2);background:var(--sf);border:1px solid var(--line)}
-.who4 i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff}.who4 i svg{width:14px;height:14px}
-
-/* Carte d'identité */
-.idc{padding:26px 0 8px;border-radius:32px;box-shadow:var(--shadow),0 40px 80px -40px rgba(0,0,0,.5)}
-.idc .ph{width:132px;height:132px;margin:0 auto;border-radius:50%;padding:4px;background:var(--fill);border:1px solid var(--line2)}
-.idc .ph img{width:100%;height:100%;border-radius:50%;object-fit:cover}
-.idc .nm{margin-top:14px;text-align:center;font-size:21px;font-weight:700;letter-spacing:-.02em}
-.idc .nm small{display:block;font-size:14px;font-weight:500;color:var(--tx2);letter-spacing:0}
-.idc .rows{margin-top:18px;border-top:1px solid var(--sep)}
-
-/* Chiffres clés */
-.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:56px}
-.stat{position:relative;padding:22px 20px}
-.stat b{display:block;font-size:clamp(34px,8vw,46px);font-weight:700;letter-spacing:-.04em;line-height:1.05;font-variant-numeric:tabular-nums}
-.stat span{display:block;margin-top:4px;font-size:14px;color:var(--tx2);line-height:1.4}
-.stat:nth-child(2n)::before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:1px;background:var(--sep)}
-.stat:nth-child(n+3)::after{content:"";position:absolute;top:0;left:20px;right:20px;height:1px;background:var(--sep)}
-
-/* Textes de présentation */
-.big{margin-top:22px;font-size:clamp(22px,5.4vw,32px);font-weight:600;letter-spacing:-.025em;line-height:1.3;max-width:900px;text-wrap:pretty}
-.cols{display:grid;gap:18px;margin-top:22px;max-width:900px}
-.cols p{font-size:16.5px;color:var(--tx2);line-height:1.65}
-
-/* Grille 4 cartes */
-.grid{display:grid;gap:12px;margin-top:36px}
-.card{padding:24px;display:flex;flex-direction:column;gap:12px}
-.card h3{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-top:6px}
-.card p{font-size:15.5px;color:var(--tx2);line-height:1.55}
-.card .tags{margin-top:auto;padding-top:4px}
-
-/* Section Portail des cours */
-.split{display:grid;gap:36px;align-items:center}
-.wm{font-size:clamp(44px,11vw,74px);font-weight:700;letter-spacing:-.05em;line-height:1}
-.wm i{font-style:normal;color:var(--acc-tx)}
-.pts{list-style:none;margin-top:26px;display:flex;flex-direction:column;gap:16px}
-.pts li{display:flex;gap:14px;align-items:flex-start}
-.pts .ic{width:36px;height:36px}.pts .ic svg{width:18px;height:18px}
-.pts b{display:block;font-size:16px;font-weight:600}
-.pts div>span{display:block;font-size:15px;color:var(--tx2);line-height:1.5}
-.tl8{padding:6px 0}
-.tl8 .row{min-height:58px}
-.tl8.rv .row{opacity:0;transform:translateX(16px);transition:opacity .6s var(--ease),transform .7s var(--ease),background .25s;transition-delay:calc(.25s + var(--d)*.07s)}
-.tl8.rv.in .row{opacity:1;transform:none}
-
-/* Méthode */
-.steps{margin-top:36px}
-.steps .n{width:36px;height:36px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:700;background:var(--fill);color:var(--tx)}
-
-/* Citation */
-.quote{max-width:820px;margin-inline:auto;text-align:center}
-.quote blockquote{font-size:clamp(25px,6vw,40px);font-weight:600;letter-spacing:-.02em;line-height:1.2;font-family:"New York","Iowan Old Style",Georgia,"Times New Roman",serif;font-style:italic}
-.quote figcaption{margin-top:18px;font-size:14px;font-weight:600;color:var(--tx2)}
-
-/* Appel à l'action */
-.cta{margin-top:88px;padding:44px 24px;text-align:center}
-.cta h2{margin:0 auto}.cta .lead{margin-inline:auto}.cta .acts{justify-content:center}
-
-/* Vues secondaires */
-.vh{padding-top:26px}
-.vh h2{font-size:clamp(34px,8.6vw,52px)}
-.blk{margin-top:44px;scroll-margin-top:calc(var(--top) + 18px)}
-.blk>h3{margin:0 0 14px;font-size:22px;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.blk>h3 .cat-t{display:inline-flex;align-items:center;gap:12px}
-.blk>h3 .cat-t .ic{width:36px;height:36px}.blk>h3 .cat-t .ic svg{width:18px;height:18px}
-.blk>h3 small{font-size:14px;font-weight:500;color:var(--tx3);letter-spacing:0}
-
-/* Parcours */
-.jgrid{display:grid;gap:12px}
-.jb{padding:24px}
-.jb>h3{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:20px}
-.jb>h3 .ic{width:36px;height:36px}.jb>h3 .ic svg{width:18px;height:18px}
-.ti{position:relative;padding:0 0 22px 24px;margin-left:6px;border-left:2px solid var(--line2)}
-.ti:last-of-type{padding-bottom:2px;border-left-color:transparent}
-.ti::before{content:"";position:absolute;left:-7px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--sf);border:2px solid var(--tx3)}
-.ti.now::before{background:var(--acc);border-color:var(--acc);box-shadow:0 0 0 5px color-mix(in srgb,var(--acc) 22%,transparent)}
-.ti small{display:block;font-size:13px;font-weight:600;color:var(--acc-tx)}
-.ti h4{margin-top:2px;font-size:16.5px;font-weight:600;line-height:1.35}
-.ti p{margin-top:2px;font-size:14.5px;color:var(--tx2);line-height:1.5}
-.jb .tags{margin-top:16px}
-.lvl{display:inline-flex;align-items:center;min-height:28px;padding:0 11px;border-radius:999px;font-size:13px;font-weight:600;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
-.certs{display:grid;gap:0}
-.certs .row{min-height:60px}
-.hob{padding:24px}
-.hob h3{margin-top:18px;font-size:19px;font-weight:700;letter-spacing:-.02em}
-.hob p{margin-top:6px;font-size:15px;color:var(--tx2);line-height:1.55}
+/* Cover (shared: shelf and book). 1em = cover width / 11 */
+.cv{position:absolute;inset:0;font-size:calc(var(--W) / 11);border-radius:.12em .4em .4em .12em;overflow:hidden;color:#f1dfae;text-align:left;font-family:var(--serif);
+background:radial-gradient(130% 70% at 80% 0%,rgba(255,255,255,.12),transparent 60%),repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 2px),repeating-linear-gradient(90deg,rgba(0,0,0,.06) 0 1px,transparent 1px 2px),linear-gradient(165deg,var(--c1),var(--c2));
+box-shadow:inset 0 0 0 .04em rgba(0,0,0,.35),inset 0 0 1.2em rgba(0,0,0,.3),0 .35em .9em -.3em rgba(0,0,0,.55)}
+.cv-sp{position:absolute;left:0;top:0;bottom:0;width:8%;background:linear-gradient(90deg,rgba(0,0,0,.42),rgba(255,255,255,.08) 62%,rgba(0,0,0,.28))}
+.cv-in{position:absolute;inset:7% 8% 6% 15%;display:flex;flex-direction:column}
+.cv-ser{font-size:.46em;letter-spacing:.06em;opacity:.85;font-style:italic}
+.cv-pan{position:relative;margin-top:.55em;flex:0 0 47%;border:.045em solid rgba(233,207,143,.75);display:flex;flex-direction:column;justify-content:flex-end;padding:.5em .55em .45em}
+.cv-pan::before{content:"";position:absolute;inset:0;opacity:.9}
+.p-com::before{background:repeating-linear-gradient(-45deg,rgba(233,207,143,.15) 0 .05em,transparent .05em .42em)}
+.p-mkt::before{background:radial-gradient(circle,rgba(233,207,143,.24) .065em,transparent .085em) 0 0/.5em .5em}
+.p-fin::before{background:linear-gradient(rgba(233,207,143,.15) .04em,transparent .04em) 0 0/.55em .55em,linear-gradient(90deg,rgba(233,207,143,.15) .04em,transparent .04em) 0 0/.55em .55em}
+.cv-lv{position:relative;font:400 4.1em/.82 var(--disp);letter-spacing:-.04em;background:linear-gradient(175deg,#f8e7b6,#c79b4a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cv-lvn{position:relative;font-size:.5em;margin-top:.35em;opacity:.9}
+.cv-emb{width:1.5em;height:1.5em;margin:.8em 0 .45em;fill:none;stroke:#e9cf8f;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.cv-t{font:400 1.12em/1.08 var(--disp);letter-spacing:-.01em;text-wrap:balance}
+.cv-t.long{font-size:.9em}
+.cv-s{font-size:.5em;line-height:1.3;font-style:italic;opacity:.82;margin-top:.45em;text-wrap:balance}
+.cv-b{margin-top:auto;display:flex;justify-content:space-between;font-size:.46em;opacity:.8;border-top:.09em solid rgba(233,207,143,.45);padding-top:.5em}
 
 /* Contact */
-.ct{margin-top:36px}.ct .row{min-height:66px}
-.ct .cp{flex-shrink:0;min-height:36px;padding:0 14px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;background:var(--fill);transition:transform .35s var(--spring),background .25s}
-.ct .cp:active{transform:scale(.94)}.ct .cp svg{width:16px;height:16px}
-@media(hover:hover){.ct .cp:hover{background:color-mix(in srgb,var(--tx) 12%,transparent)}}
+.contact{padding-block:clamp(48px,8vw,96px)}
+.ccard{position:relative;display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(24px,5vw,64px);padding:clamp(26px,5vw,56px);background:var(--card);border:1px solid var(--line);border-radius:6px;box-shadow:0 24px 50px -36px rgba(20,30,60,.5);background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--rule) 31px 32px);transition:background-color .5s}
+.ccard::before{content:"";position:absolute;left:clamp(14px,2.5vw,30px);top:0;bottom:0;width:1px;background:var(--margin);opacity:.45}
+.ccard h2{margin-bottom:14px}
+.ccard p{margin:0 0 12px;font:400 18px/1.6 var(--serif);color:var(--ink2);max-width:30em}
+.mail{font:400 clamp(20px,3vw,26px)/1.3 var(--serif);color:var(--ink);text-decoration-color:var(--margin);text-underline-offset:5px;word-break:break-all}
+.fl{font-size:14px;color:var(--ink2);margin:0 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px;padding:0;border:0}
+.chips label{position:relative}
+.chips input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.chips span{display:inline-block;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);font-size:14.5px;transition:background-color .2s,color .2s,border-color .2s}
+.chips input:checked+span{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chips input:focus-visible+span{outline:2px solid var(--focus);outline-offset:2px}
+.acts{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:46px;padding:0 20px;border-radius:999px;font-size:15.5px;text-decoration:none;transition:transform .15s,background-color .2s}
+.btn:active{transform:scale(.97)}
+.btn.pri{background:var(--ink);color:var(--bg)}
+.btn.sec{border:1px solid var(--line);background:var(--bg)}
+.btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:760px){.ccard{grid-template-columns:1fr}}
+.foot{padding-block:10px calc(36px + env(safe-area-inset-bottom,0px));font-size:14px;color:var(--ink2);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
+.foot p{margin:0}
 
-/* Pied de page */
-footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 16px;font-size:13px;color:var(--tx3)}
-footer b{color:var(--tx2);font-weight:600}
-footer .cr{-webkit-user-select:none;user-select:none;padding:14px 10px;margin:-14px -10px;touch-action:manipulation}
-
-/* Notification Toast */
-#toast{position:fixed;left:50%;bottom:calc(var(--navh) + 28px + env(safe-area-inset-bottom));z-index:300;transform:translate(-50%,20px);padding:12px 20px;border-radius:999px;font-size:15px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .35s var(--ease),transform .45s var(--spring)}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:200;transform:translate(-50%,16px);max-width:calc(100vw - 32px);padding:11px 18px;border-radius:12px;background:#1d2b4f;color:#f6f6f2;font-size:15px;text-align:center;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 
-/* Barre d'onglets flottante */
-.nav{position:fixed;z-index:30;bottom:max(12px,env(safe-area-inset-bottom));left:12px;right:12px;max-width:400px;height:var(--navh);margin-inline:auto;border-radius:999px;animation:navin .8s var(--ease) backwards .2s}
-@keyframes navin{from{opacity:0;translate:0 40px;scale:.94}}
-@keyframes navin-d{from{opacity:0;translate:0 -30px;scale:.94}}
-.nav-in{height:100%;padding:5px;border-radius:999px;display:flex;touch-action:pan-y;-webkit-user-select:none;user-select:none;cursor:grab}
-.nav-in.dragging{cursor:grabbing}
-.sl{position:absolute;top:5px;bottom:5px;left:0;width:80px;z-index:1;border-radius:999px;pointer-events:none;translate:5px 0;background:var(--lens);border:1px solid var(--lens-line);box-shadow:inset 0 1px 1px rgba(255,255,255,.5),0 4px 14px rgba(0,0,0,.14);transition:translate .6s var(--spring),width .3s var(--ease),scale .3s var(--spring)}
-.sl.interacting{scale:1.06 1.12}
-.dragging .sl{transition:scale .25s var(--spring)}
-.nb{flex:1;min-width:0;position:relative;z-index:2;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:.66rem;font-weight:500;color:var(--tx2);white-space:nowrap;transition:color .3s,transform .45s var(--spring)}
-.nb:active{transform:scale(.92)}
-.nb svg{width:21px;height:21px;color:var(--nc);opacity:.75;transition:opacity .3s}
-.nb.on{color:var(--acc-tx);font-weight:600}.nb.on svg{opacity:1;animation:ipop .35s var(--ease)}
-@keyframes ipop{from{transform:scale(.85)}}
-.nb:nth-of-type(1){--nc:var(--c-blue)}.nb:nth-of-type(2){--nc:var(--c-orange)}.nb:nth-of-type(3){--nc:var(--c-teal)}.nb:nth-of-type(4){--nc:var(--c-purple)}
-@media(max-width:389px){.nb{font-size:.62rem}}
+/* ========== Book viewer (full screen) ========== */
+.vw{position:fixed;inset:0;z-index:100;display:none;grid-template-rows:auto 1fr auto;background:radial-gradient(120% 90% at 50% 0%,#273455,#0d1220 70%);color:#e7ebf4;overscroll-behavior:contain;user-select:none;-webkit-user-select:none}
+.vw.on{display:grid}
+.vw.in{animation:vin .35s ease both}
+.vw.out{animation:vout .3s ease both}
+@keyframes vin{from{background-color:transparent;opacity:0}}
+@keyframes vout{to{opacity:0}}
+.vbar{display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px))}
+.vt{margin-right:auto;min-width:0}
+.vt b{display:block;font:400 19px/1.2 var(--disp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vt span{font-size:13px;color:#a9b3cb}
+.ib{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.08);transition:background-color .2s,transform .15s}
+.ib:hover{background:rgba(255,255,255,.16)}
+.ib:active{transform:scale(.94)}
+.ib:disabled{opacity:.28;cursor:default;transform:none}
+.ib svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.vw :focus-visible{outline-color:#f1dfae}
+.stage{position:relative;overflow:hidden;touch-action:none;cursor:grab}
+.stage.drag{cursor:grabbing}
+.bwrap{position:absolute;inset:0;transform-origin:0 0}
+.book{position:absolute;width:var(--W);height:var(--H);font-size:calc(var(--W) / 20);will-change:transform}
+.faces,.ush,.flapw,.fsh{position:absolute;left:0;top:0;width:var(--W);height:var(--H)}
+.ush{overflow:hidden;z-index:2;pointer-events:none}
+.flapw{z-index:3;filter:drop-shadow(0 0 10px rgba(0,0,0,.28));pointer-events:none}
+.fsh{z-index:4;pointer-events:none}
+.ush i,.fsh i{position:absolute;left:0;top:0;transform-origin:0 0;display:none}
+.ush i{background:linear-gradient(90deg,rgba(0,0,0,.42),rgba(0,0,0,.12) 35%,transparent)}
+.fsh i{background:linear-gradient(90deg,rgba(0,0,0,.16),rgba(255,255,255,.22) 7%,rgba(255,255,255,0) 28%,rgba(0,0,0,.05) 70%,rgba(0,0,0,.14))}
+.stk{position:absolute;top:.6%;bottom:.6%;display:none;background:repeating-linear-gradient(90deg,#f1efe7 0 1px,#c9c5b6 1px 2px);z-index:0}
+.stk.r{left:100%;border-radius:0 2px 2px 0}
+.stk.l{right:100%;border-radius:2px 0 0 2px}
 
-/* Espace administrateur (caché) */
-#adm{position:fixed;inset:0;z-index:200;display:none;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);overflow:auto;padding:16px 16px 60px}
-#adm.on{display:block}
-#adm .pn{max-width:620px;margin:20px auto;padding:22px;border-radius:24px;background:var(--sf);border:1px solid var(--line2);color:var(--tx)}
-#adm h3{font-size:20px;margin-bottom:6px}
-#adm h4{margin:20px 0 8px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--tx3)}
-#adm label{display:block;margin-top:10px;font-size:13.5px;color:var(--tx2)}
-#adm input,#adm textarea{width:100%;margin-top:4px;padding:12px 14px;border-radius:14px;border:1px solid var(--line2);background:var(--sf2);color:var(--tx);font:15px var(--font)}
-#adm textarea{min-height:140px;font-family:monospace;font-size:12.5px}
-#adm .bt{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
-#adm .btn{min-height:44px}
-#adm .err{color:var(--c-red);font-size:14px;margin-top:10px;min-height:18px}
+.pg{position:absolute;left:0;top:0;width:var(--W);height:var(--H);overflow:hidden;transform-origin:0 0;color:var(--pink);font-family:var(--serif);display:none;
+background:linear-gradient(90deg,rgba(0,0,0,.15),rgba(0,0,0,.035) 6%,transparent 12%),repeating-linear-gradient(180deg,transparent 0 1.35em,rgba(110,140,185,.16) 1.35em calc(1.35em + 1px)),var(--paper)}
+.pg.l{background:linear-gradient(270deg,rgba(0,0,0,.15),rgba(0,0,0,.035) 6%,transparent 12%),repeating-linear-gradient(180deg,transparent 0 1.35em,rgba(110,140,185,.16) 1.35em calc(1.35em + 1px)),var(--paper)}
+.pg.r{border-radius:0 .25em .25em 0}
+.pg.l{border-radius:.25em 0 0 .25em}
+.pg.cvf{background:none;border-radius:0}
+.pg.l.plain{background:var(--c2)}
+.pi{position:absolute;inset:7% 9% 6.5% 15%;display:flex;flex-direction:column;align-items:flex-start;text-align:left}
+.pg.r .pi::before{content:"";position:absolute;left:-.9em;top:-30%;bottom:-30%;width:1px;background:rgba(196,56,44,.5)}
+.pg.l .pi{inset:7% 15% 6.5% 9%}
+.kk{font-size:.62em;color:var(--pmut);margin:0 0 .5em}
+.ph{font:400 1.75em/1.05 var(--disp);letter-spacing:-.015em;margin:0 0 .3em;color:var(--ac)}
+.pt{font:400 1.2em/1.2 var(--disp);margin:0;color:var(--pink);text-wrap:balance}
+.ps{font-size:.66em;line-height:1.5;color:var(--pmut);margin:.6em 0 0;font-style:italic}
+.toc{list-style:none;margin:1.1em 0 0;padding:0;width:100%}
+.toc li{border-top:1px solid rgba(29,43,79,.15)}
+.toc li:last-child{border-bottom:1px solid rgba(29,43,79,.15)}
+.toc button{display:grid;grid-template-columns:1.7em 1fr;gap:.2em .5em;width:100%;padding:.6em .1em;text-align:left;font-family:var(--serif);color:var(--pink);transition:background-color .2s}
+.toc button:hover{background:rgba(29,43,79,.05)}
+.toc i{grid-row:span 2;font:400 1.25em/1 var(--disp);font-style:normal;color:var(--ac)}
+.toc span{font-size:.7em;line-height:1.3}
+.toc small{font-size:.54em;color:var(--pmut)}
+.fo{margin-top:auto;align-self:stretch;display:flex;justify-content:space-between;font-size:.52em;color:var(--pmut);font-style:italic;padding-top:.8em}
+.big{font:400 6.2em/.8 var(--disp);letter-spacing:-.05em;color:var(--ac);margin:.15em 0 .1em -.04em;opacity:.92}
+.rule{width:3em;height:2px;background:var(--ac);margin:1em 0;opacity:.7}
+.it{font-style:italic;font-size:.9em;line-height:1.35;margin:0;color:var(--pink);text-wrap:balance}
+.dl{display:grid;grid-template-columns:auto 1fr;gap:.35em .9em;font-size:.62em;margin:1.2em 0 1.4em;width:100%}
+.dl dt{color:var(--pmut)}
+.dl dd{margin:0}
+.pdfb{display:inline-flex;align-items:center;gap:.55em;min-height:2.6em;padding:0 1.15em;border-radius:999px;font:500 .7em/1 var(--ui);text-decoration:none;color:#fff;background:var(--ac);box-shadow:0 .25em .7em -.3em rgba(0,0,0,.5);transition:transform .15s,filter .2s}
+.pdfb:hover{filter:brightness(1.1)}
+.pdfb:active{transform:scale(.96)}
+.pdfb svg{width:1.25em;height:1.25em;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.pdfb.off{background:none;color:var(--pmut);border:1px dashed rgba(29,43,79,.3);box-shadow:none}
+.pdfb.wait{animation:wait 1.2s ease-in-out infinite}
+@keyframes wait{50%{opacity:.45}}
+.pnote{font-size:.54em;color:var(--pmut);margin:.8em 0 0}
+.pbtn{font:400 .66em/1.3 var(--serif);color:var(--ac);text-decoration:underline;text-underline-offset:.2em;margin-top:.9em}
+.pg.l.endp{background:linear-gradient(270deg,rgba(0,0,0,.18),transparent 10%),radial-gradient(circle,var(--ac) .05em,transparent .065em) 0 0/.6em .6em,radial-gradient(circle,var(--ac) .05em,transparent .065em) .3em .3em/.6em .6em,#efe8d8}
+.pg.l.endp::before{content:"";position:absolute;inset:0;background:rgba(239,232,216,.55)}
+.exl{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:66%;padding:1.1em 1em;text-align:center;background:var(--paper);color:var(--pink);border-radius:.15em;box-shadow:0 .3em .8em rgba(0,0,0,.35);outline:1px solid var(--ac);outline-offset:-.4em}
+.exl em{display:block;font:400 1.3em/1 var(--disp);color:var(--ac);margin-bottom:.35em}
+.exl span{display:block;font-size:.62em;line-height:1.45}
+.bcv{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:.5em;color:#f1dfae;text-align:center}
+.bcv .mono2{width:2.6em;height:2.6em;border-radius:50%;border:.06em solid rgba(233,207,143,.7);display:grid;place-items:center;font:400 1.1em/1 var(--disp)}
+.bcv span{font-size:.62em;opacity:.85;font-style:italic}
 
-/* Responsive Tablette & PC */
-@media(min-width:700px){
-.stats{grid-template-columns:repeat(4,minmax(0,1fr))}
-.stat:nth-child(n)::before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:1px;background:var(--sep)}
-.stat:first-child::before,.stat:nth-child(n+3)::after{display:none}
-.cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px}
-.grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-.jgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
-.jgrid .full{grid-column:1/-1}
-.certs{grid-template-columns:repeat(2,minmax(0,1fr))}
-.certs .row:nth-child(2)::before{display:none}
-.certs .row:nth-child(2n)::after{content:"";position:absolute;left:0;top:12px;bottom:12px;width:1px;background:var(--sep)}
-.hobs{grid-template-columns:repeat(3,minmax(0,1fr))}
-.cta{padding:64px 40px}}
-@media(min-width:1024px) and (min-height:600px){
-:root{--top:84px;--gx:32px}
-.hin{padding:16px 32px}
-.tools{height:52px}.tb{width:44px;height:44px}
-.nav{top:calc(env(safe-area-inset-top) + 14px);bottom:auto;left:0;right:0;width:min(470px,calc(100vw - 560px));max-width:none;height:56px;animation-name:navin-d}
-.nb{flex-direction:row;gap:8px;font-size:.8rem}.nb svg{width:19px;height:19px}
-.shell{padding-bottom:48px}
-#toast{bottom:32px}
-.sec{padding-top:128px}
-.hero{grid-template-columns:minmax(0,1.25fr) minmax(360px,.75fr);gap:64px;padding-top:56px;min-height:calc(100dvh - var(--top) - 220px)}
-.grid.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
-.split{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:72px}
-.steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
-.steps .row{flex-direction:column;align-items:flex-start;padding:24px 20px}
-.steps .row+.row::before{top:20px;bottom:20px;left:0;right:auto;width:1px;height:auto}
-.vh{padding-top:56px}
-.two{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:64px;align-items:start}
-.two .vh{position:sticky;top:calc(var(--top) + 40px)}
-.two .ct{margin-top:56px}
-.cta{margin-top:128px}}
-@media(prefers-reduced-motion:reduce){*,::before,::after{animation-duration:.01ms!important;transition-duration:.01ms!important}.rv,.sw .w>span,.tl8.rv .row{opacity:1!important;transform:none!important;filter:none!important}}
+.vctl{display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 16px calc(14px + env(safe-area-inset-bottom,0px))}
+.where{min-width:150px;text-align:center}
+.where b{display:block;font:400 16px/1.2 var(--disp)}
+.dots{display:flex;justify-content:center;gap:6px;margin-top:7px}
+.dots i{width:6px;height:6px;border-radius:50%;background:rgba(231,235,244,.25);transition:background-color .25s,transform .25s}
+.dots i.on{background:#f1dfae;transform:scale(1.35)}
+.hint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);padding:7px 14px;border-radius:999px;background:rgba(0,0,0,.45);font-size:13.5px;color:#e7ebf4;white-space:nowrap;pointer-events:none;transition:opacity .4s}
+.hint.gone{opacity:0}
+
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+::view-transition-new(root){animation:reveal .7s cubic-bezier(.3,.7,.2,1) both}
+@keyframes reveal{from{clip-path:circle(0 at var(--vx) var(--vy))}to{clip-path:circle(150vmax at var(--vx) var(--vy))}}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}html{scroll-behavior:auto}}
+@media (prefers-reduced-transparency:reduce){.hdr{background:var(--bg);-webkit-backdrop-filter:none;backdrop-filter:none}}
 </style>
 </head>
 <body>
-<a class="skip" href="#shell" data-en="Skip to content">Aller au contenu</a>
+<div class="light" aria-hidden="true"></div>
 
-<header class="top">
-  <div class="hin">
-    <a class="brand" href="#profil" aria-label="Miss K. Halli, accueil" data-en-aria="Miss K. Halli, home" data-go="profil">
-      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230a84ff'/%3E%3Cstop offset='100%25' stop-color='%235e5ce6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='60' cy='60' r='60' fill='url(%23g)'/%3E%3Ctext x='60' y='74' font-family='-apple-system,BlinkMacSystemFont,sans-serif' font-size='42' font-weight='700' fill='%23fff' text-anchor='middle' letter-spacing='-1'%3EKH%3C/text%3E%3C/svg%3E" width="34" height="34" alt="">
-      <span>Miss K. Halli<small data-en="English Language Teacher">Enseignante de langue anglaise</small></span>
-    </a>
-    <div class="tools glass" role="group" aria-label="Préférences" data-en-aria="Preferences">
-      <button class="tb" id="langBtn" type="button" aria-label="Read in English" title="FR / EN">EN</button>
-      <button class="tb" id="admBtn" type="button" aria-label="Espace administrateur" title="Admin"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button>
-      <button class="tb" id="themeBtn" type="button" aria-label="Changer de thème" data-en-aria="Change theme" title="Thème"></button>
-    </div>
-  </div>
+<header class="hdr">
+<div class="wrap">
+<a class="brand" href="#top" aria-label="Miss Halli, accueil"><span class="mono" aria-hidden="true">KH</span><span><b>Miss Halli</b><small>Anglais des affaires</small></span></a>
+<nav class="nav" aria-label="Navigation principale"><a href="#cours">Cours</a><a href="#contact">Contact</a></nav>
+<div class="lampslot" style="position:relative;align-self:flex-start;height:64px">
+<button class="lamp" id="lamp" type="button" aria-pressed="true" aria-label="Lampe allumée. Éteindre pour passer en mode sombre">
+<svg viewBox="0 0 58 150" aria-hidden="true">
+<defs><radialGradient id="hg" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe6a6" stop-opacity=".9"/><stop offset="1" stop-color="#ffe6a6" stop-opacity="0"/></radialGradient></defs>
+<g id="lsw">
+<path class="cord" d="M29 0v38" stroke-width="1.6"/>
+<rect x="24" y="36" width="10" height="7" rx="2" fill="#8f6a24"/>
+<circle class="halo" cx="29" cy="70" r="26" fill="url(#hg)"/>
+<path class="shade" d="M10 66c0-14 8-23 19-23s19 9 19 23z"/>
+<path d="M10 66h38" stroke="#c49a45" stroke-width="2" stroke-linecap="round"/>
+<ellipse class="bulb" cx="29" cy="68" rx="7.5" ry="5"/>
+<g id="cordg"><path class="cord" d="M41 66v44" stroke-width="1.2"/><circle class="bead" cx="41" cy="113" r="4.5" stroke-width="1"/><circle cx="41" cy="113" r="16" fill="transparent"/></g>
+</g>
+</svg>
+</button>
+<span class="lamptip" id="lamptip">Tirez le cordon</span>
+</div>
+</div>
 </header>
 
-<div class="shell" id="shell">
-<main>
-
-<!-- ===================== VUE 1 : PROFIL ===================== -->
-<section class="view on" id="profil" aria-labelledby="h1">
-  <div class="hero">
-    <div>
-      <span class="pill rv" data-en="English Language Teacher · L1 to Master 1">Enseignante de langue anglaise · Licence &amp; Master</span>
-      <h1 id="h1" class="sw">Miss <span class="hl">K. Halli</span></h1>
-      <p class="sub rv" style="--d:2" data-en="English at the service of commerce, marketing and international finance.">L'anglais au service du commerce, du marketing et de la finance internationale.</p>
-      <p class="lead rv" style="--d:3" data-en="Specialized in Business English and English for Specific Purposes (ESP), I guide students from Bachelor (L1–L3) to Master 1 in mastering professional communication, specialized vocabulary and business case analysis.">Spécialisée en anglais des affaires et anglais de spécialité (ESP), j'accompagne les étudiants de la Licence 1 au Master 1 dans la maîtrise de la communication professionnelle, de la terminologie spécialisée et de l'analyse de cas d'entreprise.</p>
-      <div class="acts rv" style="--d:4">
-        <button class="btn pri" type="button" data-go="cours">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-          <span data-en="Access courses (PDF)">Accéder aux cours (PDF)</span>
-        </button>
-        <button class="btn" type="button" data-go="contact">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          <span data-en="Contact me">Me contacter</span>
-        </button>
-      </div>
-      <ul class="who4 rv" style="--d:5" aria-label="Domaines" data-en-aria="Fields">
-        <li><i style="--c:var(--c-blue)"><svg viewBox="0 0 24 24"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg></i><span data-en="Commerce">Commerce</span></li>
-        <li><i style="--c:var(--c-orange)"><svg viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></i><span data-en="Marketing">Marketing</span></li>
-        <li><i style="--c:var(--c-green)"><svg viewBox="0 0 24 24"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></i><span data-en="International Finance">Finance internationale</span></li>
-        <li><i style="--c:var(--c-purple)"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></i><span data-en="Business English">Business English</span></li>
-      </ul>
-    </div>
-
-    <!-- Carte d'identité -->
-    <div class="box idc rv" style="--d:2">
-      <div class="ph">
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230a84ff'/%3E%3Cstop offset='100%25' stop-color='%235e5ce6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='240' height='240' fill='url(%23g)'/%3E%3Ctext x='120' y='145' font-family='-apple-system,BlinkMacSystemFont,sans-serif' font-size='78' font-weight='700' fill='%23fff' text-anchor='middle' letter-spacing='-2'%3EKH%3C/text%3E%3C/svg%3E" width="512" height="512" alt="Portrait de Miss K. Halli" data-en-alt="Portrait of Miss K. Halli" fetchpriority="high">
-      </div>
-      <p class="nm">Miss K. Halli<small data-en="English Language Teacher">Enseignante de langue anglaise</small></p>
-      <ul class="rows">
-        <li class="row"><span class="k" data-en="Discipline">Discipline</span><span class="v" data-en="Business &amp; Academic English">Anglais de spécialité (ESP)</span></li>
-        <li class="row"><span class="k" data-en="Levels">Niveaux</span><span class="v">L1 · L2 · L3 · Master 1</span></li>
-        <li class="row"><span class="k" data-en="Tracks">Filières</span><span class="v" data-en="Commerce · Marketing · Finance">Commerce · Marketing · Finance</span></li>
-        <li class="row"><span class="k" data-en="Materials">Supports</span><span class="v" data-en="Courses · Tutorials · PDF">Cours · TD · Fichiers PDF</span></li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- En bref -->
-  <div class="box stats rv" aria-label="En bref" data-en-aria="At a glance">
-    <div class="stat"><b data-n="5">5</b><span data-en="programs taught">filières enseignées</span></div>
-    <div class="stat"><b data-n="4">4</b><span data-en="university levels (L1 to M1)">niveaux universitaires (L1 à M1)</span></div>
-    <div class="stat"><b data-n="100" data-s="%">100%</b><span data-en="PDF course materials">supports de cours en PDF</span></div>
-    <div class="stat"><b data-n="4">4</b><span data-en="language skills developed">compétences linguistiques clés</span></div>
-  </div>
-
-  <!-- À propos -->
-  <div class="sec" id="apropos">
-    <span class="lbl rv" data-en="Profile">Profil</span>
-    <h2 class="sw" data-en="Teaching English for real-world business.">Enseigner l'anglais pour le monde professionnel.</h2>
-    <p class="big rv" data-en="In international trade, marketing and finance, mastering English gives students the power to understand global markets and communicate with precision.">Dans le commerce international, le marketing et la finance, maîtriser l'anglais permet aux étudiants de comprendre les marchés mondiaux et de communiquer avec justesse.</p>
-    <div class="cols">
-      <p class="rv" data-en="My courses are designed to progress step by step: consolidating grammar and commercial communication in L1 and L2 Commerce, then diving into market strategy, branding, corporate finance and international trade in L3 and Master 1.">Mes cours sont conçus de manière progressive : consolider la grammaire et la communication commerciale en L1 et L2 Commerce, puis approfondir la stratégie marketing, l'image de marque, la finance d'entreprise et le commerce international en L3 et Master 1.</p>
-      <p class="rv" style="--d:1" data-en="This platform gathers all course handouts, vocabulary lists, grammar summaries and tutorial worksheets in PDF format so students can download and review them anytime.">Cette plateforme rassemble l'ensemble des supports de cours, listes de vocabulaire, synthèses grammaticales et fiches de TD au format PDF afin que chaque étudiant puisse les télécharger et réviser à tout moment.</p>
-    </div>
-  </div>
-
-  <!-- Spécialités -->
-  <div class="sec" id="science">
-    <span class="lbl rv" data-en="Teaching Areas">Domaines d'enseignement</span>
-    <h2 class="sw" data-en="Solid foundations in Business English.">Des bases solides en anglais professionnel.</h2>
-    <p class="lead rv" data-en="Four complementary pillars tailored to commerce, marketing and international finance curricula.">Quatre piliers complémentaires adaptés aux programmes de commerce, de marketing et de finance internationale.</p>
-    <div class="grid g4">
-      <article class="box card rv">
-        <span class="ic" style="--c:var(--c-blue)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg></span>
-        <h3 data-en="Commerce &amp; Trade">Commerce &amp; Échanges</h3>
-        <p data-en="Company organization, commercial correspondence, orders and customer relations.">Organisation de l'entreprise, correspondance commerciale, commandes et relation client.</p>
-        <div class="tags"><span>L1 Commerce</span><span>L2 Commerce</span><span data-en="Business emails">E-mails pro</span><span data-en="Sales">Vente</span></div>
-      </article>
-      <article class="box card rv" style="--d:1">
-        <span class="ic" style="--c:var(--c-orange)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>
-        <h3 data-en="Marketing &amp; Branding">Marketing &amp; Stratégie</h3>
-        <p data-en="Consumer behavior, 4Ps, market segmentation, digital campaigns and brand management.">Comportement du consommateur, 4P, segmentation, campagnes digitales et gestion de marque.</p>
-        <div class="tags"><span>L3 Marketing</span><span>M1 Marketing</span><span>4Ps &amp; SWOT</span><span>Branding</span></div>
-      </article>
-      <article class="box card rv" style="--d:2">
-        <span class="ic" style="--c:var(--c-green)"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
-        <h3 data-en="Finance &amp; Int. Trade">Finance &amp; Commerce Int.</h3>
-        <p data-en="Financial statements, banking, Incoterms, import-export operations and global markets.">États financiers, banque, Incoterms, opérations d'import-export et marchés mondiaux.</p>
-        <div class="tags"><span>M1 Finance</span><span>Incoterms</span><span>Import/Export</span><span>Banking</span></div>
-      </article>
-      <article class="box card rv" style="--d:3">
-        <span class="ic" style="--c:var(--c-purple)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
-        <h3 data-en="Language Mastery">Maîtrise de la langue</h3>
-        <p data-en="Applied grammar, reading authentic economic press, academic writing and oral presentations.">Grammaire appliquée, lecture de la presse économique, rédaction et expression orale.</p>
-        <div class="tags"><span>Grammar</span><span>Reading</span><span>Writing</span><span>Speaking</span></div>
-      </article>
-    </div>
-  </div>
-
-  <!-- Aperçu des catégories de cours -->
-  <div class="sec split" id="biostudy">
-    <div>
-      <span class="lbl rv" data-en="Student Space">Espace Étudiants</span>
-      <p class="wm rv" aria-hidden="true">English<i>PDF</i></p>
-      <h2 class="sw" data-en="All course materials organized by level.">Tous les supports de cours classés par promotion.</h2>
-      <p class="lead rv" data-en="Access the dedicated section for your program to download the PDF lessons, vocabulary glossaries and tutorial worksheets.">Accédez directement à votre promotion pour télécharger les chapitres de cours, lexiques thématiques et fiches de travaux dirigés au format PDF.</p>
-      <ul class="pts">
-        <li class="rv"><span class="ic" style="--c:var(--c-blue)"><svg viewBox="0 0 24 24"><path d="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10Z"/><path d="m9 12 2 2 4-4"/></svg></span><div><b data-en="5 dedicated categories">5 catégories dédiées</b><span data-en="L1 Commerce, L2 Commerce, L3 Marketing, M1 Marketing and M1 Finance &amp; International Trade.">L1 Commerce, L2 Commerce, L3 Marketing, M1 Marketing et M1 Finance et Commerce international.</span></div></li>
-        <li class="rv" style="--d:1"><span class="ic" style="--c:var(--c-orange)"><svg viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></span><div><b data-en="Instant PDF access">Ouverture &amp; téléchargement PDF</b><span data-en="One click to open or save your course handouts on smartphone, tablet or PC.">Un clic suffit pour ouvrir ou enregistrer vos supports sur smartphone, tablette ou PC.</span></div></li>
-        <li class="rv" style="--d:2"><span class="ic" style="--c:var(--c-teal)"><svg viewBox="0 0 24 24"><path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/></svg></span><div><b data-en="Structured for exams">Pensé pour les révisions</b><span data-en="Clear chapters covering vocabulary, grammar and professional case studies.">Des chapitres clairs couvrant le vocabulaire métier, la grammaire et les études de cas.</span></div></li>
-      </ul>
-      <div class="acts rv">
-        <button class="btn pri" type="button" data-go="cours">
-          <span data-en="Open all courses">Ouvrir tous les cours</span>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <div class="box tl8 rv" aria-label="Catégories de cours" data-en-aria="Course categories">
-      <ul class="rows">
-        <li><a class="row" style="--d:0" href="#cat-l1-commerce" data-go="cat-l1-commerce"><span class="ic" style="--c:var(--c-blue)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></span><span class="t"><b>L1 Commerce</b><small data-en="Introduction to Business English &amp; core grammar">Introduction à l'anglais commercial &amp; grammaire</small></span><span class="lnk">PDF <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></a></li>
-        <li><a class="row" style="--d:1" href="#cat-l2-commerce" data-go="cat-l2-commerce"><span class="ic" style="--c:var(--c-indigo)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg></span><span class="t"><b>L2 Commerce</b><small data-en="Business correspondence, orders &amp; negotiation">Correspondance commerciale, commandes &amp; négociation</small></span><span class="lnk">PDF <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></a></li>
-        <li><a class="row" style="--d:2" href="#cat-l3-marketing" data-go="cat-l3-marketing"><span class="ic" style="--c:var(--c-orange)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span><span class="t"><b>L3 Marketing</b><small data-en="Marketing mix (4Ps), market research &amp; branding">Marketing mix (4P), études de marché &amp; marque</small></span><span class="lnk">PDF <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></a></li>
-        <li><a class="row" style="--d:3" href="#cat-m1-marketing" data-go="cat-m1-marketing"><span class="ic" style="--c:var(--c-pink)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span><span class="t"><b>M1 Marketing</b><small data-en="Strategic marketing, digital KPIs &amp; case studies">Marketing stratégique, KPIs digitaux &amp; études de cas</small></span><span class="lnk">PDF <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></a></li>
-        <li><a class="row" style="--d:4" href="#cat-m1-finance" data-go="cat-m1-finance"><span class="ic" style="--c:var(--c-green)"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="t"><b data-en="M1 Finance &amp; International Trade">M1 Finance et Commerce international</b><small data-en="Corporate finance, Incoterms &amp; global trade">Finance d'entreprise, Incoterms &amp; commerce mondial</small></span><span class="lnk">PDF <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></a></li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Méthode -->
-  <div class="sec" id="methode">
-    <span class="lbl rv" data-en="Teaching Method">Méthode pédagogique</span>
-    <h2 class="sw" data-en="Rigour, practice, clear communication.">Rigueur, pratique, clarté d'expression.</h2>
-    <ol class="box rows steps rv">
-      <li class="row"><span class="n">1</span><span class="t"><b data-en="Observe">Observer</b><small data-en="Read and analyze authentic business documents and articles.">Lire et analyser des documents commerciaux et articles authentiques.</small></span></li>
-      <li class="row"><span class="n">2</span><span class="t"><b data-en="Understand">Comprendre</b><small data-en="Identify key terminology and grammatical structures.">Assimiler la terminologie métier et les structures grammaticales clés.</small></span></li>
-      <li class="row"><span class="n">3</span><span class="t"><b data-en="Practice">Pratiquer</b><small data-en="Solve targeted exercises and real-world case studies.">S'entraîner sur des exercices ciblés et des études de cas concrets.</small></span></li>
-      <li class="row"><span class="n">4</span><span class="t"><b data-en="Express">S'exprimer</b><small data-en="Write professional emails, reports and present orally.">Rédiger des écrits professionnels et présenter un projet à l'oral.</small></span></li>
-      <li class="row"><span class="n">5</span><span class="t"><b data-en="Succeed">Réussir</b><small data-en="Review with the PDF sheets to excel in exams and at work.">Réviser avec les fiches PDF pour réussir aux examens et en entreprise.</small></span></li>
-    </ol>
-  </div>
-
-  <!-- Citation -->
-  <figure class="sec quote rv">
-    <blockquote data-en="“To have another language is to possess a second soul.”">« Connaître une autre langue, c'est posséder une seconde âme. »</blockquote>
-    <figcaption>Charlemagne</figcaption>
-  </figure>
-
-  <!-- Bandeau final -->
-  <div class="box cta rv">
-    <h2 class="sw" data-en="Download your course materials.">Téléchargez vos supports de cours.</h2>
-    <p class="lead" data-en="All PDF documents are sorted by academic level in the Courses section.">Tous les documents PDF sont classés par promotion dans l'onglet Cours.</p>
-    <div class="acts">
-      <button class="btn pri" type="button" data-go="cours"><span data-en="See the courses">Voir les cours</span></button>
-      <button class="btn" type="button" data-go="contact"><span data-en="Contact me">Me contacter</span></button>
-    </div>
-  </div>
+<main id="top">
+<section class="hero">
+<div class="wrap">
+<p class="who">Miss K. Halli, enseignante d'anglais</p>
+<h1>Mes cours d'anglais, rangés par niveau</h1>
+<p class="lede">Choisissez votre niveau, ouvrez le livre et tournez les pages jusqu'à votre cours. Chaque cours se télécharge en PDF.</p>
+<ul class="tabs" id="tabs"></ul>
+</div>
 </section>
 
-<!-- ===================== VUE 2 : COURS ===================== -->
-<section class="view" id="cours" aria-labelledby="t-cr">
-  <div class="vh">
-    <span class="lbl rv" data-en="Courses">Cours</span>
-    <h2 id="t-cr" class="sw" data-en="Course materials by category.">Supports de cours par catégorie.</h2>
-    <p class="lead rv" style="--d:2" data-en="Click on any course below to open or download the corresponding PDF document.">Cliquez sur le cours de votre choix ci-dessous pour ouvrir ou télécharger le support PDF correspondant.</p>
-    <nav class="qnav rv" style="--d:3" aria-label="Accès rapide aux filières">
-      <a href="#cat-l1-commerce" data-scroll="cat-l1-commerce"><i style="--c:var(--c-blue)"></i><span>L1 Commerce</span></a>
-      <a href="#cat-l2-commerce" data-scroll="cat-l2-commerce"><i style="--c:var(--c-indigo)"></i><span>L2 Commerce</span></a>
-      <a href="#cat-l3-marketing" data-scroll="cat-l3-marketing"><i style="--c:var(--c-orange)"></i><span>L3 Marketing</span></a>
-      <a href="#cat-m1-marketing" data-scroll="cat-m1-marketing"><i style="--c:var(--c-pink)"></i><span>M1 Marketing</span></a>
-      <a href="#cat-m1-finance" data-scroll="cat-m1-finance"><i style="--c:var(--c-green)"></i><span data-en="M1 Finance &amp; International Trade">M1 Finance et Commerce international</span></a>
-    </nav>
-  </div>
-
-  <!-- L1 Commerce : les liens se déposent via l'espace admin (clé L1_COMMERCE_COURS_n) -->
-  <div class="blk rv" id="cat-l1-commerce">
-    <h3>
-      <span class="cat-t">
-        <span class="ic" style="--c:var(--c-blue)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></span>
-        <span>L1 Commerce</span>
-      </span>
-      <small data-en="Bachelor 1 · Business English Foundations">Licence 1 · Anglais commercial fondamental</small>
-    </h3>
-    <ul class="box rows">
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_L1_COMMERCE_COURS_1.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 1 — Introduction to Business &amp; Company Organization">Cours 1 — Introduction to Business &amp; Company Organization</b>
-            <small data-en="PDF · Sectors of activity, company departments and job titles">PDF · Secteurs d'activité, départements de l'entreprise et fonctions</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_L1_COMMERCE_COURS_2.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 2 — Professional Communication &amp; Telephoning">Cours 2 — Professional Communication &amp; Telephoning</b>
-            <small data-en="PDF · Greeting visitors, formal vs. informal English and phone calls">PDF · Accueil professionnel, registre formel/informel et appels téléphoniques</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_L1_COMMERCE_COURS_3.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 3 — Business Grammar, Numbers &amp; Figures">Cours 3 — Business Grammar, Numbers &amp; Figures</b>
-            <small data-en="PDF · Core tenses, percentages, currencies, dates and trends">PDF · Temps essentiels, pourcentages, devises, dates et évolution chiffrée</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-    </ul>
-  </div>
-
-  <!-- L2 Commerce : les liens se déposent via l'espace admin (clé L2_COMMERCE_COURS_n) -->
-  <div class="blk rv" id="cat-l2-commerce">
-    <h3>
-      <span class="cat-t">
-        <span class="ic" style="--c:var(--c-indigo)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg></span>
-        <span>L2 Commerce</span>
-      </span>
-      <small data-en="Bachelor 2 · Commercial Operations &amp; Correspondence">Licence 2 · Correspondance &amp; Opérations commerciales</small>
-    </h3>
-    <ul class="box rows">
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_L2_COMMERCE_COURS_1.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 1 — Business Correspondence, Inquiries &amp; Quotations">Cours 1 — Business Correspondence, Inquiries &amp; Quotations</b>
-            <small data-en="PDF · Writing professional emails, requests for information and quotes">PDF · Rédaction d'e-mails professionnels, demandes d'informations et devis</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_L2_COMMERCE_COURS_2.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 2 — Orders, Invoicing &amp; Handling Complaints">Cours 2 — Orders, Invoicing &amp; Handling Complaints</b>
-            <small data-en="PDF · Placing orders, delivery terms, invoices and customer claims">PDF · Commandes, conditions de livraison, facturation et réclamations</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_L2_COMMERCE_COURS_3.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 3 — Business Meetings &amp; Sales Negotiation">Cours 3 — Business Meetings &amp; Sales Negotiation</b>
-            <small data-en="PDF · Conducting meetings, bargaining and closing commercial deals">PDF · Conduite de réunion, argumentation et négociation commerciale</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-    </ul>
-  </div>
-
-  <!-- L3 Marketing : les liens se déposent via l'espace admin (clé L3_MARKETING_COURS_n) -->
-  <div class="blk rv" id="cat-l3-marketing">
-    <h3>
-      <span class="cat-t">
-        <span class="ic" style="--c:var(--c-orange)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>
-        <span>L3 Marketing</span>
-      </span>
-      <small data-en="Bachelor 3 · Marketing Mix, Market Research &amp; Branding">Licence 3 · Marketing opérationnel, études de marché &amp; marque</small>
-    </h3>
-    <ul class="box rows">
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_L3_MARKETING_COURS_1.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 1 — The Marketing Mix (4Ps &amp; 7Ps) &amp; Product Life Cycle">Cours 1 — The Marketing Mix (4Ps &amp; 7Ps) &amp; Product Life Cycle</b>
-            <small data-en="PDF · Product, Price, Place, Promotion and lifecycle phases">PDF · Produit, Prix, Distribution, Promotion et cycle de vie du produit</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_L3_MARKETING_COURS_2.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 2 — Market Research, Segmentation &amp; Consumer Behavior">Cours 2 — Market Research, Segmentation &amp; Consumer Behavior</b>
-            <small data-en="PDF · SWOT analysis, surveys, targeting and positioning (STP)">PDF · Analyse SWOT, enquêtes, segmentation, ciblage et positionnement</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_L3_MARKETING_COURS_3.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 3 — Branding, Advertising &amp; Promotional Campaigns">Cours 3 — Branding, Advertising &amp; Promotional Campaigns</b>
-            <small data-en="PDF · Brand identity, slogans, advertising media and copywriting">PDF · Identité de marque, slogans, supports publicitaires et communication</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-    </ul>
-  </div>
-
-  <!-- M1 Marketing : les liens se déposent via l'espace admin (clé M1_MARKETING_COURS_n) -->
-  <div class="blk rv" id="cat-m1-marketing">
-    <h3>
-      <span class="cat-t">
-        <span class="ic" style="--c:var(--c-pink)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
-        <span>M1 Marketing</span>
-      </span>
-      <small data-en="Master 1 · Strategic &amp; Digital Marketing">Master 1 · Marketing stratégique, digital &amp; international</small>
-    </h3>
-    <ul class="box rows">
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_M1_MARKETING_COURS_1.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 1 — Strategic Marketing &amp; Global Brand Equity">Cours 1 — Strategic Marketing &amp; Global Brand Equity</b>
-            <small data-en="PDF · Competitive advantage, global positioning and brand strategies">PDF · Avantage concurrentiel, positionnement global et stratégies de marque</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_M1_MARKETING_COURS_2.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 2 — Digital Marketing, E-Commerce &amp; Performance KPIs">Cours 2 — Digital Marketing, E-Commerce &amp; Performance KPIs</b>
-            <small data-en="PDF · SEO/SEA, conversion funnels, CRM, ROI and analytics metrics">PDF · SEO/SEA, tunnels de conversion, CRM, ROI et indicateurs de performance</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_M1_MARKETING_COURS_3.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 3 — Marketing Case Studies &amp; Executive Pitch">Cours 3 — Marketing Case Studies &amp; Executive Pitch</b>
-            <small data-en="PDF · Analyzing international business cases and presenting recommendations">PDF · Analyse d'études de cas internationales et présentation orale de stratégie</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-    </ul>
-  </div>
-
-  <!-- M1 Finance et Commerce international : les liens se déposent via l'espace admin (clé M1_FINANCE_COURS_n) -->
-  <div class="blk rv" id="cat-m1-finance">
-    <h3>
-      <span class="cat-t">
-        <span class="ic" style="--c:var(--c-green)"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
-        <span data-en="M1 Finance &amp; International Trade">M1 Finance et Commerce international</span>
-      </span>
-      <small data-en="Master 1 · Financial English &amp; Global Trade Operations">Master 1 · Anglais financier &amp; Commerce international</small>
-    </h3>
-    <ul class="box rows">
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_M1_FINANCE_COURS_1.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 1 — International Trade Operations, Customs &amp; Incoterms">Cours 1 — International Trade Operations, Customs &amp; Incoterms</b>
-            <small data-en="PDF · Import/export contracts, Incoterms 2020, shipping and customs">PDF · Contrats import/export, Incoterms 2020, transport et douanes</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_M1_FINANCE_COURS_2.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 2 — Corporate Finance, Accounting &amp; Financial Statements">Cours 2 — Corporate Finance, Accounting &amp; Financial Statements</b>
-            <small data-en="PDF · Balance sheet, income statement, cash flow and financial ratios">PDF · Bilan comptable, compte de résultat, trésorerie et ratios financiers</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-      <li>
-        <a class="row" href="METTRE_LIEN_PDF_M1_FINANCE_COURS_3.pdf" target="_blank" rel="noopener">
-          <span class="ic" style="--c:var(--c-red)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
-          <span class="t">
-            <b data-en="Course 3 — International Payment Methods, Banking &amp; Forex">Cours 3 — International Payment Methods, Banking &amp; Forex</b>
-            <small data-en="PDF · Letters of credit, documentary collection, exchange rates and risk">PDF · Crédit documentaire, remise documentaire, taux de change et couverture</small>
-          </span>
-          <span class="pdf-btn"><span data-en="Open PDF">Ouvrir le PDF</span><svg viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-        </a>
-      </li>
-    </ul>
-  </div>
-
-</section>
-<!-- ===================== VUE 3 : PARCOURS ===================== -->
-<section class="view" id="parcours" aria-labelledby="t-pc">
-  <div class="vh">
-    <span class="lbl rv" data-en="Background &amp; Curriculum">Parcours &amp; Programmes</span>
-    <h2 id="t-pc" class="sw" data-en="University teaching and curriculum overview.">Enseignements universitaires et programmes.</h2>
-  </div>
-  <div class="jgrid blk">
-    <div class="box jb rv">
-      <h3><span class="ic" style="--c:var(--c-green)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></span><span data-en="Master's Level (M1)">Cycle Master (M1)</span></h3>
-      <div class="ti now">
-        <small data-en="Master 1">Master 1</small>
-        <h4 data-en="M1 Finance &amp; International Trade">M1 Finance et Commerce international</h4>
-        <p data-en="Financial English, corporate reporting, Incoterms, international banking and trade regulations.">Anglais financier, états comptables, Incoterms, opérations bancaires internationales et commerce mondial.</p>
-      </div>
-      <div class="ti now">
-        <small data-en="Master 1">Master 1</small>
-        <h4>M1 Marketing</h4>
-        <p data-en="Strategic brand management, digital marketing metrics, international campaigns and executive presentations.">Gestion stratégique de marque, indicateurs du marketing digital, campagnes internationales et présentations orales.</p>
-      </div>
-      <div class="tags"><span data-en="Case studies">Études de cas</span><span>Business Pitch</span><span>Financial English</span><span>Global Trade</span></div>
-    </div>
-
-    <div class="box jb rv" style="--d:1">
-      <h3><span class="ic" style="--c:var(--c-blue)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></span><span data-en="Bachelor's Level (L1 – L3)">Cycle Licence (L1 – L3)</span></h3>
-      <div class="ti now">
-        <small data-en="Bachelor Year 3">Licence 3</small>
-        <h4>L3 Marketing</h4>
-        <p data-en="Marketing mix (4Ps), market research, consumer behavior, branding and advertising copy.">Marketing mix (4P), études de marché, comportement du consommateur, marque et publicité.</p>
-      </div>
-      <div class="ti">
-        <small data-en="Bachelor Year 2">Licence 2</small>
-        <h4>L2 Commerce</h4>
-        <p data-en="Commercial correspondence, inquiries, orders, invoicing, customer service and sales meetings.">Correspondance commerciale, demandes d'offres, commandes, facturation, service client et réunions.</p>
-      </div>
-      <div class="ti">
-        <small data-en="Bachelor Year 1">Licence 1</small>
-        <h4>L1 Commerce</h4>
-        <p data-en="Introduction to Business English, company structure, grammar essentials and professional communication.">Introduction à l'anglais des affaires, structure de l'entreprise, bases grammaticales et communication.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="blk rv">
-    <span class="gh" data-en="Languages">Langues</span>
-    <ul class="box rows certs">
-      <li class="row"><span class="k" data-en="English">Anglais</span><span class="lvl" style="--c:var(--c-blue)" data-en="Teaching Language · Academic &amp; ESP">Langue d'enseignement · ESP</span></li>
-      <li class="row"><span class="k" data-en="French">Français</span><span class="lvl" style="--c:var(--c-green)" data-en="Full proficiency">Maîtrise complète</span></li>
-      <li class="row"><span class="k" data-en="Arabic">Arabe</span><span class="lvl" style="--c:var(--c-green)" data-en="Native">Natif</span></li>
-      <li class="row"><span class="k" data-en="Kabyle / Tamazight">Kabyle / Tamazight</span><span class="lvl" style="--c:var(--c-green)" data-en="Native">Natif</span></li>
-    </ul>
-  </div>
-
-  <div class="sec" id="beyond">
-    <span class="lbl rv" data-en="Pedagogical Objectives">Objectifs pédagogiques</span>
-    <h2 class="sw" data-en="Preparing students for international careers.">Préparer les étudiants aux carrières internationales.</h2>
-    <div class="grid hobs">
-      <article class="box hob rv">
-        <span class="ic n"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
-        <h3 data-en="Professional Writing">Écrit professionnel</h3>
-        <p data-en="Drafting accurate business emails, commercial documents and structured case reports.">Rédiger des e-mails professionnels, des documents commerciaux et des synthèses structurées.</p>
-      </article>
-      <article class="box hob rv" style="--d:1">
-        <span class="ic n"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></span>
-        <h3 data-en="Oral Fluency">Aisance à l'oral</h3>
-        <p data-en="Speaking clearly during business meetings, negotiations and marketing pitches.">Prendre la parole avec clarté lors de réunions, négociations et présentations marketing.</p>
-      </article>
-      <article class="box hob rv" style="--d:2">
-        <span class="ic n"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span>
-        <h3 data-en="Specialized Terminology">Terminologie métier</h3>
-        <p data-en="Mastering the exact vocabulary of commerce, marketing and international finance.">Maîtriser le vocabulaire précis du commerce, du marketing et de la finance internationale.</p>
-      </article>
-    </div>
-  </div>
+<section class="lib" id="cours" aria-labelledby="lib-t">
+<div class="wrap">
+<div class="lib-h"><h2 id="lib-t">La bibliothèque</h2><p id="cnt">5 livres, 15 cours</p></div>
+<div class="shelves" id="shelves"></div>
+</div>
 </section>
 
-<!-- ===================== VUE 4 : CONTACT ===================== -->
-<section class="view" id="contact" aria-labelledby="t-ct">
-  <div class="two">
-    <div class="vh">
-      <span class="lbl rv">Contact</span>
-      <h2 id="t-ct" class="sw" data-en="Get in touch.">Me contacter.</h2>
-      <p class="lead rv" style="--d:2" data-en="A question regarding a course, a PDF handout or an assignment? Send me an email and make sure to mention your level and group.">Une question concernant un cours, un support PDF ou un travail demandé ? Écrivez-moi par e-mail en précisant votre niveau et votre groupe.</p>
-      <div class="acts rv" style="--d:3">
-        <!-- Remplacez k.halli@email.com par la vraie adresse e-mail (ici, plus bas, et dans la constante EMAIL du script) -->
-        <a class="btn pri" href="mailto:k.halli@email.com">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          <span data-en="Send an email">Envoyer un e-mail</span>
-        </a>
-      </div>
-    </div>
-    <div class="ct">
-      <span class="gh rv" data-en="Contact Details">Coordonnées</span>
-      <ul class="box rows rv" style="--d:1">
-        <li class="row">
-          <span class="ic" style="--c:var(--c-blue)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
-          <span class="t"><b data-en="Email">E-mail</b><small>k.halli@email.com</small></span>
-          <button class="cp" type="button" id="mailBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg><span data-en="Copy">Copier</span></button>
-        </li>
-      </ul>
-      <span class="gh rv" style="margin-top:32px" data-en="For Students">Pour les étudiants</span>
-      <ul class="box rows rv" style="--d:2">
-        <li class="row"><span class="t"><b data-en="Mention your class in the subject line">Indiquez votre filière dans l'objet du mail</b><small data-en="L1 Commerce · L2 Commerce · L3 Marketing · M1 Marketing · M1 Finance">L1 Commerce · L2 Commerce · L3 Marketing · M1 Marketing · M1 Finance</small></span></li>
-        <li class="row"><span class="t"><b data-en="Course handouts">Supports de cours PDF</b><small data-en="Available for direct download in the Courses tab">Disponibles en téléchargement direct dans l'onglet « Cours »</small></span></li>
-      </ul>
-    </div>
-  </div>
+<section class="contact" id="contact" aria-labelledby="ct-t">
+<div class="wrap">
+<div class="ccard">
+<div>
+<h2 id="ct-t">Une question ?</h2>
+<p>Sur un cours, un PDF ou un devoir, écrivez-moi. Indiquez votre niveau et votre groupe pour une réponse plus rapide.</p>
+<a class="mail" id="ml" href="mailto:k.halli@email.com">k.halli@email.com</a>
+</div>
+<div>
+<p class="fl" id="fl-t">Votre niveau (ajouté à l'objet du message)</p>
+<fieldset class="chips" id="chips" aria-labelledby="fl-t"></fieldset>
+<div class="acts">
+<a class="btn pri" id="send" href="mailto:k.halli@email.com"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>Écrire un e-mail</a>
+<button class="btn sec" id="cp" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>Copier l'adresse</button>
+</div>
+</div>
+</div>
+</div>
 </section>
+
+<footer class="wrap foot"><p>© 2026 Miss K. Halli</p><p>Anglais commercial, marketing et financier</p></footer>
 </main>
 
-<footer data-nosnippet>
-  <span><b>Miss K. Halli</b> · <span data-en="English Language Teacher · Commerce, Marketing &amp; Finance">Enseignante de langue anglaise · Commerce, Marketing &amp; Finance</span></span>
-  <span class="cr" id="cr">© 2026</span>
-</footer>
+<div class="vw" id="vw" role="dialog" aria-modal="true" aria-labelledby="vtb" hidden>
+<div class="vbar">
+<div class="vt"><b id="vtb"></b><span id="vts"></span></div>
+<button class="ib" id="fs" type="button" aria-label="Plein écran"><svg viewBox="0 0 24 24" aria-hidden="true"><path id="fsi" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+<button class="ib" id="xb" type="button" aria-label="Fermer le livre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
 </div>
-
-<!-- Barre de navigation principale -->
-<nav class="nav" id="navWrap" aria-label="Navigation principale" data-en-aria="Main navigation">
-  <div class="nav-in glass" id="nav">
-    <span class="sl" id="sl"></span>
-    <button class="nb on" type="button" data-v="profil">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <span data-en="Profile">Profil</span>
-    </button>
-    <button class="nb" type="button" data-v="cours">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-      <span data-en="Courses">Cours</span>
-    </button>
-    <button class="nb" type="button" data-v="parcours">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>
-      <span data-en="Background">Parcours</span>
-    </button>
-    <button class="nb" type="button" data-v="contact">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-      <span>Contact</span>
-    </button>
-  </div>
-</nav>
-
-<div id="toast" class="glass" role="status" aria-live="polite"></div>
-
-<!-- Espace administrateur caché (5 appuis sur « © 2026 » ou #admin) -->
-<div id="adm" role="dialog" aria-label="Administration"><div class="pn" id="admBox"></div></div>
+<div class="stage" id="stage">
+<div class="bwrap" id="bwrap"><div class="book" id="book">
+<div class="stk l" id="stkL"></div><div class="stk r" id="stkR"></div>
+<div class="faces" id="faces"></div>
+<div class="ush" id="ushW"><i id="ush"></i></div>
+<div class="flapw" id="flapW"></div>
+<div class="fsh" id="fshW"><i id="fsh"></i></div>
+</div></div>
+<div class="hint" id="hint">Glissez le coin de la page pour la tourner</div>
+</div>
+<div class="vctl">
+<button class="ib" id="pv" type="button" aria-label="Page précédente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+<div class="where" aria-live="polite"><b id="wh"></b><div class="dots" id="dots" aria-hidden="true"></div></div>
+<button class="ib" id="nx" type="button" aria-label="Page suivante"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+</div>
+</div>
+<div id="toast" role="status"></div>
 
 <script>
-(() => {
-  'use strict';
+(()=>{
+/* ---------- Config ---------- */
+const KH_LINKS={};                       // liens manuels optionnels : {L1_COMMERCE_COURS_1:'https://...'}
+const API='COLLE_ICI_URL_APPS_SCRIPT';  // URL du déploiement Web App Apps Script
+const EM='k.halli@email.com';
 
-  /* ==================== PARTIE A : MOTEUR LIQUID GLASS ==================== */
-  if (!window.LiquidGlass) {
-    const NAV = { glassThickness: 80, bezelWidth: 40, ior: 1.4, scaleRatio: 1, blur: 3, specularOpacity: .6, specularSat: 0, tintColor: '255,255,255', tintOpacity: 0, balancedSpecular: false };
-    const LENS = { glassThickness: 30, bezelWidth: 40, ior: 1.4, scaleRatio: 1, blur: 0, specularOpacity: .5, specularSat: 0, tintColor: '255,255,255', tintOpacity: 0, balancedSpecular: true };
-    const supported = !!navigator.userAgentData && !/iPhone|iPad|iPod/.test(navigator.userAgent) &&
-      !matchMedia('(prefers-reduced-transparency: reduce)').matches;
-    document.documentElement.classList.add(supported ? 'lg-on' : 'lg-off');
+const $=i=>document.getElementById(i),root=document.documentElement;
+const ls={g(k){try{return localStorage.getItem(k)}catch(e){return null}},s(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const okUrl=u=>/^https?:\/\//i.test(u||'');
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2800)}
 
-    const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
-    const targets = new Map();
-    let defs = null;
+/* ---------- Data ---------- */
+const LV=[{id:'L1',n:'Licence 1'},{id:'L2',n:'Licence 2'},{id:'L3',n:'Licence 3'},{id:'M1',n:'Master 1'}];
+const EMB={
+case:'<rect x="8" y="18" width="32" height="22" rx="2"/><path d="M18 18v-4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4M8 28h32M22 28v3h4v-3"/>',
+mail:'<rect x="7" y="13" width="34" height="23" rx="2"/><path d="M8 15l16 12 16-12"/>',
+target:'<circle cx="22" cy="26" r="15"/><circle cx="22" cy="26" r="9"/><circle cx="22" cy="26" r="3"/><path d="M22 26L38 10M32 10h6v6"/>',
+chart:'<path d="M8 38h32M11 33l9-10 6 5 11-14M31 14h7v7"/>',
+globe:'<circle cx="24" cy="24" r="15"/><path d="M9 24h30M24 9c-7 8-7 22 0 30M24 9c7 8 7 22 0 30"/>'};
+const D=[
+{k:'L1_COMMERCE',lv:'L1',name:'Commerce',sub:'Anglais commercial fondamental',c1:'#2a4a7c',c2:'#14254a',p:'p-com',e:'case',co:['Introduction to Business & Company Organization','Professional Communication & Telephoning','Business Grammar, Numbers & Figures']},
+{k:'L2_COMMERCE',lv:'L2',name:'Commerce',sub:'Correspondance et opérations commerciales',c1:'#24604a',c2:'#0f3426',p:'p-com',e:'mail',co:['Business Correspondence, Inquiries & Quotations','Orders, Invoicing & Handling Complaints','Business Meetings & Sales Negotiation']},
+{k:'L3_MARKETING',lv:'L3',name:'Marketing',sub:'Études de marché et marque',c1:'#842a3a',c2:'#44121d',p:'p-mkt',e:'target',co:['The Marketing Mix (4Ps & 7Ps) & Product Life Cycle','Market Research, Segmentation & Consumer Behavior','Branding, Advertising & Promotional Campaigns']},
+{k:'M1_MARKETING',lv:'M1',name:'Marketing',sub:'Marketing stratégique et digital',c1:'#553878',c2:'#28173d',p:'p-mkt',e:'chart',co:['Strategic Marketing & Global Brand Equity','Digital Marketing, E-Commerce & Performance KPIs','Marketing Case Studies & Executive Pitch']},
+{k:'M1_FINANCE',lv:'M1',name:'Finance et commerce international',short:'Finance',sub:'Anglais financier et commerce international',c1:'#94622a',c2:'#4b2d0d',p:'p-fin',e:'globe',co:['International Trade Operations, Customs & Incoterms','Corporate Finance, Accounting & Financial Statements','International Payment Methods, Banking & Forex']}];
+const lvName=id=>LV.find(l=>l.id===id).n;
+const sem=j=>j<2?1:2;
 
-    const surface = x => Math.pow(1 - Math.pow(1 - x, 4), .25);
-    function profileOf(th, bz, ior, S = 128) {
-      const eta = 1 / ior, p = new Float64Array(S);
-      for (let i = 0; i < S; i++) {
-        const x = i / S, y = surface(x), dx = x < 1 ? 1e-4 : -1e-4, der = (surface(x + dx) - y) / dx, m = Math.sqrt(der * der + 1);
-        const nx = -der / m, ny = -1 / m, k = 1 - eta * eta * (1 - ny * ny);
-        if (k < 0) continue;
-        const sq = Math.sqrt(k), rx = -(eta * ny + sq) * nx, ry = eta - (eta * ny + sq) * ny;
-        p[i] = rx * ((y * bz + th) / ry);
-      }
-      return p;
-    }
-    function mapOf(w, h, r, bz, init, px) {
-      const c = document.createElement('canvas'); c.width = w; c.height = h;
-      const ctx = c.getContext('2d'), img = ctx.createImageData(w, h), d = img.data;
-      init(d);
-      const rSq = r * r, r1 = r + 1, r1Sq = r1 * r1, rBSq = Math.max(r - bz, 0) ** 2, wB = w - r * 2, hB = h - r * 2;
-      for (let y1 = 0; y1 < h; y1++) for (let x1 = 0; x1 < w; x1++) {
-        const x = x1 < r ? x1 - r : x1 >= w - r ? x1 - r - wB : 0, y = y1 < r ? y1 - r : y1 >= h - r ? y1 - r - hB : 0, dSq = x * x + y * y;
-        if (dSq > r1Sq || dSq < rBSq) continue;
-        const dist = Math.sqrt(dSq); if (!dist) continue;
-        const op = dSq < rSq ? 1 : 1 - (dist - r) / (r1 - r); if (op <= 0) continue;
-        px(d, (y1 * w + x1) * 4, x / dist, y / dist, r - dist, op);
-      }
-      ctx.putImageData(img, 0, 0);
-      return c.toDataURL();
-    }
-    function dispMap(w, h, r, bz, prof, max) {
-      const S = prof.length;
-      return mapOf(w, h, r, bz,
-        d => { for (let j = 0; j < d.length; j += 4) { d[j] = 128; d[j + 1] = 128; d[j + 2] = 0; d[j + 3] = 255; } },
-        (d, i, cos, sin, side, op) => {
-          const disp = prof[Math.min((side / bz * S) | 0, S - 1)] || 0;
-          d[i] = (128 + (-cos * disp / max) * 127 * op + .5) | 0;
-          d[i + 1] = (128 + (-sin * disp / max) * 127 * op + .5) | 0;
-        });
-    }
-    function specMap(w, h, r, bz, balanced) {
-      const a = Math.PI / 3, sx = Math.cos(a), sy = Math.sin(a);
-      return mapOf(w, h, r, bz, () => {}, (d, i, cos, sin, side, op) => {
-        const dot = balanced ? 1 : Math.abs(cos * sx - sin * sy), edge = Math.sqrt(Math.max(0, 1 - (1 - side) ** 2)), k = dot * edge, col = (255 * k) | 0;
-        d[i] = d[i + 1] = d[i + 2] = col; d[i + 3] = (col * k * op) | 0;
-      });
-    }
-    const svg = (t, a) => { const e = document.createElementNS('http://www.w3.org/2000/svg', t); for (const k in a) e.setAttribute(k, a[k]); return e; };
-    function ensureDefs() {
-      if (defs && defs.isConnected) return;
-      const s = svg('svg', { width: 0, height: 0, 'aria-hidden': 'true' });
-      s.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;pointer-events:none';
-      defs = svg('defs', {}); s.appendChild(defs); document.documentElement.appendChild(s);
-    }
-    const mapCache = new Map();
-    function cached(key, make) { let v = mapCache.get(key); if (!v) { v = make(); mapCache.set(key, v); } return v; }
-    function buildFilter(id, w, h, r, c) {
-      const K = [w, h, r, c.glassThickness, c.bezelWidth, c.ior, c.balancedSpecular].join(':');
-      const bz = Math.max(1, Math.min(c.bezelWidth, r - 1, Math.min(w, h) / 2 - 1));
-      const { prof, max } = cached('p' + K, () => { const prof = profileOf(c.glassThickness, bz, c.ior); let max = 0; for (const v of prof) max = Math.max(max, Math.abs(v)); return { prof, max: max || 1 }; });
-      const pad = c.balancedSpecular ? .36 : 0;
-      const f = svg('filter', { id, x: Math.round(-w * pad), y: Math.round(-h * pad), width: Math.round(w * (1 + pad * 2)), height: Math.round(h * (1 + pad * 2)),
-        filterUnits: 'userSpaceOnUse', primitiveUnits: 'userSpaceOnUse', 'color-interpolation-filters': 'sRGB' });
-      const tr = svg('feComponentTransfer', { in: 'spec', result: 'specF' });
-      tr.appendChild(svg('feFuncA', { type: 'linear', slope: c.specularOpacity }));
-      f.append(
-        svg('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: c.blur, result: 'bl' }),
-        svg('feImage', { href: cached('d' + K, () => dispMap(w, h, r, bz, prof, max)), x: 0, y: 0, width: w, height: h, result: 'dm' }),
-        svg('feDisplacementMap', { in: 'bl', in2: 'dm', scale: max * c.scaleRatio, xChannelSelector: 'R', yChannelSelector: 'G', result: 'dp' }),
-        svg('feColorMatrix', { in: 'dp', type: 'saturate', values: c.specularSat, result: 'ds' }),
-        svg('feImage', { href: cached('s' + K, () => specMap(w, h, r, bz * 2.5, c.balancedSpecular)), x: 0, y: 0, width: w, height: h, result: 'spec' }),
-        svg('feComposite', { in: 'ds', in2: 'spec', operator: 'in', result: 'sm' }), tr,
-        svg('feBlend', { in: 'sm', in2: 'dp', mode: 'normal', result: 'ws' }),
-        svg('feBlend', { in: 'specF', in2: 'ws', mode: 'normal' }));
-      return f;
-    }
+/* ---------- Theme lamp ---------- */
+const lamp=$('lamp'),lsw=$('lsw'),cordg=$('cordg');
+function setTheme(t,save){
+root.setAttribute('data-theme',t);const on=t==='light';
+lamp.classList.toggle('off',!on);lamp.setAttribute('aria-pressed',on?'true':'false');
+lamp.setAttribute('aria-label',on?'Lampe allumée. Éteindre pour passer en mode sombre':'Lampe éteinte. Allumer pour passer en mode clair');
+$('lamptip').textContent=on?'Tirez pour éteindre':'Tirez pour allumer';
+let m=document.querySelector('meta[name=theme-color]');if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m)}
+m.content=on?'#f6f6f2':'#0f1524';
+if(save)ls.s('kh-theme',t)}
+let t0=ls.g('kh-theme');if(t0!=='light'&&t0!=='dark')t0=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+setTheme(t0,false);
+function flipTheme(){
+const t=root.getAttribute('data-theme')==='dark'?'light':'dark';
+try{navigator.vibrate&&navigator.vibrate(10)}catch(e){}
+if(!document.startViewTransition||reduce){setTheme(t,true);return}
+const r=lamp.getBoundingClientRect();root.style.setProperty('--vx',r.left+r.width/2+'px');root.style.setProperty('--vy',r.top+70+'px');
+document.startViewTransition(()=>setTheme(t,true))}
+function placeGlow(){const r=lamp.getBoundingClientRect();root.style.setProperty('--lx',(r.left+r.width/2)+'px')}
+placeGlow();addEventListener('resize',placeGlow);
+/* Cord + swing springs */
+const L={pull:0,pv:0,ang:0,av:0,drag:false,y0:0,moved:false,raf:0,supp:false};
+const rub=(x,d)=>x*d*.55/(d+.55*x);
+function lampTick(){
+const dt=1/60;
+if(!L.drag){L.pv+=(-260*L.pull-14*L.pv)*dt;L.pull+=L.pv*dt}
+L.av+=(-90*L.ang-4.2*L.av)*dt;L.ang+=L.av*dt;
+cordg.setAttribute('transform',`translate(0 ${L.pull.toFixed(2)})`);
+lsw.style.transform=`rotate(${L.ang.toFixed(3)}deg)`;
+if(L.drag||Math.abs(L.pull)>.05||Math.abs(L.pv)>.05||Math.abs(L.ang)>.02||Math.abs(L.av)>.02)L.raf=requestAnimationFrame(lampTick);else{L.raf=0;cordg.removeAttribute('transform');lsw.style.transform=''}}
+const kick=()=>{if(!L.raf)L.raf=requestAnimationFrame(lampTick)};
+lamp.addEventListener('pointerdown',e=>{if(e.button>0)return;L.drag=true;L.moved=false;L.y0=e.clientY;lamp.setPointerCapture(e.pointerId);kick()});
+lamp.addEventListener('pointermove',e=>{if(!L.drag)return;const dy=Math.max(0,e.clientY-L.y0);if(dy>3)L.moved=true;L.pull=rub(dy,70)});
+const lampUp=()=>{if(!L.drag)return;L.drag=false;
+if(L.moved){L.supp=true;if(L.pull>16){flipTheme();L.av+=(Math.random()<.5?-1:1)*30;L.pv=-80}}};
+lamp.addEventListener('pointerup',lampUp);lamp.addEventListener('pointercancel',()=>{L.drag=false});
+lamp.addEventListener('click',()=>{if(L.supp){L.supp=false;return}flipTheme();L.pull=12;L.pv=120;L.av+=(Math.random()<.5?-1:1)*26;kick()});
 
-    function apply(el, cfg) {
-      if (!supported || !el || targets.has(el)) return;
-      const get = typeof cfg === 'function' ? cfg : () => cfg || NAV;
-      if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
-      const refr = document.createElement('div'), tint = document.createElement('div');
-      refr.className = tint.className = 'lg-layer';
-      refr.style.cssText = tint.style.cssText = 'position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit';
-      el.prepend(tint); el.prepend(refr);
-      el.classList.add('lg');
-      let f = null, tm = 0, last = '';
-      function rebuild(force) {
-        ensureDefs();
-        const w = Math.round(el.offsetWidth), h = Math.round(el.offsetHeight);
-        if (w < 4 || h < 4) return;
-        const r = Math.max(2, Math.min(parseFloat(el.dataset.radius || getComputedStyle(el).borderTopLeftRadius) || 24, w / 2, h / 2));
-        const c = get(), key = w + 'x' + h + ':' + r + ':' + JSON.stringify(c);
-        if (key === last && !force) return;
-        last = key;
-        if (f) f.remove();
-        const id = 'lg-' + Math.random().toString(36).slice(2, 9);
-        f = buildFilter(id, w, h, r, c); defs.appendChild(f);
-        refr.style.borderRadius = tint.style.borderRadius = r + 'px';
-        refr.style.backdropFilter = refr.style.webkitBackdropFilter = `url(#${id})`;
-        tint.style.backgroundColor = `rgba(${c.tintColor},${c.tintOpacity})`;
-        [...el.children].forEach(ch => {
-          if (ch === refr || ch === tint) return;
-          if (getComputedStyle(ch).position === 'static') ch.style.position = 'relative';
-          if (!ch.style.zIndex && getComputedStyle(ch).zIndex === 'auto') ch.style.zIndex = '1';
-        });
-      }
-      const ro = new ResizeObserver(() => { clearTimeout(tm); tm = setTimeout(rebuild, 16); });
-      ro.observe(el);
-      targets.set(el, { rebuild, destroy() { clearTimeout(tm); ro.disconnect(); if (f) f.remove(); refr.remove(); tint.remove(); el.classList.remove('lg'); } });
-      rebuild();
-    }
-    function remove(el) { const g = targets.get(el); if (g) { g.destroy(); targets.delete(el); } }
-    function rebuild(el) { const g = targets.get(el); if (g) g.rebuild(true); }
-    const rebuildAll = () => targets.forEach(g => g.rebuild(true));
-    addEventListener('resize', () => { clearTimeout(rebuildAll.t); rebuildAll.t = setTimeout(rebuildAll, 120); });
+/* ---------- Shelves ---------- */
+const cover=b=>`<div class="cv" style="--c1:${b.c1};--c2:${b.c2}"><i class="cv-sp"></i><div class="cv-in"><span class="cv-ser">Business English</span><div class="cv-pan ${b.p}"><span class="cv-lv">${b.lv}</span><span class="cv-lvn">${lvName(b.lv)}</span></div><svg class="cv-emb" viewBox="0 0 48 48" aria-hidden="true">${EMB[b.e]}</svg><span class="cv-t${b.name.length>14?' long':''}">${b.name}</span><span class="cv-s">${b.sub}</span><div class="cv-b"><span>K. Halli</span><span>${b.co.length} cours</span></div></div></div>`;
+$('shelves').innerHTML=LV.map(l=>{const bs=D.map((b,i)=>[b,i]).filter(([b])=>b.lv===l.id);
+return `<div class="lvl" id="lvl-${l.id}" role="group" aria-label="${l.n}"><div class="lvl-books">${bs.map(([b,i])=>`<button class="bk" type="button" data-i="${i}" aria-label="Ouvrir le livre ${l.n}, ${b.name}"><span class="edge"></span>${cover(b)}</button>`).join('')}</div><div class="board"><span class="plaque">${l.n}</span></div></div>`}).join('');
+$('tabs').innerHTML=LV.map((l,i)=>{const n=D.filter(b=>b.lv===l.id);return `<li><a href="#lvl-${l.id}" data-l="${l.id}" style="--tc:${n[0].c1}"><b>${l.id}</b><span>${n.map(b=>b.short||b.name).join(', ')}</span></a></li>`}).join('');
+$('tabs').addEventListener('click',e=>{const a=e.target.closest('a');if(!a)return;e.preventDefault();const g=$('lvl-'+a.dataset.l);g.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});g.classList.remove('flash');void g.offsetWidth;g.classList.add('flash');setTimeout(()=>g.querySelector('.bk').focus({preventScroll:true}),reduce?0:500)});
 
-    function tabs(o) {
-      const { wrap, inner, indicator: ind, glow, items } = o;
-      let active = o.active || 0, target = active, pid = null, px = 0, py = 0, drag = false, pw = 0, fin = 0;
-      const met = i => ({ left: items[i].offsetLeft, width: items[i].offsetWidth, center: items[i].offsetLeft + items[i].offsetWidth / 2 });
-      const lx = cx => { const r = inner.getBoundingClientRect(); return (cx - r.left) * (r.width ? inner.offsetWidth / r.width : 1); };
-      const nearest = x => items.reduce((b, _, i) => Math.abs(x - met(i).center) < Math.abs(x - met(b).center) ? i : b, 0);
-      function place(l, w, anim) {
-        if (!anim) { const t = ind.style.transition; ind.style.transition = 'none'; ind.style.translate = l + 'px 0'; ind.style.width = w + 'px'; void ind.offsetWidth; ind.style.transition = t; return; }
-        ind.style.translate = l + 'px 0'; ind.style.width = w + 'px';
-      }
-      const snap = (i, a) => { const m = met(i); place(m.left, m.width, a); };
-      function setGlow(cx, cy, a) {
-        if (!glow) return;
-        inner.style.setProperty('--gx', lx(cx) + 'px');
-        inner.style.setProperty('--gy', (cy - inner.getBoundingClientRect().top) + 'px');
-        inner.style.setProperty('--ga', a);
-      }
-      function begin(cx, cy) {
-        clearTimeout(fin); ind.classList.add('interacting'); wrap.classList.add('engaged'); setGlow(cx, cy, .24);
-        if (o.glass !== false) apply(ind, LENS);
-      }
-      function end() {
-        clearTimeout(fin);
-        fin = setTimeout(() => { ind.classList.remove('interacting'); inner.classList.remove('dragging'); wrap.classList.remove('engaged'); inner.style.setProperty('--ga', 0); remove(ind); }, 420);
-      }
-      function mark(i) { active = i; items.forEach((b, k) => b.classList.toggle('active', k === i)); }
-      let mv = null, mvRaf = 0;
-      function frame() {
-        mvRaf = 0; const e = mv; if (!e) return;
-        if (!drag && (Math.abs(e.clientX - px) > 6 || Math.abs(e.clientY - py) > 6)) { drag = true; inner.classList.add('dragging'); }
-        if (drag) {
-          setGlow(e.clientX, e.clientY, .18);
-          const x = lx(e.clientX), w = pw || met(active).width;
-          ind.style.translate = clamp(x - w / 2, -10, inner.offsetWidth - w + 10) + 'px 0';
-          const n = nearest(x); if (n !== target) { target = n; try { navigator.vibrate && navigator.vibrate(4); } catch (_) {} }
-        } else setGlow(e.clientX, e.clientY, .22);
-      }
-      function move(e) { if (e.pointerId !== pid) return; mv = e; if (!mvRaf) mvRaf = requestAnimationFrame(frame); }
-      function off() { removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', cancel); }
-      function up(e) {
-        if (e.pointerId !== pid) return;
-        off(); cancelAnimationFrame(mvRaf); mvRaf = 0; mv = null; inner.classList.remove('dragging'); mark(target); snap(target, true); end();
-        pid = null; drag = false;
-        if (o.onSelect) o.onSelect(target);
-      }
-      function cancel(e) { if (e.pointerId !== pid) return; off(); cancelAnimationFrame(mvRaf); mvRaf = 0; mv = null; inner.classList.remove('dragging'); snap(active, true); end(); pid = null; drag = false; }
-      items.forEach((b, i) => {
-        b.style.touchAction = 'none';
-        b.addEventListener('pointerdown', e => {
-          if (!e.isPrimary || e.button !== 0 || pid !== null) return;
-          e.preventDefault();
-          pid = e.pointerId; drag = false; target = i; px = e.clientX; py = e.clientY; pw = met(i).width;
-          begin(e.clientX, e.clientY);
-          addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', cancel);
-        });
-        b.addEventListener('click', e => { if (e.detail === 0 && o.onSelect) { mark(i); snap(i, true); o.onSelect(i); } });
-      });
-      new ResizeObserver(() => snap(active, false)).observe(inner);
-      mark(active); snap(active, false);
-      if (o.glass !== false) apply(wrap, NAV);
-      return { select(i, anim) { mark(i); snap(i, anim !== false); }, get active() { return active; } };
-    }
+/* ---------- Drive links (Apps Script) ---------- */
+let drive={},state='load',syncing=true,tsy=0;
+try{drive=JSON.parse(ls.g('kh-drive')||ls.g('mh-drive')||'{}')}catch(e){}
+const links=()=>Object.assign({},KH_LINKS,drive);
+const DL='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>';
+const pdfBtn=k=>{const u=links()[k];if(okUrl(u))return`<a class="pdfb" href="${esc(u)}" target="_blank" rel="noopener">${DL}Ouvrir le PDF</a>`;
+return syncing?'<span class="pdfb off wait">Chargement du lien</span>':state==='err'?'<span class="pdfb off">PDF indisponible pour le moment</span>':'<span class="pdfb off">PDF bientôt en ligne</span>'};
+function refresh(){document.querySelectorAll('#faces .slot,#flapW .slot').forEach(s=>s.innerHTML=pdfBtn(s.dataset.k));
+const Lk=links(),n=D.reduce((a,b)=>a+b.co.filter((t,j)=>okUrl(Lk[b.k+'_COURS_'+(j+1)])).length,0);
+$('cnt').textContent=n?`5 livres, ${n} cours sur 15 en ligne`:'5 livres, 15 cours'}
+async function sync(){
+if(!/^https:\/\/script\.google\.com\//.test(API)){syncing=false;state='off';refresh();return}
+syncing=true;
+try{const r=await fetch(API,{cache:'no-store'});if(!r.ok)throw 0;drive=await r.json();ls.s('kh-drive',JSON.stringify(drive));state='ok'}
+catch(e){state=Object.keys(drive).length?'ok':'err';if(state==='err')toast('Les liens des PDF ne se chargent pas. Réessayez dans un instant.')}
+syncing=false;tsy=Date.now();refresh()}
+sync();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-tsy>60000)sync()});
 
-    window.LiquidGlass = { supported, NAV, LENS, apply, remove, rebuild, rebuildAll, tabs };
-  }
+/* ---------- Book pages ---------- */
+function pages(b){
+const lbl=`${lvName(b.lv)}, ${b.name}`,ac=`style="--ac:${b.c1}"`;
+const fo=(l,r)=>`<div class="fo"><span>${l}</span><span>${r}</span></div>`;
+const opener=j=>`<div class="pi"><p class="kk">Semestre ${sem(j)}</p><span class="big" aria-hidden="true">${j+1}</span><p class="ph">Cours ${j+1}</p><div class="rule"></div><p class="it">${b.co[j]}</p>${fo(lbl,'')}</div>`;
+const course=j=>{const k=b.k+'_COURS_'+(j+1);return `<div class="pi"><p class="kk">Cours ${j+1} sur ${b.co.length}</p><h3 class="pt">${b.co[j]}</h3><dl class="dl"><dt>Niveau</dt><dd>${lvName(b.lv)}</dd><dt>Spécialité</dt><dd>${b.name}</dd><dt>Semestre</dt><dd>${sem(j)}</dd><dt>Format</dt><dd>PDF</dd></dl><span class="slot" data-k="${k}">${pdfBtn(k)}</span><p class="pnote">Le PDF s'ouvre dans un nouvel onglet.</p>${fo('',j+2)}</div>`};
+return [
+[`<div class="pg cvf r">${cover(b)}</div>`,`<div class="pg l endp" ${ac}><div class="exl"><em>Ex libris</em><span>Miss K. Halli</span><span>${lbl}</span></div></div>`],
+[`<div class="pg r" ${ac}><div class="pi"><p class="kk">${lbl}</p><h3 class="ph">Sommaire</h3><p class="ps">${b.sub}. Touchez un cours pour y aller.</p><ol class="toc">${b.co.map((t,j)=>`<li><button type="button" data-go="${j+2}"><i>${j+1}</i><span>${t}</span><small>Semestre ${sem(j)}</small></button></li>`).join('')}</ol>${fo('','1')}</div></div>`,`<div class="pg l" ${ac}>${opener(0)}</div>`],
+[`<div class="pg r" ${ac}>${course(0)}</div>`,`<div class="pg l" ${ac}>${opener(1)}</div>`],
+[`<div class="pg r" ${ac}>${course(1)}</div>`,`<div class="pg l" ${ac}>${opener(2)}</div>`],
+[`<div class="pg r" ${ac}>${course(2)}</div>`,`<div class="pg l" ${ac}><div class="pi"><p class="kk">Contact</p><h3 class="ph">Une question ?</h3><p class="it">Écrivez-moi en précisant votre niveau et votre groupe.</p><a class="pbtn" href="mailto:${EM}?subject=${encodeURIComponent('['+b.lv+' '+b.name+'] Question')}">${EM}</a>${fo(lbl,'')}</div></div>`],
+[`<div class="pg r" ${ac}><div class="pi" style="justify-content:center"><p class="kk">Fin du livre</p><h3 class="ph">Thank you</h3><p class="it">Bonnes révisions, et à bientôt en cours.</p><button class="pdfb" type="button" data-close="1" style="margin-top:1.4em">Revenir à la bibliothèque</button><button class="pbtn" type="button" data-go="1">Revoir le sommaire</button></div></div>`,`<div class="pg l plain" style="--c1:${b.c1};--c2:${b.c2}"><div class="cv" style="--c1:${b.c1};--c2:${b.c2};border-radius:.4em .12em .12em .4em"><div class="bcv"><span class="mono2">KH</span><span>Business English, ${b.lv}</span></div></div></div>`]];
+}
+const LABELS=['Couverture','Sommaire','Cours 1','Cours 2','Cours 3','Fin','Dos du livre'];
 
-  /* ==================== PARTIE B : LOGIQUE DU SITE ==================== */
-  const $ = id => document.getElementById(id);
-  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const root = document.documentElement;
-  const sto = {
-    g(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
-    s(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-  };
-  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const EMAIL = 'k.halli@email.com';
+/* ---------- Page-turn engine ---------- */
+const vw=$('vw'),stage=$('stage'),bwrap=$('bwrap'),book=$('book'),faces=$('faces'),flapW=$('flapW');
+const ushW=$('ushW'),ush=$('ush'),fshW=$('fshW'),fsh=$('fsh'),stkL=$('stkL'),stkR=$('stkR');
+const V={W:300,H:424,spread:false,N:0,idx:0,F:[],B:[],flip:null,raf:0,goal:null,cur:null,opener:null,bi:-1};
+const clamp01=x=>x<0?0:x>1?1:x,lerp=(a,b,t)=>a+(b-a)*t;
+const maxIdx=()=>V.spread?V.N:V.N-1;
 
-  function buzz(p = 10) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function layout(){
+const sw=stage.clientWidth,sh=stage.clientHeight,R=.707;
+V.spread=sw>=820&&sw/sh>1.15;
+let H=V.spread?Math.min(sh-28,(sw-72)/2/R):Math.min(sh-24,(sw-36)/R);H=Math.max(200,Math.floor(H));
+const W=Math.floor(H*R);V.W=W;V.H=H;
+book.style.setProperty('--W',W+'px');book.style.setProperty('--H',H+'px');
+book.style.left=(V.spread?sw/2:(sw-W)/2)+'px';book.style.top=Math.round((sh-H)/2)+'px';
+if(V.idx>maxIdx())V.idx=maxIdx();render()}
 
-  /* Langue FR / EN */
-  let lang = sto.g('kh-lang') === 'en' ? 'en' : 'fr';
-  const T = (fr, en) => lang === 'en' ? en : fr;
-  $$('[data-en]').forEach(e => { if (!('fr' in e.dataset)) e.dataset.fr = e.textContent; });
-  $$('[data-en-aria]').forEach(e => { e.dataset.frAria = e.getAttribute('aria-label'); });
-  $$('[data-en-alt]').forEach(e => { e.dataset.frAlt = e.alt; });
+function build(b){
+faces.innerHTML='';flapW.innerHTML='';V.F=[];V.B=[];
+pages(b).forEach(([f,bk])=>{const t=document.createElement('template');t.innerHTML=f+bk;const [ef,eb]=t.content.children;faces.append(ef,eb);V.F.push(ef);V.B.push(eb)});
+V.N=V.F.length;book.style.setProperty('--ac',b.c1);
+$('vtb').textContent=`${lvName(b.lv)}, ${b.name}`;$('vts').textContent=b.sub;
+$('dots').innerHTML=LABELS.map(()=>'<i></i>').join('')}
 
-  function split(h) {
-    let n = 0;
-    const walk = el => [...el.childNodes].forEach(nd => {
-      if (nd.nodeType === 3) {
-        const f = document.createDocumentFragment();
-        nd.textContent.split(/(\s+)/).forEach(p => {
-          if (!p) return;
-          if (/^\s+$/.test(p)) { f.appendChild(document.createTextNode(p)); return; }
-          const w = document.createElement('span');
-          w.className = 'w';
-          w.innerHTML = `<span style="--d:${n++}">${esc(p)}</span>`;
-          f.appendChild(w);
-        });
-        nd.replaceWith(f);
-      } else if (nd.nodeType === 1 && !nd.classList.contains('w')) walk(nd);
-    });
-    walk(h);
-  }
+function shiftFor(i){return !V.spread?0:i<=0?-V.W/2:i>=V.N?V.W/2:0}
+function clipHalf(poly,M,n,s){const o=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length];
+const da=s*((a[0]-M[0])*n[0]+(a[1]-M[1])*n[1]),db=s*((b[0]-M[0])*n[0]+(b[1]-M[1])*n[1]);
+if(da>=0)o.push(a);if((da>=0)!==(db>=0)){const t=da/(da-db);o.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t])}}return o}
+const poly=p=>p.length<3?'polygon(0 0,0 0,0 0)':'polygon('+p.map(q=>q[0].toFixed(2)+'px '+q[1].toFixed(2)+'px').join(',')+')';
+function band(el,M,u,len,th){el.style.display='block';el.style.width=th+'px';el.style.height=len+'px';
+el.style.transform=`matrix(${u[0]},${u[1]},${-u[1]},${u[0]},${M[0]+u[1]*len/2},${M[1]-u[0]*len/2})`}
+function clampP(p,yc){const {W,H}=V;let dx=p[0],dy=p[1]-yc,d=Math.hypot(dx,dy);if(d>W){p=[dx/d*W,yc+dy/d*W]}
+const y2=H-yc,D=Math.hypot(W,H);dx=p[0];dy=p[1]-y2;d=Math.hypot(dx,dy);if(d>D){p=[dx/d*D,y2+dy/d*D]}return p}
 
-  function setLang(l) {
-    lang = l;
-    root.lang = l;
-    sto.s('kh-lang', l);
-    $$('[data-en]').forEach(e => {
-      const t = l === 'en' ? e.dataset.en : e.dataset.fr;
-      if (e.textContent === t) return;
-      e.textContent = t;
-      if (e.classList.contains('sw')) split(e);
-    });
-    $$('[data-en-aria]').forEach(e => e.setAttribute('aria-label', l === 'en' ? e.dataset.enAria : e.dataset.frAria));
-    $$('[data-en-alt]').forEach(e => { e.alt = l === 'en' ? e.dataset.enAlt : e.dataset.frAlt; });
-    const b = $('langBtn');
-    b.textContent = l === 'en' ? 'FR' : 'EN';
-    b.setAttribute('aria-label', l === 'en' ? 'Lire en français' : 'Read in English');
-    document.title = l === 'en'
-      ? 'Miss K. Halli | English Language Teacher · Commerce, Marketing & Finance'
-      : 'Miss K. Halli | Enseignante de langue anglaise · Commerce, Marketing & Finance';
-    $('themeBtn').title = T('Thème', 'Theme');
-  }
-  $$('.sw').forEach(split);
-  $('langBtn').addEventListener('click', () => { buzz(); setLang(lang === 'fr' ? 'en' : 'fr'); });
+function setFace(el,on,tf,clip,z){
+if(!on){if(el.style.display!=='none')el.style.display='none';return}
+el.style.display='block';el.style.transform=tf||'';el.style.clipPath=clip||'';el.style.webkitClipPath=clip||'';el.style.zIndex=z||1}
 
-  /* Thème Sombre / Clair */
-  const sv = d => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
-  const SUN = sv('<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>');
-  const MOON = sv('<path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/>');
-  function applyTheme(t) {
-    root.dataset.theme = t;
-    $('themeBtn').innerHTML = t === 'dark' ? SUN : MOON;
-    $('metaTheme').content = t === 'dark' ? '#000000' : '#f5f5f7';
-  }
-  applyTheme(root.dataset.theme);
-  $('themeBtn').addEventListener('click', () => {
-    buzz();
-    const t = root.dataset.theme === 'dark' ? 'light' : 'dark';
-    sto.s('kh-theme', t);
-    applyTheme(t);
-  });
-  matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
-    if (!sto.g('kh-theme')) applyTheme(e.matches ? 'light' : 'dark');
-  });
+function render(){
+const {W,H,N,F,B}=V,fl=V.flip;if(!N)return;
+let sh=shiftFor(V.idx);
+if(fl&&V.spread){const p=clamp01((W-fl.P[0])/(2*W));sh=lerp(shiftFor(fl.k),shiftFor(fl.k+1),p)}
+book.style.transform=`translate3d(${sh.toFixed(2)}px,0,0)`;
+const plan=new Map(),left=`translate3d(${-W}px,0,0)`;
+const ri=fl?fl.k+1:V.idx,li=fl?fl.k-1:V.idx-1; // static right/left faces
+if(!fl){if(V.idx<N)plan.set(F[V.idx],{});if(V.spread&&V.idx>0)plan.set(B[V.idx-1],{tf:left})}
+else{if(ri<N)plan.set(F[ri],{});if(V.spread&&li>=0)plan.set(B[li],{tf:left})}
+// page stacks
+const rc=fl?N-1-fl.k:N-1-V.idx,lc=fl?fl.k:V.idx-1;
+stkR.style.display=(fl?ri<N||true:V.idx<N)&&rc>0?'block':'none';stkR.style.width=Math.min(rc,5)*1.5+'px';
+stkL.style.display=V.spread&&lc>0?'block':'none';stkL.style.width=Math.min(lc,5)*1.5+'px';
+ush.style.display='none';fsh.style.display='none';fshW.style.clipPath='';
+if(fl){
+const k=fl.k,yc=fl.yc,C=[W,yc],P=fl.P,dx=C[0]-P[0],dy=C[1]-P[1],dist=Math.hypot(dx,dy);
+const rect=[[0,0],[W,0],[W,H],[0,H]];
+if(dist<.5){plan.set(F[k],{z:2});setFace(B[k],false)}
+else{
+const n=[dx/dist,dy/dist],M=[(C[0]+P[0])/2,(C[1]+P[1])/2];
+const near=clipHalf(rect,M,n,-1),far=clipHalf(rect,M,n,1);
+if(near.length>2)plan.set(F[k],{z:2,clip:poly(near)});
+const a=2*n[0]*n[0]-1,b=2*n[0]*n[1],c=-b,d=1-2*n[1]*n[1],mn=M[0]*n[0]+M[1]*n[1];
+const e=W*(1-2*n[0]*n[0])+2*mn*n[0],f=-2*n[0]*n[1]*W+2*mn*n[1];
+setFace(B[k],far.length>2,`matrix(${a},${b},${c},${d},${e},${f})`,poly(far.map(q=>[W-q[0],q[1]])),1);
+const p=clamp01(dist/(2*W)),lift=Math.sin(Math.PI*p),L=3*(W+H);
+if(ri<N&&far.length>2){band(ush,M,n,L,Math.max(16,Math.min(W*.42,dist*.55)));ush.style.opacity=(.35+.65*lift).toFixed(3)}
+if(far.length>2){const rf=far.map(q=>{const t=2*((q[0]-M[0])*n[0]+(q[1]-M[1])*n[1]);return[q[0]-t*n[0],q[1]-t*n[1]]});
+fshW.style.clipPath=poly(rf);band(fsh,M,[-n[0],-n[1]],L,Math.max(20,Math.min(W*.9,dist*.9)));fsh.style.opacity=(.5+.5*lift).toFixed(3)}
+}}
+for(const el of [...F,...B]){if(fl&&el===B[fl.k])continue;const s=plan.get(el);setFace(el,!!s,s&&s.tf,s&&s.clip,s&&s.z)}
+}
 
-  /* Révélation au défilement + compteurs (CORRIGÉ : || et 8%) */
-  const io = 'IntersectionObserver' in window && !RM ? new IntersectionObserver(entries => entries.forEach(e => {
-    if (!e.isIntersecting) return;
-    const t = e.target;
-    t.classList.add('in');
-    io.unobserve(t);
-    $$('[data-n]', t).forEach(b => {
-      const n = +b.dataset.n, s = b.dataset.s || '', t0 = performance.now();
-      const f = x => {
-        const k = Math.min(1, (x - t0) / 1100);
-        b.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))) + s;
-        if (k < 1) requestAnimationFrame(f);
-      };
-      requestAnimationFrame(f);
-    });
-  }), { rootMargin: '0px 0px -8% 0px', threshold: .12 }) : null;
+function ui(){
+const i=V.flip?V.idx:V.idx;
+$('pv').disabled=V.idx<=0;$('nx').disabled=V.idx>=maxIdx();
+const lab=!V.spread&&V.idx===V.N?LABELS[V.N-1]:LABELS[V.idx];
+$('wh').textContent=lab;[...$('dots').children].forEach((d,j)=>{d.classList.toggle('on',j===V.idx);d.style.display=(!V.spread&&j===V.N)?'none':''})}
 
-  function reveal(v) {
-    const els = $$('.rv,.sw', v);
-    if (!io) { els.forEach(e => e.classList.add('in')); return; }
-    els.forEach(e => { e.classList.remove('in'); io.observe(e); });
-  }
+function startFlip(k,fromFlipped,yc,extra){
+if(k<0||k>=V.N)return null;
+const {W}=V;V.flip=Object.assign({k,yc,P:[fromFlipped?-W:W,yc],V:[0,0],mode:'idle'},extra||{});
+flapW.appendChild(V.B[k]);return V.flip}
+function endFlip(){const fl=V.flip;if(!fl)return;
+const done=fl.P[0]<0;faces.appendChild(V.B[fl.k]);V.B[fl.k].style.clipPath='';
+const was=V.idx;V.idx=done?fl.k+1:fl.k;V.flip=null;render();ui();
+if(V.idx!==was){try{navigator.vibrate&&navigator.vibrate(6)}catch(e){}hideHint()}
+if(V.goal!==null){if(V.goal===V.idx)V.goal=null;else setTimeout(()=>step(V.goal>V.idx?1:-1,true),30)}}
 
-  /* Reflet lumineux sous le pointeur */
-  function prepCards(r) {
-    $$('.box,.glass', r).forEach(c => {
-      if (c.dataset.fx) return;
-      c.dataset.fx = 1;
-      const aim = e => {
-        const b = c.getBoundingClientRect();
-        c.style.setProperty('--mx', e.clientX - b.left + 'px');
-        c.style.setProperty('--my', e.clientY - b.top + 'px');
-      };
-      c.addEventListener('pointerenter', e => { aim(e); c.classList.add('lit'); });
-      c.addEventListener('pointermove', aim);
-      c.addEventListener('pointerleave', () => c.classList.remove('lit'));
-    });
-  }
+function loop(t){
+V.raf=0;const fl=V.flip;if(!fl)return;
+if(fl.mode==='tween'){const e0=clamp01((t-fl.t0)/fl.dur),e=e0<.5?4*e0*e0*e0:1-Math.pow(-2*e0+2,3)/2;
+fl.P=clampP([lerp(fl.A[0],fl.T[0],e),lerp(fl.A[1],fl.T[1],e)+(fl.yc>0?-1:1)*fl.lift*Math.sin(Math.PI*e)],fl.yc);
+render();if(e0>=1){fl.P=fl.T.slice();endFlip();return}}
+else if(fl.mode==='spring'){const last=fl.lt||t,dtt=Math.min(.05,(t-last)/1000)||1/60;fl.lt=t;
+const w=2*Math.PI/fl.resp,K=w*w,Cd=2*fl.z*w,n=Math.ceil(dtt/(1/240)),h=dtt/n;
+for(let s=0;s<n;s++)for(let a=0;a<2;a++){const ac=-K*(fl.P[a]-fl.T[a])-Cd*fl.V[a];fl.V[a]+=ac*h;fl.P[a]+=fl.V[a]*h}
+fl.P=clampP(fl.P,fl.yc);render();
+if(Math.hypot(fl.P[0]-fl.T[0],fl.P[1]-fl.T[1])<.6&&Math.hypot(fl.V[0],fl.V[1])<30){fl.P=fl.T.slice();if(fl.peek&&fl.hold){render();return}endFlip();return}}
+else render();
+V.raf=requestAnimationFrame(loop)}
+const kickLoop=()=>{if(!V.raf)V.raf=requestAnimationFrame(loop)};
 
-  /* Navigation entre les 4 vues */
-  const VIEWS = ['profil', 'cours', 'parcours', 'contact'];
-  const nbs = $$('.nb');
-  const ALIAS = {
-    top: 'profil', apropos: 'profil', science: 'profil', biostudy: 'profil', methode: 'profil',
-    beyond: 'parcours',
-    portfolio: 'cours',
-    'cat-l1-commerce': 'cours',
-    'cat-l2-commerce': 'cours',
-    'cat-l3-marketing': 'cours',
-    'cat-m1-marketing': 'cours',
-    'cat-m1-finance': 'cours'
-  };
-  let cur = 'profil', navCtl = null;
+function tweenTo(fl,flipped,dur){const {W,H}=V;fl.mode='tween';fl.A=fl.P.slice();fl.T=[flipped?-W:W,fl.yc];fl.t0=performance.now();
+fl.dur=reduce?1:dur*Math.max(.35,Math.abs(fl.T[0]-fl.A[0])/(2*W));fl.lift=H*.1*Math.abs(fl.T[0]-fl.A[0])/(2*W);fl.peek=false;kickLoop()}
+function step(dir,fast){
+if(V.flip&&!V.flip.peek)return;
+const {W,H}=V;
+if(dir>0){if(V.idx>=maxIdx())return;let fl=V.flip;if(fl&&fl.k!==V.idx){endFlip();fl=null}fl=fl||startFlip(V.idx,false,H);tweenTo(fl,true,fast?560:900)}
+else{if(V.idx<=0)return;let fl=V.flip;if(fl&&fl.k!==V.idx-1){endFlip();fl=null}fl=fl||startFlip(V.idx-1,true,H);tweenTo(fl,false,fast?560:900)}}
+function goTo(n){n=Math.max(0,Math.min(maxIdx(),n));if(n===V.idx)return;V.goal=n;step(n>V.idx?1:-1,true)}
 
-  function show(v, o = {}) {
-    const anchor = ALIAS[v] && v !== 'top' && v !== 'portfolio' ? v : null;
-    v = ALIAS[v] || v;
-    if (!VIEWS.includes(v)) v = 'profil';
-    const prev = cur, i = VIEWS.indexOf(v), dir = i >= VIEWS.indexOf(prev) ? 1 : -1;
-    nbs.forEach((b, k) => {
-      b.classList.toggle('on', k === i);
-      k === i ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current');
-    });
-    if (navCtl && !o.fromNav) navCtl.select(i);
-    if (o.push !== false && v !== prev) history.pushState({ v }, '', v === 'profil' ? location.pathname : '#' + (anchor || v));
-    const land = () => {
-      if (anchor) {
-        const a = $(anchor);
-        a && setTimeout(() => a.scrollIntoView({ behavior: RM ? 'auto' : 'smooth' }), 40);
-      } else scrollTo(0, 0);
-    };
-    if (v === prev && !o.force) {
-      anchor ? land() : scrollTo({ top: 0, behavior: RM ? 'auto' : 'smooth' });
-      return;
-    }
-    cur = v;
-    const from = $(prev), to = $(v);
-    const enter = () => {
-      if (from && from !== to) from.classList.remove('on');
-      to.classList.add('on');
-      reveal(to);
-      land();
-      if (!RM && to.animate && !o.instant) {
-        to.animate([
-          { opacity: 0, transform: `translateX(${dir * 34}px)`, filter: 'blur(8px)' },
-          { opacity: 1, transform: 'none', filter: 'blur(0)' }
-        ], { duration: 520, easing: 'cubic-bezier(.22,1,.36,1)' });
-      }
-    };
-    if (RM || !from || from === to || !from.animate || o.instant) enter();
-    else {
-      const a = from.animate([
-        { opacity: 1, transform: 'none', filter: 'blur(0)' },
-        { opacity: 0, transform: `translateX(${-dir * 30}px)`, filter: 'blur(8px)' }
-      ], { duration: 170, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' });
-      a.onfinish = () => { enter(); a.cancel(); };
-    }
-  }
+/* Pointer: drag the corner, tap to turn, hover to peek */
+let PT=null;
+function toBook(e){const r=book.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]}
+function canFwd(){return V.idx<maxIdx()}
+function pickFlip(pt){const {W,H}=V,yc=pt[1]<H/2?0:H;
+const back=V.spread?pt[0]<0:pt[0]<W*.28;
+if(back){if(V.idx<=0)return null;return startFlip(V.idx-1,true,yc)}
+if(!canFwd())return null;return startFlip(V.idx,false,yc)}
+stage.addEventListener('pointerdown',e=>{
+if(e.button>0||!V.N)return;
+const pt=toBook(e);V.goal=null;
+PT={id:e.pointerId,x0:e.clientX,y0:e.clientY,pt0:pt,drag:false,ui:!!e.target.closest('a,button'),hist:[]};
+if(V.flip&&!V.flip.peek){beginDrag(e,V.flip)}});
+function beginDrag(e,fl){PT.drag=true;PT.fl=fl;PT.base=fl.P.slice();PT.x0=e.clientX;PT.y0=e.clientY;fl.mode='drag';fl.peek=false;
+try{stage.setPointerCapture(e.pointerId)}catch(_){}stage.classList.add('drag');hideHint()}
+stage.addEventListener('pointermove',e=>{
+if(!PT){if(e.pointerType==='mouse')peek(e);return}
+if(e.pointerId!==PT.id)return;
+const dx=e.clientX-PT.x0,dy=e.clientY-PT.y0;
+if(!PT.drag){if(Math.hypot(dx,dy)<8||PT.cancel)return;
+if(Math.abs(dx)<Math.abs(dy)*.7){PT.cancel=true;return}
+let fl=V.flip;if(fl&&fl.peek){/* keep peek flip if same side */const want=V.spread?PT.pt0[0]<0:PT.pt0[0]<V.W*.28;const isBack=fl.k===V.idx-1;if(want!==isBack){endFlip();fl=null}}
+fl=fl||pickFlip(PT.pt0);if(!fl){PT.cancel=true;return}beginDrag(e,fl);PT.x0-=dx;PT.y0-=dy;}
+const g=V.spread?1:1.5,fl=PT.fl;
+fl.P=clampP([PT.base[0]+(e.clientX-PT.x0)*g,PT.base[1]+(e.clientY-PT.y0)],fl.yc);
+const now=performance.now();PT.hist.push([now,fl.P[0],fl.P[1]]);while(PT.hist.length>2&&now-PT.hist[0][0]>90)PT.hist.shift();
+kickLoop()});
+function release(e){
+if(!PT||e.pointerId!==PT.id)return;const p=PT;PT=null;stage.classList.remove('drag');
+if(p.drag){const fl=p.fl,h=p.hist;let vx=0,vy=0;
+if(h.length>1){const a=h[0],b=h[h.length-1],dt=(b[0]-a[0])/1000;if(dt>0){vx=(b[1]-a[1])/dt;vy=(b[2]-a[2])/dt}}
+if(e.type==='pointercancel'){vx=0;vy=0}
+const proj=fl.P[0]+(vx/1000)*.998/(1-.998);
+fl.mode='spring';fl.V=[vx,vy];fl.T=[proj<0?-V.W:V.W,fl.yc];fl.resp=.5;fl.z=.92;fl.lt=0;kickLoop();return}
+if(p.cancel||p.ui||e.type==='pointercancel')return;
+const back=V.spread?p.pt0[0]<0:p.pt0[0]<V.W*.28;step(back?-1:1)}
+stage.addEventListener('pointerup',release);stage.addEventListener('pointercancel',release);
+function peek(e){
+const fl=V.flip;if(fl&&!fl.peek)return;
+const pt=toBook(e),{W,H}=V,z=Math.min(W*.2,110);
+let zone=null;
+for(const yc of[0,H]){
+if(canFwd()&&Math.hypot(pt[0]-W,pt[1]-yc)<z)zone={k:V.idx,f:false,yc};
+if(V.spread&&V.idx>0&&Math.hypot(pt[0]+W,pt[1]-yc)<z)zone={k:V.idx-1,f:true,yc}}
+if(zone){let f=fl;if(f&&(f.k!==zone.k||f.yc!==zone.yc)){endFlip();f=null}
+if(!f){f=startFlip(zone.k,zone.f,zone.yc,{peek:true,mode:'spring',resp:.35,z:1,lt:0});}
+const C=[zone.f?-W:W,zone.yc],v=[pt[0]-C[0],pt[1]-C[1]],l=Math.hypot(v[0],v[1])||1,m=Math.min(l*.6,W*.14);
+f.T=[C[0]+v[0]/l*m-(zone.f?-1:1)*W*.04,C[1]+v[1]/l*m+(zone.yc?-1:1)*W*.03];f.hold=true;f.mode='spring';kickLoop()}
+else if(fl&&fl.peek){fl.T=[fl.P[0]<0?-W:W,fl.yc];fl.T=[fl.k===V.idx?W:-W,fl.yc];fl.hold=false;fl.mode='spring';kickLoop()}}
+stage.addEventListener('pointerleave',e=>{if(!PT&&V.flip&&V.flip.peek){const fl=V.flip;fl.T=[fl.k===V.idx?V.W:-V.W,fl.yc];fl.hold=false;kickLoop()}});
+stage.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){goTo(+g.dataset.go);return}if(e.target.closest('[data-close]'))closeBook()});
 
-  function navSel(i) { buzz(); show(VIEWS[i], { fromNav: true }); }
-  navCtl = window.LiquidGlass
-    ? LiquidGlass.tabs({ wrap: $('navWrap'), inner: $('nav'), indicator: $('sl'), items: nbs, onSelect: navSel, glass: false })
-    : { select(i) { const b = nbs[i], s = $('sl'); s.style.translate = b.offsetLeft + 'px 0'; s.style.width = b.offsetWidth + 'px'; } };
+/* Hint */
+let hinted=ls.g('kh-hint')==='1';
+function hideHint(){$('hint').classList.add('gone');if(!hinted){hinted=true;ls.s('kh-hint','1')}}
 
-  if (!window.LiquidGlass) {
-    nbs.forEach((b, i) => b.addEventListener('click', () => navSel(i)));
-    addEventListener('resize', () => navCtl.select(VIEWS.indexOf(cur)));
-  }
+/* ---------- Open / close ---------- */
+function openBook(i,btn){
+V.cur=D[i];V.bi=i;V.opener=btn;V.idx=0;V.flip=null;V.goal=null;
+build(V.cur);vw.hidden=false;vw.classList.remove('out');vw.classList.add('on','in');
+root.classList.add('lock');document.querySelector('main').inert=true;document.querySelector('.hdr').inert=true;
+$('hint').classList.toggle('gone',hinted);$('hint').textContent=matchMedia('(hover:hover)').matches?'Glissez le coin de la page, ou utilisez les flèches du clavier':'Glissez la page du doigt pour la tourner';
+layout();ui();refresh();
+const src=btn.querySelector('.cv').getBoundingClientRect(),tgt=V.F[0].getBoundingClientRect();
+btn.classList.add('away');
+if(!reduce&&src.width&&tgt.width){const o=bwrap.getBoundingClientRect(),s=src.width/tgt.width;
+const tx=src.left-o.left-(tgt.left-o.left)*s,ty=src.top-o.top-(tgt.top-o.top)*s;
+bwrap.animate([{transform:`translate(${tx}px,${ty}px) scale(${s})`},{transform:'none'}],{duration:620,easing:'cubic-bezier(.2,.85,.25,1)'})}
+setTimeout(()=>$('xb').focus({preventScroll:true}),50)}
+function closeBook(){
+if(!vw.classList.contains('on'))return;
+if(V.flip){V.flip.P=[V.flip.P[0]<0?-V.W:V.W,V.flip.yc];endFlip()}V.goal=null;
+if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+const btn=V.opener,fin=()=>{vw.classList.remove('on','in','out');vw.hidden=true;root.classList.remove('lock');
+document.querySelector('main').inert=false;document.querySelector('.hdr').inert=false;btn&&btn.classList.remove('away');btn&&btn.focus({preventScroll:true});faces.innerHTML='';V.N=0};
+if(reduce||!btn){fin();return}
+const src=btn.querySelector('.cv').getBoundingClientRect(),tgt=book.getBoundingClientRect(),o=bwrap.getBoundingClientRect();
+const s=src.width/tgt.width,tx=src.left-o.left-(tgt.left-o.left)*s,ty=src.top-o.top-(tgt.top-o.top)*s;
+vw.classList.remove('in');
+const a=bwrap.animate([{transform:'none',opacity:1},{transform:`translate(${tx}px,${ty}px) scale(${s})`,opacity:V.idx===0?1:0}],{duration:V.idx===0?480:360,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});
+vw.animate([{backgroundColor:'rgba(0,0,0,0)'}],{duration:1});
+setTimeout(()=>vw.classList.add('out'),V.idx===0?260:120);
+a.onfinish=()=>{a.cancel();fin()}}
+$('shelves').addEventListener('click',e=>{const b=e.target.closest('.bk');if(b)openBook(+b.dataset.i,b)});
+$('xb').onclick=closeBook;$('pv').onclick=()=>{V.goal=null;step(-1)};$('nx').onclick=()=>{V.goal=null;step(1)};
+const fsOK=document.fullscreenEnabled&&vw.requestFullscreen;
+if(!fsOK)$('fs').hidden=true;
+$('fs').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});else vw.requestFullscreen().catch(()=>toast("Le plein écran n'est pas disponible ici."))};
+document.addEventListener('fullscreenchange',()=>{const on=!!document.fullscreenElement;$('fs').setAttribute('aria-label',on?'Quitter le plein écran':'Plein écran');
+$('fsi').setAttribute('d',on?'M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5':'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5')});
+addEventListener('resize',()=>{if(vw.classList.contains('on')){if(V.flip){V.flip.P=[V.flip.P[0]<0?-V.W:V.W,V.flip.yc];endFlip()}layout();ui()}});
+addEventListener('keydown',e=>{
+if(!vw.classList.contains('on'))return;
+if(e.key==='Escape'&&!document.fullscreenElement){e.preventDefault();closeBook();return}
+if(e.key==='ArrowRight'||e.key==='PageDown'){e.preventDefault();V.goal=null;step(1)}
+else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();V.goal=null;step(-1)}
+else if(e.key==='Home'){e.preventDefault();goTo(0)}else if(e.key==='End'){e.preventDefault();goTo(maxIdx())}
+else if(e.key==='Tab'){const f=[...vw.querySelectorAll('button:not([disabled]):not([hidden]),a[href]')].filter(el=>el.offsetParent!==null&&!el.closest('.pg[style*="none"]'));
+if(!f.length)return;const a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
 
-  document.addEventListener('click', e => {
-    const sc = e.target.closest('[data-scroll]');
-    if (sc) {
-      e.preventDefault();
-      buzz(6);
-      const a = $(sc.dataset.scroll);
-      a && a.scrollIntoView({ behavior: RM ? 'auto' : 'smooth' });
-      return;
-    }
-    const g = e.target.closest('[data-go]');
-    if (!g) return;
-    e.preventDefault();
-    buzz();
-    show(g.dataset.go);
-  });
-
-  addEventListener('popstate', e => {
-    const h = location.hash.slice(1);
-    if (!(e.state && e.state.v) && h && !VIEWS.includes(h) && !ALIAS[h]) return;
-    show((e.state && e.state.v) || h || 'profil', { push: false });
-  });
-
-  /* Copie de l'adresse e-mail */
-  let tt = 0;
-  function toast(m) {
-    const t = $('toast');
-    t.textContent = m;
-    t.classList.add('show');
-    clearTimeout(tt);
-    tt = setTimeout(() => t.classList.remove('show'), 2200);
-  }
-  $('mailBtn').addEventListener('click', async () => {
-    buzz();
-    try {
-      await navigator.clipboard.writeText(EMAIL);
-      toast(T('E-mail copié ✓', 'Email copied ✓'));
-    } catch (e) {
-      location.href = 'mailto:' + EMAIL;
-    }
-  });
-
-  /* Démarrage */
-  setLang(lang);
-  prepCards(document);
-  {
-    const h = location.hash.slice(1), v = ALIAS[h] || h;
-    history.replaceState({ v: VIEWS.includes(v) ? v : 'profil' }, '');
-    if (h && (VIEWS.includes(h) || ALIAS[h])) show(h, { push: false, instant: true, force: true });
-    else reveal($('profil'));
-  }
+/* ---------- Contact ---------- */
+const lvOpts=D.map(b=>`${b.lv} ${b.name}`);
+$('chips').innerHTML=lvOpts.map((t,i)=>`<label><input type="radio" name="lv" value="${esc(t)}"${i?'':''}><span>${t}</span></label>`).join('');
+function mailHref(){const c=document.querySelector('#chips input:checked');return 'mailto:'+EM+(c?'?subject='+encodeURIComponent('['+c.value+'] Question'):'')}
+$('chips').addEventListener('change',()=>{$('send').href=mailHref()});
+$('cp').onclick=async()=>{try{await navigator.clipboard.writeText(EM);toast('Adresse copiée')}catch(e){const r=document.createRange();r.selectNodeContents($('ml'));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Adresse sélectionnée. Copiez-la avec Ctrl+C ou un appui long.')}};
 })();
 </script>
-
-<!-- =========================================================================
-     ESPACE ADMIN CACHÉ : dépôt des liens PDF
-     Accès : 5 appuis rapides sur « © 2026 » en bas de page, ou ajouter #admin à l'adresse.
-     ========================================================================= -->
-<script>
-(() => {
-  /* ====== LIENS PUBLIÉS : remplace cette ligne par celle générée par l'espace admin ====== */
-  const KH_LINKS = {};
-
-  /* ====== IDENTIFIANTS (empreintes SHA-256, jamais en clair) ======
-     Par défaut : utilisateur  katia   /  mot de passe  2026
-     Change-les via le panneau (section « Changer les identifiants »). */
-  const HU = 'a8fa61bc4e10bf3ea73ee89bdfebd002139116c9d6e406f76bd21600d28ced46';
-  const HP = '158a323a7ba44870f23d96f1516dd70aa48e9a72db4ebb026b0a89e212a208ab';
-
-  const $ = id => document.getElementById(id);
-  /* SHA-256 de secours (fonctionne même sans HTTPS) */
-  const K256 = [], H256 = [];
-  for (let n = 2, c = 0; c < 64; n++) {
-    let pr = true; for (let i = 2; i * i <= n; i++) if (n % i === 0) { pr = false; break; }
-    if (pr) { if (c < 8) H256[c] = (Math.pow(n, .5) % 1 * 4294967296) | 0; K256[c] = (Math.pow(n, 1 / 3) % 1 * 4294967296) | 0; c++; }
-  }
-  function sha256js(m) {
-    const b = [...new TextEncoder().encode(m)], l = b.length * 8;
-    b.push(0x80); while (b.length % 64 !== 56) b.push(0);
-    for (let i = 7; i >= 0; i--) b.push(i > 3 ? 0 : (l >>> (i * 8)) & 255);
-    let h = H256.slice();
-    for (let o = 0; o < b.length; o += 64) {
-      const w = [];
-      for (let i = 0; i < 16; i++) w[i] = (b[o + 4 * i] << 24) | (b[o + 4 * i + 1] << 16) | (b[o + 4 * i + 2] << 8) | b[o + 4 * i + 3];
-      for (let i = 16; i < 64; i++) {
-        const a = w[i - 15], c = w[i - 2];
-        const s0 = ((a >>> 7) | (a << 25)) ^ ((a >>> 18) | (a << 14)) ^ (a >>> 3);
-        const s1 = ((c >>> 17) | (c << 15)) ^ ((c >>> 19) | (c << 13)) ^ (c >>> 10);
-        w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0;
-      }
-      let [a, bb, c, d, e, f, g, hh] = h;
-      for (let i = 0; i < 64; i++) {
-        const S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7));
-        const t1 = (hh + S1 + ((e & f) ^ (~e & g)) + K256[i] + w[i]) | 0;
-        const S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10));
-        const t2 = (S0 + ((a & bb) ^ (a & c) ^ (bb & c))) | 0;
-        hh = g; g = f; f = e; e = (d + t1) | 0; d = c; c = bb; bb = a; a = (t1 + t2) | 0;
-      }
-      const v = [a, bb, c, d, e, f, g, hh]; h = h.map((x, i) => (x + v[i]) | 0);
-    }
-    return h.map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');
-  }
-  const sha = async s => {
-    try {
-      if (window.crypto && crypto.subtle) return [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, '0')).join('');
-    } catch (e) {}
-    return sha256js(s);
-  };
-  const anchors = [...document.querySelectorAll('a.row[href^="METTRE_LIEN_PDF_"]')];
-  anchors.forEach(a => a.dataset.key = a.getAttribute('href').replace('METTRE_LIEN_PDF_', '').replace('.pdf', ''));
-  let saved = {};
-  try { saved = JSON.parse(localStorage.getItem('kh-links') || '{}'); } catch (e) {}
-  const links = () => Object.assign({}, KH_LINKS, saved);
-
-  function applyLinks() {
-    const L = links();
-    anchors.forEach(a => {
-      const u = L[a.dataset.key];
-      if (u) { a.href = u; a.removeAttribute('data-soon'); }
-      else { a.href = '#'; a.dataset.soon = 1; }
-    });
-  }
-  function note(m) {
-    const t = $('toast'); if (!t) return;
-    t.textContent = m; t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2200);
-  }
-  document.addEventListener('click', e => {
-    const a = e.target.closest('a[data-soon]');
-    if (a) { e.preventDefault(); e.stopPropagation(); note('Bientôt disponible'); }
-  }, true);
-  applyLinks();
-
-  const box = $('admBox'), adm = $('adm');
-  const open = () => { adm.classList.add('on'); sessionStorage.getItem('kh-adm') === '1' ? editor() : login(); };
-  const close = () => { adm.classList.remove('on'); if (location.hash === '#admin') history.replaceState(null, '', location.pathname); };
-
-  function login() {
-    box.innerHTML = `<h3>Espace administrateur</h3>
-      <label>Nom d'utilisateur<input id="aU" autocomplete="username" autocapitalize="off"></label>
-      <label>Mot de passe<input id="aP" type="password" autocomplete="current-password"></label>
-      <div class="err" id="aE"></div>
-      <div class="bt"><button class="btn pri" id="aGo" type="button">Se connecter</button><button class="btn" id="aX" type="button">Fermer</button></div>`;
-    $('aX').onclick = close;
-    const
+</body>
+</html>
