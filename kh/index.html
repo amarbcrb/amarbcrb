@@ -331,6 +331,7 @@ footer .cr{-webkit-user-select:none;user-select:none;padding:14px 10px;margin:-1
     </a>
     <div class="tools glass" role="group" aria-label="Préférences" data-en-aria="Preferences">
       <button class="tb" id="langBtn" type="button" aria-label="Read in English" title="FR / EN">EN</button>
+      <button class="tb" id="admBtn" type="button" aria-label="Espace administrateur" title="Admin"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button>
       <button class="tb" id="themeBtn" type="button" aria-label="Changer de thème" data-en-aria="Change theme" title="Thème"></button>
     </div>
   </div>
@@ -1318,10 +1319,10 @@ footer .cr{-webkit-user-select:none;user-select:none;padding:14px 10px;margin:-1
   const KH_LINKS = {};
 
   /* ====== IDENTIFIANTS (empreintes SHA-256, jamais en clair) ======
-     Par défaut : utilisateur  khalli   /  mot de passe  Halli#Admin2026
+     Par défaut : utilisateur  katia   /  mot de passe  2026
      Change-les via le panneau (section « Changer les identifiants »). */
-  const HU = '865c7f2f1fb8f929459f2e9f276d1833d1a4561048e8d457da34a7a8ccc2db74';
-  const HP = '9519be494fb7cdb7996bbf552596aa2821bbcdeb4936373ab224a741bfc4f1b4';
+  const HU = 'a8fa61bc4e10bf3ea73ee89bdfebd002139116c9d6e406f76bd21600d28ced46';
+  const HP = '158a323a7ba44870f23d96f1516dd70aa48e9a72db4ebb026b0a89e212a208ab';
 
   const $ = id => document.getElementById(id);
   /* SHA-256 de secours (fonctionne même sans HTTPS) */
@@ -1398,7 +1399,4 @@ footer .cr{-webkit-user-select:none;user-select:none;padding:14px 10px;margin:-1
       <div class="err" id="aE"></div>
       <div class="bt"><button class="btn pri" id="aGo" type="button">Se connecter</button><button class="btn" id="aX" type="button">Fermer</button></div>`;
     $('aX').onclick = close;
-    const go = async () => {
-      const ok = (await sha($('aU').value.trim())) === HU && (await sha($('aP').value)) === HP;
-      if (ok) { sessionStorage.setItem('kh-adm', '1'); editor(); }
-      else { $('aE').textContent = 'Identifiants incorrect
+    const
