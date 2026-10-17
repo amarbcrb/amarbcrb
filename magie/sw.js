@@ -1,5 +1,5 @@
 // Hors ligne : on sert le cache tout de suite, et on le rafraîchit en arrière-plan.
-const CACHE = 'arcane-v2';
+const CACHE = 'arcane-v3';
 const FILES = [
   './',
   'style.css',

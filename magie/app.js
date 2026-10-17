@@ -15,12 +15,42 @@ const store = {
 };
 const settings = Object.assign({
   card: { rank: 11, suit: 'H' }, back: 'rouge', effect: 'classique',
-  live: false, revealText: true, vibrate: true, fullscreen: true, dot: true, grid: false, stamp: '180'
+  live: false, revealText: true, vibrate: true, fullscreen: true, dot: true, grid: false, stamp: '180',
+  music: 'mystere', musicVol: .5, sfx: true, sfxVol: .8
 }, store.get('settings', {}));
 const saveSettings = () => store.set('settings', settings);
-let customBack = store.get('customBack', null);
+// Dos importés (photos du vrai jeu), gardés seulement sur ce téléphone
+let customBacks = store.get('customBacks', null);
+if (!customBacks) {
+  const legacy = store.get('customBack', null);
+  customBacks = legacy ? [{ id: '1', data: legacy }] : [];
+  if (settings.back === 'perso') settings.back = legacy ? 'perso:1' : 'rouge';
+}
 
-const buzz = p => { if (settings.vibrate && navigator.vibrate) try { navigator.vibrate(p); } catch (e) { /* ignoré */ } };
+/* ================= Retour haptique ================= */
+// Android : API de vibration. iPhone : pas de vibration web ; on bascule un interrupteur
+// <input switch> caché, ce qui déclenche le retour haptique natif de Safari (iOS 17.4 à 26.4).
+const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+let hapLabel = null;
+function iosTick() {
+  if (!hapLabel) {
+    hapLabel = document.createElement('label');
+    hapLabel.setAttribute('aria-hidden', 'true');
+    hapLabel.style.cssText = 'position:fixed;left:-99px;top:-99px;width:1px;height:1px;opacity:0;pointer-events:none';
+    const sw = document.createElement('input');
+    sw.type = 'checkbox'; sw.setAttribute('switch', ''); sw.tabIndex = -1;
+    hapLabel.appendChild(sw);
+    document.body.appendChild(hapLabel);
+  }
+  hapLabel.click();
+}
+const buzz = p => {
+  if (!settings.vibrate) return;
+  if (navigator.vibrate) { try { navigator.vibrate(p); } catch (e) { /* ignoré */ } return; }
+  if (!IOS) return;
+  const ticks = Array.isArray(p) ? Math.ceil(p.length / 2) : 1;
+  for (let i = 0; i < ticks; i++) { if (i) setTimeout(iosTick, i * 110); else iosTick(); }
+};
 
 /* ================= Cartes ================= */
 const SUITS = ['S', 'H', 'C', 'D']; // ordre aussi utilisé par la grille secrète 2x2
@@ -31,7 +61,13 @@ const BACKS = ['rouge', 'bleu', 'violet', 'noir', 'or'];
 const isRed = s => s === 'H' || s === 'D';
 const cardName = c => `${RANK_NAME[c.rank]} de ${SUIT_NAME[c.suit]}`;
 const cardSrc = c => `cards/${RANKS[c.rank]}${c.suit}.webp`;
-const backSrc = () => settings.back === 'perso' && customBack ? customBack : `cards/back-${BACKS.includes(settings.back) ? settings.back : 'rouge'}.webp`;
+function backSrc() {
+  if (String(settings.back).startsWith('perso:')) {
+    const b = customBacks.find(x => 'perso:' + x.id === settings.back);
+    if (b) return b.data;
+  }
+  return `cards/back-${BACKS.includes(settings.back) ? settings.back : 'rouge'}.webp`;
+}
 const fullDeck = () => SUITS.flatMap(suit => RANKS.map((_, rank) => ({ rank, suit })));
 const sameCard = (a, b) => a.rank === b.rank && a.suit === b.suit;
 const suitIcon = (s, size = 22) => `<svg viewBox="0 0 100 100" width="${size}" height="${size}" fill="${isRed(s) ? '#e0364f' : '#ece7dc'}"><use href="#su-${s}"/></svg>`;
@@ -134,6 +170,158 @@ function gestures(el, h) {
 }
 const relTo = (el, e) => { const r = el.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
 
+/* ================= Son (synthétisé, aucun fichier audio) ================= */
+const sound = (() => {
+  let ctx = null, master, musicBus, sfxBus, noiseBuf, track = null;
+  const NOTE = n => 440 * Math.pow(2, (n - 69) / 12); // numéro MIDI vers Hz
+  function impulse(dur, decay) {
+    const len = Math.floor(ctx.sampleRate * dur), b = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay); }
+    return b;
+  }
+  function init() {
+    if (ctx) return true;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return false;
+    // iPhone : jouer même si le bouton silencieux est activé
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* ignoré */ }
+    ctx = new AC();
+    master = ctx.createGain(); master.connect(ctx.destination);
+    musicBus = ctx.createGain(); musicBus.gain.value = 0;
+    sfxBus = ctx.createGain(); sfxBus.gain.value = settings.sfxVol;
+    const verb = ctx.createConvolver(), wet = ctx.createGain();
+    verb.buffer = impulse(3.5, 2.8); wet.gain.value = .4;
+    verb.connect(wet); wet.connect(master);
+    musicBus.connect(master); musicBus.connect(verb);
+    sfxBus.connect(master); sfxBus.connect(verb);
+    noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    return true;
+  }
+  function unlock() {
+    if (!init()) return false;
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    return true;
+  }
+  function tone(f, t, dur, o = {}) {
+    const osc = ctx.createOscillator(), g = ctx.createGain();
+    osc.type = o.type || 'sine';
+    osc.frequency.setValueAtTime(f, t);
+    if (o.to) osc.frequency.exponentialRampToValueAtTime(o.to, t + dur);
+    if (o.detune) osc.detune.value = o.detune;
+    const a = Math.min(o.attack ?? .005, dur * .9);
+    g.gain.setValueAtTime(.0001, t);
+    g.gain.exponentialRampToValueAtTime(o.gain ?? .2, t + a);
+    g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    osc.connect(g);
+    if (o.filter) { const fl = ctx.createBiquadFilter(); fl.type = o.filter; fl.frequency.value = o.ff || 1000; g.connect(fl); fl.connect(o.dest || sfxBus); }
+    else g.connect(o.dest || sfxBus);
+    osc.start(t); osc.stop(t + dur + .05);
+    return osc;
+  }
+  function noise(t, dur, o = {}) {
+    const src = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain();
+    src.buffer = noiseBuf; src.loop = true;
+    fl.type = o.type || 'bandpass'; fl.Q.value = o.q ?? 1;
+    fl.frequency.setValueAtTime(o.f0 || 1000, t);
+    if (o.f1) fl.frequency.exponentialRampToValueAtTime(o.f1, t + dur);
+    const a = Math.min(o.attack ?? .01, dur * .9);
+    g.gain.setValueAtTime(.0001, t);
+    g.gain.exponentialRampToValueAtTime(o.gain ?? .3, t + a);
+    g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    src.connect(fl); fl.connect(g); g.connect(o.dest || sfxBus);
+    src.start(t, Math.random()); src.stop(t + dur + .05);
+  }
+  const SFX = {
+    tick: t => noise(t, .03, { type: 'highpass', f0: 3500, gain: .16, attack: .002 }),
+    deal: t => noise(t, .07, { f0: 2600, q: .8, gain: .32, attack: .003 }),
+    flip: t => { noise(t, .22, { f0: 1200, f1: 5000, q: .9, gain: .35, attack: .02 }); noise(t + .2, .04, { type: 'highpass', f0: 2500, gain: .2, attack: .002 }); },
+    whoosh: t => noise(t, .6, { f0: 300, f1: 3200, q: 1.2, gain: .35, attack: .25 }),
+    shimmer: t => [74, 78, 81, 83, 86, 90].forEach((n, i) => { tone(NOTE(n), t + i * .07, 1.4, { gain: .07 }); tone(NOTE(n + 12), t + i * .07, .8, { gain: .025 }); }),
+    tada: t => { [62, 66, 69, 74].forEach((n, i) => tone(NOTE(n), t + i * .015, 2.6, { type: 'triangle', gain: .09, attack: .02 })); tone(NOTE(86), t + .05, 1.8, { gain: .04 }); SFX.shimmer(t + .1); },
+    boom: t => { tone(110, t, .9, { to: 32, gain: .9 }); noise(t, 1, { type: 'lowpass', f0: 900, f1: 120, gain: .6, q: .5, attack: .005 }); },
+    hiss: t => noise(t, 2, { type: 'highpass', f0: 1800, gain: .1, attack: .7 }),
+    shatter: t => { for (let i = 0; i < 14; i++) noise(t + Math.random() * .45, .08, { f0: 2000 + Math.random() * 5000, q: 6, gain: .25, attack: .002 }); [93, 98, 100].forEach((n, i) => tone(NOTE(n), t + i * .05, .5, { gain: .03 })); },
+    swell: t => { [50, 57, 62, 69].forEach(n => tone(NOTE(n), t, 1.6, { type: 'sawtooth', to: NOTE(n + 12), gain: .03, attack: 1.2, filter: 'lowpass', ff: 1800 })); noise(t, 1.4, { type: 'highpass', f0: 4000, gain: .08, attack: 1.2 }); },
+    spin: t => { for (let i = 0; i < 5; i++) noise(t + i * .32, .3, { f0: 600 + i * 300, f1: 2000 + i * 500, q: 1.5, gain: .2, attack: .1 }); },
+    mirror: t => { tone(700, t, 1.5, { to: 2600, gain: .06, attack: .3 }); tone(1400, t, 1.5, { to: 5200, gain: .02, attack: .3 }); },
+    magic: t => { [86, 83, 81, 78, 74, 71].forEach((n, i) => tone(NOTE(n), t + i * .06, 1, { gain: .05 })); SFX.hiss(t); }
+  };
+  // Sons de chaque effet de révélation : « nom@délai »
+  const FX_SOUNDS = {
+    classique: ['flip'], slider: ['whoosh', 'whoosh@.15', 'flip@.5'], dispersion: ['shatter'], rotation: ['spin'],
+    zoom: ['whoosh', 'shimmer@.6'], lumiere: ['swell'], fumee: ['hiss'], explosion: ['boom@.45'], flip: ['whoosh', 'flip@.8'], miroir: ['mirror@.5']
+  };
+  function play(name, delay = 0) {
+    if (!settings.sfx || !SFX[name] || !unlock()) return;
+    SFX[name](ctx.currentTime + .02 + delay);
+  }
+  // Pad : deux scies désaccordées, filtrées, avec montée et descente lentes
+  function pad(f, t, dur) {
+    const fl = ctx.createBiquadFilter(), g = ctx.createGain();
+    fl.type = 'lowpass'; fl.frequency.setValueAtTime(500, t); fl.frequency.linearRampToValueAtTime(1100, t + dur / 2); fl.frequency.linearRampToValueAtTime(600, t + dur);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.028, t + 2.5); g.gain.setValueAtTime(.028, t + dur - 3); g.gain.linearRampToValueAtTime(0, t + dur);
+    fl.connect(g); g.connect(musicBus);
+    [-7, 7].forEach(dt => { const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = dt; o.connect(fl); o.start(t); o.stop(t + dur + .1); });
+  }
+  const bell = (f, t) => { tone(f, t, 3, { gain: .045, dest: musicBus }); tone(f * 2.76, t, 1, { gain: .01, dest: musicBus }); };
+  const thump = t => tone(72, t, .28, { to: 38, gain: .32, dest: musicBus, attack: .004 });
+  function startMusic(kind) {
+    stopMusic(.3);
+    if (!kind || kind === 'off' || !unlock()) return;
+    const t0 = ctx.currentTime, held = [];
+    musicBus.gain.cancelScheduledValues(t0);
+    musicBus.gain.setValueAtTime(musicBus.gain.value, t0);
+    musicBus.gain.linearRampToValueAtTime(settings.musicVol, t0 + 2.5);
+    let next = t0 + .1, bar = 0, nextB = t0 + 2;
+    const drone = (f, type, gain, ff) => {
+      const o = ctx.createOscillator(), g = ctx.createGain(), fl = ctx.createBiquadFilter();
+      o.type = type; o.frequency.value = f; fl.type = 'lowpass'; fl.frequency.value = ff; g.gain.value = gain;
+      o.connect(fl); fl.connect(g); g.connect(musicBus); o.start(); held.push(o);
+      return g;
+    };
+    let sched;
+    if (kind === 'suspense') {
+      const g = drone(NOTE(33), 'sawtooth', .05, 260); drone(NOTE(45), 'sawtooth', .03, 300);
+      const lfo = ctx.createOscillator(), lg = ctx.createGain();
+      lfo.frequency.value = .15; lg.gain.value = .025; lfo.connect(lg); lg.connect(g.gain); lfo.start(); held.push(lfo);
+      sched = () => {
+        const now = ctx.currentTime;
+        while (next < now + 1) { thump(next); thump(next + .28); next += 1.2; }
+        while (nextB < now + 1) { tone(NOTE(93), nextB, 5, { to: NOTE(92), gain: .012, attack: 2, dest: musicBus }); nextB += 6 + Math.random() * 4; }
+      };
+    } else {
+      const CH = [[50, 53, 57, 64], [46, 50, 53, 57], [43, 46, 50, 53, 57], [45, 50, 52, 55]];
+      const BELLS = [74, 77, 79, 81, 84, 86, 89];
+      drone(NOTE(38), 'sine', .045, 400);
+      sched = () => {
+        const now = ctx.currentTime;
+        while (next < now + 1) { CH[bar++ % 4].forEach(n => pad(NOTE(n), next, 9)); next += 8; }
+        while (nextB < now + 1) { bell(NOTE(BELLS[Math.random() * BELLS.length | 0]), nextB); nextB += 1.2 + Math.random() * 2.4; }
+      };
+    }
+    sched();
+    track = { timer: setInterval(sched, 250), held };
+  }
+  function stopMusic(fade = 1.2) {
+    if (!track || !ctx) return;
+    const t = ctx.currentTime, { timer, held } = track;
+    track = null;
+    clearInterval(timer);
+    musicBus.gain.cancelScheduledValues(t);
+    musicBus.gain.setValueAtTime(musicBus.gain.value, t);
+    musicBus.gain.linearRampToValueAtTime(0, t + fade);
+    held.forEach(o => { try { o.stop(t + fade + .05); } catch (e) { /* déjà arrêté */ } });
+  }
+  return {
+    unlock, play, startMusic, stopMusic,
+    fx(effect) { (FX_SOUNDS[effect] || []).forEach(x => { const [n, d] = x.split('@'); play(n, +(d || 0)); }); },
+    get playing() { return !!track; },
+    volumes() { if (!ctx) return; sfxBus.gain.value = settings.sfxVol; if (track) musicBus.gain.setTargetAtTime(settings.musicVol, ctx.currentTime, .1); }
+  };
+})();
+
 /* ================= Scène plein écran ================= */
 let stage = $('#stage');
 let stageCleanup = null, wake = null;
@@ -149,7 +337,8 @@ function cornerExit(e) {
   cornerTaps.push(t);
   if (cornerTaps.length >= 3) { cornerTaps = []; exitStage(); }
 }
-function openStage(build) {
+// opts.music = false pour les tours qui doivent rester muets (écran noir, calculatrice)
+function openStage(build, opts = {}) {
   // Nouvel élément à chaque tour : les écouteurs du tour précédent disparaissent avec l'ancien
   const fresh = stage.cloneNode(false);
   stage.replaceWith(fresh);
@@ -168,6 +357,7 @@ function openStage(build) {
     } catch (e) { /* plein écran refusé : on continue */ }
   }
   keepAwake();
+  if (opts.music === false) sound.stopMusic(.3); else sound.startMusic(settings.music);
   stageCleanup = build(stage) || null;
 }
 function closeStage() {
@@ -179,6 +369,7 @@ function closeStage() {
   document.body.classList.remove('staging');
   try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch (e) { /* ignoré */ }
   if (wake) { wake.release().catch(() => {}); wake = null; }
+  sound.stopMusic();
   if (current === 'show') buildShow($('[data-view="show"]'), false);
 }
 const exitStage = () => history.back();
@@ -402,10 +593,12 @@ async function revealScene(root, card, o = {}) {
   const r = zone.getBoundingClientRect();
   const c = { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height };
   buzz(15);
+  sound.fx(effect);
   try { await FX[effect]({ rv, zone, card: cardEl, back, face, flash, fx, c }); } catch (e) { /* animation interrompue */ }
   if (STACKED.includes(effect)) { back.style.opacity = '0'; face.style.opacity = '1'; }
   fx.sparks(c.x, c.y - c.h * .1, 36, { speed: 3.2, g: .015, life: 1800, spread: 400 });
   rv.classList.add('done');
+  sound.play('tada');
   buzz([20, 50, 20]);
 }
 
@@ -443,7 +636,7 @@ function startShow() {
 }
 
 /* ================= Réglages secrets ================= */
-const trow = (k, label, sub) => `<label class="trow"><span>${label}${sub ? `<small>${sub}</small>` : ''}</span><span class="sw"><input type="checkbox" data-set="${k}"${settings[k] ? ' checked' : ''}><i></i></span></label>`;
+const trow = (k, label, sub) => `<label class="trow"><span>${label}${sub ? `<small>${sub}</small>` : ''}</span><span class="sw"><input type="checkbox" switch data-set="${k}"${settings[k] ? ' checked' : ''}><i></i></span></label>`;
 function bindToggles(root, after) {
   $$('[data-set]', root).forEach(i => i.addEventListener('change', () => { settings[i.dataset.set] = i.checked; saveSettings(); if (after) after(); }));
 }
@@ -452,7 +645,7 @@ function buildSecret() {
   const old = $('#secret-body'), root = old.cloneNode(false);
   old.replaceWith(root);
   const backBtns = () => BACKS.map(b => `<button type="button" data-bk="${b}" aria-label="Dos ${b}"><img src="cards/back-${b}.webp" alt=""></button>`).join('')
-    + (customBack ? `<button type="button" data-bk="perso" aria-label="Mon dos"><img src="${customBack}" alt=""></button>` : '');
+    + customBacks.map(b => `<button type="button" data-bk="perso:${b.id}" aria-label="Mon dos"><img src="${b.data}" alt=""></button>`).join('');
   root.innerHTML = `
     <p class="lead">Choisis la carte à révéler :</p>
     <div class="carousel" id="car">${RANKS.map((_, r) => `<div class="cc" data-r="${r}"><img alt=""></div>`).join('')}
@@ -462,16 +655,22 @@ function buildSecret() {
     <div class="rank-track" id="rank" role="slider" tabindex="0" aria-label="Valeur" aria-valuemin="1" aria-valuemax="13">${RANKS.map(l => `<span>${l}</span>`).join('')}<i class="rank-knob"></i></div>
     <p class="section-lbl">Choisis le dos des cartes</p>
     <div class="backs" id="backs">${backBtns()}</div>
-    <div class="import-back"><label class="btn small ghost">Importer le dos de mon jeu<input type="file" accept="image/*" id="back-file"></label><span class="lbl" id="back-msg"></span></div>
+    <div class="import-back"><label class="btn small ghost">Importer le dos de mon jeu<input type="file" accept="image/*" id="back-file"></label><button class="btn small" type="button" id="back-del" hidden>Supprimer ce dos</button></div>
+    <p class="hint" style="margin-top:10px"><b>Le vrai dos de ton jeu Bicycle</b> : pose une carte face cachée bien à plat, prends-la en photo, puis cadre-la. Importe le rouge et le bleu si tu as les deux. Les photos restent uniquement sur ton téléphone.</p>
+    <p class="lbl" id="back-msg" aria-live="polite"></p>
     <p class="section-lbl">Effet de révélation</p>
     <div class="fx-strip" id="fx">${EFFECTS.map(([k, l]) => `<button class="fx" type="button" data-fx="${k}"><span class="thumb t-${k}">${thumbInner(k)}</span><span class="lab">${l}</span></button>`).join('')}</div>
     <button class="btn small ghost" type="button" id="fx-preview">Voir l'aperçu de l'effet</button>
     <div class="rows" style="margin-top:16px">
       ${trow('live', 'Saisie secrète en direct', 'La carte se choisit pendant le tour, par 2 touches invisibles.')}
       ${trow('revealText', 'Texte de révélation', '« Votre carte était… » et « Incroyable ! »')}
-      ${trow('vibrate', 'Vibration', '')}
+      ${trow('vibrate', 'Retour haptique', 'Vibrations et petits « clics » sous le doigt.')}
       ${trow('fullscreen', 'Mode plein écran', 'Cache les menus pendant le spectacle.')}
     </div>
+    <p class="section-lbl">Ambiance sonore</p>
+    ${seg('music', [['mystere', 'Mystère'], ['suspense', 'Suspense'], ['off', 'Aucune']], settings.music)}
+    <div class="rows" style="margin-top:10px">${trow('sfx', 'Effets sonores', 'Retournement, scintillement, explosion… pendant les tours.')}</div>
+    <button class="btn small ghost" type="button" id="music-test" style="margin-top:12px">Écouter l'ambiance</button>
     <div class="hint" id="live-hint" style="margin-top:14px"><b>Saisie secrète :</b> sur l'écran du spectacle, touchez 1) la valeur, 2) la couleur. Appui long = recommencer.${padDiagrams('card')}</div>
     <div style="margin-top:20px"><button class="btn gold" type="button" id="go-show"><svg><use href="#i-play"/></svg>Passer en mode spectacle</button></div>`;
 
@@ -497,8 +696,9 @@ function buildSecret() {
     $$('[data-bk]', root).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.bk === settings.back)));
     $$('[data-fx]', root).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.fx === settings.effect)));
     $('#live-hint', root).hidden = !settings.live;
+    $('#back-del', root).hidden = !String(settings.back).startsWith('perso:');
   };
-  const setRank = r => { r = Math.max(0, Math.min(12, r)); if (r !== settings.card.rank) { settings.card = { rank: r, suit: settings.card.suit }; saveSettings(); refresh(); } };
+  const setRank = r => { r = Math.max(0, Math.min(12, r)); if (r !== settings.card.rank) { settings.card = { rank: r, suit: settings.card.suit }; saveSettings(); refresh(); buzz(4); } };
   const refreshBackImages = () => $$('.thumb img', root).forEach(img => { if (!img.src.includes('/QH.')) img.src = backSrc(); });
 
   // Carrousel : flèches, glissé, toucher une carte voisine
@@ -530,36 +730,114 @@ function buildSecret() {
     if (f) { settings.effect = f.dataset.fx; saveSettings(); refresh(); }
     if (e.target.closest('#fx-preview')) openStage(st => { revealScene(st, settings.card, { onAgain: exitStage }); });
     if (e.target.closest('#go-show')) startShow();
+    const mt = e.target.closest('#music-test');
+    if (mt) {
+      if (sound.playing) sound.stopMusic(); else sound.startMusic(settings.music === 'off' ? 'mystere' : settings.music);
+      mt.textContent = sound.playing ? 'Arrêter l\'écoute' : 'Écouter l\'ambiance';
+    }
   });
   bindToggles(root, refresh);
+  bindSeg(root, (k, v) => {
+    settings.music = v; saveSettings();
+    if (sound.playing) { if (v === 'off') { sound.stopMusic(); $('#music-test', root).textContent = 'Écouter l\'ambiance'; } else sound.startMusic(v); }
+  });
 
-  // Import d'une photo du dos du vrai jeu : recadrée en 5:7 et réduite
+  // Import d'une photo du dos du vrai jeu, recadrée par le magicien
+  const rebuildBacks = () => { $('#backs', root).innerHTML = backBtns(); refreshBackImages(); refresh(); buildTours(); };
   $('#back-file', root).addEventListener('change', e => {
     const file = e.target.files && e.target.files[0];
-    const msg = $('#back-msg', root);
-    if (!file) return;
-    const url = URL.createObjectURL(file), img = new Image();
-    img.onload = () => {
-      const W = 500, H = 700, cv = document.createElement('canvas');
-      cv.width = W; cv.height = H;
-      const k = Math.max(W / img.width, H / img.height), w = img.width * k, h = img.height * k;
-      cv.getContext('2d').drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
-      URL.revokeObjectURL(url);
-      let data = cv.toDataURL('image/webp', .82);
-      if (!data.startsWith('data:image/webp')) data = cv.toDataURL('image/jpeg', .85);
-      customBack = data;
-      const saved = store.set('customBack', data);
-      settings.back = 'perso'; saveSettings();
-      $('#backs', root).innerHTML = backBtns();
-      refreshBackImages(); refresh(); buildTours();
-      msg.textContent = saved ? 'Dos importé.' : 'Dos importé pour cette session (mémoire pleine).';
-    };
-    img.onerror = () => { msg.textContent = 'Image illisible.'; URL.revokeObjectURL(url); };
-    img.src = url;
     e.target.value = '';
+    if (!file) return;
+    openCropper(file, data => {
+      const id = String(Date.now());
+      customBacks = [...customBacks, { id, data }].slice(-4);
+      const saved = store.set('customBacks', customBacks);
+      settings.back = 'perso:' + id; saveSettings();
+      rebuildBacks();
+      $('#back-msg', root).textContent = saved ? 'Dos importé.' : 'Dos importé pour cette session seulement (mémoire du navigateur pleine).';
+    }, msg => { $('#back-msg', root).textContent = msg; });
+  });
+  $('#back-del', root).addEventListener('click', () => {
+    customBacks = customBacks.filter(b => 'perso:' + b.id !== settings.back);
+    store.set('customBacks', customBacks);
+    settings.back = 'rouge'; saveSettings();
+    rebuildBacks();
+    $('#back-msg', root).textContent = 'Dos supprimé.';
   });
   refresh();
   refreshBackImages();
+}
+
+/* ================= Recadrage du dos importé ================= */
+function openCropper(file, done, fail) {
+  const url = URL.createObjectURL(file), img = new Image();
+  img.onerror = () => { URL.revokeObjectURL(url); fail('Image illisible.'); };
+  img.onload = () => openStage(st => {
+    st.className = 'stage velvet';
+    st.innerHTML = `<div class="trick">${trickHead('Cadre le dos de ta carte', 'Glisse pour placer la carte dans le cadre. Pince ou utilise le curseur pour zoomer.')}
+      <div class="grow"><div class="crop-box"><canvas></canvas></div></div>
+      <div class="crop-tools"><span class="lbl">Zoom</span><input class="range" type="range" min="1" max="5" step=".01" value="1" aria-label="Zoom"><button class="btn small ghost" type="button" data-rot>Pivoter ↻</button></div>
+      <div class="foot"><button class="btn ghost" type="button" data-cancel>Annuler</button><button class="btn gold" type="button" data-ok style="width:auto;padding:12px 30px">Valider</button></div></div>`;
+    const box = $('.crop-box', st), cv = $('canvas', box), range = $('.range', st);
+    const W = box.clientWidth, H = box.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    let s = 1, x = 0, y = 0, rot = 0;
+    // Même dessin pour l'aperçu et l'export : ce qu'on voit est ce qu'on obtient
+    const draw = (c, round) => {
+      const g = c.getContext('2d'), k = c.width / W;
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.clearRect(0, 0, c.width, c.height);
+      if (round) { g.beginPath(); if (g.roundRect) g.roundRect(0, 0, c.width, c.height, c.width * .056); else g.rect(0, 0, c.width, c.height); g.clip(); }
+      const [iw, ih] = rot % 2 ? [img.height, img.width] : [img.width, img.height];
+      const base = Math.max(W / iw, H / ih);
+      g.translate(c.width / 2 + x * k, c.height / 2 + y * k);
+      g.rotate(rot * Math.PI / 2);
+      g.scale(base * s * k, base * s * k);
+      g.drawImage(img, -img.width / 2, -img.height / 2);
+    };
+    const render = () => draw(cv, false);
+    const pts = new Map();
+    let pinch = null;
+    box.addEventListener('pointerdown', e => {
+      try { box.setPointerCapture(e.pointerId); } catch (err) { /* ignoré */ }
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, s }; }
+    });
+    box.addEventListener('pointermove', e => {
+      const prev = pts.get(e.pointerId);
+      if (!prev) return;
+      const cur = { x: e.clientX, y: e.clientY };
+      pts.set(e.pointerId, cur);
+      if (pts.size === 1) { x += cur.x - prev.x; y += cur.y - prev.y; }
+      else if (pinch) { const [a, b] = [...pts.values()]; s = Math.min(5, Math.max(1, pinch.s * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d)); range.value = String(s); }
+      render();
+    });
+    const up = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = null; };
+    box.addEventListener('pointerup', up);
+    box.addEventListener('pointercancel', up);
+    range.addEventListener('input', () => { s = +range.value; render(); });
+    $('[data-rot]', st).addEventListener('click', () => { rot = (rot + 1) % 4; x = 0; y = 0; render(); });
+    $('[data-cancel]', st).addEventListener('click', () => { URL.revokeObjectURL(url); exitStage(); });
+    $('[data-ok]', st).addEventListener('click', () => {
+      const out = document.createElement('canvas');
+      out.width = 500; out.height = 700;
+      draw(out, true);
+      let data = out.toDataURL('image/webp', .82);
+      if (!data.startsWith('data:image/webp')) {
+        // Safari ancien : pas d'export WebP, on passe en JPEG sur fond blanc
+        const j = document.createElement('canvas');
+        j.width = 500; j.height = 700;
+        const g = j.getContext('2d');
+        g.fillStyle = '#fff'; g.fillRect(0, 0, 500, 700); g.drawImage(out, 0, 0);
+        data = j.toDataURL('image/jpeg', .86);
+      }
+      URL.revokeObjectURL(url);
+      done(data);
+      exitStage();
+    });
+    render();
+  }, { music: false });
+  img.src = url;
 }
 
 /* ================= Navigation ================= */
@@ -568,6 +846,7 @@ let current = 'secret', subCleanup = null;
 const SUBS = {};
 function navigate(name, push = true) {
   if (subCleanup) { subCleanup(); subCleanup = null; }
+  if (stage.hidden) { sound.stopMusic(.4); const mt = $('#music-test'); if (mt) mt.textContent = 'Écouter l\'ambiance'; }
   let sub = SUBS[name];
   if (!sub && name.startsWith('r:')) sub = routineSub(name.slice(2));
   if (!sub && !$(`.view[data-view="${name}"]`)) name = 'secret';
@@ -581,6 +860,9 @@ function navigate(name, push = true) {
   if (push) history.pushState({ view: name }, '');
   window.scrollTo(0, 0);
 }
+document.addEventListener('click', e => {
+  if (e.target.closest('#app button, .tabbar button, .stage button')) buzz(6);
+}, true);
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-tabgo]');
   if (t) { if (t.dataset.tabgo !== current) navigate(t.dataset.tabgo); return; }
@@ -639,6 +921,9 @@ function launchEnvelope(cfg) {
       buzz(10);
       env.querySelector('.paper').outerHTML = paperHTML(content.text);
       env.classList.add('open');
+      sound.play('flip');
+      sound.play('whoosh', .6);
+      sound.play('tada', 1.7);
       setTimeout(() => env.classList.add('out'), 650);
       setTimeout(() => {
         env.classList.add('gone');
@@ -783,7 +1068,7 @@ function launchBlack(cfg) {
       up: () => { last = null; }
     });
     return () => window.removeEventListener('resize', onResize);
-  });
+  }, { music: false });
 }
 SUBS.black = {
   title: 'Écran noir', tab: 'tours',
@@ -868,10 +1153,12 @@ function launchForce(style) {
       const cardEl = $('.rv-card', st), trick = $('.trick', st);
       await decode($('.rv-face', st));
       buzz(15);
+      sound.play('flip');
       await A(cardEl, [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(180deg)' }], { duration: 800, easing: 'cubic-bezier(.2,.7,.2,1)' });
       trick.addEventListener('click', async () => {
         $('h2', trick).textContent = 'Elle retourne dans le jeu…';
         $('p', trick).textContent = 'Personne ne sait où elle est.';
+        sound.play('whoosh');
         await A(cardEl, [{ transform: 'rotateY(180deg) translateY(0px) scale(1)', opacity: 1 }, { transform: 'rotateY(360deg) translateY(60vh) scale(.6)', opacity: 0 }], { duration: 900, easing: 'ease-in' });
         lost();
       }, { once: true });
@@ -885,8 +1172,8 @@ function launchForce(style) {
           <div class="foot"><button class="pill" type="button" data-stop style="min-width:200px">Stop</button></div></div>`;
         const img = $('.flash-card img', st);
         let i = 0;
-        timer = setInterval(() => { img.src = cardSrc(others[i++ % others.length]); }, 85);
-        $('[data-stop]', st).addEventListener('click', () => { clearInterval(timer); img.src = cardSrc(forced); buzz(20); setTimeout(afterPick, 900); }, { once: true });
+        timer = setInterval(() => { img.src = cardSrc(others[i++ % others.length]); if (i % 2) sound.play('tick'); }, 85);
+        $('[data-stop]', st).addEventListener('click', () => { clearInterval(timer); img.src = cardSrc(forced); buzz(20); sound.play('deal'); setTimeout(afterPick, 900); }, { once: true });
         return;
       }
       const N = 40;
@@ -910,6 +1197,7 @@ function launchForce(style) {
         const r = sp.getBoundingClientRect();
         const k = Math.max(0, Math.min(N - 1, Math.round((e.clientX - r.left - r.width * .08) / (r.width * .84) * (N - 1))));
         if (k === lifted) return;
+        sound.play('tick');
         if (lifted >= 0) { imgs[lifted].classList.remove('lift'); imgs[lifted].style.transform = `rotate(${imgs[lifted].dataset.a}deg)`; }
         lifted = k;
         imgs[k].classList.add('lift');
@@ -921,6 +1209,7 @@ function launchForce(style) {
         up: async () => {
           if (picked || lifted < 0) return;
           picked = true;
+          sound.play('whoosh');
           const im = imgs[lifted];
           await A(im, [{ transform: `rotate(${im.dataset.a}deg) translateY(-26px)`, opacity: 1 }, { transform: 'rotate(0deg) translateY(-60vh) scale(1.4)', opacity: 0 }], { duration: 500, easing: 'ease-in' });
           afterPick();
@@ -981,6 +1270,7 @@ function launchColumns(size) {
             im.style.top = `${k * off}px`;
             im.style.animationDelay = `${(k * 3 + c) * 28}ms`;
             stack.appendChild(im);
+            sound.play('deal', (k * 3 + c) * .028);
           });
           el.addEventListener('click', () => pick(c, cols), { once: true });
         });
@@ -988,6 +1278,7 @@ function launchColumns(size) {
       const pick = async (c, cols) => {
         $$('.col', st).forEach((el, k) => { el.classList.toggle('hl', k === c); el.disabled = true; });
         buzz(10);
+        sound.play('tick');
         cands = cands ? cands.filter(x => cols[c].some(y => sameCard(x, y))) : cols[c];
         if (!cands.length) cands = cols[c]; // le spectateur a changé de carte : on repart de cette colonne
         await wait(380);
@@ -1009,11 +1300,13 @@ function launchColumns(size) {
           d.innerHTML = `<img src="${backSrc()}" alt=""><b>${i}</b>`;
           row.appendChild(d);
           buzz(3);
+          sound.play('deal');
           await wait(i === n ? 600 : 160);
         }
         const lastC = row.lastElementChild;
         lastC.classList.add('hit');
         lastC.firstElementChild.src = cardSrc(target);
+        sound.play('flip');
         $('h2', st).textContent = `${n}e carte…`;
         await wait(1300);
         finalReveal(target);
@@ -1077,8 +1370,10 @@ function launchVanish() {
       fx.smoke({ left: r.left + r.width * .3, right: r.right - r.width * .3, top: r.top, bottom: r.bottom }, 30, 900);
       fx.sparks(r.left + r.width / 2, r.top + r.height * .55, 50, { speed: 5, g: .02, spread: 600 });
       buzz([10, 60, 10]);
+      sound.play('magic');
       await wait(1700);
       lay(five, 40);
+      five.forEach((_, k) => sound.play('deal', k * .05));
       await wait(900);
       $('h2', st).textContent = 'Votre carte a disparu !';
       $('.trick p', st).textContent = 'Il n\'en reste que cinq… et la vôtre n\'y est plus.';
@@ -1135,6 +1430,7 @@ function launchIntuition(total) {
         $('.stack', p).appendChild(im);
         $('.n', p).textContent = `${placed[k].length} carte${placed[k].length > 1 ? 's' : ''}`;
         buzz(6);
+        sound.play('deal');
         const rest = total - placed.r.length - placed.b.length;
         left.textContent = rest ? `${rest} carte${rest > 1 ? 's' : ''} à trier` : 'Toutes les cartes sont triées.';
         if (!rest) {
@@ -1154,12 +1450,14 @@ function launchIntuition(total) {
             im.src = cardSrc(c); im.alt = cardName(c);
             $(id, st).appendChild(im);
             buzz(3);
+            sound.play('deal');
             await wait(140);
           }
         }
         $('h2', st).textContent = `${total} sur ${total} !`;
         $('#verdict', st).textContent = 'Aucune erreur. Vous avez un don.';
         fx.sparks(window.innerWidth / 2, window.innerHeight * .4, 90, { speed: 8, g: .05 });
+        sound.play('tada');
         buzz([20, 50, 20]);
         $('.foot', st).innerHTML = '<button class="pill" type="button" data-again><svg><use href="#i-redo"/></svg>Recommencer</button>';
         $('[data-again]', st).addEventListener('click', run, { once: true });
@@ -1233,6 +1531,7 @@ function launchKruskal() {
           cur = fresh;
           meta.textContent = `Carte ${i + 1} / 52`;
           buzz(3);
+          sound.play('deal');
           if (i === 51) {
             $('h2', st).textContent = 'Retenez votre dernière carte';
             $('.trick p', st).textContent = 'C\'est la carte que le hasard vous a donnée.';
@@ -1335,7 +1634,7 @@ function launchCalc(cfg) {
     disp.addEventListener('pointerdown', () => { lt = setTimeout(() => { if (armed) { armed = false; buzz([10, 40, 10]); render(); } else arm(); }, 650); });
     ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => disp.addEventListener(t, () => clearTimeout(lt)));
     render();
-  });
+  }, { music: false });
 }
 SUBS.calc = {
   title: 'Calculatrice forcée', tab: 'tours',
@@ -1644,11 +1943,17 @@ SUBS.prefs = {
   title: 'Réglages généraux', tab: 'plus',
   build(root) {
     root.innerHTML = `<div class="setup"><div class="rows">
-      ${trow('vibrate', 'Vibrations', 'Confirme chaque touche secrète (Android ; l\'iPhone ne vibre pas depuis le web).')}
+      ${trow('vibrate', 'Retour haptique', 'Vibrations sur Android. Sur iPhone : petits « clics » haptiques (iOS 17.4 à 26.4).')}
       ${trow('dot', 'Point de confirmation discret', 'Un point gris minuscule clignote en bas de l\'écran à chaque touche secrète.')}
       ${trow('grid', 'Grille visible pendant les tours', 'Pour répéter seulement. À couper avant un vrai public.')}
       ${trow('fullscreen', 'Mode plein écran', 'Cache les menus et la barre d\'onglets pendant les tours.')}
       ${trow('revealText', 'Texte de révélation', '« Votre carte était… » et « Incroyable ! »')}</div>
+      <p class="section-lbl" style="margin:6px 2px 0">Son</p>
+      <div class="field"><span class="lbl">Ambiance pendant les tours (jamais sur l'écran noir ni la calculatrice)</span>${seg('music', [['mystere', 'Mystère'], ['suspense', 'Suspense'], ['off', 'Aucune']], settings.music)}</div>
+      <label class="field"><span class="lbl">Volume de la musique</span><input class="range" type="range" min="0" max="1" step=".05" value="${settings.musicVol}" data-vol="musicVol"></label>
+      <div class="rows">${trow('sfx', 'Effets sonores', 'Retournement, scintillement, explosion…')}</div>
+      <label class="field"><span class="lbl">Volume des effets</span><input class="range" type="range" min="0" max="1" step=".05" value="${settings.sfxVol}" data-vol="sfxVol"></label>
+      <p class="hint">Sur iPhone, le son passe même en mode silencieux quand Safari le permet. Pensez à monter le volume avant le spectacle.</p>
       <div class="field"><span class="lbl">Horodatage par défaut des enveloppes</span>
         <select class="input" id="set-stamp">${STAMPS.map(([v, l]) => `<option value="${v}"${v === settings.stamp ? ' selected' : ''}>${l}</option>`).join('')}</select></div>
       <details class="howto" open><summary>Installer l'appli</summary><ul>
@@ -1659,6 +1964,11 @@ SUBS.prefs = {
       <details class="howto"><summary>Quitter un tour</summary><ul>
         <li>Touchez <b>3 fois rapidement</b> le coin en haut à gauche de l'écran, ou faites le geste « retour ».</li></ul></details></div>`;
     bindToggles(root, buildSecret);
+    bindSeg(root, (k, v) => { settings.music = v; saveSettings(); buildSecret(); });
+    $$('[data-vol]', root).forEach(r => {
+      r.addEventListener('input', () => { settings[r.dataset.vol] = +r.value; saveSettings(); sound.volumes(); });
+      r.addEventListener('change', () => { if (r.dataset.vol === 'sfxVol') sound.play('shimmer'); });
+    });
     $('#set-stamp', root).addEventListener('change', e => { settings.stamp = e.target.value; saveSettings(); });
   }
 };
