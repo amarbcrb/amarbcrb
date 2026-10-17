@@ -1,0 +1,5 @@
+Faces 2 à Roi : « Vector Playing Cards » de Byron Knoll, domaine public
+(https://code.google.com/archive/p/vector-playing-cards/, via https://github.com/notpeter/Vector-Playing-Cards).
+Converties en WebP 500x700 avec coins arrondis.
+
+As (centres), dos de cartes : créations originales pour Arcane.
