@@ -49,7 +49,7 @@ document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme: li
 <style>
 /* ===== Jetons : style Nuvio (fond #0D0D0D, accent monochrome, verre givré), couleurs système Apple réservées aux icônes ===== */
 :root{--font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
---ease:cubic-bezier(.2,0,0,1);--spring:cubic-bezier(.34,1.45,.64,1);--navh:48px;--gx:20px;--top:72px;--max:1120px;
+--ease:cubic-bezier(.2,0,0,1);--spring:cubic-bezier(.34,1.45,.64,1);--navh:64px;--gx:20px;--top:72px;--max:1120px;
 --bg:#0d0d0d;--sf:#1a1a1a;--sf2:#222;--fill:rgba(255,255,255,.06);--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
 --tx:#fff;--tx2:#969ca3;--tx3:#80868d;--sep:rgba(255,255,255,.08);--hair:rgba(255,255,255,.08);--shadow:none;
 --card:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
@@ -278,9 +278,9 @@ footer b{color:var(--tx2);font-weight:600}
 /* message */
 #toast{position:fixed;left:50%;bottom:calc(var(--navh) + 28px + env(safe-area-inset-bottom));z-index:70;transform:translate(-50%,20px);padding:12px 20px;border-radius:999px;font-size:15px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .35s var(--ease),transform .45s var(--spring)}
 #toast.show{opacity:1;transform:translate(-50%,0)}
-/* ===== Barre d'onglets façon Nuvio : barre compacte en verre givré, icônes seules, pastille « jelly »
+/* ===== Barre d'onglets façon Nuvio : barre en verre givré, icône et libellé, pastille « jelly »
    qu'on glisse d'un onglet à l'autre. Le reflet .glass suit toujours la souris ou le doigt. ===== */
-.nav{position:fixed;z-index:30;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 14px);width:min(400px,calc(100vw - 116px));height:var(--navh);margin-inline:auto;will-change:transform;animation:navin .8s var(--ease) backwards .2s}
+.nav{position:fixed;z-index:30;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 14px);width:min(400px,calc(100vw - 56px));height:var(--navh);margin-inline:auto;will-change:transform;animation:navin .8s var(--ease) backwards .2s}
 @keyframes navin{from{opacity:0;translate:0 40px;scale:.94}}
 .nav-in{height:100%;padding:0 4px;border-radius:999px;display:flex;touch-action:none;-webkit-user-select:none;user-select:none;will-change:transform}
 .nav-in.glass{background:var(--nav-bg);-webkit-backdrop-filter:saturate(1.5) blur(10px);backdrop-filter:saturate(1.5) blur(10px);box-shadow:0 4px 24px var(--nav-sh)}
@@ -291,12 +291,16 @@ footer b{color:var(--tx2);font-weight:600}
 .sl::before,.sl::after{content:"";position:absolute;inset:0;border-radius:inherit;opacity:calc(1 - .5*var(--p,0))}
 .sl::before{background:linear-gradient(color-mix(in srgb,var(--acc) 20%,transparent),color-mix(in srgb,var(--acc) 20%,transparent)),color-mix(in srgb,var(--pill-sf) 52%,transparent)}
 .sl::after{padding:1px;background:linear-gradient(color-mix(in srgb,var(--acc) 60%,transparent),color-mix(in srgb,var(--acc) 15%,transparent));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
-.nb{flex:1 1 0;min-width:0;position:relative;z-index:2;border-radius:999px;display:flex;align-items:center;justify-content:center;color:var(--mut)}
+.nb{flex:1 1 0;min-width:0;position:relative;z-index:2;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--mut)}
 .nb.on{color:var(--acc)}
 /* l'icône prend la couleur d'accent à mesure que la pastille la recouvre (--k) */
 @supports (color:color-mix(in srgb,red calc(50%),blue)){.nb,.nb.on{color:color-mix(in srgb,var(--acc) calc(var(--k,0)*100%),var(--mut))}}
-.nb svg{width:24px;height:24px;transform:scale(var(--s,1));will-change:transform}
-.nb>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* icône et libellé grossissent ensemble sous la pastille pendant l'appui (--s) */
+.nb svg,.nb>span{transform:scale(var(--s,1));will-change:transform}
+.nb svg{width:24px;height:24px;transform-origin:50% 100%}
+.nb>span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:500;line-height:1.2;transform-origin:50% 0}
+.nb.on>span{font-weight:700}
+@media(max-width:359px){.nb>span{font-size:11px}}
 /* ===== Tablette et PC ===== */
 @media(min-width:700px){
 .stats{grid-template-columns:repeat(4,minmax(0,1fr))}
