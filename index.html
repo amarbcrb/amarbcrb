@@ -135,9 +135,8 @@ h2{text-wrap:balance;margin-top:12px;font-size:clamp(30px,5vw,48px);font-weight:
 .box::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(circle 220px at var(--mx,50%) var(--my,0%),rgba(255,255,255,.06),transparent 70%)}
 [data-theme=light] .box::before{background:radial-gradient(circle 220px at var(--mx,50%) var(--my,0%),rgba(0,0,0,.025),transparent 70%)}
 .box.lit::before{opacity:1}
-.ic{width:44px;height:44px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff}
+.ic{width:44px;height:44px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;background:var(--fill);color:var(--tx)}
 .ic svg{width:22px;height:22px}
-.ic.n{background:var(--fill);color:var(--tx)}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tags span{min-height:30px;padding:0 12px;border-radius:999px;display:inline-flex;align-items:center;font-size:13px;font-weight:600;color:var(--tx2);background:var(--fill);border:.75px solid var(--line)}
 /* groupes façon Réglages : lignes séparées par des filets fins */
@@ -155,17 +154,11 @@ a.row,button.row{width:100%;text-align:left;transition:background .25s}
 .gh{display:block;margin:0 20px 8px;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--tx3)}
 /* ===== Profil : ouverture ===== */
 .hero{display:grid;gap:44px;align-items:center;padding-top:28px}
-.pill{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 16px;border-radius:999px;font-size:14px;font-weight:600;color:var(--tx);background:var(--glass-bg);border:.75px solid var(--glass-line);-webkit-backdrop-filter:blur(24px) saturate(1.4);backdrop-filter:blur(24px) saturate(1.4)}
-.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--c-green);box-shadow:0 0 0 0 color-mix(in srgb,var(--c-green) 60%,transparent);animation:pulse 2.4s infinite}
-@keyframes pulse{to{box-shadow:0 0 0 8px transparent}}
 /* titre d'ouverture Nuvio : nom en très gras sur deux lignes, sous-titre en accent */
-.hero h1{margin-top:20px;font-size:clamp(48px,11vw,96px);font-weight:900;letter-spacing:-.04em;line-height:.92}
+.hero h1{margin-top:0;font-size:clamp(48px,11vw,96px);font-weight:900;letter-spacing:-.04em;line-height:.92}
 .hero h1 .hl{display:block}
 .hero .sub{margin-top:16px;font-size:clamp(19px,4.6vw,24px);font-weight:700;letter-spacing:-.01em;line-height:1.3;color:var(--acc);max-width:620px}
 .hero .lead{margin-top:14px;color:color-mix(in srgb,var(--tx) 82%,transparent);max-width:560px}
-.who4{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px;list-style:none}
-.who4 li{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 16px 0 6px;border-radius:999px;font-size:14px;font-weight:600;color:var(--tx2);background:var(--fill);border:.75px solid var(--line)}
-.who4 i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff}.who4 i svg{width:14px;height:14px}
 /* carte d'identité */
 .idc{padding:26px 0 8px;border-radius:32px;box-shadow:var(--shadow),0 40px 80px -40px rgba(0,0,0,.5)}
 .idc .ph{width:132px;height:132px;margin:0 auto;border-radius:50%;padding:4px;background:var(--fill);border:1px solid var(--line2)}
@@ -173,13 +166,6 @@ a.row,button.row{width:100%;text-align:left;transition:background .25s}
 .idc .nm{margin-top:14px;text-align:center;font-size:21px;font-weight:700;letter-spacing:-.02em}
 .idc .nm small{display:block;font-size:14px;font-weight:500;color:var(--tx2);letter-spacing:0}
 .idc .rows{margin-top:18px;border-top:1px solid var(--sep)}
-/* chiffres */
-.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:56px}
-.stat{position:relative;padding:22px 20px}
-.stat b{display:block;font-size:clamp(34px,8vw,46px);font-weight:800;letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums}
-.stat span{display:block;margin-top:4px;font-size:14px;color:var(--tx2);line-height:1.4}
-.stat:nth-child(2n)::before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:1px;background:var(--sep)}
-.stat:nth-child(n+3)::after{content:"";position:absolute;top:0;left:20px;right:20px;height:1px;background:var(--sep)}
 /* profil */
 .big{margin-top:22px;font-size:clamp(22px,5.4vw,32px);font-weight:600;letter-spacing:-.025em;line-height:1.3;max-width:900px;text-wrap:pretty}
 .cols{display:grid;gap:18px;margin-top:22px;max-width:900px}
@@ -187,7 +173,7 @@ a.row,button.row{width:100%;text-align:left;transition:background .25s}
 /* domaines scientifiques */
 .grid{display:grid;gap:12px;margin-top:36px}
 .card{padding:24px;display:flex;flex-direction:column;gap:12px}
-.card h3{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-top:6px}
+.card h3{font-size:20px;font-weight:700;letter-spacing:-.02em}
 .card p{font-size:15.5px;color:var(--tx2);line-height:1.55}
 .card .tags{margin-top:auto;padding-top:4px}
 /* BioStudy */
@@ -196,23 +182,12 @@ a.row,button.row{width:100%;text-align:left;transition:background .25s}
 .wm i{font-style:normal;color:var(--acc-tx)}
 .pts{list-style:none;margin-top:26px;display:flex;flex-direction:column;gap:16px}
 .pts li{display:flex;gap:14px;align-items:flex-start}
-.pts .ic{width:36px;height:36px}.pts .ic svg{width:18px;height:18px}
 .pts b{display:block;font-size:16px;font-weight:600}
 .pts div>span{display:block;font-size:15px;color:var(--tx2);line-height:1.5}
 .tl8{padding:6px 0}
 .tl8 .row{min-height:58px}
 .tl8.rv .row{opacity:0;transform:translateX(16px);transition:opacity .6s var(--ease),transform .7s var(--ease),background .25s;transition-delay:calc(.25s + var(--d)*.07s)}
 .tl8.rv.in .row{opacity:1;transform:none}
-/* méthode */
-.steps{margin-top:36px}
-.steps .n{width:36px;height:36px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:700;background:var(--fill);color:var(--tx)}
-/* citation */
-.quote{max-width:820px;margin-inline:auto;text-align:center}
-.quote blockquote{font-size:clamp(25px,6vw,40px);font-weight:600;letter-spacing:-.02em;line-height:1.2;font-family:"New York","Iowan Old Style",Georgia,"Times New Roman",serif;font-style:italic}
-.quote figcaption{margin-top:18px;font-size:14px;font-weight:600;color:var(--tx2)}
-/* bandeau final */
-.cta{margin-top:88px;padding:44px 24px;text-align:center}
-.cta h2{margin:0 auto}.cta .lead{margin-inline:auto}.cta .acts{justify-content:center}
 /* ===== Vues secondaires ===== */
 .vh{padding-top:26px}
 .vh h2{font-size:clamp(34px,6vw,56px)}
@@ -251,7 +226,6 @@ a.row,button.row{width:100%;text-align:left;transition:background .25s}
 .jgrid{display:grid;gap:12px}
 .jb{padding:24px}
 .jb>h3{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:20px}
-.jb>h3 .ic{width:36px;height:36px}.jb>h3 .ic svg{width:18px;height:18px}
 .ti{position:relative;padding:0 0 22px 24px;margin-left:6px;border-left:2px solid var(--line2)}
 .ti:last-of-type{padding-bottom:2px;border-left-color:transparent}
 .ti::before{content:"";position:absolute;left:-7px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--sf);border:2px solid var(--tx3)}
@@ -264,7 +238,7 @@ a.row,button.row{width:100%;text-align:left;transition:background .25s}
 .certs{display:grid;gap:0}
 .certs .row{min-height:60px}
 .hob{padding:24px}
-.hob h3{margin-top:18px;font-size:19px;font-weight:700;letter-spacing:-.02em}
+.hob h3{margin-top:0;font-size:19px;font-weight:700;letter-spacing:-.02em}
 .hob p{margin-top:6px;font-size:15px;color:var(--tx2);line-height:1.55}
 /* contact */
 .ct{margin-top:36px}.ct .row{min-height:66px}
@@ -278,34 +252,26 @@ footer b{color:var(--tx2);font-weight:600}
 /* message */
 #toast{position:fixed;left:50%;bottom:calc(var(--navh) + 28px + env(safe-area-inset-bottom));z-index:70;transform:translate(-50%,20px);padding:12px 20px;border-radius:999px;font-size:15px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .35s var(--ease),transform .45s var(--spring)}
 #toast.show{opacity:1;transform:translate(-50%,0)}
-/* ===== Barre d'onglets façon Nuvio : barre en verre givré, icône et libellé, pastille « jelly »
-   qu'on glisse d'un onglet à l'autre. Le reflet .glass suit toujours la souris ou le doigt. ===== */
+/* ===== Barre d'onglets façon Nuvio : verre givré, icône et libellé, pastille « jelly » en lentille.
+   Pastille, icônes et libellés sont dessinés dans un canevas WebGL (lentille de Kyant, comme Nuvio Enhanced) :
+   en glissant, la pastille déforme les icônes comme une goutte d'eau ; dans Chromium les bords de la barre
+   réfractent aussi le fond. Chaque onglet a sa couleur. Le reflet .glass suit toujours la souris ou le doigt. ===== */
 .nav{position:fixed;z-index:30;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 14px);width:min(400px,calc(100vw - 56px));height:var(--navh);margin-inline:auto;will-change:transform;animation:navin .8s var(--ease) backwards .2s}
 @keyframes navin{from{opacity:0;translate:0 40px;scale:.94}}
 .nav-in{height:100%;padding:0 4px;border-radius:999px;display:flex;touch-action:none;-webkit-user-select:none;user-select:none;will-change:transform}
 .nav-in.glass{background:var(--nav-bg);-webkit-backdrop-filter:saturate(1.5) blur(10px);backdrop-filter:saturate(1.5) blur(10px);box-shadow:0 4px 24px var(--nav-sh)}
-/* liseré 0,75 px plus clair en haut, comme le verre Nuvio */
-.nav-in::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:.75px;pointer-events:none;background:linear-gradient(var(--nav-rim1),var(--nav-rim2));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
-/* pastille : surface 52 %, accent 20 %, filet d'accent ; s'éclaircit en lentille pendant l'appui (--p) */
-.sl{position:absolute;left:0;top:0;width:0;height:0;z-index:1;border-radius:999px;pointer-events:none;will-change:transform;box-shadow:0 4px 24px rgba(0,0,0,calc(.1*var(--p,0))),inset 0 1px 0 rgba(255,255,255,calc(.5*var(--p,0)))}
-.sl::before,.sl::after{content:"";position:absolute;inset:0;border-radius:inherit;opacity:calc(1 - .5*var(--p,0))}
-.sl::before{background:linear-gradient(color-mix(in srgb,var(--acc) 20%,transparent),color-mix(in srgb,var(--acc) 20%,transparent)),color-mix(in srgb,var(--pill-sf) 52%,transparent)}
-.sl::after{padding:1px;background:linear-gradient(color-mix(in srgb,var(--acc) 60%,transparent),color-mix(in srgb,var(--acc) 15%,transparent));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
-.nb{flex:1 1 0;min-width:0;position:relative;z-index:2;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--mut)}
-.nb.on{color:var(--acc)}
-/* l'icône prend la couleur d'accent à mesure que la pastille la recouvre (--k) */
-@supports (color:color-mix(in srgb,red calc(50%),blue)){.nb,.nb.on{color:color-mix(in srgb,var(--acc) calc(var(--k,0)*100%),var(--mut))}}
-/* icône et libellé grossissent ensemble sous la pastille pendant l'appui (--s) */
-.nb svg,.nb>span{transform:scale(var(--s,1));will-change:transform}
-.nb svg{width:24px;height:24px;transform-origin:50% 100%}
-.nb>span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:500;line-height:1.2;transform-origin:50% 0}
-.nb.on>span{font-weight:700}
-@media(max-width:359px){.nb>span{font-size:11px}}
+.nav-in.refract{-webkit-backdrop-filter:url(#navLens);backdrop-filter:url(#navLens)}
+/* sans WebGL : liseré 0,75 px plus clair en haut, dessiné en CSS */
+.nav-in.flat::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:.75px;pointer-events:none;background:linear-gradient(var(--nav-rim1),var(--nav-rim2));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.nav-cv{position:absolute;z-index:1;pointer-events:none}
+.nb{flex:1 1 0;min-width:0;position:relative;z-index:2;border-radius:999px}
+.nb:focus-visible{outline-offset:-2px}
+.nb:nth-of-type(1){--nc:var(--c-blue)}.nb:nth-of-type(2){--nc:var(--c-orange)}.nb:nth-of-type(3){--nc:var(--c-teal)}.nb:nth-of-type(4){--nc:var(--c-purple)}
+/* l'icône SVG sert de source au dessin ; le libellé reste pour les lecteurs d'écran */
+.nb svg{display:none}
+.nb>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 /* ===== Tablette et PC ===== */
 @media(min-width:700px){
-.stats{grid-template-columns:repeat(4,minmax(0,1fr))}
-.stat:nth-child(n)::before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:1px;background:var(--sep)}
-.stat:first-child::before,.stat:nth-child(n+3)::after{display:none}
 .cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px}
 .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .jgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -313,8 +279,7 @@ footer b{color:var(--tx2);font-weight:600}
 .certs{grid-template-columns:repeat(2,minmax(0,1fr))}
 .certs .row:nth-child(2)::before{display:none}
 .certs .row:nth-child(2n)::after{content:"";position:absolute;left:0;top:12px;bottom:12px;width:1px;background:var(--sep)}
-.hobs{grid-template-columns:repeat(3,minmax(0,1fr))}
-.cta{padding:64px 40px}}
+.hobs{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(min-width:1024px) and (min-height:600px){
 :root{--top:84px;--gx:32px}
 .hin{padding:16px 32px}
@@ -323,15 +288,11 @@ footer b{color:var(--tx2);font-weight:600}
 .hero{grid-template-columns:minmax(0,1.25fr) minmax(360px,.75fr);gap:64px;padding-top:56px;min-height:calc(100dvh - var(--top) - 220px)}
 .grid.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
 .split{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:72px}
-.steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
-.steps .row{flex-direction:column;align-items:flex-start;padding:24px 20px}
-.steps .row+.row::before{top:20px;bottom:20px;left:0;right:auto;width:1px;height:auto}
 .vh{padding-top:56px}
 .two{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:64px;align-items:start}
 .two .vh{position:sticky;top:calc(var(--top) + 40px)}
 .two .ct{margin-top:56px}
-.gi{height:300px}.gal.tall .gi,.gal.tall .gskel{height:440px}
-.cta{margin-top:128px}}
+.gi{height:300px}.gal.tall .gi,.gal.tall .gskel{height:440px}}
 @media(prefers-reduced-motion:reduce){*,::before,::after{animation-duration:.01ms!important;transition-duration:.01ms!important}.rv,.sw .w>span,.tl8.rv .row{opacity:1!important;transform:none!important;filter:none!important}}
 </style>
 </head>
@@ -356,7 +317,6 @@ footer b{color:var(--tx2);font-weight:600}
 <section class="view on" id="profil" aria-labelledby="h1">
   <div class="hero">
     <div>
-      <span class="pill rv" data-en="Master 1 Microbiology · Lyon 1">Master 1 Microbiologie · Lyon 1</span>
       <h1 id="h1" class="sw">Amar <span class="hl">Bouchareb</span></h1>
       <p class="sub rv" style="--d:2" data-en="Microbiology at the service of food safety, public health and quality control.">La microbiologie au service de la sécurité des aliments, de la santé publique et du contrôle qualité.</p>
       <p class="lead rv" style="--d:3" data-en="Trained from parasitology to molecular biology, with hands-on hospital lab experience. Rigorous at the bench, curious and versatile, with six years of design work and a web platform I built on my own.">Formé de la parasitologie à la biologie moléculaire, avec une expérience concrète du laboratoire hospitalier. Rigoureux à la paillasse, curieux et polyvalent, avec six ans de design et une plateforme web créée en autonomie.</p>
@@ -364,12 +324,6 @@ footer b{color:var(--tx2);font-weight:600}
         <button class="btn pri" type="button" data-go="contact"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><span data-en="Contact me">Me contacter</span></button>
         <button class="btn" type="button" data-go="parcours"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg><span data-en="My background">Mon parcours</span></button>
       </div>
-      <ul class="who4 rv" style="--d:5" aria-label="Domaines" data-en-aria="Fields">
-        <li><i style="--c:var(--c-green)"><svg viewBox="0 0 24 24"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg></i><span data-en="Microbiology">Microbiologie</span></li>
-        <li><i style="--c:var(--c-blue)"><svg viewBox="0 0 24 24"><path d="m10 16 1.5 1.5"/><path d="m14 8-1.5-1.5"/><path d="M15 2c-1.8 2-2.5 4-2.8 6"/><path d="m16.5 10.5 1 1"/><path d="m17 6-2.9-2.9"/><path d="M2 15c6.7-6 13.3 0 20-6"/><path d="m20 9 .9.9"/><path d="M3.1 14.1 4 15"/><path d="m6.5 12.5 1 1"/><path d="m7 18 2.9 2.9"/><path d="M9 22c1.8-2 2.5-4 2.8-6"/></svg></i><span data-en="Molecular biology">Biologie moléculaire</span></li>
-        <li><i style="--c:var(--c-orange)"><svg viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></i><span data-en="Immunology">Immunologie</span></li>
-        <li><i style="--c:var(--c-purple)"><svg viewBox="0 0 24 24"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg></i><span data-en="Bioinformatics">Bioinformatique</span></li>
-      </ul>
     </div>
     <!-- carte d'identité, façon Réglages -->
     <div class="box idc rv" style="--d:2">
@@ -382,14 +336,6 @@ footer b{color:var(--tx2);font-weight:600}
         <li class="row"><span class="k" data-en="Strengths">Atouts</span><span class="v" data-en="Design · Digital · Teaching">Design · Digital · Pédagogie</span></li>
       </ul>
     </div>
-  </div>
-
-  <!-- En bref -->
-  <div class="box stats rv" aria-label="En bref" data-en-aria="At a glance">
-    <div class="stat"><b data-n="2">2</b><span data-en="hospital lab internships">stages en laboratoire hospitalier</span></div>
-    <div class="stat"><b data-n="6">6</b><span data-en="years of freelance design">ans de design en freelance</span></div>
-    <div class="stat"><b data-n="5">5</b><span data-en="languages spoken">langues parlées</span></div>
-    <div class="stat"><b data-n="30" data-s="+">30+</b><span data-en="certificates earned">certificats obtenus</span></div>
   </div>
 
   <!-- Profil -->
@@ -409,16 +355,16 @@ footer b{color:var(--tx2);font-weight:600}
     <h2 class="sw" data-en="Solid foundations at the bench.">Des bases solides à la paillasse.</h2>
     <p class="lead rv" data-en="Four fields of hands-on practice, with microbiology at the core, from the cell to the sequence.">Quatre domaines de pratique concrète, avec la microbiologie au cœur, de la cellule à la séquence.</p>
     <div class="grid g4">
-      <article class="box card rv"><span class="ic" style="--c:var(--c-green)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg></span>
+      <article class="box card rv">
         <h3 data-en="Microbiology">Microbiologie</h3><p data-en="Culturing, isolating and identifying microorganisms.">Cultiver, isoler et identifier les microorganismes.</p>
         <div class="tags"><span data-en="Staining">Colorations</span><span data-en="Isolation">Isolement</span><span data-en="Culture media">Milieux de culture</span><span data-en="Identification tests">Tests d'identification</span><span data-en="Antibiogram">Antibiogramme</span></div></article>
-      <article class="box card rv" style="--d:1"><span class="ic" style="--c:var(--c-blue)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 16 1.5 1.5"/><path d="m14 8-1.5-1.5"/><path d="M15 2c-1.8 2-2.5 4-2.8 6"/><path d="m16.5 10.5 1 1"/><path d="m17 6-2.9-2.9"/><path d="M2 15c6.7-6 13.3 0 20-6"/><path d="m20 9 .9.9"/><path d="M3.1 14.1 4 15"/><path d="m6.5 12.5 1 1"/><path d="m7 18 2.9 2.9"/><path d="M9 22c1.8-2 2.5-4 2.8-6"/></svg></span>
+      <article class="box card rv" style="--d:1">
         <h3 data-en="Molecular biology">Biologie moléculaire</h3><p data-en="From extracting nucleic acids to amplifying them.">De l'extraction des acides nucléiques à leur amplification.</p>
         <div class="tags"><span data-en="DNA/RNA extraction">Extraction ADN/ARN</span><span data-en="Cloning">Clonage</span><span data-en="Electrophoresis">Électrophorèse</span><span>PCR</span><span>RT-PCR</span></div></article>
-      <article class="box card rv" style="--d:2"><span class="ic" style="--c:var(--c-orange)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></span>
+      <article class="box card rv" style="--d:2">
         <h3 data-en="Immunology">Immunologie</h3><p data-en="Detecting and visualising proteins and antibodies.">Détecter et visualiser protéines et anticorps.</p>
         <div class="tags"><span>ELISA</span><span>Western blot</span><span>Dot blot</span><span data-en="Flow cytometry">Cytométrie en flux</span><span>Immunofluorescence</span></div></article>
-      <article class="box card rv" style="--d:3"><span class="ic" style="--c:var(--c-purple)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg></span>
+      <article class="box card rv" style="--d:3">
         <h3 data-en="Bioinformatics">Bioinformatique</h3><p data-en="Reading sequences and drawing biological conclusions.">Lire des séquences et en tirer des conclusions biologiques.</p>
         <div class="tags"><span>BLAST</span><span>ORF Finder</span><span>InterProScan</span><span data-en="Alignments">Alignements</span><span data-en="Phylogeny">Phylogénie</span></div></article>
     </div>
@@ -432,50 +378,24 @@ footer b{color:var(--tx2);font-weight:600}
       <h2 class="sw" data-en="A project I conceived, built and run on my own.">Un projet conçu, développé et piloté en autonomie.</h2>
       <p class="lead rv" data-en="Founder of BioStudy since 2022, I led the project from idea to product: vision, development, user experience. The platform gathers biology courses by university and lab tools whose results show the relation used.">Fondateur de BioStudy depuis 2022, j'ai mené le projet de l'idée au produit : vision, développement, expérience utilisateur. La plateforme réunit des cours de biologie classés par université et des outils de laboratoire dont chaque résultat affiche la relation utilisée.</p>
       <ul class="pts">
-        <li class="rv"><span class="ic" style="--c:var(--c-blue)"><svg viewBox="0 0 24 24"><path d="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10Z"/><path d="m9 12 2 2 4-4"/></svg></span><div><b data-en="Scientifically checked">Vérifié scientifiquement</b><span data-en="Each tool is tested against reference cases before going live.">Chaque outil est contrôlé sur des cas de référence avant sa mise en ligne.</span></div></li>
-        <li class="rv" style="--d:1"><span class="ic" style="--c:var(--c-orange)"><svg viewBox="0 0 24 24"><path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/></svg></span><div><b data-en="Built for teaching">Pensé pour la pédagogie</b><span data-en="Students, teachers, technicians and researchers see how each result is obtained.">Étudiants, enseignants, techniciens et chercheurs voient comment chaque résultat est obtenu.</span></div></li>
-        <li class="rv" style="--d:2"><span class="ic" style="--c:var(--c-teal)"><svg viewBox="0 0 24 24"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg></span><div><b data-en="Designed and coded alone">Conçu et codé seul</b><span data-en="Interface, development, content and support, from the first sketch.">Interface, développement, contenus et suivi, depuis la première esquisse.</span></div></li>
+        <li class="rv"><div><b data-en="Scientifically checked">Vérifié scientifiquement</b><span data-en="Each tool is tested against reference cases before going live.">Chaque outil est contrôlé sur des cas de référence avant sa mise en ligne.</span></div></li>
+        <li class="rv" style="--d:1"><div><b data-en="Built for teaching">Pensé pour la pédagogie</b><span data-en="Students, teachers, technicians and researchers see how each result is obtained.">Étudiants, enseignants, techniciens et chercheurs voient comment chaque résultat est obtenu.</span></div></li>
+        <li class="rv" style="--d:2"><div><b data-en="Designed and coded alone">Conçu et codé seul</b><span data-en="Interface, development, content and support, from the first sketch.">Interface, développement, contenus et suivi, depuis la première esquisse.</span></div></li>
       </ul>
       <div class="acts rv"><a class="btn pri" href="https://www.biostudy.xyz/" target="_blank" rel="noopener"><span data-en="Visit BioStudy">Visiter BioStudy</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a></div>
     </div>
     <div class="box tl8 rv" aria-label="Outils de BioStudy" data-en-aria="BioStudy tools">
       <ul class="rows">
-        <li><a class="row" style="--d:0" href="https://www.biostudy.xyz/BioCampus/" target="_blank" rel="noopener"><span class="ic" style="--c:var(--c-teal)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></span><span class="t"><b>BioCampus</b><small data-en="Courses, tutorials, practicals and exams">Cours, TD, TP et examens</small></span></a></li>
-        <li><a class="row" style="--d:1" href="https://www.biostudy.xyz/BioPCR/" target="_blank" rel="noopener"><span class="ic" style="--c:var(--c-blue)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 16 1.5 1.5"/><path d="m14 8-1.5-1.5"/><path d="M15 2c-1.8 2-2.5 4-2.8 6"/><path d="m16.5 10.5 1 1"/><path d="m17 6-2.9-2.9"/><path d="M2 15c6.7-6 13.3 0 20-6"/><path d="m20 9 .9.9"/><path d="M3.1 14.1 4 15"/><path d="m6.5 12.5 1 1"/><path d="m7 18 2.9 2.9"/><path d="M9 22c1.8-2 2.5-4 2.8-6"/></svg></span><span class="t"><b>BioPCR</b><small data-en="PCR reaction mix">Mélange réactionnel PCR</small></span></a></li>
-        <li><a class="row" style="--d:2" href="https://www.biostudy.xyz/BioDilu/" target="_blank" rel="noopener"><span class="ic" style="--c:var(--c-purple)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 9-8.4 8.4A2 2 0 0 0 3 18.8v1.4a2 2 0 0 1-.6 1.4 2 2 0 0 1 1.4-.6h1.4a2 2 0 0 0 1.4-.6L15 12"/><path d="m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z"/></svg></span><span class="t"><b>BioDilu</b><small data-en="Dilutions · C₁V₁ · CFU/mL">Dilutions · C₁V₁ · UFC/mL</small></span></a></li>
-        <li><a class="row" style="--d:3" href="https://www.biostudy.xyz/BioChem/" target="_blank" rel="noopener"><span class="ic" style="--c:var(--c-indigo)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2-2 0-7.4-4.5-11.9C11.2 3.8 5.8 1.8 3.8 3.8c-2 2 0 7.4 4.5 11.9 4.5 4.5 9.9 6.5 11.9 4.5Z"/><path d="M15.7 15.7c4.5-4.5 6.5-9.9 4.5-11.9-2-2-7.4 0-11.9 4.5-4.5 4.5-6.5 9.9-4.5 11.9 2 2 7.4 0 11.9-4.5Z"/></svg></span><span class="t"><b>BioChem</b><small data-en="Molarity, molality and solutions">Molarité, molalité et solutions</small></span></a></li>
-        <li><a class="row" style="--d:4" href="https://www.biostudy.xyz/BioMicro/" target="_blank" rel="noopener"><span class="ic" style="--c:var(--c-green)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg></span><span class="t"><b>BioMicro</b><small data-en="Microbiology calculations">Calculs de microbiologie</small></span></a></li>
-        <li><a class="row" style="--d:5" href="https://www.biostudy.xyz/BioPrep/" target="_blank" rel="noopener"><span class="ic" style="--c:var(--c-orange)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span><span class="t"><b>BioPrep</b><small data-en="Solutions and culture media">Solutions et milieux</small></span></a></li>
-        <li><a class="row" style="--d:6" href="https://www.biostudy.xyz/BioBand/" target="_blank" rel="noopener"><span class="ic" style="--c:var(--c-pink)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="3"/><path d="M7 8h4"/><path d="M13 8h4"/><path d="M7 12h4"/><path d="M13 15h4"/><path d="M7 16h4"/></svg></span><span class="t"><b>BioBand</b><small data-en="Agarose gel simulation">Simulation de gel d'agarose</small></span></a></li>
-        <li><a class="row" style="--d:7" href="https://www.biostudy.xyz/BioConvert/" target="_blank" rel="noopener"><span class="ic" style="--c:var(--c-cyan)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg></span><span class="t"><b>BioConvert</b><small data-en="Unit conversions">Conversions d'unités</small></span></a></li>
+        <li><a class="row" style="--d:0" href="https://www.biostudy.xyz/BioCampus/" target="_blank" rel="noopener"><span class="t"><b>BioCampus</b><small data-en="Courses, tutorials, practicals and exams">Cours, TD, TP et examens</small></span></a></li>
+        <li><a class="row" style="--d:1" href="https://www.biostudy.xyz/BioPCR/" target="_blank" rel="noopener"><span class="t"><b>BioPCR</b><small data-en="PCR reaction mix">Mélange réactionnel PCR</small></span></a></li>
+        <li><a class="row" style="--d:2" href="https://www.biostudy.xyz/BioDilu/" target="_blank" rel="noopener"><span class="t"><b>BioDilu</b><small data-en="Dilutions · C₁V₁ · CFU/mL">Dilutions · C₁V₁ · UFC/mL</small></span></a></li>
+        <li><a class="row" style="--d:3" href="https://www.biostudy.xyz/BioChem/" target="_blank" rel="noopener"><span class="t"><b>BioChem</b><small data-en="Molarity, molality and solutions">Molarité, molalité et solutions</small></span></a></li>
+        <li><a class="row" style="--d:4" href="https://www.biostudy.xyz/BioMicro/" target="_blank" rel="noopener"><span class="t"><b>BioMicro</b><small data-en="Microbiology calculations">Calculs de microbiologie</small></span></a></li>
+        <li><a class="row" style="--d:5" href="https://www.biostudy.xyz/BioPrep/" target="_blank" rel="noopener"><span class="t"><b>BioPrep</b><small data-en="Solutions and culture media">Solutions et milieux</small></span></a></li>
+        <li><a class="row" style="--d:6" href="https://www.biostudy.xyz/BioBand/" target="_blank" rel="noopener"><span class="t"><b>BioBand</b><small data-en="Agarose gel simulation">Simulation de gel d'agarose</small></span></a></li>
+        <li><a class="row" style="--d:7" href="https://www.biostudy.xyz/BioConvert/" target="_blank" rel="noopener"><span class="t"><b>BioConvert</b><small data-en="Unit conversions">Conversions d'unités</small></span></a></li>
       </ul>
     </div>
-  </div>
-
-  <!-- Méthode -->
-  <div class="sec" id="methode">
-    <span class="lbl rv" data-en="Working method">Méthode de travail</span>
-    <h2 class="sw" data-en="Rigour, method, continuous improvement.">Rigueur, méthode, amélioration continue.</h2>
-    <ol class="box rows steps rv">
-      <li class="row"><span class="n">1</span><span class="t"><b data-en="Observe">Observer</b><small data-en="Spot a real need in a scientific or teaching context.">Repérer un besoin concret en contexte scientifique ou pédagogique.</small></span></li>
-      <li class="row"><span class="n">2</span><span class="t"><b data-en="Understand">Comprendre</b><small data-en="Break the scientific, mathematical or experimental problem down.">Décomposer le problème scientifique, mathématique ou expérimental.</small></span></li>
-      <li class="row"><span class="n">3</span><span class="t"><b data-en="Design">Concevoir</b><small data-en="Shape a simple, clear experience that fits the context.">Dessiner une expérience simple, claire et adaptée au contexte.</small></span></li>
-      <li class="row"><span class="n">4</span><span class="t"><b data-en="Build">Développer</b><small data-en="Turn the concept into a working, accessible tool.">Transformer le concept en outil fonctionnel et accessible.</small></span></li>
-      <li class="row"><span class="n">5</span><span class="t"><b data-en="Refine">Améliorer</b><small data-en="Test, simplify, repeat.">Tester, simplifier, recommencer.</small></span></li>
-    </ol>
-  </div>
-
-  <!-- Citation -->
-  <figure class="sec quote rv">
-    <blockquote data-en="“In the fields of observation, chance favours only the prepared mind.”">« Dans les champs de l'observation, le hasard ne favorise que les esprits préparés. »</blockquote>
-    <figcaption>Louis Pasteur, Lille, 1854</figcaption>
-  </figure>
-
-  <!-- Appel final -->
-  <div class="box cta rv">
-    <h2 class="sw" data-en="Let's build something useful.">Construisons quelque chose d'utile.</h2>
-    <p class="lead" data-en="An internship, a collaboration or a scientific project? I'll gladly reply.">Un stage, une collaboration ou un projet scientifique ? Je vous répondrai avec plaisir.</p>
-    <div class="acts"><button class="btn pri" type="button" data-go="contact"><span data-en="Contact me">Me contacter</span></button><button class="btn" type="button" data-go="portfolio"><span data-en="See the portfolio">Voir le portfolio</span></button></div>
   </div>
 </section>
 
@@ -521,23 +441,23 @@ footer b{color:var(--tx2);font-weight:600}
     <h2 id="t-pc" class="sw" data-en="Studies, lab experience and commitment.">Études, expérience de labo et engagement.</h2>
   </div>
   <div class="jgrid blk">
-    <div class="box jb rv"><h3><span class="ic" style="--c:var(--c-blue)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></span><span data-en="Education">Formation</span></h3>
+    <div class="box jb rv"><h3><span data-en="Education">Formation</span></h3>
       <div class="ti now"><small data-en="2025 – Present">2025 – Aujourd'hui</small><h4 data-en="Master 1 Microbiology">Master 1 Microbiologie</h4><p>Université Claude Bernard Lyon 1</p></div>
       <div class="ti"><small>2023 – 2025</small><h4 data-en="Bachelor's year 3, Cell Biology">Licence 3 Biologie cellulaire</h4><p>Université Clermont Auvergne</p><p data-en="Virology and microbial metabolism (S5); parasitology, bacterial identification and biotechnology (S6).">Virologie et métabolisme microbien (S5) ; parasitologie, identification bactérienne et biotechnologie (S6).</p></div>
       <div class="ti"><small>2022 – 2023</small><h4 data-en="Master 1 Parasitology">Master 1 Parasitologie</h4><p>Université Mouloud Mammeri, Tizi-Ouzou</p></div>
       <div class="ti"><small>2021 – 2022</small><h4 data-en="Bachelor's in Parasitology">Licence en Parasitologie</h4></div>
       <div class="ti"><small>2016 – 2017</small><h4 data-en="Science baccalaureate">Baccalauréat Sciences</h4><p>Lycée Imache Amar, Béni-Douala</p></div>
     </div>
-    <div class="box jb rv" style="--d:1"><h3><span class="ic" style="--c:var(--c-green)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg></span><span data-en="Lab experience">Expérience de labo</span></h3>
+    <div class="box jb rv" style="--d:1"><h3><span data-en="Lab experience">Expérience de labo</span></h3>
       <div class="ti"><small data-en="June – August 2023 · 3 months">Juin – août 2023 · 3 mois</small><h4 data-en="Parasitology &amp; mycology internship">Stage parasitologie-mycologie</h4><p>CHU Nedir Mohamed, Tizi-Ouzou</p><p data-en="Sample preparation, staining, microscopy, identification of parasitic and fungal agents, biosafety.">Préparation d'échantillons, colorations, observation microscopique, identification d'agents parasitaires et fongiques, biosécurité.</p></div>
       <div class="ti"><small data-en="August 2022 · 1 month">Août 2022 · 1 mois</small><h4 data-en="Public health facility internship">Stage en établissement de santé public</h4><p>EPSP DBK, Tizi-Ouzou</p><p data-en="Supervised blood sampling, aseptic technique, hospital hygiene.">Prélèvements sous supervision, asepsie, hygiène hospitalière.</p></div>
       <div class="tags"><span data-en="Good laboratory practice">Bonnes pratiques de laboratoire</span><span data-en="Biosafety">Biosécurité</span><span data-en="Microbial cultures">Cultures microbiennes</span><span data-en="Interpreting results">Interprétation des résultats</span></div>
     </div>
-    <div class="box jb rv"><h3><span class="ic" style="--c:var(--c-orange)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span data-en="Commitment">Engagement</span></h3>
+    <div class="box jb rv"><h3><span data-en="Commitment">Engagement</span></h3>
       <div class="ti now"><small data-en="Since Dec. 2023">Depuis déc. 2023</small><h4 data-en="Secretary General">Secrétaire Général</h4><p data-en="EMF association, Clermont-Ferrand (previously Deputy Secretary General)">Association EMF, Clermont-Ferrand (auparavant Adjoint au Secrétaire Général)</p></div>
       <div class="ti"><h4 data-en="Deputy Secretary General">Adjoint au Secrétaire Général</h4><p>Association Horizons de Djurdjura, Tizi-Ouzou</p></div>
     </div>
-    <div class="box jb rv" style="--d:1"><h3><span class="ic" style="--c:var(--c-purple)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg></span><span data-en="Transferable skills">Compétences transversales</span></h3>
+    <div class="box jb rv" style="--d:1"><h3><span data-en="Transferable skills">Compétences transversales</span></h3>
       <div class="ti now"><small data-en="2019 – 2025 · 6 years">2019 – 2025 · 6 ans</small><h4 data-en="Freelance illustrator">Illustrateur indépendant</h4><p data-en="Infographics and teaching materials: client brief, delivery on deadline.">Infographies et supports pédagogiques : brief client, respect des délais.</p></div>
       <div class="ti"><small>2022 – 2023</small><h4 data-en="Life sciences teacher">Enseignant en sciences de la vie</h4><p data-en="Course design, assessment, scientific outreach.">Conception de cours, évaluation, vulgarisation scientifique.</p></div>
       <div class="ti"><small>2025 – 2026</small><h4 data-en="Waiter, high-volume tourist venue">Serveur, restauration à forte affluence</h4><p data-en="Stress management, teamwork, customer relations.">Gestion du stress, travail d'équipe, relation client.</p></div>
@@ -574,9 +494,9 @@ footer b{color:var(--tx2);font-weight:600}
     <span class="lbl rv" data-en="Beyond the lab">Au-delà du labo</span>
     <h2 class="sw" data-en="Curiosity doesn't stop at the lab door.">La curiosité ne s'arrête pas à la porte du labo.</h2>
     <div class="grid hobs">
-      <article class="box hob rv"><span class="ic n"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg></span><h3 data-en="Astronomy">Astronomie</h3><p data-en="A taste for large scales, space and the questions they raise.">Le goût des grandes échelles, de l'espace et des questions qu'il pose.</p></article>
-      <article class="box hob rv" style="--d:1"><span class="ic n"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9c-1.5 1.5-3 3.2-3 5.5A5.5 5.5 0 0 0 7.5 20c1.8 0 3-.5 4.5-2 1.5 1.5 2.7 2 4.5 2a5.5 5.5 0 0 0 5.5-5.5c0-2.3-1.5-4-3-5.5l-7-7-7 7Z"/><path d="M12 18v4"/></svg></span><h3 data-en="Card magic">Cartomagie</h3><p data-en="Precision, perception, practice and creativity.">Précision, perception, pratique et créativité.</p></article>
-      <article class="box hob rv" style="--d:2"><span class="ic n"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z"/><path d="m18 13-1.375-6.874a1 1 0 0 0-.746-.776L3.235 2.028a1 1 0 0 0-1.207 1.207L5.35 15.879a1 1 0 0 0 .776.746L13 18"/><path d="m2.3 2.3 7.286 7.286"/><circle cx="11" cy="11" r="2"/></svg></span><h3>Design</h3><p data-en="The thread linking it all: turning an idea into an experience.">Le fil rouge : transformer une idée en expérience.</p></article>
+      <article class="box hob rv"><h3 data-en="Astronomy">Astronomie</h3><p data-en="A taste for large scales, space and the questions they raise.">Le goût des grandes échelles, de l'espace et des questions qu'il pose.</p></article>
+      <article class="box hob rv" style="--d:1"><h3 data-en="Card magic">Cartomagie</h3><p data-en="Precision, perception, practice and creativity.">Précision, perception, pratique et créativité.</p></article>
+      <article class="box hob rv" style="--d:2"><h3>Design</h3><p data-en="The thread linking it all: turning an idea into an experience.">Le fil rouge : transformer une idée en expérience.</p></article>
     </div>
   </div>
 </section>
@@ -611,7 +531,12 @@ footer b{color:var(--tx2);font-weight:600}
 <footer data-nosnippet><span><b>Amar Bouchareb</b> · <span data-en="Microbiologist · Science &amp; design">Microbiologiste · Science &amp; design</span></span><span>© 2026</span></footer>
 </div>
 
-<nav class="nav" id="navWrap" aria-label="Navigation principale" data-en-aria="Main navigation"><div class="nav-in glass" id="nav"><span class="sl" id="sl"></span>
+<!-- Chromium : lentille de Kyant sur le fond de la barre (vibrance, flou 10 px, réfraction des bords) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="navLens" color-interpolation-filters="sRGB">
+  <feColorMatrix in="SourceGraphic" type="saturate" values="1.5" result="vibrant"/><feGaussianBlur in="vibrant" stdDeviation="10" edgeMode="duplicate" result="blur"/>
+  <feImage id="navMap" x="0" y="0" width="334" height="64" preserveAspectRatio="none" result="map"/><feDisplacementMap in="blur" in2="map" scale="48" xChannelSelector="R" yChannelSelector="G"/>
+</filter></svg>
+<nav class="nav" id="navWrap" aria-label="Navigation principale" data-en-aria="Main navigation"><div class="nav-in glass" id="nav"><canvas class="nav-cv" id="navCv" aria-hidden="true"></canvas>
   <button class="nb on" type="button" data-v="profil"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span data-en="Profile">Profil</span></button>
   <button class="nb" type="button" data-v="portfolio"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg><span>Portfolio</span></button>
   <button class="nb" type="button" data-v="parcours"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg><span data-en="Background">Parcours</span></button>
@@ -683,7 +608,7 @@ function show(v,o={}){const anchor=ALIAS[v]&&v!=='top'?v:null;v=ALIAS[v]||v;if(!
   const prev=cur,i=VIEWS.indexOf(v),dir=i>=VIEWS.indexOf(prev)?1:-1;
   nbs.forEach((b,k)=>{b.classList.toggle('on',k===i);k===i?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});if(navCtl&&!o.fromNav)navCtl.select(i,!o.instant);
   if(o.push!==false&&v!==prev)history.pushState({v},'',v==='profil'?location.pathname:'#'+v);
-  const land=()=>{if(anchor){const a=$(anchor);a&&a.scrollIntoView({behavior:'auto'})}else scrollTo(0,0)};
+  const land=()=>{if(anchor){const a=$(anchor);a?a.scrollIntoView({behavior:'auto'}):scrollTo(0,0)}else scrollTo(0,0)};
   if(v===prev&&!o.force){anchor?land():scrollTo({top:0,behavior:RM?'auto':'smooth'});return}
   cur=v;const from=$(prev),to=$(v);
   const enter=()=>{if(from&&from!==to)from.classList.remove('on');to.classList.add('on');reveal(to);land();
@@ -693,10 +618,12 @@ function show(v,o={}){const anchor=ALIAS[v]&&v!=='top'?v:null;v=ALIAS[v]||v;if(!
   else{const a=from.animate([{opacity:1,transform:'none',filter:'blur(0)'},{opacity:0,transform:`translateX(${-dir*30}px)`,filter:'blur(8px)'}],{duration:170,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'});a.onfinish=()=>{enter();a.cancel()}}}
 function navSel(i){buzz();show(VIEWS[i],{fromNav:true})}
 /* ---------- Barre d'onglets façon Nuvio : ressorts « jelly » (JellyMotion de Nuvio Enhanced) ----------
-   appui → la pastille gonfle en lentille, glisser → elle suit le doigt et s'étire avec la vitesse,
-   relâcher → elle se cale sur l'onglet le plus proche ; la barre s'enfonce et s'étire légèrement. */
-function jellyNav({wrap,track,pill,items,onSelect,active}){
+   appui → la pastille gonfle en lentille, glisser → elle suit le doigt, s'étire avec la vitesse et déforme
+   les icônes comme une goutte d'eau ; relâcher → elle se cale sur l'onglet le plus proche.
+   La teinte de la pastille passe d'une couleur d'onglet à l'autre. */
+function jellyNav({wrap,track,canvas,items,onSelect,active}){
   const N=items.length,cl=(n,a,b)=>Math.min(b,Math.max(a,n));
+  const MX=40,MY=30,LENS=[12,20],DEPTH=1,BAR={refraction:20,amount:20};
   /* ressort amorti (solution exacte, comme JellySpring) */
   const spring=(v,k,z)=>({v,k,z,vel:0,
     rest(t){return Math.abs(this.v-t)<1e-4&&Math.abs(this.vel)<1e-4},
@@ -708,22 +635,132 @@ function jellyNav({wrap,track,pill,items,onSelect,active}){
   const dz=18/(2*Math.sqrt(216)),
     pos=spring(0,1000,1),vel=spring(0,300,.5),press=spring(0,1000,1),sx=spring(1,250,.6),sy=spring(1,250,.7),
     panel=spring(0,300,1),ty=spring(0,240/.9,dz),tx=spring(1,240/.9,dz),tp=spring(1,240/.9,dz);
-  let W=0,H=0,target=0,pressT=0,shapeT=1,release=false,dragging=false,downX=0,downY=0,startT=0,startP=0,startY=0,moved=0,originX=0,pid=null,cx0=0,cy0=0,near=0,raf=0,last=0;
+  let W=0,H=0,dpr=1,target=0,pressT=0,shapeT=1,release=false,dragging=false,refract=false,downX=0,downY=0,startT=0,startP=0,startY=0,moved=0,originX=0,pid=null,cx0=0,cy0=0,near=0,raf=0,last=0;
   const tabW=()=>Math.max(0,(W-8)/N),maxI=N-1,at=x=>cl(Math.floor((x-4)/tabW()),0,maxI);
   const rubber=(d,dim)=>{if(!d||dim<=0)return 0;const r=(1-1/(Math.abs(d)*.14/dim+1))*dim;return d<0?-r:r};
   function panelOff(raw){if(W<=0||!raw)return 0;const fr=cl(raw/W,-1,1),x=Math.abs(fr);let lo=0,hi=1,p=x;
     for(let i=0;i<10;i++){const bx=p*p*(3*(1-p)*.58+p);bx<x?lo=p:hi=p;p=(lo+hi)/2}
     return(fr<0?-4:4)*p*p*(3*(1-p)+p)}
-  function measure(){W=track.offsetWidth;H=track.offsetHeight;if(!dragging)originX=W/2}
-  function render(){
-    const tw=tabW(),ih=H-8,sp=vel.v/10,
-      w=tw*sx.v/(1-cl(sp*.75,-.2,.2)),h=ih*sy.v*(1-cl(sp*.25,-.2,.2)),c=4+(pos.v+.5)*tw;
-    pill.style.width=w+'px';pill.style.height=h+'px';pill.style.transform=`translate(${c-w/2}px,${H/2-h/2}px)`;
-    pill.style.setProperty('--p',press.v.toFixed(3));
-    wrap.style.transform=`scale(${tp.v})`;
-    track.style.transformOrigin=`${originX}px 50%`;
-    track.style.transform=`translate(${panelOff(panel.v)}px,${ty.v}px) scaleX(${tx.v})`;
-    items.forEach((b,i)=>{const k=cl(1-Math.abs(pos.v-i),0,1);b.style.setProperty('--k',k.toFixed(3));b.style.setProperty('--s',(1+.2*press.v*k).toFixed(3))})}
+
+  /* ---- icônes : tracés repris des SVG des boutons ---- */
+  const icons=items.map(b=>{const p=new Path2D(),n=+(b.querySelector('svg').getAttribute('viewBox')||'0 0 24 24').split(' ')[3]||24;
+    b.querySelectorAll('svg>*').forEach(e=>{const a=k=>+e.getAttribute(k)||0;
+      if(e.tagName==='path')p.addPath(new Path2D(e.getAttribute('d')));
+      else if(e.tagName==='circle'){p.moveTo(a('cx')+a('r'),a('cy'));p.arc(a('cx'),a('cy'),a('r'),0,Math.PI*2)}
+      else if(e.tagName==='rect'){const q=new Path2D();q.roundRect?q.roundRect(a('x'),a('y'),a('width'),a('height'),a('rx')):q.rect(a('x'),a('y'),a('width'),a('height'));p.addPath(q)}});
+    return{p,n}});
+  /* ---- couleurs lues dans le CSS (thème clair ou sombre) ---- */
+  const probe=document.createElement('canvas').getContext('2d');
+  const rgb=c=>{probe.fillStyle='#000';probe.fillStyle=c.trim()||'#000';const v=probe.fillStyle;
+    if(v[0]==='#')return[1,3,5].map(i=>parseInt(v.slice(i,i+2),16));return(v.match(/[\d.]+/g)||[0,0,0]).slice(0,3).map(Number)};
+  let C={};
+  function colors(){const cs=getComputedStyle(document.documentElement);
+    C={tabs:items.map(b=>rgb(getComputedStyle(b).getPropertyValue('--nc'))),mut:cs.getPropertyValue('--mut').trim(),
+      sf:rgb(cs.getPropertyValue('--pill-sf')),bg:rgb(cs.getPropertyValue('--bg')),font:cs.getPropertyValue('--font')}}
+  const css=(c,a)=>`rgba(${c.join(',')},${a})`;
+  function accentAt(p){const i=cl(Math.floor(p),0,maxI),j=Math.min(i+1,maxI),t=cl(p-i,0,1);return C.tabs[i].map((v,k)=>v+(C.tabs[j][k]-v)*t)}
+
+  /* ---- géométrie de la pastille ---- */
+  function frame(){const sp=vel.v/10;return{pos:pos.v,sx:sx.v/(1-cl(sp*.75,-.2,.2)),sy:sy.v*(1-cl(sp*.25,-.2,.2)),scale:1+.2*press.v,press:press.v}}
+  function pillGeo(f){const tw=tabW(),ih=H-8;return{cx:4+(f.pos+.5)*tw,cy:H/2,hw:tw/2,hh:ih/2,r:Math.min(tw,ih)/2,sx:f.sx,sy:f.sy}}
+  function pillPath(g){const hw=g.hw*g.sx,hh=g.hh*g.sy,rx=Math.min(g.r*g.sx,hw),ry=Math.min(g.r*g.sy,hh),l=g.cx-hw,r=g.cx+hw,t=g.cy-hh,b=g.cy+hh,p=new Path2D();
+    p.moveTo(l+rx,t);p.lineTo(r-rx,t);p.ellipse(r-rx,t+ry,rx,ry,0,-Math.PI/2,0);p.lineTo(r,b-ry);p.ellipse(r-rx,b-ry,rx,ry,0,0,Math.PI/2);
+    p.lineTo(l+rx,b);p.ellipse(l+rx,b-ry,rx,ry,0,Math.PI/2,Math.PI);p.lineTo(l,t+ry);p.ellipse(l+rx,t+ry,rx,ry,0,Math.PI,Math.PI*1.5);p.closePath();return p}
+  /* ---- rangée d'onglets : icône colorée + libellé ; version active agrandie pendant l'appui ---- */
+  function drawRow(ctx,f,on){const tw=tabW(),is=24,colH=is+4+14,top=H/2-colH/2;
+    items.forEach((b,i)=>{const cx=4+(i+.5)*tw,col=C.tabs[i];ctx.save();
+      if(on){ctx.translate(cx,H/2);ctx.scale(f.scale,f.scale);ctx.translate(-cx,-H/2)}
+      ctx.save();ctx.translate(cx-is/2,top);ctx.scale(is/icons[i].n,is/icons[i].n);
+      ctx.lineWidth=2;ctx.lineCap=ctx.lineJoin='round';ctx.strokeStyle=css(col,on?1:.8);ctx.stroke(icons[i].p);ctx.restore();
+      ctx.fillStyle=on?css(col,1):C.mut;ctx.font=`${on?700:500} ${W/N<70?11:12}px ${C.font}`;ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(b.querySelector('span').textContent,cx,top+is+4+7,tw-6);ctx.restore()})}
+  const iconCv=document.createElement('canvas'),ictx=iconCv.getContext('2d');
+  function drawIcons(ctx,f,g){ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,iconCv.width,iconCv.height);
+    ctx.setTransform(dpr,0,0,dpr,MX*dpr,MY*dpr);const pill=pillPath(g),out=new Path2D();out.rect(-MX,-MY,W+MX*2,H+MY*2);out.addPath(pill);
+    ctx.save();ctx.clip(out,'evenodd');drawRow(ctx,f,false);ctx.restore();ctx.save();ctx.clip(pill);drawRow(ctx,f,true);ctx.restore()}
+
+  /* ---- WebGL : lentille de Kyant + surlignage de sélection de Nuvio ---- */
+  const FRAG=`precision highp float;
+uniform vec2 uRes;uniform float uDpr;uniform vec2 uMargin;uniform vec2 uTrack;uniform vec2 uPillC;uniform vec2 uPillHalf;uniform vec2 uPillScale;uniform float uPillR;
+uniform float uPress;uniform float uRefract;uniform vec3 uAccent;uniform vec3 uSurface;uniform vec3 uBarFill;uniform vec2 uLens;uniform float uDepth;uniform sampler2D uIcons;
+float sdRR(vec2 p,vec2 h,float r){vec2 q=abs(p)-(h-vec2(r));return length(max(q,0.0))-r+min(max(q.x,q.y),0.0);}
+vec2 sgn(vec2 p){return vec2(p.x>=0.0?1.0:-1.0,p.y>=0.0?1.0:-1.0);}
+vec2 gradRR(vec2 p,vec2 h,float r){vec2 q=abs(p)-(h-vec2(r));if(q.x>=0.0||q.y>=0.0)return sgn(p)*normalize(max(q,0.0)+1e-6);float gx=step(q.y,q.x);return sgn(p)*vec2(gx,1.0-gx);}
+float circleMap(float x){return 1.0-sqrt(1.0-x*x);}
+vec4 over(vec4 d,vec4 s){return s+d*(1.0-s.a);}
+vec4 icons(vec2 p){vec2 uv=(p+uMargin)*uDpr/uRes;if(uv.x<0.0||uv.y<0.0||uv.x>1.0||uv.y>1.0)return vec4(0.0);return texture2D(uIcons,uv);}
+vec4 barEdges(vec2 p){vec2 h=uTrack*0.5;vec2 c=p-h;float r=h.y;float sd=sdRR(c,h,r);vec4 col=vec4(0.0);
+  float rim=clamp(0.5-sd,0.0,1.0)*clamp(sd+1.25,0.0,1.0)*0.75;float ra=mix(0.27,0.02,clamp(p.y/uTrack.y,0.0,1.0))*rim;col=over(col,vec4(vec3(ra),ra));
+  float hl=clamp(0.5-sd,0.0,1.0)*clamp(sd+1.0,0.0,1.0)*0.5;float inten=abs(dot(gradRR(c,h,min(r*1.5,min(h.x,h.y))),vec2(0.70710678)));float ha=0.5*inten*hl;
+  return over(col,vec4(vec3(ha),ha));}
+float barInside(vec2 p){vec2 h=uTrack*0.5;return clamp(0.5-sdRR(p-h,h,h.y),0.0,1.0);}
+void main(){
+  vec2 p=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y)/uDpr-uMargin;float s=min(uPillScale.x,uPillScale.y);
+  vec2 lc=(p-uPillC)/uPillScale;float lsd=sdRR(lc,uPillHalf,uPillR);float pillCov=clamp(0.5-lsd*s,0.0,1.0);float inBar=barInside(p);
+  vec4 outCol=over(vec4(0.0),barEdges(p));outCol=over(outCol,icons(p));
+  if(uPress>0.0){float sds=sdRR((p-vec2(0.0,4.0)-uPillC)/uPillScale,uPillHalf,uPillR)*s;float sh=0.1*uPress*pow(clamp(1.0-max(sds,0.0)/24.0,0.0,1.0),2.0);outCol=over(outCol,vec4(0.0,0.0,0.0,sh));}
+  vec2 rl=lc;
+  if(-lsd<uLens.x){float d=circleMap(1.0-(-min(lsd,0.0))/uLens.x)*-uLens.y;float gr=min(uPillR*1.5,min(uPillHalf.x,uPillHalf.y));
+    vec2 g=normalize(gradRR(lc,uPillHalf,gr)+uDepth*normalize(lc+1e-6));rl=lc+d*g;}
+  vec2 src=uPillC+rl*uPillScale;
+  float fillA=barInside(src)*(1.0-inBar)*0.92;vec4 inCol=over(vec4(0.0),vec4(uBarFill*fillA,fillA));inCol=over(inCol,barEdges(src));
+  if(uPress>0.0){float rr=8.0*uPress;float sdi=sdRR((p-vec2(0.0,rr)-uPillC)/uPillScale,uPillHalf,uPillR)*s;
+    inCol=over(inCol,vec4(0.0,0.0,0.0,0.15*uPress*smoothstep(-rr,rr,sdi)));inCol=over(inCol,vec4(0.0,0.0,0.0,0.03*uPress));
+    float hl=clamp(lsd*s+1.0,0.0,1.0);float inten=abs(dot(gradRR(lc,uPillHalf,min(uPillR*1.5,min(uPillHalf.x,uPillHalf.y))),vec2(0.70710678)));
+    float ha=0.5*uPress*inten*hl;inCol=over(inCol,vec4(vec3(ha),ha));}
+  float e=1.0-0.5*uPress;inCol=over(inCol,vec4(uSurface*0.52*e,0.52*e));inCol=over(inCol,vec4(uAccent*0.2*e,0.2*e));
+  float rimA=mix(0.6,0.15,clamp(p.y/uTrack.y,0.0,1.0))*clamp(lsd*s+1.5,0.0,1.0)*e;inCol=over(inCol,vec4(uAccent*rimA,rimA));
+  inCol=over(inCol,icons(uRefract>0.5?src:p));
+  gl_FragColor=mix(outCol,inCol,pillCov);}`;
+  function initGL(){let gl=null;try{gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false})}catch(_){}if(!gl)return null;
+    const sh=(t,src)=>{const s=gl.createShader(t);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s};
+    try{const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,'attribute vec2 a;void main(){gl_Position=vec4(a,0.0,1.0);}'));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FRAG));
+      gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(pr));gl.useProgram(pr);
+      gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+      const loc=gl.getAttribLocation(pr,'a');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+      gl.bindTexture(gl.TEXTURE_2D,gl.createTexture());gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+      [[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]].forEach(([k,v])=>gl.texParameteri(gl.TEXTURE_2D,k,v));
+      const u={};['uRes','uDpr','uMargin','uTrack','uPillC','uPillHalf','uPillScale','uPillR','uPress','uRefract','uAccent','uSurface','uBarFill','uLens','uDepth','uIcons'].forEach(n=>u[n]=gl.getUniformLocation(pr,n));
+      return{gl,u}}catch(err){console.warn('Barre : WebGL indisponible, pastille simple',err);return null}}
+  const GL=initGL(),c2=GL?null:canvas.getContext('2d');
+  track.classList.toggle('flat',!GL);
+  function draw(){if(!W)return;const f=frame(),g=pillGeo(f),acc=accentAt(f.pos);
+    if(GL){drawIcons(ictx,f,g);const{gl,u}=GL,n=c=>c.map(v=>v/255);
+      gl.viewport(0,0,canvas.width,canvas.height);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,iconCv);
+      gl.uniform2f(u.uRes,canvas.width,canvas.height);gl.uniform1f(u.uDpr,canvas.width/(W+MX*2));gl.uniform2f(u.uMargin,MX,MY);gl.uniform2f(u.uTrack,W,H);
+      gl.uniform2f(u.uPillC,g.cx,g.cy);gl.uniform2f(u.uPillHalf,g.hw,g.hh);gl.uniform2f(u.uPillScale,g.sx,g.sy);gl.uniform1f(u.uPillR,g.r);
+      gl.uniform1f(u.uPress,f.press);gl.uniform1f(u.uRefract,refract?1:0);gl.uniform3fv(u.uAccent,n(acc));gl.uniform3fv(u.uSurface,n(C.sf));
+      gl.uniform3fv(u.uBarFill,n(C.sf.map((v,k)=>v*.4+C.bg[k]*.6)));gl.uniform2f(u.uLens,LENS[0],LENS[1]);gl.uniform1f(u.uDepth,DEPTH);gl.uniform1i(u.uIcons,0);
+      gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);return}
+    /* sans WebGL : pastille pleine teintée de la couleur de l'onglet */
+    c2.setTransform(1,0,0,1,0,0);c2.clearRect(0,0,canvas.width,canvas.height);c2.setTransform(dpr,0,0,dpr,MX*dpr,MY*dpr);
+    const pill=pillPath(g),out=new Path2D();c2.fillStyle=css(C.sf,.6);c2.fill(pill);c2.fillStyle=css(acc,.2);c2.fill(pill);
+    c2.strokeStyle=css(acc,.5);c2.lineWidth=1;c2.stroke(pill);out.rect(-MX,-MY,W+MX*2,H+MY*2);out.addPath(pill);
+    c2.save();c2.clip(out,'evenodd');drawRow(c2,f,false);c2.restore();c2.save();c2.clip(pill);drawRow(c2,f,true);c2.restore()}
+  function render(){wrap.style.transform=`scale(${tp.v})`;track.style.transformOrigin=`${originX}px 50%`;
+    track.style.transform=`translate(${panelOff(panel.v)}px,${ty.v}px) scaleX(${tx.v})`;draw()}
+
+  /* ---- réfraction des bords de la barre (backdrop-filter SVG, Chromium seulement) ---- */
+  const chromium=!!(navigator.userAgentData&&navigator.userAgentData.brands&&navigator.userAgentData.brands.some(b=>/Chromium/.test(b.brand)))&&!matchMedia('(prefers-reduced-transparency: reduce)').matches,
+    barMap=document.getElementById('navMap');let mapKey='',mapTm=0;
+  function sdRR(px,py,hx,hy,r){const qx=Math.abs(px)-(hx-r),qy=Math.abs(py)-(hy-r);return Math.hypot(Math.max(qx,0),Math.max(qy,0))-r+Math.min(Math.max(qx,qy),0)}
+  function gradRR(px,py,hx,hy,r){const qx=Math.abs(px)-(hx-r),qy=Math.abs(py)-(hy-r),sx=px>=0?1:-1,sy=py>=0?1:-1;
+    if(qx>=0||qy>=0){const mx=Math.max(qx,0),my=Math.max(qy,0),l=Math.hypot(mx,my)||1;return[sx*mx/l,sy*my/l]}return qx>=qy?[sx,0]:[0,sy]}
+  function buildMap(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const x2=c.getContext('2d'),img=x2.createImageData(w,h),
+      hx=w/2,hy=h/2,r=hy,gr=Math.min(r*1.5,hx,hy),scale=48;
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){const px=x+.5-hx,py=y+.5-hy,sd=sdRR(px,py,hx,hy,r);let dx=0,dy=0;
+      if(-sd<BAR.refraction){const t=1-(-Math.min(sd,0))/BAR.refraction,d=(1-Math.sqrt(Math.max(0,1-t*t)))*-BAR.amount,[gx,gy]=gradRR(px,py,hx,hy,gr);dx=d*gx;dy=d*gy}
+      const o=(y*w+x)*4;img.data[o]=Math.round(cl(.5+dx/scale,0,1)*255);img.data[o+1]=Math.round(cl(.5+dy/scale,0,1)*255);img.data[o+2]=128;img.data[o+3]=255}
+    x2.putImageData(img,0,0);barMap.setAttribute('href',c.toDataURL())}
+  function updateMap(){if(!chromium||!barMap)return;const w=Math.round(W),h=Math.round(H),k=w+'x'+h;barMap.setAttribute('width',w);barMap.setAttribute('height',h);
+    if(k===mapKey)return;clearTimeout(mapTm);mapTm=setTimeout(()=>{mapKey=k;buildMap(w,h)},mapKey?150:0)}
+  if(chromium&&barMap)track.classList.add('refract');
+
+  function measure(){W=track.offsetWidth;H=track.offsetHeight;dpr=Math.min(devicePixelRatio||1,3);if(!dragging)originX=W/2;
+    const cw=W+MX*2,ch=H+MY*2,pw=Math.round(cw*dpr),ph=Math.round(ch*dpr);
+    Object.assign(canvas.style,{left:-MX+'px',top:-MY+'px',width:cw+'px',height:ch+'px'});
+    if(canvas.width!==pw||canvas.height!==ph){canvas.width=iconCv.width=pw;canvas.height=iconCv.height=ph}
+    updateMap()}
   function tick(now){
     raf=0;const s=RM?1:cl(last?(now-last)/1000:0,0,.064);last=now;
     target=cl(target,0,maxI);
@@ -736,21 +773,22 @@ function jellyNav({wrap,track,pill,items,onSelect,active}){
     const busy=dragging||release||!pos.rest(target)||!vel.rest(0)||!press.rest(0)||!sx.rest(1)||!sy.rest(1)||!panel.rest(0)||!ty.rest(0)||!tx.rest(1)||!tp.rest(1);
     if(busy)raf=requestAnimationFrame(tick);else last=0}
   const kick=()=>{if(!raf)raf=requestAnimationFrame(tick)};
-  function select(i,anim){dragging=false;target=i;
+  function select(i,anim){dragging=false;refract=false;target=i;
     if(anim===false){pos.snap(i);vel.snap(0);render();return}
     release=true;pressT=0;shapeT=1;kick()}
   /* coordonnées dans la barre, corrigées de son échelle */
-  const local=(e)=>{const r=track.getBoundingClientRect();return[(e.clientX-r.left)*W/(r.width||1),(e.clientY-r.top)*H/(r.height||1)]};
+  const local=e=>{const r=track.getBoundingClientRect();return[(e.clientX-r.left)*W/(r.width||1),(e.clientY-r.top)*H/(r.height||1)]};
   track.addEventListener('pointerdown',e=>{
     if(pid!==null||!e.isPrimary||e.button!==0)return;
     pid=e.pointerId;cx0=e.clientX;cy0=e.clientY;[downX,downY]=local(e);downY=cl(downY,0,H);
     originX=cl(downX,0,W);startY=ty.v;moved=0;target=at(downX);near=target;startT=target;startP=panel.v;
-    dragging=true;release=false;pressT=1;shapeT=1.3;panel.vel=0;
+    dragging=true;refract=false;release=false;pressT=1;shapeT=1.3;panel.vel=0;
     try{track.setPointerCapture(pid)}catch(_){}
     kick()});
   track.addEventListener('pointermove',e=>{
     if(e.pointerId!==pid||!dragging)return;
     const dx=e.clientX-cx0,dy=e.clientY-cy0,tw=tabW();if(tw<=0)return;
+    if(Math.abs(dx)>=4)refract=true;
     target=cl(startT+dx/tw,0,maxI);panel.snap(startP+dx);
     ty.snap(startY+rubber(dy,H)*.25);tx.snap(1-Math.min(Math.abs(dy)/700,1)*.08);
     originX=cl(downX+dx,0,W);moved=Math.max(moved,Math.abs(dx),Math.abs(dy));
@@ -758,17 +796,20 @@ function jellyNav({wrap,track,pill,items,onSelect,active}){
     kick()});
   track.addEventListener('pointerup',e=>{
     if(e.pointerId!==pid)return;pid=null;
-    const drag=moved>=4,i=drag?cl(Math.round(target),0,maxI):at(downX);
-    dragging=false;panel.vel=0;target=i;release=true;kick();
+    const i=moved>=4?cl(Math.round(target),0,maxI):at(downX);
+    dragging=false;refract=false;panel.vel=0;target=i;release=true;kick();
     onSelect(i)});
-  const cancel=e=>{if(e.pointerId!==pid)return;pid=null;dragging=false;panel.vel=0;select(active())};
+  const cancel=e=>{if(e.pointerId!==pid)return;pid=null;panel.vel=0;select(active())};
   track.addEventListener('pointercancel',cancel);track.addEventListener('lostpointercapture',cancel);
   /* clavier : Entrée / Espace déclenchent click sans pointeur */
   items.forEach((b,i)=>b.addEventListener('click',e=>{if(e.detail===0){select(i);onSelect(i)}}));
+  /* redessine quand le thème ou la langue change */
+  new MutationObserver(()=>{colors();draw()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','lang']});
   new ResizeObserver(()=>{measure();render()}).observe(track);
-  measure();render();
+  colors();measure();render();
+  if(document.fonts)document.fonts.ready.then(draw);
   return{select}}
-navCtl=jellyNav({wrap:$('navWrap'),track:$('nav'),pill:$('sl'),items:nbs,onSelect:navSel,active:()=>VIEWS.indexOf(cur)});
+navCtl=jellyNav({wrap:$('navWrap'),track:$('nav'),canvas:$('navCv'),items:nbs,onSelect:navSel,active:()=>VIEWS.indexOf(cur)});
 document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(!g)return;e.preventDefault();buzz();show(g.dataset.go)});
 addEventListener('popstate',e=>{const h=location.hash.slice(1);if(!(e.state&&e.state.v)&&h&&!VIEWS.includes(h)&&!ALIAS[h])return;show((e.state&&e.state.v)||h||'profil',{push:false})});
 
