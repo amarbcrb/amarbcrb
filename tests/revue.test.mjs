@@ -44,17 +44,17 @@ test('fiche ouverte depuis une carte, mise à jour reçue, Échap → focus sur 
   assert.equal(await actif(p), href);
 });
 
-test('carte de l\'Accueil → fiche : la page reste l\'Accueil, Échap rend le focus à la carte', async () => {
+test('fiche d\'un autre onglet ouverte depuis la recherche : la page reste derrière, Échap y revient', async () => {
   reinit();
-  const p = await env.page();
-  await p.focus('#vue .carte-accueil');
-  await p.keyboard.press('Enter');
+  const p = await env.page({ chemin: '/#liens' });
+  await p.click('.nav-search');
+  await p.fill('#rechInput', 'biologie moléculaire');
+  await p.click('#rechRes [data-cible^="#parcours/competences/"] >> nth=0');
   await p.waitForSelector('#fiche', { state: 'visible' });
-  assert.equal(await p.locator('#vue .accueil').count(), 1);
+  assert.equal(await p.locator('#vue .v-liens').count(), 1);
   await p.keyboard.press('Escape');
   await p.waitForSelector('#fiche', { state: 'hidden' });
-  assert.equal(await p.evaluate(() => location.hash), '#accueil');
-  assert.equal(await actif(p), '#parcours/formation/f1');
+  assert.equal(await p.evaluate(() => location.hash), '#liens');
 });
 
 test('profil masqué dans l\'admin → absent de Parcours', async () => {

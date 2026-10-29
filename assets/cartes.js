@@ -54,6 +54,15 @@ const imageOuRepli = (src, repli) => {
 };
 const boutonCertificat = (x) => (lienSur(x.url) ? el('a', { class: 'btn', href: x.url, target: '_blank', rel: 'noopener' }, 'Voir le certificat') : null);
 
+/* carte « Ce que je fais » de l'Accueil : image (ou dégradé), titre, texte toujours visible */
+export function carteDomaine(x, indice = 0) {
+  const repli = () => el('span', { class: 'degrade', 'aria-hidden': 'true' });
+  const image = imageSure(x.image);
+  return el('article', { class: 'carte carte-domaine', style: `--k:${indice};--pc:var(${PALETTE_DOMAINES[indice % PALETTE_DOMAINES.length]})` },
+    image ? imageOuRepli(image, repli) : repli(), el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
+}
+const PALETTE_DOMAINES = ['--c-teal', '--c-purple', '--c-orange', '--c-blue', '--c-pink'];
+
 /* titre de la fiche d'un élément */
 export const titreFiche = (x) => x.titre || x.domaine || '';
 

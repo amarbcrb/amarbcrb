@@ -151,15 +151,31 @@ test('Lire la suite déplie le profil', async () => {
   assert.equal(await hash(p), '#parcours');
 });
 
-test('accueil : 3 grandes cartes ouvrent fiche ou page', async () => {
+test('accueil : salutation, présentation, repères, Ce que je fais, projet phare, boutons', async () => {
   reinit();
   const p = await env.page();
-  assert.equal(await p.innerText('#vue h1'), DEFAUT().accueil.positionnement);
-  const liens = await p.$$eval('#vue .rangee-accueil a.carte', (xs) => xs.map((x) => x.getAttribute('href')));
-  assert.deepEqual(liens, ['#parcours/formation/f1', '#parcours/experience/e5', '#parcours/competences']);
-  await p.click('#vue .rangee-accueil a.carte >> nth=0');
-  await ouverte(p);
-  assert.equal(await p.innerText('#ficheTitre'), 'Master 1 Microbiologie');
+  assert.equal(await p.innerText('#vue h1'), 'Bonjour, je suis Amar');
+  assert.match(await p.innerText('#vue .intro'), /Master 1 de microbiologie[\s\S]*BioStudy/);
+  assert.equal(await p.locator('#vue .reperes li').count(), 3);
+  assert.match(await p.innerText('#vue .reperes li >> nth=0'), /Master 1\s+Microbiologie, Lyon 1/);
+  assert.deepEqual(await titres(p, '#vue .accueil h2'), ['Ce que je fais', 'Projet phare']);
+  assert.deepEqual(await titres(p, '#vue .carte-domaine b'), ['Microbiologie', 'Graphisme', 'Montage vidéo']);
+  assert.match(await p.innerText('#vue .carte-domaine >> nth=2 >> p'), /Vidéos courtes/);
+  assert.equal(await p.locator('#vue .carte-domaine >> nth=0 >> .degrade').count(), 1);
+  assert.equal(await p.getAttribute('#vue .projet-phare a.carte-lien', 'href'), 'https://www.biostudy.xyz/');
+  assert.equal(await p.getAttribute('#vue .accueil .acts a:has-text("Me contacter")', 'href'), '#contact');
+});
+
+test('accueil : domaine avec image, repère masqué, projet phare introuvable ou domaines vides → blocs absents', async () => {
+  reinit((c) => { c.accueil.domaines[1].image = { id: 'g', url: '/favicon-512x512.png?g' }; c.accueil.reperes[2].visible = false; c.accueil.projetPhare = 'zzz'; });
+  let p = await env.page();
+  assert.equal(await p.getAttribute('#vue .carte-domaine >> nth=1 >> img', 'src'), '/favicon-512x512.png?g');
+  assert.equal(await p.locator('#vue .reperes li').count(), 2);
+  assert.equal(await p.locator('#vue .projet-phare').count(), 0);
+  reinit((c) => { c.accueil.domaines = []; c.accueil.reperes = []; });
+  p = await env.page();
+  assert.deepEqual(await titres(p, '#vue .accueil h2'), ['Projet phare']);
+  assert.equal(await p.locator('#vue .reperes').count(), 0);
 });
 
 test('echappe le HTML', async () => {

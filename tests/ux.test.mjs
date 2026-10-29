@@ -145,8 +145,8 @@ for (const theme of THEMES) {
     const hauts = await p.$$eval('#vue .rangee:first-of-type .carte-lien .btn', (xs) => xs.slice(0, 4).map((x) => Math.round(x.getBoundingClientRect().top)));
     assert.equal(new Set(hauts).size, 1, `boutons Ouvrir à des hauteurs différentes : ${hauts}`);
     await ouvrirPage(p, '#accueil');
-    const lbl = await p.$$eval('#vue .carte-accueil .lbl', (xs) => xs.map((x) => Math.round(x.getBoundingClientRect().top)));
-    assert.equal(new Set(lbl).size, 1, `libellés des cartes d'accueil à des hauteurs différentes : ${lbl}`);
+    const lbl = await p.$$eval('#vue .carte-domaine b', (xs) => xs.map((x) => Math.round(x.getBoundingClientRect().top)));
+    assert.equal(new Set(lbl).size, 1, `titres des cartes « Ce que je fais » à des hauteurs différentes : ${lbl}`);
     await p.close();
   });
 }

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import {
   ONGLETS, SOUS_PARCOURS, normaliser, formaterDate, periode, trierParDate, formationActuelle,
   derniereExperience, ongletsVisibles, parties, aFiche, contactVisible, PARTIES_PARCOURS, nomAffiche, lienSur, valider, nouvelId, echapper,
-  TYPES_LIEN, typeLien, couleurPartie,
+  TYPES_LIEN, typeLien, couleurPartie, DRAPEAUX, drapeauLangue,
 } from '../assets/model.js';
 
 test('constantes', () => {
@@ -39,10 +39,10 @@ test('normaliser tolère null et les clés manquantes', () => {
 });
 
 test('normaliser garde les valeurs fournies et tolère les types faux', () => {
-  const c = normaliser({ onglets: { liens: { visible: false } }, parcours: { formation: 'oops' }, accueil: { competencesCles: null } });
+  const c = normaliser({ onglets: { liens: { visible: false } }, parcours: { formation: 'oops' }, accueil: { reperes: null } });
   assert.equal(c.onglets.liens.visible, false);
   assert.deepEqual(c.parcours.formation, []);
-  assert.deepEqual(c.accueil.competencesCles, []);
+  assert.deepEqual(c.accueil.reperes, []);
 });
 
 test('trierParDate : en cours d\'abord puis début décroissant, copie', () => {
@@ -81,6 +81,7 @@ test('aFiche', () => {
   assert.equal(aFiche('parcours', 'formation'), true);
   assert.equal(aFiche('parcours', 'certifications'), true);
   assert.equal(aFiche('parcours', 'langues'), false);
+  assert.equal(aFiche('parcours', 'interets'), false);
   assert.equal(aFiche('liens', 'projets'), false);
   assert.equal(aFiche('portfolio', 'd1'), false);
 });
@@ -249,4 +250,34 @@ test('valider : type de lien inconnu refusé', () => {
   assert.deepEqual(valider(c).map((e) => e.chemin), ['liens.items.0.type']);
   c.liens.items[0].type = 'code';
   assert.deepEqual(valider(c), []);
+});
+
+test('accueil : salutation, intro, repères, domaines (avec image), projet phare', () => {
+  const c = normaliser({ accueil: { domaines: [{ titre: 'Design' }], reperes: [{ valeur: '2022', libelle: 'BioStudy' }] } });
+  assert.equal(c.accueil.salutation, '');
+  assert.equal(c.accueil.intro, '');
+  assert.equal(c.accueil.projetPhare, '');
+  assert.deepEqual({ ...c.accueil.domaines[0], id: 'x' }, { id: 'x', titre: 'Design', texte: '', image: null, visible: true });
+  assert.ok(c.accueil.domaines[0].id);
+  assert.equal(c.accueil.reperes[0].libelle, 'BioStudy');
+  c.accueil.domaines[0].titre = ' ';
+  assert.deepEqual(valider(c).map((e) => e.chemin), ['accueil.domaines.0.titre']);
+});
+
+test('drapeauLangue : drapeau choisi, sinon deviné depuis le nom de la langue', () => {
+  assert.deepEqual(Object.keys(DRAPEAUX), ['fr', 'arabe', 'amazigh', 'gb', 'us', 'es', 'dz', 'de', 'it']);
+  assert.equal(DRAPEAUX.arabe, 'Ligue arabe');
+  const d = (langue, drapeau = '') => drapeauLangue({ langue, drapeau });
+  assert.equal(d('Français'), 'fr');
+  assert.equal(d('Arabe'), 'arabe');
+  assert.equal(d('Kabyle'), 'amazigh');
+  assert.equal(d('Tamazight'), 'amazigh');
+  assert.equal(d('Anglais'), 'gb');
+  assert.equal(d('Espagnol'), 'es');
+  assert.equal(d('Allemand'), 'de');
+  assert.equal(d('Italien'), 'it');
+  assert.equal(d('Japonais'), '');
+  assert.equal(d('Anglais', 'us'), 'us');
+  assert.equal(d('Anglais', 'zz'), 'gb');
+  assert.equal(normaliser({ parcours: { langues: [{ langue: 'Kabyle' }] } }).parcours.langues[0].drapeau, '');
 });

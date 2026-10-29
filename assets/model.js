@@ -21,10 +21,12 @@ const ITEMS = {
   'parcours.experience': DATE_ITEM,
   'parcours.engagement': DATE_ITEM,
   'parcours.competences': { domaine: '', resume: '', techniques: [] },
-  'parcours.langues': { langue: '', niveau: '' },
+  'parcours.langues': { langue: '', niveau: '', drapeau: '' },
   'parcours.certifications': { titre: '', organisme: '', annee: '', url: '' },
   'parcours.interets': { titre: '', texte: '', image: null },
   'liens.categories': { nom: '' },
+  'accueil.reperes': { valeur: '', libelle: '' },
+  'accueil.domaines': { titre: '', texte: '', image: null },
   'liens.items': { url: '', titre: '', description: '', image: '', categorie: '', date: '', bouton: '', type: '', media: null },
   'contact.autres': { label: '', url: '' },
   'contact.ouvertA': { titre: '', detail: '' },
@@ -32,7 +34,7 @@ const ITEMS = {
 const PREFIXES = {
   'parcours.formation': 'f', 'parcours.experience': 'e', 'parcours.engagement': 'g', 'parcours.competences': 'c',
   'parcours.langues': 'l', 'parcours.certifications': 'k', 'parcours.interets': 'i', 'liens.categories': 'cat',
-  'liens.items': 'u', 'contact.autres': 'a', 'contact.ouvertA': 'o',
+  'liens.items': 'u', 'contact.autres': 'a', 'contact.ouvertA': 'o', 'accueil.reperes': 'r', 'accueil.domaines': 'd',
 };
 
 function squelette() {
@@ -47,7 +49,7 @@ function squelette() {
       accueil: { visible: true }, parcours: { visible: true, sous }, portfolio: { visible: true },
       liens: { visible: true }, contact: { visible: true },
     },
-    accueil: { positionnement: '', situation: '', competencesCles: [] },
+    accueil: { salutation: '', intro: '', reperes: [], domaines: [], projetPhare: '' },
     parcours: {
       profil: { titre: '', texte: '' },
       formation: [], experience: [], engagement: [], competences: [], langues: [], certifications: [], interets: [],
@@ -150,8 +152,8 @@ export function nomAffiche(nom) {
 
 export const contactVisible = (c) => !(c.onglets.contact && c.onglets.contact.visible === false);
 
-/* seules les parties de Parcours (hors langues) ouvrent une fiche détaillée */
-export const aFiche = (onglet, partie) => onglet === 'parcours' && PARTIES_PARCOURS.includes(partie) && partie !== 'langues';
+/* seules les parties de Parcours ouvrent une fiche détaillée ; langues et intérêts montrent tout sur leur carte */
+export const aFiche = (onglet, partie) => onglet === 'parcours' && PARTIES_PARCOURS.includes(partie) && partie !== 'langues' && partie !== 'interets';
 
 const DATEES = ['formation', 'experience', 'engagement'];
 
@@ -222,6 +224,16 @@ export function typeLien(item, c = null) {
   return cat && /article/i.test(cat.nom) ? 'article' : 'web';
 }
 
+/* drapeau d'une langue : choisi dans l'admin, sinon deviné depuis le nom */
+export const DRAPEAUX = { fr: 'France', arabe: 'Ligue arabe', amazigh: 'Amazigh', gb: 'Royaume-Uni', us: 'États-Unis', es: 'Espagne', dz: 'Algérie', de: 'Allemagne', it: 'Italie' };
+const LANGUES = [[/^fran/, 'fr'], [/^arabe/, 'arabe'], [/^(kabyle|tamazight|berb|amazigh)/, 'amazigh'], [/^anglais/, 'gb'], [/^espagnol/, 'es'], [/^allemand/, 'de'], [/^italien/, 'it']];
+export function drapeauLangue(x) {
+  if (Object.hasOwn(DRAPEAUX, x.drapeau)) return x.drapeau;
+  const nom = String(x.langue || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const trouve = LANGUES.find(([re]) => re.test(nom));
+  return trouve ? trouve[1] : '';
+}
+
 /* une couleur par rubrique de Parcours ; catégories de liens et dossiers prennent la palette dans l'ordre */
 const COULEURS_PARCOURS = {
   formation: '--c-blue', experience: '--c-orange', competences: '--c-purple', certifications: '--c-green',
@@ -256,6 +268,7 @@ export function valider(c) {
   requis(c.parcours.certifications, 'parcours.certifications', 'titre', 'Titre');
   c.parcours.certifications.forEach((x, i) => { if (x.url && !lienSur(x.url)) err(`parcours.certifications.${i}.url`, 'Adresse web invalide (https://…)'); });
   requis(c.parcours.interets, 'parcours.interets', 'titre', 'Titre');
+  requis(c.accueil.domaines, 'accueil.domaines', 'titre', 'Titre');
   requis(c.liens.categories, 'liens.categories', 'nom', 'Nom');
   requis(c.liens.items, 'liens.items', 'titre', 'Titre');
   c.liens.items.forEach((x, i) => { if (!lienSur(x.url)) err(`liens.items.${i}.url`, 'Adresse web invalide (https://…)'); });

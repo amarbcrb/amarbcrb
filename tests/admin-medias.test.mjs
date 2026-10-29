@@ -233,3 +233,29 @@ test('lien existant : changer le type, choisir puis retirer mon image (fichier m
   assert.ok(env.faux.etat.corbeille.includes(media.id));
   assert.deepEqual(p.erreurs, []);
 });
+
+test('écran Accueil : repère ajouté, domaine avec image envoyée, projet phare choisi → visibles sur le site', async () => {
+  reinit();
+  const p = await ecran('accueil');
+  await p.click('[data-bloc="reperes"] .ajouter');
+  await p.fill(champ('accueil.reperes.3.valeur'), '18');
+  await p.fill(champ('accueil.reperes.3.libelle'), 'certificats Coursera');
+  await p.click('[data-bloc="domaines"] li >> nth=1 >> .modifier');
+  await p.fill(champ('accueil.domaines.1.texte'), 'Affiches et identités visuelles.');
+  await p.setInputFiles('[data-media="image-accueil.domaines.1"]', { name: 'design.png', mimeType: 'image/png', buffer: await image(p, 1200, 900) });
+  await p.waitForSelector('[data-apercu="image-accueil.domaines.1"][src*="/media/"]');
+  assert.deepEqual(await p.$$eval(`${champ('accueil.projetPhare')} option`, (xs) => xs.slice(0, 3).map((x) => [x.value, x.textContent])), [['', 'Aucun'], ['u1', 'BioStudy'], ['u2', 'BioCampus']]);
+  await p.selectOption(champ('accueil.projetPhare'), 'u2');
+  await enregistrer(p);
+  const a = env.faux.etat.contenu.accueil;
+  assert.equal(a.reperes[3].valeur, '18');
+  assert.match(a.domaines[1].image.url, /\/media\//);
+  assert.equal(a.projetPhare, 'u2');
+  assert.ok(!env.faux.etat.corbeille.includes(a.domaines[1].image.id));
+  const site = await env.page();
+  assert.match(await site.innerText('#vue .reperes li >> nth=3'), /18\s+certificats Coursera/);
+  assert.equal(await site.getAttribute('#vue .carte-domaine >> nth=1 >> img', 'src'), a.domaines[1].image.url);
+  assert.match(await site.innerText('#vue .carte-domaine >> nth=1'), /Affiches et identités visuelles\./);
+  assert.equal(await site.getAttribute('#vue .projet-phare a.carte-lien', 'href'), 'https://www.biostudy.xyz/BioCampus/');
+  assert.deepEqual(p.erreurs, []);
+});
