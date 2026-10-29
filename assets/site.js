@@ -4,12 +4,13 @@ import { ongletsVisibles, ONGLETS } from './model.js';
 import { parse, format } from './router.js';
 import { monterBarre } from './nav.js';
 import { rendreVue } from './render.js';
+import { construireIndex, chercher } from './search.js';
 
 const $ = (id) => document.getElementById(id);
 const root = document.documentElement;
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* dossiers : undefined tant que le portfolio n'est pas lu, null si le script est en panne */
-const etat = { contenu: null, dossiers: undefined, chargementPortfolio: null, barre: null, cleBarre: '', vue: null };
+const etat = { contenu: null, dossiers: undefined, chargementPortfolio: null, barre: null, cleBarre: '', vue: null, index: null };
 const listeDossiers = () => (Array.isArray(etat.dossiers) ? etat.dossiers : []);
 
 /* ---------- Thème ---------- */
@@ -88,7 +89,56 @@ function aller(onglet) {
   afficher();
 }
 
-function ouvrirRecherche() {}
+/* ---------- Recherche ---------- */
+const rech = { ouvert: false };
+const indexer = () => { etat.index = construireIndex(etat.contenu, listeDossiers()); };
+function afficherResultats() {
+  const q = $('rechInput').value.trim();
+  const res = q ? chercher(etat.index || [], q) : [];
+  $('rechRes').replaceChildren(...res.map((r) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.cible = format(r.cible);
+    const type = document.createElement('small');
+    type.className = 'rech-type';
+    type.textContent = r.type;
+    const titre = document.createElement('b');
+    titre.textContent = r.titre;
+    b.append(type, titre);
+    if (r.extrait) { const x = document.createElement('small'); x.textContent = r.extrait; b.append(x); }
+    const li = document.createElement('li');
+    li.append(b);
+    return li;
+  }));
+  $('rechVide').hidden = !(q && !res.length);
+  $('rechVide').textContent = `Aucun résultat pour « ${q} ».`;
+}
+function ouvrirRecherche() {
+  if (!etat.index) indexer();
+  rech.ouvert = true;
+  $('recherche').hidden = false;
+  $('rechInput').focus();
+  $('rechInput').select();
+  afficherResultats();
+  chargerPortfolio().then(() => { indexer(); if (rech.ouvert) afficherResultats(); });
+}
+function fermerRecherche(rendreFocus = true) {
+  rech.ouvert = false;
+  $('recherche').hidden = true;
+  if (rendreFocus && etat.barre) etat.barre.recherche.focus();
+}
+$('rechInput').addEventListener('input', afficherResultats);
+$('rechFermer').addEventListener('click', () => fermerRecherche());
+$('recherche').addEventListener('click', (e) => {
+  if (e.target === $('recherche')) { fermerRecherche(); return; }
+  const b = e.target.closest('[data-cible]');
+  if (!b) return;
+  fermerRecherche(false);
+  if (location.hash !== b.dataset.cible) history.pushState(null, '', b.dataset.cible);
+  afficher();
+  $('vue').focus({ preventScroll: true });
+});
+addEventListener('keydown', (e) => { if (e.key === 'Escape' && rech.ouvert) fermerRecherche(); });
 
 /* le portfolio n'est lu dans Drive qu'à la première ouverture de l'onglet (ou de la recherche) */
 function chargerPortfolio() {
@@ -183,6 +233,7 @@ document.addEventListener('click', async (e) => {
 async function demarrer() {
   const { contenu } = await chargerContenu((frais) => {
     etat.contenu = frais;
+    etat.index = null;
     if (appliquer(frais)) afficher(false);
   });
   $('chargement').hidden = true;
