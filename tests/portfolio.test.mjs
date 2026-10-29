@@ -27,13 +27,16 @@ async function ouvrir(chemin, opts) {
   return p;
 }
 
-test('un sous-onglet par dossier visible, préfixe retiré, ordre par préfixe', async () => {
+test('une rangée par dossier visible, préfixe retiré, ordre par préfixe', async () => {
   reinit({ modif: (c) => { c.portfolio.dossiers = { dx: { visible: false, nom: '' } }; } });
   const p = await ouvrir('#portfolio');
-  await p.waitForSelector('.sous-onglets [role="tab"]');
-  const noms = await p.$$eval('.sous-onglets [role="tab"]', (xs) => xs.map((x) => x.textContent));
+  await p.waitForSelector('#vue .rangee');
+  const noms = await p.$$eval('#vue .rangee .rangee-tete h2', (xs) => xs.map((x) => x.textContent));
   assert.deepEqual(noms, ['Design', 'Posters']);
+  assert.equal(await p.locator('#vue .rangee >> nth=0 >> .piste .vignette').count(), 3);
+  await p.click('#vue .rangee >> nth=0 >> a.voir');
   await p.waitForFunction(() => location.hash === '#portfolio/dd');
+  assert.equal(await p.locator('#vue .grille .vignette').count(), 3);
 });
 
 test('grille d\'aperçus avec URL thumbnail', async () => {
@@ -74,10 +77,10 @@ test('PDF → lien vers la page Drive, nouvel onglet', async () => {
 test('dossier masqué dans contenu.portfolio.dossiers absent', async () => {
   reinit({ modif: (c) => { c.portfolio.dossiers = { dp: { visible: false, nom: '' } }; } });
   const p = await ouvrir('#portfolio/dp');
-  await p.waitForSelector('.sous-onglets [role="tab"]');
-  const noms = await p.$$eval('.sous-onglets [role="tab"]', (xs) => xs.map((x) => x.textContent));
+  await p.waitForFunction(() => location.hash === '#portfolio');
+  await p.waitForSelector('#vue .rangee');
+  const noms = await p.$$eval('#vue .rangee .rangee-tete h2', (xs) => xs.map((x) => x.textContent));
   assert.ok(!noms.includes('Posters'));
-  await p.waitForFunction(() => location.hash === '#portfolio/dd');
 });
 
 test('lien direct vers un dossier conservé pendant le chargement', async () => {

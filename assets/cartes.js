@@ -1,5 +1,6 @@
 /* Cartes des rangées et contenu des fiches (feuille qui monte du bas). */
-import { lienSur } from './model.js';
+import { lienSur, periode } from './model.js';
+import { format } from './router.js';
 import { el } from './dom.js';
 
 const CHEVRON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
@@ -27,4 +28,77 @@ export function corpsContact(c) {
     cv ? el('a', { class: 'btn pri ct-cv', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV') : null,
     ouvert.length ? el('span', { class: 'gh' }, 'Ouvert à') : null,
     ouvert.length ? el('ul', { class: 'box rows' }, ouvert.map((x) => el('li', { class: 'row' }, el('span', { class: 't' }, el('b', {}, x.titre), x.detail ? el('small', {}, x.detail) : null)))) : null);
+}
+
+const FICHIER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>';
+const DATEES = ['formation', 'experience', 'engagement'];
+const sansExtension = (nom) => String(nom).replace(/\.[^.]+$/, '');
+const imageSure = (x) => (x && lienSur(x.url) ? x.url : (x && /^\/(?!\/)/.test(String(x.url)) ? x.url : null));
+const boutonCertificat = (x) => (lienSur(x.url) ? el('a', { class: 'btn', href: x.url, target: '_blank', rel: 'noopener' }, 'Voir le certificat') : null);
+
+/* titre de la fiche d'un élément */
+export const titreFiche = (x) => x.titre || x.domaine || '';
+
+/* carte d'une rangée ou d'une grille, selon la partie */
+export function carte(x, { onglet, partie, c, indice = 0 }) {
+  const style = `--k:${Math.min(indice, 12)}`;
+  const fiche = format({ onglet, sous: partie, element: x.id });
+  if (onglet === 'liens') {
+    const site = domaine(x.url);
+    return el(lienSur(x.url) ? 'a' : 'div', { class: 'carte carte-lien', href: x.url, target: '_blank', rel: 'noopener noreferrer', style },
+      lienSur(x.image) ? el('img', { src: x.image, alt: '', loading: 'lazy' }) : el('span', { class: 'degrade', 'aria-hidden': 'true' }, site),
+      el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.description ? el('p', {}, x.description) : null, site ? el('small', {}, site) : null,
+        el('span', { class: 'btn' }, x.bouton || 'Ouvrir')));
+  }
+  if (onglet === 'portfolio') {
+    if (String(x.type).startsWith('image/')) {
+      return el('button', { class: 'vignette', type: 'button', 'data-dossier': partie, 'data-fichier': x.id, 'aria-label': 'Agrandir ' + x.nom, style },
+        el('img', { src: x.apercu, alt: sansExtension(x.nom), loading: 'lazy' }));
+    }
+    return el(lienSur(x.lien) ? 'a' : 'div', { class: 'vignette doc', href: x.lien, target: '_blank', rel: 'noopener', style },
+      el('i', { html: FICHIER }), el('b', {}, x.nom), el('small', {}, 'Ouvrir dans Drive'));
+  }
+  if (DATEES.includes(partie)) {
+    return el('a', { class: 'carte carte-texte', href: fiche, style },
+      el('small', { class: 'periode' }, periode(x) || ' '), el('b', {}, x.titre), x.lieu ? el('span', {}, x.lieu) : null,
+      x.enCours ? el('span', { class: 'en-cours' }, 'En cours') : null);
+  }
+  if (partie === 'competences') {
+    const reste = x.techniques.length - 3;
+    return el('a', { class: 'carte carte-comp', href: fiche, style }, el('b', {}, x.domaine),
+      el('span', { class: 'tags' }, x.techniques.slice(0, 3).map((t) => el('span', {}, t)), reste > 0 ? el('span', {}, `+${reste}`) : null));
+  }
+  if (partie === 'certifications') {
+    return el('article', { class: 'carte carte-cert', style },
+      el('a', { class: 'carte-lien-fiche', href: fiche }, el('b', {}, x.titre)),
+      el('small', {}, [x.organisme, x.annee].filter(Boolean).join(' · ')), boutonCertificat(x));
+  }
+  if (partie === 'langues') return el('div', { class: 'carte carte-langue', style }, el('b', {}, x.langue), el('small', {}, x.niveau));
+  if (partie === 'interets') {
+    const image = imageSure(x.image);
+    return el('a', { class: 'carte carte-image', href: fiche, style },
+      image ? el('img', { src: image, alt: '', loading: 'lazy' }) : el('span', { class: 'degrade', 'aria-hidden': 'true' }),
+      el('span', { class: 'titre' }, x.titre));
+  }
+  return el('div', { class: 'carte', style }, el('b', {}, titreFiche(x)));
+}
+
+/* contenu complet de la fiche d'un élément de Parcours */
+export function corpsFiche(x, partie) {
+  const paragraphes = (t) => String(t || '').split(/\n\s*\n/).filter((p) => p.trim()).map((p) => el('p', {}, p.trim()));
+  if (DATEES.includes(partie)) {
+    return el('div', { class: 'fiche-contenu' }, periode(x) ? el('p', { class: 'periode' }, periode(x)) : null,
+      x.lieu ? el('p', { class: 'lieu' }, x.lieu) : null, paragraphes(x.description));
+  }
+  if (partie === 'competences') {
+    return el('div', { class: 'fiche-contenu' }, paragraphes(x.resume), x.techniques.length ? el('div', { class: 'tags' }, x.techniques.map((t) => el('span', {}, t))) : null);
+  }
+  if (partie === 'certifications') {
+    return el('div', { class: 'fiche-contenu' }, el('p', { class: 'lieu' }, [x.organisme, x.annee].filter(Boolean).join(' · ')), boutonCertificat(x));
+  }
+  if (partie === 'interets') {
+    const image = imageSure(x.image);
+    return el('div', { class: 'fiche-contenu' }, image ? el('img', { class: 'fiche-image', src: image, alt: '' }) : null, paragraphes(x.texte));
+  }
+  return el('div', { class: 'fiche-contenu' });
 }

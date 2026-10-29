@@ -1,12 +1,12 @@
 /* Démarrage du site : thème, contenu, maintenance, en-tête, barre d'onglets et vues. */
 import { chargerContenu, lireJeton, lirePortfolio } from './api.js';
-import { ongletsVisibles, contactVisible, ONGLETS } from './model.js';
+import { ongletsVisibles, contactVisible, parties, ONGLETS } from './model.js';
 import { parse, format } from './router.js';
 import { monterBarre } from './nav.js';
 import { rendreVue } from './render.js';
 import { construireIndex, chercher } from './search.js';
 import { ouvrirFiche, fermerFiche } from './fiche.js';
-import { corpsContact } from './cartes.js';
+import { corpsContact, corpsFiche, titreFiche } from './cartes.js';
 
 const $ = (id) => document.getElementById(id);
 const root = document.documentElement;
@@ -201,17 +201,26 @@ function afficher(anim = true) {
   if (location.hash !== cle(cible) && !enAttente) history.replaceState(null, '', cle(cible));
   const direct = !etat.vue;
   etat.vue = cible;
-  dessinerPage(cible.contact ? (etat.base || { onglet: 'accueil', sous: null }) : { onglet: cible.onglet, sous: cible.sous }, anim);
+  /* sous une fiche d'élément, on garde la page déjà affichée si c'est l'onglet ou le Voir tout de l'élément */
+  const garde = etat.base && etat.base.onglet === cible.onglet && (etat.base.sous === null || etat.base.sous === cible.sous);
+  const base = cible.contact ? (etat.base || { onglet: 'accueil', sous: null })
+    : cible.element ? (garde ? etat.base : { onglet: cible.onglet, sous: cible.sous })
+      : { onglet: cible.onglet, sous: cible.sous };
+  dessinerPage(base, anim);
+  const item = cible.element && parties(c, cible.onglet).find((p) => p.id === cible.sous).items.find((x) => x.id === cible.element);
   if (cible.contact) surcouche('Contact', corpsContact(c), direct);
+  else if (item) surcouche(titreFiche(item), corpsFiche(item, cible.sous), direct);
   else fermerFiche({ silencieux: true });
 }
 
 /* retour arrière, lien #… dans la page : ne redessine que si l'adresse affichée change */
 function synchroniser() {
   if (!etat.contenu || $('shell').hidden) return;
-  const k = cle(parse(location.hash, etat.contenu, listeDossiers()));
+  const cible = parse(location.hash, etat.contenu, listeDossiers());
+  const k = cle(cible);
   if (!etat.vue || k !== cle(etat.vue)) afficher();
-  else if (location.hash !== k) history.replaceState(null, '', k); /* adresse masquée ou inconnue qui mène à la page déjà affichée */
+  /* adresse masquée ou inconnue qui mène à la page déjà affichée ; on attend Drive avant de corriger #portfolio/… */
+  else if (location.hash !== k && !(cible.onglet === 'portfolio' && etat.dossiers === undefined)) history.replaceState(null, '', k);
 }
 addEventListener('popstate', synchroniser);
 addEventListener('hashchange', synchroniser);
@@ -258,8 +267,13 @@ document.addEventListener('click', (e) => {
   const v = e.target.closest('.vignette[data-dossier]');
   if (!v) return;
   const d = listeDossiers().find((x) => x.id === v.dataset.dossier);
-  if (d) ouvrirVisionneuse(d.fichiers.filter((f) => String(f.type).startsWith('image/')), Number(v.dataset.i), v);
+  if (!d) return;
+  const images = d.fichiers.filter((f) => String(f.type).startsWith('image/'));
+  ouvrirVisionneuse(images, Math.max(0, images.findIndex((f) => f.id === v.dataset.fichier)), v);
 });
+
+/* appui sur une carte : petite vibration là où elle existe */
+document.addEventListener('pointerdown', (e) => { if (e.target.closest('.carte, .vignette')) { try { navigator.vibrate && navigator.vibrate(8); } catch { /* sans vibreur */ } } });
 
 /* lien « Aller au contenu » : donne le focus à la vue sans changer d'adresse */
 document.querySelector('.skip').addEventListener('click', (e) => { e.preventDefault(); $('vue').focus(); });
