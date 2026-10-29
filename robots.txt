@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /tests/
+Disallow: /docs/
 
 Sitemap: https://amarbcrb.pages.dev/sitemap.xml
