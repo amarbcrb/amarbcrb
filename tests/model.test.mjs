@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import {
   ONGLETS, SOUS_PARCOURS, normaliser, formaterDate, periode, trierParDate, formationActuelle,
   derniereExperience, ongletsVisibles, parties, aFiche, contactVisible, PARTIES_PARCOURS, nomAffiche, lienSur, valider, nouvelId, echapper,
+  TYPES_LIEN, typeLien, couleurPartie,
 } from '../assets/model.js';
 
 test('constantes', () => {
@@ -186,4 +187,66 @@ test('default.json est déjà normalisé et valide', () => {
 test('ongletsVisibles : jamais vide, Accueil en dernier recours', () => {
   const c = normaliser({ onglets: Object.fromEntries(ONGLETS.map((id) => [id, { visible: false }])) });
   assert.deepEqual(ongletsVisibles(c), ['accueil']);
+});
+
+test('typeLien : détecté depuis l\'adresse', () => {
+  const t = (url, extra = {}) => typeLien({ url, type: '', categorie: '', ...extra });
+  assert.equal(t('https://www.youtube.com/watch?v=abc'), 'video');
+  assert.equal(t('https://youtu.be/abc'), 'video');
+  assert.equal(t('https://vimeo.com/123'), 'video');
+  assert.equal(t('https://www.tiktok.com/@amar/video/1'), 'video');
+  assert.equal(t('https://exemple.fr/film.mp4'), 'video');
+  assert.equal(t('https://exemple.fr/affiche.JPG'), 'image');
+  assert.equal(t('https://exemple.fr/a/poster.webp?x=1'), 'image');
+  assert.equal(t('https://play.google.com/store/apps/details?id=xyz'), 'appli');
+  assert.equal(t('https://apps.apple.com/fr/app/x/id1'), 'appli');
+  assert.equal(t('https://exemple.fr/appli.apk'), 'appli');
+  assert.equal(t('https://exemple.fr/rapport.pdf'), 'document');
+  assert.equal(t('https://docs.google.com/document/d/1/edit'), 'document');
+  assert.equal(t('https://drive.google.com/file/d/1/view'), 'document');
+  assert.equal(t('https://github.com/amar/biostudy'), 'code');
+  assert.equal(t('https://gitlab.com/amar/x'), 'code');
+  assert.equal(t('https://medium.com/@amar/post'), 'article');
+  assert.equal(t('https://amar.substack.com/p/x'), 'article');
+  assert.equal(t('https://exemple.fr/blog/mon-billet'), 'article');
+  assert.equal(t('https://www.biostudy.xyz/'), 'web');
+  assert.equal(t('pas une url'), 'web');
+});
+
+test('typeLien : catégorie « Articles » et type forcé', () => {
+  const c = { liens: { categories: [{ id: 'art', nom: 'Articles' }, { id: 'p', nom: 'Projets' }] } };
+  assert.equal(typeLien({ url: 'https://exemple.fr/x', type: '', categorie: 'art' }, c), 'article');
+  assert.equal(typeLien({ url: 'https://exemple.fr/x', type: '', categorie: 'p' }, c), 'web');
+  assert.equal(typeLien({ url: 'https://youtu.be/x', type: 'image', categorie: 'p' }, c), 'image');
+  assert.equal(typeLien({ url: 'https://youtu.be/x', type: 'inconnu', categorie: 'p' }, c), 'video');
+  assert.deepEqual(Object.keys(TYPES_LIEN), ['web', 'video', 'image', 'appli', 'document', 'code', 'article']);
+  assert.equal(TYPES_LIEN.video, 'Vidéo');
+});
+
+test('couleurPartie : une couleur par rubrique, palette pour liens et portfolio', () => {
+  assert.equal(couleurPartie('parcours', 'formation', 0), '--c-blue');
+  assert.equal(couleurPartie('parcours', 'experience', 1), '--c-orange');
+  assert.equal(couleurPartie('parcours', 'competences', 2), '--c-purple');
+  assert.equal(couleurPartie('parcours', 'certifications', 3), '--c-green');
+  assert.equal(couleurPartie('parcours', 'langues', 4), '--c-cyan');
+  assert.equal(couleurPartie('parcours', 'engagement', 5), '--c-pink');
+  assert.equal(couleurPartie('parcours', 'interets', 6), '--c-yellow');
+  assert.equal(couleurPartie('liens', 'projets', 0), '--c-blue');
+  assert.equal(couleurPartie('liens', 'android', 1), '--c-orange');
+  assert.equal(couleurPartie('portfolio', 'dd', 10), couleurPartie('portfolio', 'x', 0));
+});
+
+test('liens.items : champs type et media', () => {
+  const c = normaliser({ liens: { categories: [], items: [{ id: 'u1', url: 'https://a.fr', titre: 'A' }, { id: 'u2', url: 'https://b.fr', titre: 'B', type: 'video', media: { id: 'm', url: 'https://x/y.jpg' } }] } });
+  assert.equal(c.liens.items[0].type, '');
+  assert.equal(c.liens.items[0].media, null);
+  assert.equal(c.liens.items[1].type, 'video');
+  assert.deepEqual(c.liens.items[1].media, { id: 'm', url: 'https://x/y.jpg' });
+});
+
+test('valider : type de lien inconnu refusé', () => {
+  const c = normaliser({ liens: { categories: [{ id: 'p', nom: 'P' }], items: [{ id: 'u1', url: 'https://a.fr', titre: 'A', categorie: 'p', type: 'bizarre' }] } });
+  assert.deepEqual(valider(c).map((e) => e.chemin), ['liens.items.0.type']);
+  c.liens.items[0].type = 'code';
+  assert.deepEqual(valider(c), []);
 });

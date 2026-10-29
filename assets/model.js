@@ -25,7 +25,7 @@ const ITEMS = {
   'parcours.certifications': { titre: '', organisme: '', annee: '', url: '' },
   'parcours.interets': { titre: '', texte: '', image: null },
   'liens.categories': { nom: '' },
-  'liens.items': { url: '', titre: '', description: '', image: '', categorie: '', date: '', bouton: '' },
+  'liens.items': { url: '', titre: '', description: '', image: '', categorie: '', date: '', bouton: '', type: '', media: null },
   'contact.autres': { label: '', url: '' },
   'contact.ouvertA': { titre: '', detail: '' },
 };
@@ -197,6 +197,41 @@ export function echapper(s) {
   return String(s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 }
 
+/* nature d'un lien : choisie dans l'admin, sinon déduite de l'adresse (extension d'abord, puis site) */
+export const TYPES_LIEN = { web: 'Site web', video: 'Vidéo', image: 'Image', appli: 'Appli', document: 'Document', code: 'Code', article: 'Article' };
+const EXTENSIONS = [
+  [/\.(jpe?g|png|webp|gif|avif|svg)$/, 'image'], [/\.(mp4|webm|mov)$/, 'video'],
+  [/\.apk$/, 'appli'], [/\.(pdf|docx?|pptx?|xlsx?)$/, 'document'],
+];
+const SITES = [
+  [/(^|\.)(youtube\.com|youtu\.be|vimeo\.com|tiktok\.com|dailymotion\.com)$/, 'video'],
+  [/^(play\.google\.com|apps\.apple\.com)$/, 'appli'],
+  [/^(docs|drive)\.google\.com$/, 'document'],
+  [/(^|\.)(github\.com|gitlab\.com|codeberg\.org|bitbucket\.org)$/, 'code'],
+  [/(^|\.)(medium\.com|substack\.com)$/, 'article'],
+];
+export function typeLien(item, c = null) {
+  if (Object.hasOwn(TYPES_LIEN, item.type)) return item.type;
+  let u;
+  try { u = new URL(item.url); } catch { return 'web'; }
+  const chemin = u.pathname.toLowerCase(), hote = u.hostname.toLowerCase().replace(/^www\./, '');
+  const trouve = EXTENSIONS.find(([re]) => re.test(chemin)) || SITES.find(([re]) => re.test(hote));
+  if (trouve) return trouve[1];
+  if (/\/(blog|articles?)\//.test(chemin)) return 'article';
+  const cat = c && c.liens.categories.find((x) => x.id === item.categorie);
+  return cat && /article/i.test(cat.nom) ? 'article' : 'web';
+}
+
+/* une couleur par rubrique de Parcours ; catégories de liens et dossiers prennent la palette dans l'ordre */
+const COULEURS_PARCOURS = {
+  formation: '--c-blue', experience: '--c-orange', competences: '--c-purple', certifications: '--c-green',
+  langues: '--c-cyan', engagement: '--c-pink', interets: '--c-yellow',
+};
+const PALETTE = ['--c-blue', '--c-orange', '--c-purple', '--c-green', '--c-pink', '--c-cyan', '--c-yellow', '--c-teal', '--c-indigo', '--c-red'];
+export function couleurPartie(onglet, id, indice) {
+  return (onglet === 'parcours' && COULEURS_PARCOURS[id]) || PALETTE[indice % PALETTE.length];
+}
+
 const DATE_OK = /^\d{4}(-(0[1-9]|1[0-2]))?$/;
 
 export function valider(c) {
@@ -224,6 +259,7 @@ export function valider(c) {
   requis(c.liens.categories, 'liens.categories', 'nom', 'Nom');
   requis(c.liens.items, 'liens.items', 'titre', 'Titre');
   c.liens.items.forEach((x, i) => { if (!lienSur(x.url)) err(`liens.items.${i}.url`, 'Adresse web invalide (https://…)'); });
+  c.liens.items.forEach((x, i) => { if (x.type && !Object.hasOwn(TYPES_LIEN, x.type)) err(`liens.items.${i}.type`, 'Type inconnu'); });
   c.contact.autres.forEach((x, i) => { if (!lienSur(x.url)) err(`contact.autres.${i}.url`, 'Adresse web invalide (https://…)'); });
   requis(c.contact.autres, 'contact.autres', 'label', 'Nom');
   if (c.contact.linkedin && !lienSur(c.contact.linkedin)) err('contact.linkedin', 'Adresse web invalide (https://…)');
