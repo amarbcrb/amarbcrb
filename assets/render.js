@@ -3,28 +3,11 @@
 import { sousOnglets, formationActuelle, derniereExperience, periode, trierParDate, lienSur } from './model.js';
 import { format } from './router.js';
 import { COULEURS } from './nav.js';
+import { el } from './dom.js';
 
 const TITRES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Liens', contact: 'Contact' };
 const CHEVRON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
 const FICHIER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>';
-
-const hrefSur = (v) => lienSur(v) || /^#/.test(v) || /^mailto:[^\s]+$/.test(v);
-const srcSur = (v) => lienSur(v) || /^\/(?!\/)/.test(v);
-
-/* crée un élément : attrs (class, href, src… filtrés), enfants = nœuds ou textes */
-export function el(tag, attrs = {}, ...enfants) {
-  const e = document.createElement(tag);
-  Object.entries(attrs).forEach(([k, v]) => {
-    if (v === undefined || v === null || v === false) return;
-    if (k === 'href' && !hrefSur(String(v))) return;
-    if (k === 'src' && !srcSur(String(v))) return;
-    if (k === 'class') e.className = v;
-    else if (k === 'html') e.innerHTML = v; /* réservé aux icônes écrites dans ce fichier */
-    else e.setAttribute(k, v === true ? '' : String(v));
-  });
-  enfants.flat().forEach((x) => { if (x !== null && x !== undefined && x !== false) e.append(x instanceof Node ? x : String(x)); });
-  return e;
-}
 
 const visibles = (l) => l.filter((x) => x.visible !== false);
 const paragraphes = (texte, cls) => String(texte || '').split(/\n\s*\n/).filter((p) => p.trim()).map((p) => el('p', { class: cls }, p.trim()));
