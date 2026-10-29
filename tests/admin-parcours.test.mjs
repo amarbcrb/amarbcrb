@@ -32,7 +32,7 @@ test('ajouter une expérience avec dates → visible sur le site dans Parcours �
   await p.fill(champ('parcours.experience.5.fin'), '2026-07');
   await enregistrer(p);
   const site = await env.page({ chemin: '/#parcours/experience' });
-  const premier = await site.locator('#vue .grille > .carte').first().innerText();
+  const premier = await site.locator('#vue .frise > .etape').first().innerText();
   assert.match(premier, /avril 2026 – juillet 2026[\s\S]*Stage contrôle qualité[\s\S]*Laboratoire X, Lyon/);
 });
 
@@ -46,7 +46,7 @@ test('en cours coché → fin vide, période "… – aujourd\'hui"', async () =
   await enregistrer(p);
   assert.equal(env.faux.etat.contenu.parcours.experience[0].fin, null);
   const site = await env.page({ chemin: '/#parcours/experience' });
-  assert.match(await site.locator('#vue .carte-texte:has(.en-cours)').first().innerText(), /juin 2023 – aujourd'hui/);
+  assert.match(await site.locator('#vue .etape:has(.en-cours)').first().innerText(), /juin 2023 – aujourd'hui/);
 });
 
 test('fin avant début → erreur, Enregistrer désactivé', async () => {

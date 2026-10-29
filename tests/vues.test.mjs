@@ -49,17 +49,17 @@ test('› ouvre Voir tout, grille complète, Retour revient', async () => {
   assert.equal(await p.locator('#vue .rangee').count(), 7);
 });
 
-test('carte → fiche (#parcours/experience/e1), contenu complet, Échap revient à #parcours', async () => {
+test('étape → fiche (#parcours/experience/e1), contenu complet, Échap revient à Voir tout', async () => {
   reinit();
-  const p = await env.page({ chemin: '/#parcours' });
-  await p.click('#vue a.carte[href="#parcours/experience/e1"]');
+  const p = await env.page({ chemin: '/#parcours/experience' });
+  await p.click('#vue a.etape[href="#parcours/experience/e1"]');
   await ouverte(p);
   assert.equal(await hash(p), '#parcours/experience/e1');
   assert.equal(await p.innerText('#ficheTitre'), 'Stage parasitologie-mycologie');
   assert.match(await p.innerText('#ficheCorps'), /juin 2023 – août 2023[\s\S]*CHU Nedir Mohamed[\s\S]*Préparation d'échantillons/);
   await p.keyboard.press('Escape');
   await p.waitForSelector('#fiche', { state: 'hidden' });
-  await p.waitForFunction(() => location.hash === '#parcours');
+  await p.waitForFunction(() => location.hash === '#parcours/experience');
   assert.equal(await p.evaluate(() => document.activeElement.getAttribute('href')), '#parcours/experience/e1');
 });
 
@@ -193,4 +193,56 @@ test('aucune erreur console', async () => {
     await p.waitForSelector('#vue .vt');
   }
   assert.deepEqual(p.erreurs, []);
+});
+
+test('frise : Formation et Expérience en frise, 4 étapes au plus puis « Voir tout (N) »', async () => {
+  reinit();
+  const p = await env.page({ chemin: '/#parcours' });
+  assert.deepEqual(await titres(p, '#vue .rangee-frise .rangee-tete h2'), ['Formation', 'Expérience']);
+  const formation = '#vue .rangee-frise:has(h2:text-is("Formation"))';
+  assert.equal(await p.locator(`${formation} ol.frise > li.etape`).count(), 4);
+  assert.equal(await p.innerText(`${formation} a.frise-plus`), 'Voir tout (5)');
+  assert.equal(await p.getAttribute(`${formation} a.frise-plus`, 'href'), '#parcours/formation');
+  const premiere = `${formation} li.etape >> nth=0`;
+  assert.equal(await p.getAttribute(`${premiere} >> a.etape`, 'href'), '#parcours/formation/f1');
+  assert.match(await p.innerText(premiere), /2025 – aujourd'hui[\s\S]*Master 1 Microbiologie[\s\S]*Université Claude Bernard Lyon 1[\s\S]*En cours/);
+  assert.equal(await p.locator(`${premiere} >> .point.actif`).count(), 1);
+  assert.equal(await p.locator('#vue .rangee:has(h2:text-is("Certifications")) .piste').count(), 1);
+  await p.click(`${formation} a.etape[href="#parcours/formation/f1"]`);
+  await ouverte(p);
+  assert.equal(await p.innerText('#ficheTitre'), 'Master 1 Microbiologie');
+});
+
+test('frise : 4 étapes exactement → pas de « Voir tout (N) » ; Voir tout montre la frise complète', async () => {
+  reinit((c) => { c.parcours.experience = c.parcours.experience.slice(0, 4); });
+  let p = await env.page({ chemin: '/#parcours' });
+  const experience = '#vue .rangee-frise:has(h2:text-is("Expérience"))';
+  assert.equal(await p.locator(`${experience} li.etape`).count(), 4);
+  assert.equal(await p.locator(`${experience} a.frise-plus`).count(), 0);
+  reinit();
+  p = await env.page({ chemin: '/#parcours/formation' });
+  assert.equal(await p.locator('#vue ol.frise > li.etape').count(), 5);
+  assert.equal(await p.locator('#vue .grille').count(), 0);
+  assert.equal(await p.locator('#vue .frise-plus').count(), 0);
+});
+
+test('couleur par rubrique : Formation bleu, Certifications vert, catégories de liens dans l\'ordre de la palette', async () => {
+  reinit();
+  const p = await env.page({ chemin: '/#parcours' });
+  const couleur = (sel) => p.locator(sel).first().evaluate((x) => {
+    const r = getComputedStyle(document.documentElement);
+    return [getComputedStyle(x).getPropertyValue('--pc').trim(), r.getPropertyValue('--c-blue').trim(), r.getPropertyValue('--c-green').trim()];
+  });
+  let [pc, bleu, vert] = await couleur('#vue .rangee:has(h2:text-is("Formation"))');
+  assert.equal(pc, bleu);
+  [pc, bleu, vert] = await couleur('#vue .rangee:has(h2:text-is("Certifications"))');
+  assert.equal(pc, vert);
+  await p.evaluate(() => { location.hash = '#liens'; });
+  await p.waitForSelector('#vue .rangee');
+  const [p1, b1] = await couleur('#vue .rangee');
+  assert.equal(p1, b1);
+  await p.evaluate(() => { location.hash = '#parcours/certifications'; });
+  await p.waitForSelector('#vue .vt-voir');
+  [pc, bleu, vert] = await couleur('#vue .vt-voir');
+  assert.equal(pc, vert);
 });
