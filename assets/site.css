@@ -216,10 +216,6 @@ footer b{color:var(--tx2);font-weight:600}
 .accueil>.rangee{margin-top:34px}
 .bloc-accueil{margin-top:36px}
 .bloc-accueil h2{margin-bottom:12px;font-size:20px;font-weight:700;letter-spacing:-.01em;max-width:none}
-.carte-domaine{width:min(78vw,300px)}
-.carte-domaine img,.carte-domaine .degrade{width:100%;aspect-ratio:4/3;object-fit:cover}
-.carte-domaine b{font-size:17px;font-weight:700}
-.carte-domaine p{font-size:14px;line-height:1.45;color:var(--tx2)}
 .projet-phare .carte-lien{width:100%;max-width:560px}
 .accueil>.acts{margin-top:34px}
 /* rangée */
@@ -242,29 +238,36 @@ footer b{color:var(--tx2);font-weight:600}
 /* cartes */
 .carte{position:relative;flex:0 0 auto;display:flex;flex-direction:column;gap:4px;border-radius:22px;background:var(--card);border:.75px solid var(--line);box-shadow:var(--shadow);overflow:hidden;transition:transform .35s var(--spring),border-color .2s,box-shadow .3s;animation:monte .45s var(--ease) both;animation-delay:calc(var(--k,0)*35ms)}
 a.carte:active,.vignette:active{transform:scale(.97)}
-@media(hover:hover){a.carte:hover,.carte-cert:hover,.vignette:hover{transform:translateY(-3px);border-color:var(--line2)}}
+@media(hover:hover){a.carte:hover,.vignette:hover{transform:translateY(-3px);border-color:var(--line2)}}
 .carte b{font-size:16px;font-weight:600;line-height:1.3;overflow-wrap:break-word;hyphens:auto}
 .carte small{font-size:13.5px;color:var(--tx2)}
 .carte-texte{width:min(64vw,240px);min-height:128px;padding:16px 18px}
 .carte-texte .periode{font-size:12.5px;font-weight:600;color:var(--tx3);letter-spacing:.02em}
 .carte-texte span{font-size:14px;color:var(--tx2)}
 .carte-texte .en-cours{margin-top:auto;align-self:flex-start;font-size:12px;font-weight:600;color:var(--tx)}
-.carte-comp{width:min(64vw,240px);min-height:128px;padding:16px 18px;gap:8px}
-.carte-comp p{font-size:14px;line-height:1.45;color:var(--tx2)}
-.carte-cert{width:min(66vw,250px);min-height:140px;padding:16px 18px}
 .carte-lien-fiche{display:block}
 .carte-lien-fiche::after{content:"";position:absolute;inset:0;z-index:0}
-.carte-cert .btn{position:relative;z-index:1;margin-top:auto;align-self:flex-start;min-height:44px;padding:0 16px;font-size:14px}
+.carte-cert .btn{position:relative;z-index:1;margin-top:8px;align-self:flex-start;min-height:44px;padding:0 16px;font-size:14px}
+/* ===== Affiches façon Nuvio : visuel arrondi, texte dessous, pas de boîte autour ===== */
+.carte-cert,.carte-comp,.carte-interet,.carte-domaine{padding:0;gap:4px;background:none;border:0;box-shadow:none;overflow:visible;border-radius:0}
+.visuel{position:relative;display:block;overflow:hidden;border-radius:18px;background:#111;margin-bottom:8px;box-shadow:inset 0 0 0 .75px var(--line)}
+.visuel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
+.affiche-repli{position:absolute;inset:0;display:flex;align-items:flex-end;padding:14px 14px 16px;color:#fff;
+  background:radial-gradient(110% 80% at 20% 0%,color-mix(in srgb,var(--a) 70%,#000),transparent 65%),radial-gradient(90% 90% at 100% 100%,color-mix(in srgb,var(--b) 60%,#000),transparent 60%),#0a0a0a}
+.affiche-repli span{font-family:var(--serif);font-size:clamp(24px,6.4vw,30px);line-height:1;overflow-wrap:break-word;hyphens:auto}
+@media(hover:hover){.carte:hover .visuel img{transform:scale(1.05)}}
+.carte-cert{width:min(40vw,168px)}.carte-cert .visuel{aspect-ratio:2/3}
+.carte-comp,.carte-interet,.carte-domaine{width:min(74vw,290px)}
+.carte-comp .visuel,.carte-interet .visuel,.carte-domaine .visuel{aspect-ratio:16/10}
+.carte-cert b,.carte-comp>b,.carte-interet b,.carte-domaine b{font-size:16px;font-weight:600;line-height:1.3}
+.carte-cert small{font-size:13.5px;color:var(--tx2)}
+.carte-comp p,.carte-interet p,.carte-domaine p{font-size:14px;line-height:1.45;color:var(--tx2)}
+.carte-interet .carte-corps,.carte-domaine .carte-corps{display:flex;flex-direction:column;gap:4px;padding:0}
 .carte-langue{min-width:168px;padding:14px 16px;flex-direction:row;align-items:center;gap:12px}
 .carte-langue>span:last-child{display:flex;flex-direction:column;gap:1px;min-width:0}
 .carte-langue small{font-size:13px;color:var(--tx2)}
 .drapeau{flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 .75px var(--line2)}
 .drapeau svg{display:block;width:100%;height:100%;stroke:none;fill:initial}
-.carte-interet{width:min(78vw,300px);padding:0}
-.carte-interet img,.carte-interet .degrade{width:100%;aspect-ratio:4/3;object-fit:cover}
-.carte-interet .carte-corps,.carte-domaine .carte-corps{display:flex;flex-direction:column;gap:6px;padding:14px 16px 18px}
-.carte-interet b{font-size:17px;font-weight:700}
-.carte-interet p{font-size:14px;line-height:1.45;color:var(--tx2)}
 /* texte entier : pas de coupure à deux lignes comme sur les cartes de lien */
 .carte-interet .carte-corps p,.carte-domaine .carte-corps p{display:block;-webkit-line-clamp:none;overflow:visible}
 .degrade{display:grid;place-items:center;align-content:center;gap:8px;padding:12px;text-align:center;font-weight:700;color:#fff;background:linear-gradient(150deg,color-mix(in srgb,var(--pc,var(--tc,var(--c-blue))) 55%,#000),color-mix(in srgb,var(--pc,var(--tc,var(--c-blue))) 22%,#000))}

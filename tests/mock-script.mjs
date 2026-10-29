@@ -40,10 +40,14 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       etat.version += 1;
       etat.contenu = { ...d.contenu, version: etat.version, updatedAt: new Date().toISOString() };
       /* comme Code.gs : les médias envoyés que le contenu n'utilise plus partent à la corbeille */
-      const utilises = new Set([...Object.values(etat.contenu.medias || {}), ...((etat.contenu.parcours || {}).interets || []).map((x) => x && x.image),
-        ...((etat.contenu.liens || {}).items || []).map((x) => x && x.media),
-        ...((etat.contenu.accueil || {}).domaines || []).map((x) => x && x.image)]
-        .filter((m) => m && m.id).map((m) => m.id));
+      const trouves = [];
+      const parcourir = (v) => {
+        if (Array.isArray(v)) { v.forEach(parcourir); return; }
+        if (!v || typeof v !== 'object') return;
+        Object.entries(v).forEach(([k, x]) => { if ((k === 'image' || k === 'media') && x && typeof x === 'object') trouves.push(x); else parcourir(x); });
+      };
+      [etat.contenu.parcours, etat.contenu.accueil, etat.contenu.liens].forEach(parcourir);
+      const utilises = new Set([...Object.values(etat.contenu.medias || {}), ...trouves].filter((m) => m && m.id).map((m) => m.id));
       etat.envoyes.filter((id) => !utilises.has(id) && !etat.corbeille.includes(id)).forEach((id) => etat.corbeille.push(id));
       return { version: etat.version };
     }

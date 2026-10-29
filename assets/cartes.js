@@ -54,13 +54,20 @@ const imageOuRepli = (src, repli = null) => {
   i.addEventListener('error', () => (repli ? i.replaceWith(repli()) : i.remove()), { once: true });
   return i;
 };
+/* visuel d'une carte : l'image, sinon une affiche dessinée (dégradé tiré du texte, texte en Instrument Serif) */
+const TEINTES = [['--c-indigo', '--c-blue'], ['--c-purple', '--c-pink'], ['--c-teal', '--c-green'], ['--c-orange', '--c-red'], ['--c-blue', '--c-cyan'], ['--c-pink', '--c-orange']];
+const teinte = (texte) => { let h = 0; for (const ch of String(texte)) h = (h * 31 + ch.codePointAt(0)) >>> 0; return TEINTES[h % TEINTES.length]; };
+function visuel(image, texte) {
+  const [a, b] = teinte(texte);
+  const repli = () => el('span', { class: 'affiche-repli', style: `--a:var(${a});--b:var(${b})` }, el('span', {}, texte));
+  return el('span', { class: 'visuel', 'aria-hidden': 'true' }, image ? imageOuRepli(image, repli) : repli());
+}
 const boutonCertificat = (x) => (lienSur(x.url) ? el('a', { class: 'btn', href: x.url, target: '_blank', rel: 'noopener' }, 'Voir le certificat') : null);
 
 /* carte « Ce que je fais » de l'Accueil : image (ou dégradé), titre, texte toujours visible */
 export function carteDomaine(x, indice = 0) {
-  const image = imageSure(x.image);
   return el('article', { class: 'carte carte-domaine', style: `--k:${indice}` },
-    image ? imageOuRepli(image) : null, el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
+    visuel(imageSure(x.image), x.titre), el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
 }
 
 /* « Culture, PCR, ELISA et 2 autres » */
@@ -99,10 +106,11 @@ export function carte(x, { onglet, partie, c, indice = 0 }) {
       x.enCours ? el('span', { class: 'en-cours' }, 'En cours') : null);
   }
   if (partie === 'competences') {
-    return el('a', { class: 'carte carte-comp', href: fiche, style }, el('b', {}, x.domaine), x.techniques.length ? el('p', {}, apercuTechniques(x.techniques)) : null);
+    return el('a', { class: 'carte carte-comp', href: fiche, style }, visuel(imageSure(x.image), x.domaine),
+      el('b', {}, x.domaine), x.techniques.length ? el('p', {}, apercuTechniques(x.techniques)) : null);
   }
   if (partie === 'certifications') {
-    return el('article', { class: 'carte carte-cert', style },
+    return el('article', { class: 'carte carte-cert', style }, visuel(imageSure(x.image), String(x.organisme || x.titre).split(' · ')[0]),
       el('a', { class: 'carte-lien-fiche', href: fiche }, el('b', {}, x.titre)),
       el('small', {}, [x.organisme, x.annee].filter(Boolean).join(' · ')), boutonCertificat(x));
   }
@@ -115,7 +123,7 @@ export function carte(x, { onglet, partie, c, indice = 0 }) {
   if (partie === 'interets') {
     /* tout est lisible sur la carte : pas de fiche à deviner */
     const image = imageSure(x.image);
-    return el('article', { class: 'carte carte-interet', style }, image ? imageOuRepli(image) : null,
+    return el('article', { class: 'carte carte-interet', style }, visuel(image, x.titre),
       el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
   }
   return el('div', { class: 'carte', style }, el('b', {}, titreFiche(x)));

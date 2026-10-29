@@ -120,7 +120,7 @@ test('replis des cartes', async () => {
   const p = await env.page({ chemin: '/#parcours' });
   const interet = p.locator('#vue .carte-interet >> nth=0');
   assert.equal(await interet.locator('img').count(), 0);
-  assert.equal(await interet.locator('.degrade').count(), 0);
+  assert.equal(await interet.locator('.affiche-repli').count(), 1);
   assert.equal(await interet.locator('b').innerText(), 'Astronomie');
   await p.goto(env.site.url + '/#liens/projets');
   await p.waitForSelector('#vue .grille a.carte-lien');
@@ -358,4 +358,17 @@ test('lien : image choisie (envoyée) prioritaire sur l\'aperçu automatique', a
   reinit((c) => { Object.assign(c.liens.items[0], { image: 'https://exemple.fr/a.png', media: { id: 'm1', url: '/favicon-512x512.png?perso' } }); });
   const p = await env.page({ chemin: '/#liens' });
   assert.equal(await p.getAttribute('#vue a.carte-lien >> nth=0 >> img', 'src'), '/favicon-512x512.png?perso');
+});
+
+test('affiches : chaque certification, compétence et passion a un visuel (image, sinon affiche dessinée)', async () => {
+  reinit((c) => { c.parcours.certifications[1].image = { id: 'k', url: '/favicon-512x512.png?cert' }; c.parcours.competences[0].image = { id: 'c', url: '/favicon-512x512.png?comp' }; });
+  const p = await env.page({ chemin: '/#parcours' });
+  const cert = (n) => `#vue .rangee:has(h2:text-is("Certifications")) .carte-cert >> nth=${n}`;
+  assert.equal(await p.innerText(`${cert(0)} >> .visuel .affiche-repli`), 'Google');
+  assert.match(await p.getAttribute(`${cert(1)} >> .visuel img`, 'src'), /\?cert$/);
+  assert.match(await p.innerText(cert(0)), /Gestion de projet[\s\S]*2024-2025/);
+  assert.match(await p.getAttribute('#vue .carte-comp >> nth=0 >> .visuel img', 'src'), /\?comp$/);
+  assert.equal(await p.innerText('#vue .carte-comp >> nth=1 >> .visuel .affiche-repli'), 'Biologie moléculaire');
+  assert.equal(await p.innerText('#vue .carte-interet >> nth=0 >> .visuel .affiche-repli'), 'Astronomie');
+  assert.equal(await p.getAttribute('#vue .carte-interet >> nth=0 >> .visuel', 'aria-hidden'), 'true');
 });
