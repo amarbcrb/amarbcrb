@@ -1,16 +1,19 @@
 /* Démarrage du site : thème, contenu, maintenance, en-tête, barre d'onglets et vues. */
 import { chargerContenu, lireJeton, lirePortfolio } from './api.js';
-import { ongletsVisibles, ONGLETS } from './model.js';
+import { ongletsVisibles, contactVisible, ONGLETS } from './model.js';
 import { parse, format } from './router.js';
 import { monterBarre } from './nav.js';
 import { rendreVue } from './render.js';
 import { construireIndex, chercher } from './search.js';
+import { ouvrirFiche, fermerFiche } from './fiche.js';
+import { corpsContact } from './cartes.js';
 
 const $ = (id) => document.getElementById(id);
 const root = document.documentElement;
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* dossiers : undefined tant que le portfolio n'est pas lu, null si le script est en panne */
-const etat = { contenu: null, dossiers: undefined, chargementPortfolio: null, barre: null, cleBarre: null, vue: null, index: null };
+/* base : page affichée sous une éventuelle fiche ; empilee : la fiche a sa propre entrée d'historique */
+const etat = { contenu: null, dossiers: undefined, chargementPortfolio: null, barre: null, cleBarre: null, vue: null, base: null, cleBase: null, empilee: false, index: null };
 const listeDossiers = () => (Array.isArray(etat.dossiers) ? etat.dossiers : []);
 
 /* ---------- Thème ---------- */
@@ -71,6 +74,11 @@ function appliquer(c) {
   $('nomSite').textContent = c.site.nom;
   $('surtitre').textContent = c.site.surtitre;
   $('logo').src = logo;
+  const photo = (c.medias.photo && c.medias.photo.url) || logo;
+  $('contactBtn').hidden = !contactVisible(c);
+  $('contactPhoto').hidden = contactVisible(c);
+  $('contactBtn').querySelector('img').src = photo;
+  $('contactPhoto').src = photo;
   if (c.medias.favicon && c.medias.favicon.url) $('favicon').href = c.medias.favicon.url;
   const onglets = ongletsVisibles(c);
   if (onglets.join() !== etat.cleBarre) {
@@ -98,7 +106,7 @@ function afficherResultats() {
   $('rechRes').replaceChildren(...res.map((r) => {
     const b = document.createElement('button');
     b.type = 'button';
-    b.dataset.cible = format(r.cible);
+    b.dataset.cible = r.hash;
     const type = document.createElement('small');
     type.className = 'rech-type';
     type.textContent = r.type;
@@ -145,11 +153,43 @@ function chargerPortfolio() {
   if (!etat.chargementPortfolio) {
     etat.chargementPortfolio = lirePortfolio().then((d) => {
       etat.dossiers = d;
-      if (etat.vue && etat.vue.onglet === 'portfolio') afficher(false);
+      if (etat.vue && etat.vue.onglet === 'portfolio') { etat.cleBase = null; afficher(false); }
       return d;
     });
   }
   return etat.chargementPortfolio;
+}
+
+const cle = (cible) => (cible.contact ? '#contact' : format(cible));
+
+/* page de l'onglet (ou Voir tout) ; elle n'est redessinée que si elle change, pour garder le focus sous une fiche */
+function dessinerPage(base, anim) {
+  etat.barre.select(base.onglet, anim);
+  const k = format(base);
+  if (k === etat.cleBase) return;
+  const avant = etat.base;
+  etat.base = base;
+  etat.cleBase = k;
+  const vue = $('vue');
+  const dessiner = () => { rendreVue(vue, etat.contenu, base, etat.dossiers); reflet(vue); };
+  if (!anim || RM || !avant || !vue.animate) { dessiner(); return; }
+  const sens = ONGLETS.indexOf(base.onglet) >= ONGLETS.indexOf(avant.onglet) ? 1 : -1;
+  dessiner();
+  if (avant.onglet !== base.onglet) scrollTo(0, 0);
+  vue.animate([{ opacity: 0, transform: `translateX(${sens * 34}px)`, filter: 'blur(8px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }],
+    { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' });
+}
+
+/* fermeture par l'interface : retour arrière si la fiche a sa propre entrée, sinon on remplace l'adresse */
+function ficheFermee() {
+  if (etat.empilee) { etat.empilee = false; history.back(); return; }
+  history.replaceState(null, '', format(etat.base));
+  etat.vue = { ...etat.base, element: null, contact: false };
+}
+
+function surcouche(titre, corps, direct) {
+  etat.empilee = !direct;
+  ouvrirFiche({ titre, corps, onFerme: ficheFermee });
 }
 
 function afficher(anim = true) {
@@ -157,30 +197,29 @@ function afficher(anim = true) {
   const cible = parse(location.hash, c, listeDossiers());
   const enAttente = cible.onglet === 'portfolio' && etat.dossiers === undefined;
   if (enAttente) chargerPortfolio();
-  const canonique = format(cible);
   /* tant que les dossiers ne sont pas lus, on garde #portfolio/<dossier> tel quel */
-  if (location.hash !== canonique && !enAttente) history.replaceState(null, '', canonique);
-  const avant = etat.vue;
+  if (location.hash !== cle(cible) && !enAttente) history.replaceState(null, '', cle(cible));
+  const direct = !etat.vue;
   etat.vue = cible;
-  etat.barre.select(cible.onglet, anim);
-  const vue = $('vue');
-  const dessiner = () => { rendreVue(vue, c, cible, etat.dossiers); reflet(vue); };
-  const changeOnglet = avant && avant.onglet !== cible.onglet;
-  if (!anim || RM || !avant || !vue.animate) { dessiner(); return; }
-  const sens = ONGLETS.indexOf(cible.onglet) >= ONGLETS.indexOf(avant.onglet) ? 1 : -1;
-  dessiner();
-  if (changeOnglet) scrollTo(0, 0);
-  vue.animate([{ opacity: 0, transform: `translateX(${sens * 34}px)`, filter: 'blur(8px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }],
-    { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' });
+  dessinerPage(cible.contact ? (etat.base || { onglet: 'accueil', sous: null }) : { onglet: cible.onglet, sous: cible.sous }, anim);
+  if (cible.contact) surcouche('Contact', corpsContact(c), direct);
+  else fermerFiche({ silencieux: true });
 }
 
-/* retour arrière, lien #… dans la page : ne redessine que si la partie affichée change */
+/* retour arrière, lien #… dans la page : ne redessine que si l'adresse affichée change */
 function synchroniser() {
   if (!etat.contenu || $('shell').hidden) return;
-  if (!etat.vue || format(parse(location.hash, etat.contenu, listeDossiers())) !== format(etat.vue)) afficher();
+  const k = cle(parse(location.hash, etat.contenu, listeDossiers()));
+  if (!etat.vue || k !== cle(etat.vue)) afficher();
+  else if (location.hash !== k) history.replaceState(null, '', k); /* adresse masquée ou inconnue qui mène à la page déjà affichée */
 }
 addEventListener('popstate', synchroniser);
 addEventListener('hashchange', synchroniser);
+
+$('contactBtn').addEventListener('click', () => {
+  if (location.hash !== '#contact') history.pushState(null, '', '#contact');
+  afficher();
+});
 
 /* ---------- Visionneuse des images du portfolio ---------- */
 const lb = { liste: [], i: 0, retour: null };
@@ -237,6 +276,7 @@ async function demarrer() {
   const { contenu } = await chargerContenu((frais) => {
     etat.contenu = frais;
     etat.index = null;
+    etat.cleBase = null;
     if (appliquer(frais)) afficher(false);
   });
   $('chargement').hidden = true;

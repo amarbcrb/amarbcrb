@@ -1,6 +1,6 @@
 /* Rendu des vues du site à partir du contenu. Tout texte venant du contenu passe par textContent,
    et seuls les liens http(s), mailto: et internes (#…) sont rendus cliquables. */
-import { sousOnglets, formationActuelle, derniereExperience, periode, trierParDate, lienSur } from './model.js';
+import { parties, contactVisible, formationActuelle, derniereExperience, periode, trierParDate, lienSur } from './model.js';
 import { format } from './router.js';
 import { COULEURS } from './nav.js';
 import { el } from './dom.js';
@@ -21,7 +21,7 @@ function rangeeSousOnglets(onglet, liste, actif) {
 
 /* ---------- Accueil ---------- */
 function vueAccueil(c) {
-  const parcours = sousOnglets(c, 'parcours').map((s) => s.id);
+  const parcours = parties(c, 'parcours').map((s) => s.id);
   const bloc = (libelle, sous, titre, detail) => {
     const cible = parcours.includes(sous) ? format({ onglet: 'parcours', sous }) : null;
     return el(cible ? 'a' : 'div', { class: 'box bloc', href: cible },
@@ -35,7 +35,7 @@ function vueAccueil(c) {
     comp.length && bloc('Compétences clés', 'competences', comp.join(' · ')),
   ].filter(Boolean);
   const cv = c.medias.cv && c.medias.cv.url;
-  const contact = c.onglets.contact.visible !== false;
+  const contact = contactVisible(c);
   return el('section', { class: 'vt accueil' },
     el('p', { class: 'lbl' }, c.site.surtitre),
     el('h1', {}, c.accueil.positionnement || c.site.nom),
@@ -90,36 +90,15 @@ function vuePortfolio(dossiers, sous) {
       el('i', { html: FICHIER }), el('b', {}, f.nom), el('small', {}, 'Ouvrir dans Drive')))));
 }
 
-/* ---------- Contact ---------- */
-function vueContact(c) {
-  const k = c.contact;
-  const lignes = [
-    k.email && el('li', { class: 'row' }, el('span', { class: 't' }, el('b', {}, 'E-mail'), el('small', {}, k.email)),
-      el('button', { class: 'cp', type: 'button', 'data-copier': k.email }, 'Copier')),
-    lienSur(k.linkedin) && el('li', {}, el('a', { class: 'row', href: k.linkedin, target: '_blank', rel: 'noopener' },
-      el('span', { class: 't' }, el('b', {}, 'LinkedIn'), el('small', {}, k.linkedin.replace(/^https?:\/\/(www\.)?/, ''))), el('i', { html: CHEVRON }))),
-    ...visibles(k.autres).map((x) => el('li', {}, el(lienSur(x.url) ? 'a' : 'div', { class: 'row', href: x.url, target: '_blank', rel: 'noopener' },
-      el('span', { class: 't' }, el('b', {}, x.label), el('small', {}, domaine(x.url))), el('i', { html: CHEVRON })))),
-  ].filter(Boolean);
-  const ouvert = visibles(k.ouvertA);
-  const photo = c.medias.photo && c.medias.photo.url;
-  return el('div', { class: 'ct' },
-    photo ? el('img', { class: 'portrait', src: photo, alt: 'Portrait de ' + c.site.nom, width: 96, height: 96 }) : null,
-    lignes.length ? el('ul', { class: 'box rows' }, lignes) : null,
-    ouvert.length ? el('span', { class: 'gh' }, 'Ouvert à') : null,
-    ouvert.length ? el('ul', { class: 'box rows' }, ouvert.map((x) => el('li', { class: 'row' }, el('span', { class: 't' }, el('b', {}, x.titre), x.detail ? el('small', {}, x.detail) : null)))) : null);
-}
-
 /* ---------- Point d'entrée ---------- */
 /* dossiers : liste Drive, null si le script est en panne, undefined tant qu'elle n'est pas chargée */
 export function rendreVue(racine, c, { onglet, sous }, dossiers) {
   if (onglet === 'accueil') { racine.replaceChildren(vueAccueil(c)); return; }
-  const liste = sousOnglets(c, onglet, Array.isArray(dossiers) ? dossiers : []);
+  const liste = parties(c, onglet, Array.isArray(dossiers) ? dossiers : []);
   const section = el('section', { class: `vt v-${onglet}` }, el('h1', {}, TITRES[onglet]), rangeeSousOnglets(onglet, liste, sous));
   let panneau = null;
   if (onglet === 'parcours') panneau = sous && PARCOURS[sous] ? PARCOURS[sous](c) : el('p', { class: 'vide' }, 'Parcours bientôt disponible.');
   else if (onglet === 'liens') panneau = sous ? vueLiens(c, sous) : el('p', { class: 'vide' }, 'Aucun lien pour le moment.');
-  else if (onglet === 'contact') panneau = vueContact(c);
   else if (onglet === 'portfolio') {
     if (dossiers === undefined) panneau = el('p', { class: 'vide' }, 'Chargement du portfolio…');
     else if (dossiers === null) panneau = el('p', { class: 'vide' }, 'Portfolio momentanément indisponible.');
