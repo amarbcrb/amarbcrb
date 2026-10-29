@@ -26,7 +26,7 @@ const ITEMS = {
   'parcours.interets': { titre: '', texte: '', image: null },
   'liens.categories': { nom: '' },
   'accueil.reperes': { valeur: '', libelle: '' },
-  'accueil.domaines': { titre: '', texte: '', image: null },
+  'accueil.domaines': { titre: '', texte: '', image: null, lien: '' },
   'liens.items': { url: '', titre: '', description: '', image: '', categorie: '', date: '', bouton: '', type: '', media: null },
   'contact.autres': { label: '', url: '' },
   'contact.ouvertA': { titre: '', detail: '' },
@@ -269,6 +269,7 @@ export function valider(c) {
   c.parcours.certifications.forEach((x, i) => { if (x.url && !lienSur(x.url)) err(`parcours.certifications.${i}.url`, 'Adresse web invalide (https://…)'); });
   requis(c.parcours.interets, 'parcours.interets', 'titre', 'Titre');
   requis(c.accueil.domaines, 'accueil.domaines', 'titre', 'Titre');
+  c.accueil.domaines.forEach((x, i) => { if (x.lien && !/^#[\w/-]*$/.test(x.lien) && !lienSur(x.lien)) err(`accueil.domaines.${i}.lien`, 'Lien invalide (#onglet ou https://…)'); });
   requis(c.liens.categories, 'liens.categories', 'nom', 'Nom');
   requis(c.liens.items, 'liens.items', 'titre', 'Titre');
   c.liens.items.forEach((x, i) => { if (!lienSur(x.url)) err(`liens.items.${i}.url`, 'Adresse web invalide (https://…)'); });

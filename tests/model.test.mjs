@@ -257,11 +257,14 @@ test('accueil : salutation, intro, repères, domaines (avec image), projet phare
   assert.equal(c.accueil.salutation, '');
   assert.equal(c.accueil.intro, '');
   assert.equal(c.accueil.projetPhare, '');
-  assert.deepEqual({ ...c.accueil.domaines[0], id: 'x' }, { id: 'x', titre: 'Design', texte: '', image: null, visible: true });
+  assert.deepEqual({ ...c.accueil.domaines[0], id: 'x' }, { id: 'x', titre: 'Design', texte: '', image: null, lien: '', visible: true });
   assert.ok(c.accueil.domaines[0].id);
   assert.equal(c.accueil.reperes[0].libelle, 'BioStudy');
   c.accueil.domaines[0].titre = ' ';
-  assert.deepEqual(valider(c).map((e) => e.chemin), ['accueil.domaines.0.titre']);
+  c.accueil.domaines[0].lien = 'javascript:alert(1)';
+  assert.deepEqual(valider(c).map((e) => e.chemin), ['accueil.domaines.0.titre', 'accueil.domaines.0.lien']);
+  c.accueil.domaines[0].titre = 'Design';
+  for (const ok of ['', '#portfolio', 'https://exemple.fr']) { c.accueil.domaines[0].lien = ok; assert.deepEqual(valider(c), []); }
 });
 
 test('drapeauLangue : drapeau choisi, sinon deviné depuis le nom de la langue', () => {

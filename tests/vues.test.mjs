@@ -180,33 +180,52 @@ test('Lire la suite déplie le profil', async () => {
   assert.equal(await hash(p), '#parcours');
 });
 
-test('accueil : salutation, présentation, repères, Ce que je fais, projet phare, boutons', async () => {
+test('accueil : carrousel (domaines puis projet phare), salutation, compteurs, rangées d\'images', async () => {
   reinit();
   const p = await env.page();
+  assert.deepEqual(await titres(p, '#vue .carrousel .diapo h2'), ['Microbiologie', 'Graphisme', 'Montage vidéo', 'BioStudy']);
+  assert.equal(await p.getAttribute('#vue .carrousel .diapo >> nth=0 >> a.btn', 'href'), '#parcours/competences');
+  assert.equal(await p.getAttribute('#vue .carrousel .diapo >> nth=3 >> a.btn', 'href'), 'https://www.biostudy.xyz/');
+  assert.equal(await p.getAttribute('#vue .carrousel .diapo >> nth=3 >> a.btn', 'target'), '_blank');
+  assert.equal(await p.locator('#vue .carrousel .points button').count(), 4);
+  assert.equal(await p.getAttribute('#vue .carrousel .points button >> nth=0', 'aria-current'), 'true');
+  await p.click('#vue .carrousel .points button >> nth=2');
+  await p.waitForFunction(() => document.querySelector('#vue .carrousel .points button:nth-child(3)').getAttribute('aria-current') === 'true');
   assert.equal(await p.innerText('#vue h1'), 'Bonjour, je suis Amar');
   assert.match(await p.innerText('#vue .intro'), /Master 1 de microbiologie[\s\S]*BioStudy/);
   assert.equal(await p.locator('#vue .reperes li').count(), 3);
-  assert.match(await p.innerText('#vue .reperes li >> nth=0'), /Master 1\s+Microbiologie, Lyon 1/);
-  assert.deepEqual(await titres(p, '#vue .accueil h2'), ['Ce que je fais', 'Projet phare']);
-  assert.deepEqual(await titres(p, '#vue .carte-domaine b'), ['Microbiologie', 'Graphisme', 'Montage vidéo']);
-  assert.match(await p.innerText('#vue .carte-domaine >> nth=2 >> p'), /Vidéos courtes/);
-  /* sans image : carte de texte, pas de grand bloc de couleur vide ; texte entier */
-  assert.equal(await p.locator('#vue .carte-domaine >> nth=0 >> .degrade, #vue .carte-domaine >> nth=0 >> img').count(), 0);
-  assert.ok(await p.locator('#vue .carte-domaine >> nth=0 >> p').evaluate((x) => x.scrollHeight <= x.clientHeight + 1 && getComputedStyle(x).webkitLineClamp === 'none'));
-  assert.equal(await p.getAttribute('#vue .projet-phare a.carte-lien', 'href'), 'https://www.biostudy.xyz/');
+  assert.match(await p.innerText('#vue .reperes li >> nth=2'), /6 ans\s+de design freelance/);
+  assert.deepEqual(await titres(p, '#vue .accueil .rangee-tete h2'), ['Ce que je fais', 'Projets', 'Certifications', 'Passions']);
+  assert.equal(await p.getAttribute('#vue .rangee:has(h2:text-is("Certifications")) a.voir', 'href'), '#parcours/certifications');
+  assert.equal(await p.locator('#vue .rangee:has(h2:text-is("Ce que je fais")) a.voir').count(), 0);
+  assert.match(await p.innerText('#vue .carte-domaine >> nth=2'), /Montage vidéo[\s\S]*Vidéos courtes/);
   assert.equal(await p.getAttribute('#vue .accueil .acts a:has-text("Me contacter")', 'href'), '#contact');
 });
 
-test('accueil : domaine avec image, repère masqué, projet phare introuvable ou domaines vides → blocs absents', async () => {
+test('accueil : carrousel qui défile seul (sauf mouvement réduit), compteurs qui comptent', async () => {
+  reinit();
+  let p = await env.page({ mouvementReduit: false });
+  await p.waitForFunction(() => document.querySelector('#vue .carrousel .points button:nth-child(2)').getAttribute('aria-current') === 'true', null, { timeout: 8000 });
+  await p.evaluate(() => document.querySelector('#vue .reperes').scrollIntoView());
+  await p.waitForFunction(() => document.querySelector('#vue .reperes li:nth-child(3) b').textContent === '6 ans');
+  p = await env.page();
+  await p.waitForTimeout(6000);
+  assert.equal(await p.getAttribute('#vue .carrousel .points button >> nth=0', 'aria-current'), 'true');
+  assert.equal(await p.innerText('#vue .reperes li >> nth=2 >> b'), '6 ans');
+});
+
+test('accueil : domaine avec image, repère masqué, projet absent, listes vides → blocs absents', async () => {
   reinit((c) => { c.accueil.domaines[1].image = { id: 'g', url: '/favicon-512x512.png?g' }; c.accueil.reperes[2].visible = false; c.accueil.projetPhare = 'zzz'; });
   let p = await env.page();
   assert.equal(await p.getAttribute('#vue .carte-domaine >> nth=1 >> img', 'src'), '/favicon-512x512.png?g');
+  assert.equal(await p.getAttribute('#vue .carrousel .diapo >> nth=1 >> img', 'src'), '/favicon-512x512.png?g');
   assert.equal(await p.locator('#vue .reperes li').count(), 2);
-  assert.equal(await p.locator('#vue .projet-phare').count(), 0);
-  reinit((c) => { c.accueil.domaines = []; c.accueil.reperes = []; });
+  assert.equal(await p.locator('#vue .carrousel .diapo').count(), 3);
+  reinit((c) => { c.accueil.domaines = []; c.accueil.reperes = []; c.accueil.projetPhare = ''; });
   p = await env.page();
-  assert.deepEqual(await titres(p, '#vue .accueil h2'), ['Projet phare']);
+  assert.equal(await p.locator('#vue .carrousel').count(), 0);
   assert.equal(await p.locator('#vue .reperes').count(), 0);
+  assert.deepEqual(await titres(p, '#vue .accueil .rangee-tete h2'), ['Projets', 'Certifications', 'Passions']);
 });
 
 test('echappe le HTML', async () => {

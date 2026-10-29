@@ -1,10 +1,13 @@
 /* Pages du site : Accueil, page de rangées d'un onglet, page « Voir tout » d'une partie.
    Tout texte venant du contenu passe par el() (assets/dom.js). */
-import { parties, contactVisible, couleurPartie, periode } from './model.js';
+import { parties, contactVisible, couleurPartie, periode, ongletsVisibles, lienSur } from './model.js';
 import { format } from './router.js';
 import { COULEURS } from './nav.js';
 import { el } from './dom.js';
 import { carte, carteDomaine } from './cartes.js';
+import { carrousel } from './carrousel.js';
+
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const TITRES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Liens' };
 const VIDES = { parcours: 'Parcours bientôt disponible.', liens: 'Aucun lien pour le moment.', portfolio: 'Portfolio bientôt disponible.' };
@@ -18,10 +21,10 @@ const ICONES = {
 };
 const nElements = (n) => `${n} élément${n > 1 ? 's' : ''}`;
 
-/* rangée horizontale : titre, nombre, bouton › vers Voir tout, au plus 10 cartes puis « Voir tout (N) » */
-export function rangee({ titre, nombre, href, cartes, indice = 0, couleur = '--c-blue' }) {
+/* rangée horizontale : titre, nombre, bouton › vers Voir tout (si href), au plus 10 cartes puis « Voir tout (N) » */
+export function rangee({ titre, nombre, href = null, cartes, indice = 0, couleur = '--c-blue' }) {
   const piste = el('div', { class: 'piste' }, cartes.slice(0, MAX_RANGEE),
-    cartes.length > MAX_RANGEE ? el('a', { class: 'carte carte-plus', href }, `Voir tout (${cartes.length})`) : null);
+    cartes.length > MAX_RANGEE && href ? el('a', { class: 'carte carte-plus', href }, `Voir tout (${cartes.length})`) : null);
   const fleche = (sens, libelle) => {
     const b = el('button', { type: 'button', class: `piste-fleche ${sens}`, 'aria-label': libelle, html: sens === 'avant' ? ICONES.suite : ICONES.retour });
     b.addEventListener('click', () => piste.scrollBy({ left: (sens === 'avant' ? 1 : -1) * piste.clientWidth * 0.9, behavior: 'smooth' }));
@@ -31,8 +34,8 @@ export function rangee({ titre, nombre, href, cartes, indice = 0, couleur = '--c
     el('div', { class: 'piste-cadre' }, fleche('arriere', `Précédent : ${titre}`), piste, fleche('avant', `Suivant : ${titre}`)));
 }
 
-const teteRangee = (titre, nombre, href) => el('div', { class: 'rangee-tete' }, el('h2', {}, titre), el('small', {}, String(nombre)),
-  el('a', { class: 'voir', href, 'aria-label': `Voir tout : ${titre}`, html: ICONES.suite }));
+const teteRangee = (titre, nombre, href) => el('div', { class: 'rangee-tete' }, el('h2', {}, titre), nombre === null ? null : el('small', {}, String(nombre)),
+  href ? el('a', { class: 'voir', href, 'aria-label': `Voir tout : ${titre}`, html: ICONES.suite }) : null);
 
 /* frise chronologique : un point par étape (qui pulse si en cours), période, titre, lieu ; chaque étape ouvre sa fiche */
 export function frise(items, partie) {
@@ -55,19 +58,57 @@ function vueAccueil(c) {
   const visibles = (l) => l.filter((x) => x.visible !== false);
   const reperes = visibles(a.reperes), domaines = visibles(a.domaines);
   const projet = a.projetPhare && c.liens.items.find((x) => x.id === a.projetPhare && x.visible !== false);
+  const onglets = ongletsVisibles(c);
+  const image = (x) => (x && (lienSur(x.url) || /^\/(?!\/)/.test(String(x.url))) ? x.url : null);
+  const diapos = [
+    ...domaines.map((x) => ({ titre: x.titre, texte: x.texte, image: image(x.image), lien: x.lien, externe: lienSur(x.lien) })),
+    projet && { titre: projet.titre, texte: projet.description, image: image(projet.media) || (lienSur(projet.image) ? projet.image : null),
+      lien: projet.url, externe: true, bouton: projet.bouton || 'Ouvrir' },
+  ].filter(Boolean);
+  /* rangées d'images : ce que je fais, projets, certifications, passions */
+  const parcours = onglets.includes('parcours') ? parties(c, 'parcours') : [];
+  const partie = (id) => parcours.find((p) => p.id === id);
+  const liens = onglets.includes('liens') ? parties(c, 'liens').flatMap((p) => p.items.map((x) => [x, p.id])) : [];
+  const rangees = [
+    domaines.length && rangee({ titre: 'Ce que je fais', nombre: null, cartes: domaines.map((x, i) => carteDomaine(x, i)), couleur: '--c-teal' }),
+    liens.length && rangee({ titre: 'Projets', nombre: liens.length, href: '#liens', couleur: '--c-pink',
+      cartes: liens.map(([x, cat], k) => carte(x, { onglet: 'liens', partie: cat, c, indice: k })) }),
+    ...[['certifications', 'Certifications'], ['interets', 'Passions']].map(([id, titre]) => partie(id) && rangee({
+      titre, nombre: partie(id).items.length, href: format({ onglet: 'parcours', sous: id }), couleur: couleurPartie('parcours', id, 0),
+      cartes: partie(id).items.map((x, k) => carte(x, { onglet: 'parcours', partie: id, c, indice: k })) })),
+  ].filter(Boolean);
   const cv = c.medias.cv && c.medias.cv.url;
   const contact = contactVisible(c);
   return el('section', { class: 'vt accueil' },
+    diapos.length ? carrousel(diapos) : null,
     el('h1', { class: 'salut' }, a.salutation || c.site.nom),
     a.intro ? el('p', { class: 'intro' }, a.intro) : null,
-    reperes.length ? el('ul', { class: 'reperes' }, reperes.map((x) => el('li', {}, el('b', {}, x.valeur), el('span', {}, x.libelle)))) : null,
-    domaines.length ? el('section', { class: 'bloc-accueil' }, el('h2', {}, 'Ce que je fais'),
-      el('div', { class: 'piste domaines' }, domaines.map((x, i) => carteDomaine(x, i)))) : null,
-    projet ? el('section', { class: 'bloc-accueil projet-phare', style: '--pc:var(--c-blue)' }, el('h2', {}, 'Projet phare'),
-      carte(projet, { onglet: 'liens', partie: projet.categorie, c })) : null,
+    reperes.length ? el('ul', { class: 'reperes' }, reperes.map((x) => el('li', {}, compteur(x.valeur), el('span', {}, x.libelle)))) : null,
     (cv || contact) ? el('div', { class: 'acts' },
       contact ? el('a', { class: 'btn pri', href: '#contact' }, 'Me contacter') : null,
-      cv ? el('a', { class: contact ? 'btn' : 'btn pri', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV') : null) : null);
+      cv ? el('a', { class: contact ? 'btn' : 'btn pri', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV') : null) : null,
+    rangees);
+}
+
+/* chiffre d'un repère : compte de 0 à sa valeur quand il apparaît (« 6 ans », « 18 ») ; texte final dès le départ */
+function compteur(valeur) {
+  const b = el('b', {}, valeur);
+  const m = /^(\d{1,3})(\D.*)?$/.exec(String(valeur).trim());
+  if (!m || RM || !('IntersectionObserver' in window)) return b;
+  const fin = Number(m[1]), suite = m[2] || '';
+  const vu = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting) return;
+    vu.disconnect();
+    const debut = performance.now();
+    const pas = (t) => {
+      const k = Math.min(1, (t - debut) / 900);
+      b.textContent = `${Math.round(fin * (1 - (1 - k) ** 3))}${suite}`;
+      if (k < 1) requestAnimationFrame(pas);
+    };
+    requestAnimationFrame(pas);
+  }, { threshold: 0.6 });
+  vu.observe(b);
+  return b;
 }
 
 /* ---------- Profil (en tête de Parcours) ---------- */

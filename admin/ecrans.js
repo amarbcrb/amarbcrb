@@ -365,10 +365,11 @@ export const ECRANS = [
       bloc('reperes', groupe('Repères', 'Trois chiffres ou faits marquants, affichés sous la présentation.', editeurListe(etat, modifier, rafraichir, 'accueil.reperes', {
         libelleElement: 'un repère', prefixe: 'r', resume: (x) => `${x.valeur} ${x.libelle}`.trim(), nouveau: { valeur: '', libelle: '' },
         champs: [{ cle: 'valeur', libelle: 'Valeur (ex. 2022, 6 ans)' }, { cle: 'libelle', libelle: 'Libellé' }] }))),
-      bloc('domaines', groupe('Ce que je fais', 'Une grande carte par domaine : image, titre et texte toujours visibles.', editeurListe(etat, modifier, rafraichir, 'accueil.domaines', {
-        libelleElement: 'un domaine', prefixe: 'd', resume: (x) => x.titre, nouveau: { titre: '', texte: '', image: null },
-        champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'texte', libelle: 'Texte', type: 'multiligne' }, { cle: 'image', libelle: 'Image', type: 'image' }] }))),
-      groupe('Projet phare', 'Un de tes liens, mis en avant en grand sur l\'Accueil.', f.champSelect('accueil.projetPhare', 'Lien mis en avant', projets)));
+      bloc('domaines', groupe('Ce que je fais', 'Chaque domaine devient une bannière du carrousel et une carte de la rangée « Ce que je fais ».', editeurListe(etat, modifier, rafraichir, 'accueil.domaines', {
+        libelleElement: 'un domaine', prefixe: 'd', resume: (x) => x.titre, nouveau: { titre: '', texte: '', image: null, lien: '' },
+        champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'texte', libelle: 'Texte', type: 'multiligne' }, { cle: 'image', libelle: 'Image', type: 'image' },
+          { cle: 'lien', libelle: 'Lien du bouton « Découvrir » (#portfolio, #liens… ou https://…)' }] }))),
+      groupe('Projet phare', 'Un de tes liens, en dernière bannière du carrousel.', f.champSelect('accueil.projetPhare', 'Lien mis en avant', projets)));
   } },
   { id: 'parcours', titre: 'Parcours', rendre(racine, etat, modifier, rafraichir) {
     const f = champs(etat, modifier);
