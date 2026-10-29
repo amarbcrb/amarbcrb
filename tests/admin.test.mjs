@@ -143,7 +143,7 @@ test('masquer l\'onglet Liens → absent de la barre publique', async () => {
   await p.waitForSelector('#etat:has-text("Enregistré")');
   const site = await env.page();
   const onglets = await site.$$eval('.nav .nb', (bs) => bs.map((b) => b.dataset.v));
-  assert.deepEqual(onglets, ['accueil', 'parcours', 'portfolio', 'contact']);
+  assert.deepEqual(onglets, ['accueil', 'parcours', 'portfolio']);
 });
 
 test('champ invalide → Enregistrer désactivé, erreur affichée', async () => {
@@ -174,4 +174,17 @@ test('modification tapée pendant un enregistrement → reste non enregistrée e
   await p.click('#enregistrer');
   await p.waitForFunction(() => document.getElementById('nonEnregistre').hidden);
   assert.equal(env.faux.etat.contenu.accueil.situation, 'Tapé pendant l\'envoi');
+});
+
+test('visibilité : Fiche Contact masquée → plus de photo cliquable', async () => {
+  reinit();
+  const p = await connecte();
+  await p.click('.ecrans [data-ecran="visibilite"]');
+  assert.match(await p.innerText('#ecran'), /Fiche Contact/);
+  await p.uncheck(champ('onglets.contact.visible'));
+  await p.click('#enregistrer');
+  await p.waitForSelector('#etat:has-text("Enregistré")');
+  const site = await env.page();
+  assert.equal(await site.isVisible('#contactBtn'), false);
+  assert.equal(await site.locator('#vue a:has-text("Me contacter")').count(), 0);
 });

@@ -13,7 +13,8 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
 input:focus,textarea:focus,select:focus{border-color:var(--acc)}
 .adm-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top) + 12px) var(--gx) 12px;background:color-mix(in srgb,var(--bg) 85%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 .adm-top b{flex:1;font-size:18px;font-weight:800}
-.adm-top .btn{min-height:40px;padding:0 16px;font-size:14px}
+.adm-top .btn{min-height:44px;padding:0 16px;font-size:14px;white-space:nowrap}
+@media(max-width:359px){.adm-top{gap:6px}.adm-top .btn{padding:0 11px;font-size:13px}}
 .ecrans{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px var(--gx) 8px}
 .ecrans::-webkit-scrollbar{display:none}
 .ecrans button{flex:none;min-height:38px;padding:0 16px;border-radius:999px;font-size:14px;font-weight:600;color:var(--tx2);background:var(--fill);border:.75px solid var(--line)}
@@ -73,7 +74,9 @@ input:focus,textarea:focus,select:focus{border-color:var(--acc)}
 .dossiers{display:flex;flex-direction:column;gap:8px}
 .ligne.dossier{display:flex;flex-direction:column;gap:6px;padding:10px 14px}
 .apercu-media{width:96px;height:96px;border-radius:20px;object-fit:cover;background:var(--fill);border:.75px solid var(--line)}
-.apercu-media:not([src]){visibility:hidden}
 input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
 .groupe>label.btn{align-self:flex-start;color:var(--tx);cursor:pointer}
 .groupe .acts{margin-top:0}
+.champ-titre{font-size:14px;font-weight:600;color:var(--tx2)}
+.champ .acts{margin-top:4px}
+.apercu-media:not([src]){display:none}

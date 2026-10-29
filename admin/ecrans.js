@@ -1,5 +1,5 @@
 /* Écrans de l'admin : formulaires qui lisent et modifient etat.contenu par chemin (« accueil.positionnement »). */
-import { SOUS_PARCOURS, nouvelId, periode, lienSur, nomAffiche } from '../assets/model.js';
+import { SOUS_PARCOURS, nouvelId, periode, lienSur, nomAffiche, TYPES_LIEN } from '../assets/model.js';
 import { appeler, lirePortfolio } from '../assets/api.js';
 import { reduireImage, enBase64 } from './images.js';
 import { el } from '../assets/dom.js';
@@ -85,6 +85,7 @@ export function editeurListe(etat, modifier, rafraichir, chemin, { libelleElemen
     return el('div', { class: 'edition' }, defs.map((d) => {
       if (d.type === 'puces') return f.listePuces(`${base}.${d.cle}`, d.libelle);
       if (d.type === 'select') return f.champSelect(`${base}.${d.cle}`, d.libelle, d.options());
+      if (d.type === 'image') return champImage(etat, modifier, `${base}.${d.cle}`, d.libelle);
       if (d.type === 'fin') {
         const bloc = f.champTexte(`${base}.fin`, d.libelle, { placeholder: 'AAAA-MM' });
         const saisie = bloc.querySelector('input');
@@ -149,6 +150,7 @@ const messageErreur = (err) => ERREURS[err && err.code] || ERREURS.interne;
 const bouton = (id, texte, cls = 'btn') => el('button', { type: 'button', id, class: cls }, texte);
 
 /* ---------- Liens : ajout par URL, liste, catégories ---------- */
+const optionsType = () => [{ valeur: '', libelle: 'Automatique' }, ...Object.entries(TYPES_LIEN).map(([valeur, libelle]) => ({ valeur, libelle }))];
 function ecranLiens(racine, etat, modifier, rafraichir) {
   const c = etat.contenu;
   const options = () => c.liens.categories.map((x) => ({ valeur: x.id, libelle: x.nom }));
@@ -158,19 +160,45 @@ function ecranLiens(racine, etat, modifier, rafraichir) {
     saisie('ajoutUrl', 'Adresse', { placeholder: 'https://…' }),
     el('div', { class: 'champ' }, el('label', { for: 'ajoutCat' }, 'Catégorie'), el('select', { id: 'ajoutCat' }, options().map((o) => el('option', { value: o.valeur }, o.libelle)))),
     bouton('ajoutApercu', 'Récupérer l\'aperçu'),
-    saisie('ajoutTitre', 'Titre'), saisie('ajoutDesc', 'Description', { multiligne: true }), saisie('ajoutImage', 'Image (adresse)', { placeholder: 'https://…' }),
+    saisie('ajoutTitre', 'Titre'), saisie('ajoutDesc', 'Description', { multiligne: true }), saisie('ajoutImage', 'Image de l\'aperçu (adresse)', { placeholder: 'https://…' }),
+    el('div', { class: 'champ' }, el('label', { for: 'ajoutType' }, 'Type'), el('select', { id: 'ajoutType' }, optionsType().map((o) => el('option', { value: o.valeur }, o.libelle)))),
+    el('div', { class: 'champ' }, el('span', { class: 'champ-titre' }, 'Mon image (remplace l\'aperçu, facultatif)'), el('img', { id: 'ajoutApercuImage', class: 'apercu-media', alt: '' }),
+      el('div', { class: 'acts' }, el('label', { class: 'btn', for: 'ajoutFichier' }, 'Choisir mon image')),
+      el('input', { type: 'file', accept: 'image/*', id: 'ajoutFichier' }), el('small', { id: 'ajoutFichierMessage', class: 'aide', role: 'status' })),
     bouton('ajoutValider', 'Ajouter le lien', 'btn pri'), el('p', { id: 'ajoutMessage', class: 'aide', role: 'status' }));
   const q = (id) => ajout.querySelector('#' + id);
   const message = (t) => { q('ajoutMessage').textContent = t; };
+  let media = null;
+  q('ajoutFichier').addEventListener('change', async () => {
+    const f = q('ajoutFichier').files[0];
+    if (!f) return;
+    const dire = (t) => { q('ajoutFichierMessage').textContent = t; };
+    if (!f.type.startsWith('image/')) { dire('Choisis une image.'); return; }
+    try {
+      dire('Envoi de l\'image…');
+      const envoi = await reduireImage(f, 1600, 'image/jpeg');
+      const r = await appeler('envoyerMedia', { emplacement: 'image', nom: f.name, type: envoi.type, base64: envoi.base64 });
+      media = { id: r.id, url: r.url };
+      q('ajoutApercuImage').src = r.url;
+      dire('Image prête.');
+    } catch (err) {
+      dire(messageErreur(err));
+    } finally {
+      q('ajoutFichier').value = '';
+    }
+  });
   async function apercu() {
     const url = q('ajoutUrl').value.trim();
     if (!lienSur(url)) { message('Adresse web invalide (https://…).'); return; }
     message('Lecture de la page…');
+    /* un champ modifié pendant la lecture garde ce qui a été saisi */
+    const avant = ['ajoutTitre', 'ajoutDesc', 'ajoutImage'].map((id) => q(id).value);
+    const remplir = (id, i, v) => { if (q(id).value === avant[i]) q(id).value = v || ''; };
     try {
       const r = await appeler('apercuLien', { url });
-      q('ajoutTitre').value = r.titre || '';
-      q('ajoutDesc').value = r.description || '';
-      q('ajoutImage').value = r.image || '';
+      remplir('ajoutTitre', 0, r.titre);
+      remplir('ajoutDesc', 1, r.description);
+      remplir('ajoutImage', 2, r.image);
       message(r.titre ? 'Aperçu récupéré.' : 'Aperçu indisponible : remplis les champs.');
     } catch (err) {
       message(err.code === 'jeton' ? messageErreur(err) : 'Aperçu indisponible : remplis les champs.');
@@ -185,14 +213,18 @@ function ecranLiens(racine, etat, modifier, rafraichir) {
     if (!q('ajoutCat').value) { message('Crée d\'abord une catégorie.'); return; }
     const image = q('ajoutImage').value.trim();
     modifier('liens.items', [...c.liens.items, { id: nouvelId('u'), url, titre, description: q('ajoutDesc').value.trim(), image: lienSur(image) ? image : '',
-      categorie: q('ajoutCat').value, date: new Date().toISOString().slice(0, 10), visible: true }]);
+      categorie: q('ajoutCat').value, date: new Date().toISOString().slice(0, 10), bouton: '', type: q('ajoutType').value, media, visible: true }]);
     rafraichir();
     racine.querySelector('#ajoutMessage').textContent = 'Lien ajouté. Pense à enregistrer.';
   });
   const liens = groupe('Liens', 'Les plus récents s\'affichent en premier sur le site.', editeurListe(etat, modifier, rafraichir, 'liens.items', {
-    libelleElement: 'un lien', prefixe: 'u', resume: (x) => x.titre, nouveau: { url: '', titre: '', description: '', image: '', categorie: (c.liens.categories[0] || {}).id || '', date: new Date().toISOString().slice(0, 10) },
+    libelleElement: 'un lien', prefixe: 'u', resume: (x) => x.titre, nouveau: { url: '', titre: '', description: '', image: '', categorie: (c.liens.categories[0] || {}).id || '', date: new Date().toISOString().slice(0, 10), bouton: '', type: '', media: null },
     champs: [{ cle: 'url', libelle: 'Adresse' }, { cle: 'titre', libelle: 'Titre' }, { cle: 'description', libelle: 'Description', type: 'multiligne' },
-      { cle: 'image', libelle: 'Image (adresse)' }, { cle: 'categorie', libelle: 'Catégorie', type: 'select', options }, { cle: 'date', libelle: 'Date (AAAA-MM-JJ)' }] }));
+      { cle: 'type', libelle: 'Type', type: 'select', options: optionsType },
+      { cle: 'media', libelle: 'Mon image (remplace l\'aperçu)', type: 'image' },
+      { cle: 'image', libelle: 'Image de l\'aperçu (adresse)' }, { cle: 'bouton', libelle: 'Texte du bouton (facultatif, « Ouvrir » par défaut)' },
+      { cle: 'categorie', libelle: 'Catégorie', type: 'select', options }, { cle: 'date', libelle: 'Date (AAAA-MM-JJ)' }] }));
+  liens.dataset.bloc = 'liens';
   const cats = groupe('Catégories', 'Chaque catégorie avec au moins un lien visible devient un sous-onglet.', editeurListe(etat, modifier, rafraichir, 'liens.categories', {
     libelleElement: 'une catégorie', prefixe: 'cat', resume: (x) => x.nom, nouveau: { nom: '' }, champs: [{ cle: 'nom', libelle: 'Nom' }],
     refuserSuppression: (cat) => (c.liens.items.some((x) => x.categorie === cat.id) ? `La catégorie « ${cat.nom} » contient encore des liens : déplace-les ou supprime-les d'abord.` : null) }));
@@ -235,6 +267,38 @@ function ecranPortfolio(racine, etat, modifier) {
       el('div', { class: 'champ' }, el('label', { for: 'dossierLien' }, 'Lien du dossier'), lien), el('div', { class: 'acts' }, valider, relire), message),
     groupe('Sous-dossiers', 'Chaque sous-dossier visible devient un sous-onglet du Portfolio.', liste));
   lirePortfolio().then(dessiner);
+}
+
+/* ---------- Image d'un élément de liste (intérêts) : envoi dans Drive, aperçu, retrait ---------- */
+function champImage(etat, modifier, chemin, libelle) {
+  const actuel = lire(etat.contenu, chemin);
+  const id = 'img-' + chemin.replace(/\W/g, '-');
+  const apercu = el('img', { class: 'apercu-media', 'data-apercu': 'image-' + chemin.replace(/\.image$/, ''), src: actuel && actuel.url, alt: '' });
+  const fichier = el('input', { type: 'file', accept: 'image/*', id, 'data-media': 'image-' + chemin.replace(/\.image$/, '') });
+  const message = el('small', { class: 'aide', role: 'status' });
+  const retirer = el('button', { type: 'button', class: 'btn', hidden: !actuel }, 'Retirer l\'image');
+  fichier.addEventListener('change', async () => {
+    const f = fichier.files[0];
+    if (!f) return;
+    if (!f.type.startsWith('image/')) { message.textContent = 'Choisis une image.'; return; }
+    try {
+      message.textContent = 'Préparation de l\'image…';
+      const envoi = await reduireImage(f, 1600, 'image/jpeg');
+      message.textContent = 'Envoi…';
+      const r = await appeler('envoyerMedia', { emplacement: 'image', nom: f.name, type: envoi.type, base64: envoi.base64 });
+      modifier(chemin, { id: r.id, url: r.url });
+      apercu.src = r.url;
+      retirer.hidden = false;
+      message.textContent = 'Image envoyée. Pense à enregistrer.';
+    } catch (err) {
+      message.textContent = messageErreur(err);
+    } finally {
+      fichier.value = '';
+    }
+  });
+  retirer.addEventListener('click', () => { modifier(chemin, null); apercu.removeAttribute('src'); retirer.hidden = true; message.textContent = 'Image retirée. Pense à enregistrer.'; });
+  return el('div', { class: 'champ' }, el('span', { class: 'champ-titre' }, libelle), apercu,
+    el('div', { class: 'acts' }, el('label', { class: 'btn', for: id }, 'Choisir une image'), retirer), fichier, message);
 }
 
 /* ---------- Médias : le nouveau fichier remplace l'ancien ---------- */
@@ -284,7 +348,7 @@ function ecranMedias(racine, etat, modifier) {
   }));
 }
 
-const TITRES_ONGLETS = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Liens', contact: 'Contact' };
+const TITRES_ONGLETS = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Liens', contact: 'Fiche Contact' };
 
 export const ECRANS = [
   { id: 'accueil', titre: 'Accueil', rendre(racine, etat, modifier) {
@@ -311,10 +375,11 @@ export const ECRANS = [
         champs: [{ cle: 'domaine', libelle: 'Domaine' }, { cle: 'resume', libelle: 'Résumé', type: 'multiligne' }, { cle: 'techniques', libelle: 'Techniques', type: 'puces' }] }),
       langues: () => liste('parcours.langues', { libelleElement: 'une langue', prefixe: 'l', nouveau: { langue: '', niveau: '' }, resume: (x) => x.langue,
         champs: [{ cle: 'langue', libelle: 'Langue' }, { cle: 'niveau', libelle: 'Niveau' }] }),
-      certifications: () => liste('parcours.certifications', { libelleElement: 'une certification', prefixe: 'k', nouveau: { titre: '', organisme: '', annee: '' }, resume: (x) => x.titre,
-        champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'organisme', libelle: 'Organisme' }, { cle: 'annee', libelle: 'Année' }] }),
-      interets: () => liste('parcours.interets', { libelleElement: 'un intérêt', prefixe: 'i', nouveau: { titre: '', texte: '' }, resume: (x) => x.titre,
-        champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'texte', libelle: 'Texte', type: 'multiligne' }] }),
+      certifications: () => liste('parcours.certifications', { libelleElement: 'une certification', prefixe: 'k', nouveau: { titre: '', organisme: '', annee: '', url: '' }, resume: (x) => x.titre,
+        champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'organisme', libelle: 'Organisme' }, { cle: 'annee', libelle: 'Année' },
+          { cle: 'url', libelle: 'Lien du certificat (https://…)' }] }),
+      interets: () => liste('parcours.interets', { libelleElement: 'un intérêt', prefixe: 'i', nouveau: { titre: '', texte: '', image: null }, resume: (x) => x.titre,
+        champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'texte', libelle: 'Texte', type: 'multiligne' }, { cle: 'image', libelle: 'Image', type: 'image' }] }),
     };
     racine.replaceChildren(el('h1', {}, 'Parcours'), ...SOUS_PARCOURS.map((id) => {
       const g = groupe(etat.contenu.onglets.parcours.sous[id].titre, '', f.interrupteur(`onglets.parcours.sous.${id}.visible`, 'Afficher sur le site'), BLOCS[id]());
@@ -339,7 +404,7 @@ export const ECRANS = [
     racine.replaceChildren(el('h1', {}, 'Visibilité et maintenance'),
       groupe('Maintenance', 'Les visiteurs ne voient que ce message. Toi, connecté ici, tu vois le site avec un bandeau.',
         f.interrupteur('site.maintenance.active', 'Site en maintenance'), f.champTexte('site.maintenance.message', 'Message', { multiligne: true })),
-      groupe('Onglets', 'Un onglet masqué disparaît de la barre du site.', ...Object.keys(TITRES_ONGLETS).map((id) => f.interrupteur(`onglets.${id}.visible`, TITRES_ONGLETS[id]))),
+      groupe('Onglets', 'Un onglet masqué disparaît de la barre du site. Fiche Contact masquée : la photo de l\'en-tête n\'ouvre plus rien.', ...Object.keys(TITRES_ONGLETS).map((id) => f.interrupteur(`onglets.${id}.visible`, TITRES_ONGLETS[id]))),
       groupe('Parties de Parcours', '', ...SOUS_PARCOURS.map((id) => f.interrupteur(`onglets.parcours.sous.${id}.visible`, etat.contenu.onglets.parcours.sous[id].titre))));
   } },
 ];

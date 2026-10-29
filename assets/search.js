@@ -1,5 +1,6 @@
 /* Recherche plein texte côté navigateur, sur les parties visibles du site. */
-import { ongletsVisibles, sousOnglets, periode, nomAffiche } from './model.js';
+import { ongletsVisibles, parties, aFiche, contactVisible, periode } from './model.js';
+import { format } from './router.js';
 
 export function normaliserTexte(s) {
   return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
@@ -8,46 +9,44 @@ export function normaliserTexte(s) {
 const visibles = (liste) => liste.filter((x) => x.visible !== false);
 const joindre = (...parts) => parts.filter(Boolean).join(' · ');
 
+const TYPES = {
+  formation: 'Formation', experience: 'Expérience', engagement: 'Engagement', competences: 'Compétence',
+  langues: 'Langue', certifications: 'Certification', interets: 'Intérêt',
+};
+
+/* chaque entrée porte l'adresse à ouvrir : fiche pour Parcours, Voir tout pour Langues, Liens et Portfolio */
 export function construireIndex(c, dossiersPortfolio = []) {
   const index = [];
-  const ajouter = (type, titre, extrait, cible, ...autres) => {
-    index.push({ type, titre, extrait, cible, texte: normaliserTexte([titre, extrait, ...autres].join(' ')), titreN: normaliserTexte(titre) });
+  const ajouter = (type, titre, extrait, hash, ...autres) => {
+    index.push({ type, titre, extrait, hash, texte: normaliserTexte([titre, extrait, ...autres].join(' ')), titreN: normaliserTexte(titre) });
   };
   const onglets = ongletsVisibles(c);
 
   if (onglets.includes('parcours')) {
-    const sous = sousOnglets(c, 'parcours').map((x) => x.id);
-    const cible = (id) => ({ onglet: 'parcours', sous: id });
-    const TYPES = { formation: 'Formation', experience: 'Expérience', engagement: 'Engagement' };
-    Object.entries(TYPES).forEach(([id, type]) => {
-      if (!sous.includes(id)) return;
-      visibles(c.parcours[id]).forEach((x) => ajouter(type, x.titre, joindre(x.lieu, periode(x)), cible(id), x.description));
-    });
-    if (sous.includes('competences')) visibles(c.parcours.competences).forEach((x) => ajouter('Compétence', x.domaine, x.resume, cible('competences'), x.techniques.join(' ')));
-    if (sous.includes('langues')) visibles(c.parcours.langues).forEach((x) => ajouter('Langue', x.langue, x.niveau, cible('langues')));
-    if (sous.includes('certifications')) visibles(c.parcours.certifications).forEach((x) => ajouter('Certification', x.titre, joindre(x.organisme, x.annee), cible('certifications')));
-    if (sous.includes('interets')) visibles(c.parcours.interets).forEach((x) => ajouter('Intérêt', x.titre, x.texte, cible('interets')));
+    parties(c, 'parcours').forEach((p) => p.items.forEach((x) => {
+      const hash = format({ onglet: 'parcours', sous: p.id, element: aFiche('parcours', p.id) ? x.id : null });
+      if (p.id === 'competences') ajouter(TYPES[p.id], x.domaine, x.resume, hash, x.techniques.join(' '));
+      else if (p.id === 'langues') ajouter(TYPES[p.id], x.langue, x.niveau, hash);
+      else if (p.id === 'certifications') ajouter(TYPES[p.id], x.titre, joindre(x.organisme, x.annee), hash);
+      else if (p.id === 'interets') ajouter(TYPES[p.id], x.titre, x.texte, hash);
+      else ajouter(TYPES[p.id], x.titre, joindre(x.lieu, periode(x)), hash, x.description);
+    }));
   }
 
   if (onglets.includes('liens')) {
-    const cats = sousOnglets(c, 'liens').map((x) => x.id);
-    visibles(c.liens.items).filter((x) => cats.includes(x.categorie))
-      .forEach((x) => ajouter('Lien', x.titre, x.description, { onglet: 'liens', sous: x.categorie }, x.url));
+    parties(c, 'liens').forEach((p) => p.items.forEach((x) => ajouter('Lien', x.titre, x.description, format({ onglet: 'liens', sous: p.id }), x.url)));
   }
 
   if (onglets.includes('portfolio')) {
-    const titres = new Map(sousOnglets(c, 'portfolio', dossiersPortfolio).map((x) => [x.id, x.titre]));
-    dossiersPortfolio.filter((d) => titres.has(d.id)).forEach((d) => {
-      (d.fichiers || []).forEach((f) => ajouter('Portfolio', f.nom, titres.get(d.id) || nomAffiche(d.nom), { onglet: 'portfolio', sous: d.id }));
-    });
+    parties(c, 'portfolio', dossiersPortfolio).forEach((p) => p.items.forEach((f) => ajouter('Portfolio', f.nom, p.titre, format({ onglet: 'portfolio', sous: p.id }))));
   }
 
-  if (onglets.includes('contact')) {
-    const cible = { onglet: 'contact', sous: null };
-    if (c.contact.email) ajouter('Contact', 'E-mail', c.contact.email, cible);
-    if (c.contact.linkedin) ajouter('Contact', 'LinkedIn', c.contact.linkedin, cible);
-    visibles(c.contact.autres).forEach((x) => ajouter('Contact', x.label, x.url, cible));
-    visibles(c.contact.ouvertA).forEach((x) => ajouter('Contact', x.titre, x.detail, cible));
+  if (contactVisible(c)) {
+    const k = c.contact;
+    if (k.email) ajouter('Contact', 'E-mail', k.email, '#contact');
+    if (k.linkedin) ajouter('Contact', 'LinkedIn', k.linkedin, '#contact');
+    visibles(k.autres).forEach((x) => ajouter('Contact', x.label, x.url, '#contact'));
+    visibles(k.ouvertA).forEach((x) => ajouter('Contact', x.titre, x.detail, '#contact'));
   }
   return index;
 }

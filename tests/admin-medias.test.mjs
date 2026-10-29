@@ -103,8 +103,8 @@ test('coller le lien du dossier Drive → sous-dossiers listés ; masquer l\'un 
   await enregistrer(p);
   assert.equal(env.faux.etat.contenu.portfolio.dossierRacineId, 'racine');
   const site = await env.page({ chemin: '/#portfolio' });
-  await site.waitForSelector('.sous-onglets [role="tab"]');
-  assert.deepEqual(await site.$$eval('.sous-onglets [role="tab"]', (xs) => xs.map((x) => x.textContent)), ['Illustrations']);
+  await site.waitForSelector('#vue .rangee');
+  assert.deepEqual(await site.$$eval('#vue .rangee .rangee-tete h2', (xs) => xs.map((x) => x.textContent)), ['Illustrations']);
 });
 
 test('Relire Drive → lirePortfolio({ frais: true }), le faux script reçoit frais=1', async () => {
@@ -177,4 +177,59 @@ test('photo PNG → envoyée en JPEG', async () => {
   await p.setInputFiles('[data-media="photo"]', { name: 'p.png', mimeType: 'image/png', buffer: await image(p, 600, 600) });
   await p.waitForSelector('[data-apercu="photo"][src*="/media/"]');
   assert.equal(env.faux.etat.medias.photo.type, 'image/jpeg');
+});
+
+test('lien : texte du bouton → affiché sur la carte', async () => {
+  reinit();
+  const p = await ecran('liens');
+  await p.click('[data-bloc="liens"] li >> nth=0 >> .modifier');
+  await p.fill(champ('liens.items.0.bouton'), 'Visiter');
+  await enregistrer(p);
+  const site = await env.page({ chemin: '/#liens' });
+  assert.equal(await site.innerText('#vue a.carte-lien >> nth=0 >> .btn'), 'Visiter');
+});
+
+test('ajout d\'un lien : type choisi et image envoyée → carte avec mon image et le badge du type', async () => {
+  reinit();
+  const p = await ecran('liens');
+  await p.fill('#ajoutUrl', 'https://exemple.fr/ma-video');
+  await p.selectOption('#ajoutCat', 'projets');
+  await p.fill('#ajoutTitre', 'Ma vidéo');
+  /* l'aperçu lancé en quittant l'adresse ne doit pas effacer le titre saisi entre-temps */
+  await p.waitForSelector('#ajoutMessage:has-text("Aperçu")');
+  assert.equal(await p.inputValue('#ajoutTitre'), 'Ma vidéo');
+  assert.deepEqual(await p.$$eval('#ajoutType option', (xs) => xs.map((x) => x.value)), ['', 'web', 'video', 'image', 'appli', 'document', 'code', 'article']);
+  await p.selectOption('#ajoutType', 'video');
+  await p.setInputFiles('#ajoutFichier', { name: 'vignette.png', mimeType: 'image/png', buffer: await image(p, 2000, 1200) });
+  await p.waitForSelector('#ajoutApercuImage[src*="/media/"]');
+  await p.click('#ajoutValider');
+  await enregistrer(p);
+  const lien = env.faux.etat.contenu.liens.items.find((x) => x.titre === 'Ma vidéo');
+  assert.equal(lien.type, 'video');
+  assert.match(lien.media.url, /\/media\//);
+  assert.equal(env.faux.etat.medias.image.type, 'image/jpeg');
+  const site = await env.page({ chemin: '/#liens/projets' });
+  const carte = site.locator('#vue a.carte-lien[href="https://exemple.fr/ma-video"]');
+  assert.equal(await carte.getAttribute('data-type'), 'video');
+  assert.equal(await carte.locator('img').getAttribute('src'), lien.media.url);
+  assert.deepEqual(await tailleDistante(site, lien.media.url), [1600, 960]);
+});
+
+test('lien existant : changer le type, choisir puis retirer mon image (fichier mis à la corbeille)', async () => {
+  reinit();
+  const p = await ecran('liens');
+  await p.click('[data-bloc="liens"] li >> nth=0 >> .modifier');
+  await p.selectOption(champ('liens.items.0.type'), 'code');
+  await p.setInputFiles('[data-media="image-liens.items.0.media"]', { name: 'a.png', mimeType: 'image/png', buffer: await image(p, 800, 600) });
+  await p.waitForSelector('[data-apercu="image-liens.items.0.media"][src*="/media/"]');
+  await enregistrer(p);
+  const media = env.faux.etat.contenu.liens.items[0].media;
+  assert.equal(env.faux.etat.contenu.liens.items[0].type, 'code');
+  assert.ok(media && media.id);
+  assert.ok(!env.faux.etat.corbeille.includes(media.id));
+  await p.click('[data-bloc="liens"] button:has-text("Retirer l\'image")');
+  await enregistrer(p);
+  assert.equal(env.faux.etat.contenu.liens.items[0].media, null);
+  assert.ok(env.faux.etat.corbeille.includes(media.id));
+  assert.deepEqual(p.erreurs, []);
 });

@@ -32,9 +32,10 @@ test('taper "elisa" → résultat Compétence, clic → #parcours/competences, p
   const premier = p.locator('#rechRes li button').first();
   assert.match(await premier.innerText(), /Compétence[\s\S]*Immunologie/i);
   await premier.click();
-  await p.waitForFunction(() => location.hash === '#parcours/competences');
+  await p.waitForFunction(() => location.hash === '#parcours/competences/c3');
   assert.equal(await p.isVisible('#recherche'), false);
-  assert.match(await p.innerText('#vue'), /Immunologie/);
+  await p.waitForSelector('#fiche', { state: 'visible' });
+  assert.equal(await p.innerText('#ficheTitre'), 'Immunologie');
 });
 
 test('taper un nom de fichier du portfolio → ouvre portfolio/<dossier>', async () => {

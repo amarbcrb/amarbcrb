@@ -15,7 +15,7 @@ test('affiche 5 onglets et le bouton recherche', async () => {
   reinit();
   const p = await env.page();
   const libelles = await p.$$eval('.nav .nb', (bs) => bs.map((b) => b.textContent.trim()));
-  assert.deepEqual(libelles, ['Accueil', 'Parcours', 'Portfolio', 'Liens', 'Contact']);
+  assert.deepEqual(libelles, ['Accueil', 'Parcours', 'Portfolio', 'Liens']);
   assert.equal(await p.locator('.nav-search').count(), 1);
   assert.equal(await p.getAttribute('.nav-search', 'aria-label'), 'Rechercher');
   const [nav, rech] = await Promise.all([p.locator('.nav').boundingBox(), p.locator('.nav-search').boundingBox()]);
@@ -24,20 +24,33 @@ test('affiche 5 onglets et le bouton recherche', async () => {
   assert.deepEqual(p.erreurs, []);
 });
 
-test('onglet masqué → 4 boutons, barre redimensionnée', async () => {
+test('onglet masqué → 3 boutons, barre redimensionnée', async () => {
   reinit((c) => { c.onglets.liens.visible = false; });
   const p = await env.page();
   const boutons = await p.$$eval('.nav .nb', (bs) => bs.map((b) => [b.textContent.trim(), b.getBoundingClientRect().width]));
-  assert.deepEqual(boutons.map((b) => b[0]), ['Accueil', 'Parcours', 'Portfolio', 'Contact']);
+  assert.deepEqual(boutons.map((b) => b[0]), ['Accueil', 'Parcours', 'Portfolio']);
   const piste = await p.locator('.nav-in').evaluate((e) => e.clientWidth - 8);
-  boutons.forEach(([, w]) => assert.ok(Math.abs(w - piste / 4) < 1.5));
+  boutons.forEach(([, w]) => assert.ok(Math.abs(w - piste / 3) < 1.5, `bouton ${w} px, piste ${piste} px`));
 });
 
-test('cliquer Parcours → adresse #parcours/profil', async () => {
+test('mouvement réduit : aucune animation retardée, la barre est à sa taille dès le chargement', async () => {
+  reinit();
+  const p = await env.page();
+  /* le délai déclaré, pas l'animation en cours : au moment de la mesure, elle peut être déjà finie */
+  const retardees = await p.evaluate(() => [...document.querySelectorAll('*')]
+    .map((x) => [x, getComputedStyle(x)])
+    .filter(([, s]) => s.animationName !== 'none' && s.animationDelay.split(',').some((d) => parseFloat(d) > 0))
+    .map(([x, s]) => `${s.animationName} sur ${x.tagName.toLowerCase()}.${x.className} (${s.animationDelay})`));
+  assert.deepEqual(retardees, []);
+  /* une animation en attente de sa première image applique sa première clé (scale .94) : pas d'entrée animée pour la barre */
+  assert.equal(await p.evaluate(() => getComputedStyle(document.querySelector('.barre')).animationName), 'none');
+});
+
+test('cliquer Parcours → adresse #parcours', async () => {
   reinit();
   const p = await env.page();
   await p.click('.nav .nb[data-v="parcours"]');
-  await p.waitForFunction(() => location.hash === '#parcours/profil');
+  await p.waitForFunction(() => location.hash === '#parcours');
   assert.equal(await p.getAttribute('.nav .nb[data-v="parcours"]', 'aria-current'), 'page');
   assert.match(await p.textContent('#vue'), /Parcours/);
 });
@@ -47,8 +60,8 @@ test('retour arrière navigateur revient à l\'onglet précédent', async () => 
   const p = await env.page();
   await p.click('.nav .nb[data-v="liens"]');
   await p.waitForFunction(() => location.hash.startsWith('#liens'));
-  await p.click('.nav .nb[data-v="contact"]');
-  await p.waitForFunction(() => location.hash === '#contact');
+  await p.click('.nav .nb[data-v="portfolio"]');
+  await p.waitForFunction(() => location.hash.startsWith('#portfolio'));
   await p.goBack();
   await p.waitForFunction(() => location.hash.startsWith('#liens'));
   assert.equal(await p.getAttribute('.nav .nb[data-v="liens"]', 'aria-current'), 'page');
@@ -116,7 +129,7 @@ test('mise à jour en silence depuis la copie du navigateur', async () => {
 test('aucune erreur console sur chaque onglet', async () => {
   reinit();
   const p = await env.page();
-  for (const v of ['parcours', 'portfolio', 'liens', 'contact', 'accueil']) {
+  for (const v of ['parcours', 'portfolio', 'liens', 'accueil']) {
     await p.click(`.nav .nb[data-v="${v}"]`);
     await p.waitForFunction((x) => location.hash.startsWith('#' + x), v);
   }

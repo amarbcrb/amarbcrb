@@ -18,7 +18,7 @@ const BLOCAGE_S = 15 * 60;
 const CACHE_PORTFOLIO_S = 5 * 60;
 const CV_MAX_OCTETS = 10 * 1024 * 1024;
 const IMAGE_MAX_OCTETS = 10 * 1024 * 1024;
-const EMPLACEMENTS = ['photo', 'logo', 'favicon', 'cv'];
+const EMPLACEMENTS = ['photo', 'logo', 'favicon', 'cv', 'image']; /* image : illustration d'un intérêt */
 
 class ErreurEntree extends Error {
   constructor(code) { super(code); this.code = code; }
@@ -154,6 +154,10 @@ function nettoyerMedias(contenu) {
     const utilises = {};
     const medias = contenu.medias || {};
     EMPLACEMENTS.forEach((k) => { if (medias[k] && medias[k].id) utilises[medias[k].id] = true; });
+    const interets = (contenu.parcours && contenu.parcours.interets) || [];
+    interets.forEach((x) => { if (x && x.image && x.image.id) utilises[x.image.id] = true; });
+    const liens = (contenu.liens && contenu.liens.items) || [];
+    liens.forEach((x) => { if (x && x.media && x.media.id) utilises[x.media.id] = true; });
     const it = DriveApp.getFolderById(proprietes().getProperty('ID_MEDIAS')).getFiles();
     while (it.hasNext()) {
       const f = it.next();
@@ -178,7 +182,8 @@ function envoyerMedia(d) {
   const fichier = DriveApp.getFolderById(p.getProperty('ID_MEDIAS')).createFile(Utilities.newBlob(octets, d.type, nom));
   fichier.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   const id = fichier.getId();
-  return { id: id, url: estCv ? 'https://drive.google.com/uc?export=download&id=' + id : urlImage(id, emplacement === 'favicon' ? 512 : 2000) };
+  const largeur = emplacement === 'favicon' ? 512 : emplacement === 'image' ? 1600 : 2000;
+  return { id: id, url: estCv ? 'https://drive.google.com/uc?export=download&id=' + id : urlImage(id, largeur) };
 }
 
 /* ---------- Aperçu d'un lien : titre, description, image ---------- */

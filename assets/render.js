@@ -1,130 +1,125 @@
-/* Rendu des vues du site à partir du contenu. Tout texte venant du contenu passe par textContent,
-   et seuls les liens http(s), mailto: et internes (#…) sont rendus cliquables. */
-import { sousOnglets, formationActuelle, derniereExperience, periode, trierParDate, lienSur } from './model.js';
+/* Pages du site : Accueil, page de rangées d'un onglet, page « Voir tout » d'une partie.
+   Tout texte venant du contenu passe par el() (assets/dom.js). */
+import { parties, contactVisible, formationActuelle, derniereExperience, periode, couleurPartie } from './model.js';
 import { format } from './router.js';
 import { COULEURS } from './nav.js';
 import { el } from './dom.js';
+import { carte } from './cartes.js';
 
-const TITRES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Liens', contact: 'Contact' };
-const CHEVRON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
-const FICHIER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>';
+const TITRES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Liens' };
+const VIDES = { parcours: 'Parcours bientôt disponible.', liens: 'Aucun lien pour le moment.', portfolio: 'Portfolio bientôt disponible.' };
+const MAX_RANGEE = 10;
+const MAX_FRISE = 4;
+/* rubriques datées affichées en frise chronologique plutôt qu'en rangée de cartes */
+const FRISES = ['formation', 'experience'];
+const ICONES = {
+  suite: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>',
+  retour: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>',
+};
+const nElements = (n) => `${n} élément${n > 1 ? 's' : ''}`;
 
-const visibles = (l) => l.filter((x) => x.visible !== false);
-const paragraphes = (texte, cls) => String(texte || '').split(/\n\s*\n/).filter((p) => p.trim()).map((p) => el('p', { class: cls }, p.trim()));
-const domaine = (url) => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return ''; } };
+/* rangée horizontale : titre, nombre, bouton › vers Voir tout, au plus 10 cartes puis « Voir tout (N) » */
+export function rangee({ titre, nombre, href, cartes, indice = 0, couleur = '--c-blue' }) {
+  const piste = el('div', { class: 'piste' }, cartes.slice(0, MAX_RANGEE),
+    cartes.length > MAX_RANGEE ? el('a', { class: 'carte carte-plus', href }, `Voir tout (${cartes.length})`) : null);
+  const fleche = (sens, libelle) => {
+    const b = el('button', { type: 'button', class: `piste-fleche ${sens}`, 'aria-label': libelle, html: sens === 'avant' ? ICONES.suite : ICONES.retour });
+    b.addEventListener('click', () => piste.scrollBy({ left: (sens === 'avant' ? 1 : -1) * piste.clientWidth * 0.9, behavior: 'smooth' }));
+    return b;
+  };
+  return el('section', { class: 'rangee', style: `--i:${indice};--pc:var(${couleur})` }, teteRangee(titre, nombre, href),
+    el('div', { class: 'piste-cadre' }, fleche('arriere', `Précédent : ${titre}`), piste, fleche('avant', `Suivant : ${titre}`)));
+}
 
-function rangeeSousOnglets(onglet, liste, actif) {
-  if (!liste.length) return null;
-  return el('nav', { class: 'sous-onglets', role: 'tablist', 'aria-label': TITRES[onglet], style: `--tc:var(${COULEURS[onglet]})` },
-    liste.map((s) => el('a', { href: format({ onglet, sous: s.id }), role: 'tab', 'aria-selected': String(s.id === actif) }, s.titre)));
+const teteRangee = (titre, nombre, href) => el('div', { class: 'rangee-tete' }, el('h2', {}, titre), el('small', {}, String(nombre)),
+  el('a', { class: 'voir', href, 'aria-label': `Voir tout : ${titre}`, html: ICONES.suite }));
+
+/* frise chronologique : un point par étape (qui pulse si en cours), période, titre, lieu ; chaque étape ouvre sa fiche */
+export function frise(items, partie) {
+  return el('ol', { class: 'frise' }, items.map((x, k) => el('li', { class: 'etape', style: `--k:${Math.min(k, 12)}` },
+    el('a', { class: 'etape', href: format({ onglet: 'parcours', sous: partie, element: x.id }) },
+      el('span', { class: x.enCours ? 'point actif' : 'point', 'aria-hidden': 'true' }),
+      periode(x) ? el('small', { class: 'periode' }, periode(x)) : null, el('b', {}, x.titre),
+      x.lieu ? el('span', { class: 'lieu' }, x.lieu) : null, x.enCours ? el('span', { class: 'en-cours' }, 'En cours') : null))));
+}
+
+function rangeeFrise({ titre, href, items, partie, indice, couleur }) {
+  return el('section', { class: 'rangee rangee-frise', style: `--i:${indice};--pc:var(${couleur})` }, teteRangee(titre, items.length, href),
+    frise(items.slice(0, MAX_FRISE), partie),
+    items.length > MAX_FRISE ? el('a', { class: 'frise-plus', href }, `Voir tout (${items.length})`) : null);
 }
 
 /* ---------- Accueil ---------- */
 function vueAccueil(c) {
-  const parcours = sousOnglets(c, 'parcours').map((s) => s.id);
-  const bloc = (libelle, sous, titre, detail) => {
-    const cible = parcours.includes(sous) ? format({ onglet: 'parcours', sous }) : null;
-    return el(cible ? 'a' : 'div', { class: 'box bloc', href: cible },
-      el('span', { class: 'lbl' }, libelle), el('b', {}, titre), detail ? el('small', {}, detail) : null,
-      cible ? el('i', { html: CHEVRON }) : null);
-  };
+  const visibles = parties(c, 'parcours').map((p) => p.id);
   const f = formationActuelle(c), e = derniereExperience(c), comp = c.accueil.competencesCles;
-  const blocs = [
-    f && bloc('Formation actuelle', 'formation', f.titre, [f.lieu, periode(f)].filter(Boolean).join(' · ')),
-    e && bloc('Dernière expérience', 'experience', e.titre, [e.lieu, periode(e)].filter(Boolean).join(' · ')),
-    comp.length && bloc('Compétences clés', 'competences', comp.join(' · ')),
+  const grande = (libelle, titre, detail, href, couleur) => el(href ? 'a' : 'div', { class: 'carte carte-accueil', href, style: `--pc:var(${couleur})` },
+    el('span', { class: 'lbl' }, libelle), el('b', {}, titre), detail ? el('small', {}, detail) : null);
+  const fiche = (partie, x) => (visibles.includes(partie) ? format({ onglet: 'parcours', sous: partie, element: x.id }) : null);
+  const cartes = [
+    f && grande('Formation actuelle', f.titre, [f.lieu, periode(f)].filter(Boolean).join(' · '), fiche('formation', f), couleurPartie('parcours', 'formation')),
+    e && grande('Dernière expérience', e.titre, [e.lieu, periode(e)].filter(Boolean).join(' · '), fiche('experience', e), couleurPartie('parcours', 'experience')),
+    comp.length && grande('Compétences clés', comp.join(' · '), '', visibles.includes('competences') ? '#parcours/competences' : null, couleurPartie('parcours', 'competences')),
   ].filter(Boolean);
   const cv = c.medias.cv && c.medias.cv.url;
-  const contact = c.onglets.contact.visible !== false;
+  const contact = contactVisible(c);
   return el('section', { class: 'vt accueil' },
     el('p', { class: 'lbl' }, c.site.surtitre),
     el('h1', {}, c.accueil.positionnement || c.site.nom),
     c.accueil.situation ? el('p', { class: 'situation' }, c.accueil.situation) : null,
-    blocs.length ? el('div', { class: 'blocs' }, blocs) : null,
+    cartes.length ? el('div', { class: 'piste rangee-accueil' }, cartes) : null,
     (cv || contact) ? el('div', { class: 'acts' },
-      cv ? el('a', { class: 'btn pri', href: cv, download: (c.medias.cv.nom || 'CV.pdf'), target: '_blank', rel: 'noopener' }, 'Télécharger mon CV') : null,
+      cv ? el('a', { class: 'btn pri', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV') : null,
       contact ? el('a', { class: cv ? 'btn' : 'btn pri', href: '#contact' }, 'Me contacter') : null) : null);
 }
 
-/* ---------- Parcours ---------- */
-function frise(items) {
-  return el('div', { class: 'box frise' }, trierParDate(visibles(items)).map((x) => el('div', { class: x.enCours ? 'ti now' : 'ti' },
-    periode(x) ? el('small', {}, periode(x)) : null, el('h4', {}, x.titre), x.lieu ? el('p', {}, x.lieu) : null,
-    x.description ? el('p', { class: 'desc' }, x.description) : null)));
+/* ---------- Profil (en tête de Parcours) ---------- */
+function profil(c) {
+  const { titre, texte } = c.parcours.profil;
+  const reglage = c.onglets.parcours.sous.profil;
+  if ((reglage && reglage.visible === false) || !String(texte || '').trim()) return null;
+  const paragraphes = texte.split(/\n\s*\n/).filter((x) => x.trim()).map((x) => el('p', {}, x.trim()));
+  const corps = el('div', { class: 'profil-texte', id: 'profilTexte' }, paragraphes);
+  const long = paragraphes.length > 1 || texte.length > 220;
+  const bouton = long ? el('button', { type: 'button', class: 'lire', 'aria-expanded': 'false', 'aria-controls': 'profilTexte' }, 'Lire la suite') : null;
+  if (bouton) {
+    corps.classList.add('replie');
+    bouton.addEventListener('click', () => {
+      const ouvert = corps.classList.toggle('replie') === false;
+      bouton.setAttribute('aria-expanded', String(ouvert));
+      bouton.textContent = ouvert ? 'Réduire' : 'Lire la suite';
+    });
+  }
+  return el('div', { class: 'profil' }, titre ? el('h2', {}, titre) : null, corps, bouton);
 }
 
-const PARCOURS = {
-  profil: (c) => el('div', { class: 'profil' }, c.parcours.profil.titre ? el('h2', {}, c.parcours.profil.titre) : null, paragraphes(c.parcours.profil.texte)),
-  formation: (c) => frise(c.parcours.formation),
-  experience: (c) => frise(c.parcours.experience),
-  engagement: (c) => frise(c.parcours.engagement),
-  competences: (c) => el('div', { class: 'grid' }, visibles(c.parcours.competences).map((x) => el('article', { class: 'box card' },
-    el('h3', {}, x.domaine), x.resume ? el('p', {}, x.resume) : null,
-    x.techniques.length ? el('div', { class: 'tags' }, x.techniques.map((t) => el('span', {}, t))) : null))),
-  langues: (c) => el('ul', { class: 'box rows' }, visibles(c.parcours.langues).map((x) => el('li', { class: 'row' }, el('span', { class: 'k' }, x.langue), el('span', { class: 'v' }, x.niveau)))),
-  certifications: (c) => el('ul', { class: 'box rows certs' }, visibles(c.parcours.certifications).map((x) => el('li', { class: 'row' },
-    el('span', { class: 't' }, el('b', {}, x.titre), el('small', {}, [x.organisme, x.annee].filter(Boolean).join(' · ')))))),
-  interets: (c) => el('div', { class: 'grid' }, visibles(c.parcours.interets).map((x) => el('article', { class: 'box card' }, el('h3', {}, x.titre), x.texte ? el('p', {}, x.texte) : null))),
-};
-
-/* ---------- Liens ---------- */
-function vueLiens(c, sous) {
-  const items = visibles(c.liens.items).filter((x) => x.categorie === sous);
-  const tries = items.map((x, i) => [x, i]).sort((a, b) => String(b[0].date || '').localeCompare(String(a[0].date || '')) || a[1] - b[1]).map((x) => x[0]);
-  return el('div', { class: 'liens' }, tries.map((x) => el(lienSur(x.url) ? 'a' : 'div', { class: 'box carte', href: x.url, target: '_blank', rel: 'noopener noreferrer' },
-    lienSur(x.image) ? el('img', { src: x.image, alt: '', loading: 'lazy' }) : null,
-    el('div', {}, el('b', {}, x.titre), x.description ? el('p', {}, x.description) : null, domaine(x.url) ? el('small', {}, domaine(x.url)) : null))));
+/* ---------- Voir tout ---------- */
+function voirTout(onglet, p, c, couleur) {
+  const contenu = onglet === 'parcours' && FRISES.includes(p.id) ? frise(p.items, p.id)
+    : el('div', { class: `grille grille-${onglet === 'parcours' ? p.id : onglet}` }, p.items.map((x, i) => carte(x, { onglet, partie: p.id, c, indice: i })));
+  return el('section', { class: `vt vt-voir v-${onglet}`, style: `--tc:var(${COULEURS[onglet]});--pc:var(${couleur})` },
+    el('header', { class: 'vt-tete' },
+      el('a', { class: 'retour', href: format({ onglet }), 'aria-label': 'Retour', html: ICONES.retour }),
+      el('h1', {}, p.titre), el('small', {}, nElements(p.items.length))), contenu);
 }
 
-/* ---------- Portfolio : fichiers d'un sous-dossier Drive ---------- */
-const sansExtension = (nom) => String(nom).replace(/\.[^.]+$/, '');
-function vuePortfolio(dossiers, sous) {
-  const d = dossiers.find((x) => x.id === sous);
-  const fichiers = (d && d.fichiers) || [];
-  if (!fichiers.length) return el('p', { class: 'vide' }, 'Ce dossier est vide pour le moment.');
-  let n = 0;
-  return el('div', { class: 'galerie' }, fichiers.map((f) => (String(f.type).startsWith('image/')
-    ? el('button', { class: 'box vignette', type: 'button', 'data-dossier': d.id, 'data-i': n++, 'aria-label': 'Agrandir ' + f.nom },
-      el('img', { src: f.apercu, alt: sansExtension(f.nom), loading: 'lazy' }))
-    : el(lienSur(f.lien) ? 'a' : 'div', { class: 'box vignette doc', href: f.lien, target: '_blank', rel: 'noopener' },
-      el('i', { html: FICHIER }), el('b', {}, f.nom), el('small', {}, 'Ouvrir dans Drive')))));
-}
-
-/* ---------- Contact ---------- */
-function vueContact(c) {
-  const k = c.contact;
-  const lignes = [
-    k.email && el('li', { class: 'row' }, el('span', { class: 't' }, el('b', {}, 'E-mail'), el('small', {}, k.email)),
-      el('button', { class: 'cp', type: 'button', 'data-copier': k.email }, 'Copier')),
-    lienSur(k.linkedin) && el('li', {}, el('a', { class: 'row', href: k.linkedin, target: '_blank', rel: 'noopener' },
-      el('span', { class: 't' }, el('b', {}, 'LinkedIn'), el('small', {}, k.linkedin.replace(/^https?:\/\/(www\.)?/, ''))), el('i', { html: CHEVRON }))),
-    ...visibles(k.autres).map((x) => el('li', {}, el(lienSur(x.url) ? 'a' : 'div', { class: 'row', href: x.url, target: '_blank', rel: 'noopener' },
-      el('span', { class: 't' }, el('b', {}, x.label), el('small', {}, domaine(x.url))), el('i', { html: CHEVRON })))),
-  ].filter(Boolean);
-  const ouvert = visibles(k.ouvertA);
-  const photo = c.medias.photo && c.medias.photo.url;
-  return el('div', { class: 'ct' },
-    photo ? el('img', { class: 'portrait', src: photo, alt: 'Portrait de ' + c.site.nom, width: 96, height: 96 }) : null,
-    lignes.length ? el('ul', { class: 'box rows' }, lignes) : null,
-    ouvert.length ? el('span', { class: 'gh' }, 'Ouvert à') : null,
-    ouvert.length ? el('ul', { class: 'box rows' }, ouvert.map((x) => el('li', { class: 'row' }, el('span', { class: 't' }, el('b', {}, x.titre), x.detail ? el('small', {}, x.detail) : null)))) : null);
-}
-
-/* ---------- Point d'entrée ---------- */
 /* dossiers : liste Drive, null si le script est en panne, undefined tant qu'elle n'est pas chargée */
 export function rendreVue(racine, c, { onglet, sous }, dossiers) {
   if (onglet === 'accueil') { racine.replaceChildren(vueAccueil(c)); return; }
-  const liste = sousOnglets(c, onglet, Array.isArray(dossiers) ? dossiers : []);
-  const section = el('section', { class: `vt v-${onglet}` }, el('h1', {}, TITRES[onglet]), rangeeSousOnglets(onglet, liste, sous));
-  let panneau = null;
-  if (onglet === 'parcours') panneau = sous && PARCOURS[sous] ? PARCOURS[sous](c) : el('p', { class: 'vide' }, 'Parcours bientôt disponible.');
-  else if (onglet === 'liens') panneau = sous ? vueLiens(c, sous) : el('p', { class: 'vide' }, 'Aucun lien pour le moment.');
-  else if (onglet === 'contact') panneau = vueContact(c);
-  else if (onglet === 'portfolio') {
-    if (dossiers === undefined) panneau = el('p', { class: 'vide' }, 'Chargement du portfolio…');
-    else if (dossiers === null) panneau = el('p', { class: 'vide' }, 'Portfolio momentanément indisponible.');
-    else panneau = sous ? vuePortfolio(dossiers, sous) : el('p', { class: 'vide' }, 'Portfolio bientôt disponible.');
+  if (onglet === 'portfolio' && !Array.isArray(dossiers)) {
+    racine.replaceChildren(el('section', { class: 'vt' }, el('h1', {}, TITRES.portfolio),
+      el('p', { class: 'vide' }, dossiers === null ? 'Portfolio momentanément indisponible.' : 'Chargement du portfolio…')));
+    return;
   }
-  section.append(el('div', { class: 'panneau', role: liste.length ? 'tabpanel' : null }, panneau));
-  racine.replaceChildren(section);
+  const liste = parties(c, onglet, dossiers || []);
+  const n = sous ? liste.findIndex((x) => x.id === sous) : -1;
+  if (n >= 0) { racine.replaceChildren(voirTout(onglet, liste[n], c, couleurPartie(onglet, sous, n))); return; }
+  const rangees = liste.map((x, i) => {
+    const commun = { titre: x.titre, href: format({ onglet, sous: x.id }), indice: i + 1, couleur: couleurPartie(onglet, x.id, i) };
+    if (onglet === 'parcours' && FRISES.includes(x.id)) return rangeeFrise({ ...commun, items: x.items, partie: x.id });
+    return rangee({ ...commun, nombre: x.items.length, cartes: x.items.map((item, k) => carte(item, { onglet, partie: x.id, c, indice: k })) });
+  });
+  racine.replaceChildren(el('section', { class: `vt v-${onglet}`, style: `--tc:var(${COULEURS[onglet]})` }, el('h1', {}, TITRES[onglet]),
+    onglet === 'parcours' ? profil(c) : null,
+    rangees.length ? rangees : el('p', { class: 'vide' }, VIDES[onglet])));
 }

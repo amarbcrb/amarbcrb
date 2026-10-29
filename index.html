@@ -64,6 +64,8 @@ document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme: li
     <a class="brand" href="#accueil"><img id="logo" src="/favicon-512x512.png" width="34" height="34" alt=""><span><b id="nomSite"></b><small id="surtitre"></small></span></a>
     <div class="tools glass" role="group" aria-label="Préférences">
       <button class="tb" id="themeBtn" type="button" aria-label="Changer de thème" title="Thème"></button>
+      <button class="tb avatar" id="contactBtn" type="button" aria-label="Contact" title="Contact" hidden><img src="/favicon-512x512.png" alt="" width="34" height="34"></button>
+      <img class="tb avatar" id="contactPhoto" src="/favicon-512x512.png" alt="" width="34" height="34" hidden>
     </div>
   </div>
 </header>
@@ -77,6 +79,14 @@ document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme: li
 </filter></svg>
 <div id="navHote"></div>
 
+<div id="fiche" role="dialog" aria-modal="true" aria-labelledby="ficheTitre" hidden>
+  <div class="fiche-feuille glass" id="feuille">
+    <div class="fiche-tete" id="ficheTete"><span class="poignee" aria-hidden="true"></span>
+      <h2 id="ficheTitre"></h2>
+      <button type="button" id="ficheFermer" aria-label="Fermer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+    <div id="ficheCorps"></div>
+  </div>
+</div>
 <div id="recherche" role="dialog" aria-modal="true" aria-label="Recherche" hidden>
   <div class="rech-in glass">
     <div class="rech-champ"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
