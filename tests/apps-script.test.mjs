@@ -241,3 +241,28 @@ test('portfolio : fichiers et dossiers à la corbeille ignorés', () => {
   assert.deepEqual(r.dossiers.map((d) => d.nom).sort(), ['1 - Design', '2 - Posters']);
   assert.deepEqual(r.dossiers.find((d) => d.nom === '1 - Design').fichiers.map((f) => f.nom), ['a.jpg']);
 });
+
+test('envoyerMedia image → thumbnail w1600', () => {
+  const g = installe();
+  const r = g.post({ a: 'envoyerMedia', jeton: connecte(g), emplacement: 'image', nom: 'astro.jpg', type: 'image/jpeg', base64: PNG });
+  assert.equal(r.ok, true);
+  assert.match(r.url, /^https:\/\/drive\.google\.com\/thumbnail\?id=.+&sz=w1600$/);
+  assert.equal(g.post({ a: 'envoyerMedia', jeton: connecte(g), emplacement: 'image', nom: 'x.pdf', type: 'application/pdf', base64: PNG }).erreur, 'entree');
+});
+
+test('enregistrer garde l\'image d\'un intérêt et met à la corbeille l\'image retirée', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const a = g.post({ a: 'envoyerMedia', jeton, emplacement: 'image', nom: 'a.jpg', type: 'image/jpeg', base64: PNG });
+  const b = g.post({ a: 'envoyerMedia', jeton, emplacement: 'image', nom: 'b.jpg', type: 'image/jpeg', base64: PNG });
+  const c = JSON.parse(DEFAUT);
+  c.parcours.interets[0].image = { id: a.id, url: a.url };
+  c.parcours.interets[1].image = { id: b.id, url: b.url };
+  assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 1, contenu: c }).version, 2);
+  assert.equal(g.fichiers.get(a.id).isTrashed(), false);
+  assert.equal(g.fichiers.get(b.id).isTrashed(), false);
+  c.parcours.interets[1].image = null;
+  assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 2, contenu: c }).version, 3);
+  assert.equal(g.fichiers.get(a.id).isTrashed(), false);
+  assert.equal(g.fichiers.get(b.id).isTrashed(), true);
+});

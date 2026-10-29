@@ -40,13 +40,14 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       etat.version += 1;
       etat.contenu = { ...d.contenu, version: etat.version, updatedAt: new Date().toISOString() };
       /* comme Code.gs : les médias envoyés que le contenu n'utilise plus partent à la corbeille */
-      const utilises = new Set(Object.values(etat.contenu.medias || {}).filter((m) => m && m.id).map((m) => m.id));
+      const utilises = new Set([...Object.values(etat.contenu.medias || {}), ...((etat.contenu.parcours || {}).interets || []).map((x) => x && x.image)]
+        .filter((m) => m && m.id).map((m) => m.id));
       etat.envoyes.filter((id) => !utilises.has(id) && !etat.corbeille.includes(id)).forEach((id) => etat.corbeille.push(id));
       return { version: etat.version };
     }
     if (d.a === 'envoyerMedia') {
       const cv = d.emplacement === 'cv';
-      if (!['photo', 'logo', 'favicon', 'cv'].includes(d.emplacement)) return { erreur: 'entree' };
+      if (!['photo', 'logo', 'favicon', 'cv', 'image'].includes(d.emplacement)) return { erreur: 'entree' };
       if (cv ? d.type !== 'application/pdf' : !String(d.type).startsWith('image/')) return { erreur: 'entree' };
       const octets = Buffer.from(String(d.base64 || ''), 'base64');
       if (octets.length > (cv ? MAX.cv : MAX.image)) return { erreur: 'entree' };
