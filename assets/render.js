@@ -102,7 +102,9 @@ function vueContact(c) {
       el('span', { class: 't' }, el('b', {}, x.label), el('small', {}, domaine(x.url))), el('i', { html: CHEVRON })))),
   ].filter(Boolean);
   const ouvert = visibles(k.ouvertA);
+  const photo = c.medias.photo && c.medias.photo.url;
   return el('div', { class: 'ct' },
+    photo ? el('img', { class: 'portrait', src: photo, alt: 'Portrait de ' + c.site.nom, width: 96, height: 96 }) : null,
     lignes.length ? el('ul', { class: 'box rows' }, lignes) : null,
     ouvert.length ? el('span', { class: 'gh' }, 'Ouvert à') : null,
     ouvert.length ? el('ul', { class: 'box rows' }, ouvert.map((x) => el('li', { class: 'row' }, el('span', { class: 't' }, el('b', {}, x.titre), x.detail ? el('small', {}, x.detail) : null)))) : null);

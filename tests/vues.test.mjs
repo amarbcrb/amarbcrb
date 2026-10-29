@@ -125,3 +125,10 @@ test('aucune erreur console', async () => {
   }
   assert.deepEqual(p.erreurs, []);
 });
+
+test('contact : portrait pris dans medias.photo', async () => {
+  reinit((c) => { c.medias.photo = { url: '/favicon-512x512.png?photo' }; });
+  const p = await env.page({ chemin: '/#contact' });
+  assert.match(await p.getAttribute('#vue img.portrait', 'src'), /\?photo$/);
+  assert.equal(await p.getAttribute('#vue img.portrait', 'alt'), 'Portrait de Amar Bouchareb');
+});
