@@ -39,8 +39,8 @@ export async function demarrer({ contenu, motDePasse } = {}) {
   const { chromium } = createRequire(import.meta.url)('playwright');
   const navigateur = await chromium.launch();
   const contextes = [];
-  async function page({ stockage = {}, viewport = { width: 390, height: 844 }, chemin = '/', attendre = true } = {}) {
-    const ctx = await navigateur.newContext({ viewport, reducedMotion: 'reduce' });
+  async function page({ stockage = {}, viewport = { width: 390, height: 844 }, chemin = '/', attendre = true, permissions = [] } = {}) {
+    const ctx = await navigateur.newContext({ viewport, reducedMotion: 'reduce', permissions });
     contextes.push(ctx);
     await ctx.addInitScript((s) => { if (!sessionStorage.getItem('__init')) { Object.entries(s).forEach(([k, v]) => localStorage.setItem(k, v)); sessionStorage.setItem('__init', '1'); } }, stockage);
     const p = await ctx.newPage();

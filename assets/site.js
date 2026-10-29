@@ -115,6 +115,13 @@ function synchroniser() {
 addEventListener('popstate', synchroniser);
 addEventListener('hashchange', synchroniser);
 
+/* bouton Copier (Contact) */
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-copier]');
+  if (!b) return;
+  try { await navigator.clipboard.writeText(b.dataset.copier); toast('E-mail copié'); } catch { location.href = 'mailto:' + b.dataset.copier; }
+});
+
 /* ---------- Démarrage ---------- */
 async function demarrer() {
   const { contenu } = await chargerContenu((frais) => {
