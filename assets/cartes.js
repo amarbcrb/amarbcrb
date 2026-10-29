@@ -1,5 +1,6 @@
 /* Cartes des rangées et contenu des fiches (feuille qui monte du bas). */
-import { lienSur, periode, typeLien, TYPES_LIEN } from './model.js';
+import { lienSur, periode, typeLien, TYPES_LIEN, drapeauLangue } from './model.js';
+import { drapeauSvg } from './drapeaux.js';
 import { format } from './router.js';
 import { el } from './dom.js';
 
@@ -46,22 +47,24 @@ const FICHIER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 
 const DATEES = ['formation', 'experience', 'engagement'];
 const sansExtension = (nom) => String(nom).replace(/\.[^.]+$/, '');
 const imageSure = (x) => (x && lienSur(x.url) ? x.url : (x && /^\/(?!\/)/.test(String(x.url)) ? x.url : null));
-/* image qui se remplace par son repli si elle ne se charge pas (lien d'aperçu expiré, fichier Drive supprimé) */
-const imageOuRepli = (src, repli) => {
+/* image qui se remplace par son repli si elle ne se charge pas (lien d'aperçu expiré, fichier Drive supprimé) ;
+   sans repli, elle disparaît simplement */
+const imageOuRepli = (src, repli = null) => {
   const i = el('img', { src, alt: '', loading: 'lazy' });
-  i.addEventListener('error', () => i.replaceWith(repli()), { once: true });
+  i.addEventListener('error', () => (repli ? i.replaceWith(repli()) : i.remove()), { once: true });
   return i;
 };
 const boutonCertificat = (x) => (lienSur(x.url) ? el('a', { class: 'btn', href: x.url, target: '_blank', rel: 'noopener' }, 'Voir le certificat') : null);
 
 /* carte « Ce que je fais » de l'Accueil : image (ou dégradé), titre, texte toujours visible */
 export function carteDomaine(x, indice = 0) {
-  const repli = () => el('span', { class: 'degrade', 'aria-hidden': 'true' });
   const image = imageSure(x.image);
-  return el('article', { class: 'carte carte-domaine', style: `--k:${indice};--pc:var(${PALETTE_DOMAINES[indice % PALETTE_DOMAINES.length]})` },
-    image ? imageOuRepli(image, repli) : repli(), el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
+  return el('article', { class: 'carte carte-domaine', style: `--k:${indice}` },
+    image ? imageOuRepli(image) : null, el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
 }
-const PALETTE_DOMAINES = ['--c-teal', '--c-purple', '--c-orange', '--c-blue', '--c-pink'];
+
+/* « Culture, PCR, ELISA et 2 autres » */
+const apercuTechniques = (t) => t.slice(0, 3).join(', ') + (t.length > 3 ? ` et ${t.length - 3} autre${t.length > 4 ? 's' : ''}` : '');
 
 /* titre de la fiche d'un élément */
 export const titreFiche = (x) => x.titre || x.domaine || '';
@@ -96,21 +99,24 @@ export function carte(x, { onglet, partie, c, indice = 0 }) {
       x.enCours ? el('span', { class: 'en-cours' }, 'En cours') : null);
   }
   if (partie === 'competences') {
-    const reste = x.techniques.length - 3;
-    return el('a', { class: 'carte carte-comp', href: fiche, style }, el('b', {}, x.domaine),
-      el('span', { class: 'tags' }, x.techniques.slice(0, 3).map((t) => el('span', {}, t)), reste > 0 ? el('span', {}, `+${reste}`) : null));
+    return el('a', { class: 'carte carte-comp', href: fiche, style }, el('b', {}, x.domaine), x.techniques.length ? el('p', {}, apercuTechniques(x.techniques)) : null);
   }
   if (partie === 'certifications') {
     return el('article', { class: 'carte carte-cert', style },
       el('a', { class: 'carte-lien-fiche', href: fiche }, el('b', {}, x.titre)),
       el('small', {}, [x.organisme, x.annee].filter(Boolean).join(' · ')), boutonCertificat(x));
   }
-  if (partie === 'langues') return el('div', { class: 'carte carte-langue', style }, el('b', {}, x.langue), el('small', {}, x.niveau));
+  if (partie === 'langues') {
+    const code = drapeauLangue(x);
+    return el('div', { class: 'carte carte-langue', style },
+      code ? el('span', { class: 'drapeau', 'data-drapeau': code, 'aria-hidden': 'true', html: drapeauSvg(code) }) : null,
+      el('span', {}, el('b', {}, x.langue), el('small', {}, x.niveau)));
+  }
   if (partie === 'interets') {
+    /* tout est lisible sur la carte : pas de fiche à deviner */
     const image = imageSure(x.image);
-    return el('a', { class: 'carte carte-image', href: fiche, style },
-      image ? imageOuRepli(image, () => el('span', { class: 'degrade', 'aria-hidden': 'true' })) : el('span', { class: 'degrade', 'aria-hidden': 'true' }),
-      el('span', { class: 'titre' }, x.titre));
+    return el('article', { class: 'carte carte-interet', style }, image ? imageOuRepli(image) : null,
+      el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
   }
   return el('div', { class: 'carte', style }, el('b', {}, titreFiche(x)));
 }
@@ -123,16 +129,10 @@ export function corpsFiche(x, partie) {
       x.lieu ? el('p', { class: 'lieu' }, x.lieu) : null, paragraphes(x.description));
   }
   if (partie === 'competences') {
-    return el('div', { class: 'fiche-contenu' }, paragraphes(x.resume), x.techniques.length ? el('div', { class: 'tags' }, x.techniques.map((t) => el('span', {}, t))) : null);
+    return el('div', { class: 'fiche-contenu' }, paragraphes(x.resume), x.techniques.length ? el('ul', { class: 'techniques' }, x.techniques.map((t) => el('li', {}, t))) : null);
   }
   if (partie === 'certifications') {
     return el('div', { class: 'fiche-contenu' }, el('p', { class: 'lieu' }, [x.organisme, x.annee].filter(Boolean).join(' · ')), boutonCertificat(x));
-  }
-  if (partie === 'interets') {
-    const image = imageSure(x.image);
-    const grande = image ? el('img', { class: 'fiche-image', src: image, alt: '' }) : null;
-    if (grande) grande.addEventListener('error', () => grande.remove(), { once: true });
-    return el('div', { class: 'fiche-contenu' }, grande, paragraphes(x.texte));
   }
   return el('div', { class: 'fiche-contenu' });
 }

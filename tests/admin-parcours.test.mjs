@@ -95,6 +95,18 @@ test('masquer un élément → absent du site et de la recherche', async () => {
   await site.waitForSelector('#rechVide', { state: 'visible' });
 });
 
+test('langue : drapeau choisi dans l\'admin → affiché sur le site', async () => {
+  reinit();
+  const p = await parcours();
+  await p.click('[data-bloc="langues"] li >> nth=3 >> .modifier');
+  assert.deepEqual(await p.$$eval(`${champ('parcours.langues.3.drapeau')} option`, (xs) => xs.map((x) => x.value)), ['', 'fr', 'arabe', 'amazigh', 'gb', 'us', 'es', 'dz', 'de', 'it']);
+  await p.selectOption(champ('parcours.langues.3.drapeau'), 'us');
+  await enregistrer(p);
+  assert.equal(env.faux.etat.contenu.parcours.langues[3].drapeau, 'us');
+  const site = await env.page({ chemin: '/#parcours/langues' });
+  assert.equal(await site.getAttribute('#vue .carte-langue >> nth=3 >> .drapeau', 'data-drapeau'), 'us');
+});
+
 test('profil : titre et texte modifiables', async () => {
   reinit();
   const p = await parcours();
@@ -152,7 +164,7 @@ test('intérêt : envoyer une image → aperçu, enregistrer → carte image sur
   await enregistrer(p);
   assert.equal(env.faux.etat.contenu.parcours.interets[0].image.url, url);
   const site = await env.page({ chemin: '/#parcours' });
-  assert.equal(await site.getAttribute('#vue a.carte-image >> nth=0 >> img', 'src'), url);
+  assert.equal(await site.getAttribute('#vue .carte-interet >> nth=0 >> img', 'src'), url);
   const taille = await site.evaluate((u) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i.naturalWidth); i.src = u; }), url);
   assert.equal(taille, 1600);
 });
@@ -166,6 +178,6 @@ test('intérêt : retirer l\'image → repli dégradé', async () => {
   await enregistrer(p);
   assert.equal(env.faux.etat.contenu.parcours.interets[0].image, null);
   const site = await env.page({ chemin: '/#parcours' });
-  assert.equal(await site.locator('#vue a.carte-image >> nth=0 >> img').count(), 0);
+  assert.equal(await site.locator('#vue .carte-interet >> nth=0 >> img').count(), 0);
   assert.deepEqual(p.erreurs, []);
 });

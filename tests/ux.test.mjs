@@ -159,6 +159,14 @@ test('320 px : en-tête lisible, textes contenus dans leurs cartes', async () =>
     await ouvrirPage(p, page);
     (await p.evaluate(() => {
       const d = [];
+      document.querySelectorAll('#vue .reperes b').forEach((b) => {
+        const g = document.createRange(); g.selectNodeContents(b);
+        if (new Set([...g.getClientRects()].map((q) => Math.round(q.top))).size > 1) d.push(`repère coupé sur deux lignes : ${b.textContent}`);
+      });
+      document.querySelectorAll('#vue .reperes span').forEach((x) => {
+        const g = document.createRange(); g.selectNodeContents(x);
+        if (new Set([...g.getClientRects()].map((q) => Math.round(q.top))).size > 2) d.push(`libellé de repère sur plus de deux lignes : ${x.textContent}`);
+      });
       const brand = document.querySelector('.brand');
       if (brand.getBoundingClientRect().height > 44.5) d.push(`marque haute de ${Math.round(brand.getBoundingClientRect().height)} px`);
       brand.querySelectorAll('b, small').forEach((x) => { if (x.scrollWidth > x.clientWidth + 1) d.push(`marque tronquée : ${x.textContent}`); });

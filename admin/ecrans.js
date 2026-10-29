@@ -1,5 +1,5 @@
 /* Écrans de l'admin : formulaires qui lisent et modifient etat.contenu par chemin (« accueil.positionnement »). */
-import { SOUS_PARCOURS, nouvelId, periode, lienSur, nomAffiche, TYPES_LIEN } from '../assets/model.js';
+import { SOUS_PARCOURS, nouvelId, periode, lienSur, nomAffiche, TYPES_LIEN, DRAPEAUX } from '../assets/model.js';
 import { appeler, lirePortfolio } from '../assets/api.js';
 import { reduireImage, enBase64 } from './images.js';
 import { el } from '../assets/dom.js';
@@ -383,8 +383,9 @@ export const ECRANS = [
       engagement: () => liste('parcours.engagement', { libelleElement: 'un engagement', champs: DATES, resume: (x) => x.titre, nouveau: NOUVEAU_DATE, prefixe: 'g' }),
       competences: () => liste('parcours.competences', { libelleElement: 'une compétence', prefixe: 'c', nouveau: { domaine: '', resume: '', techniques: [] }, resume: (x) => x.domaine,
         champs: [{ cle: 'domaine', libelle: 'Domaine' }, { cle: 'resume', libelle: 'Résumé', type: 'multiligne' }, { cle: 'techniques', libelle: 'Techniques', type: 'puces' }] }),
-      langues: () => liste('parcours.langues', { libelleElement: 'une langue', prefixe: 'l', nouveau: { langue: '', niveau: '' }, resume: (x) => x.langue,
-        champs: [{ cle: 'langue', libelle: 'Langue' }, { cle: 'niveau', libelle: 'Niveau' }] }),
+      langues: () => liste('parcours.langues', { libelleElement: 'une langue', prefixe: 'l', nouveau: { langue: '', niveau: '', drapeau: '' }, resume: (x) => x.langue,
+        champs: [{ cle: 'langue', libelle: 'Langue' }, { cle: 'niveau', libelle: 'Niveau' },
+          { cle: 'drapeau', libelle: 'Drapeau', type: 'select', options: () => [{ valeur: '', libelle: 'Automatique (selon la langue)' }, ...Object.entries(DRAPEAUX).map(([valeur, libelle]) => ({ valeur, libelle }))] }] }),
       certifications: () => liste('parcours.certifications', { libelleElement: 'une certification', prefixe: 'k', nouveau: { titre: '', organisme: '', annee: '', url: '' }, resume: (x) => x.titre,
         champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'organisme', libelle: 'Organisme' }, { cle: 'annee', libelle: 'Année' },
           { cle: 'url', libelle: 'Lien du certificat (https://…)' }] }),

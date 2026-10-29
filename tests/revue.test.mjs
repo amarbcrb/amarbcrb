@@ -85,6 +85,7 @@ test('image de lien ou d\'intérêt introuvable → repli dégradé, jamais de c
   await p.waitForSelector('#vue .carte-lien >> nth=0 >> .degrade');
   assert.equal(await p.locator('#vue .carte-lien >> nth=0 >> img').count(), 0);
   await p.evaluate(() => { location.hash = '#parcours'; });
-  await p.waitForSelector('#vue a.carte-image >> nth=0 >> .degrade');
-  assert.equal(await p.locator('#vue a.carte-image >> nth=0 >> img').count(), 0);
+  /* intérêt : l'image cassée disparaît, la carte reste en texte */
+  await p.waitForFunction(() => document.querySelector('#vue .carte-interet') && !document.querySelector('#vue .carte-interet img'));
+  assert.match(await p.innerText('#vue .carte-interet >> nth=0'), /Astronomie/);
 });
