@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" id="metaTheme" content="#0d0d0d">
+<meta name="color-scheme" content="dark light">
+<title>Admin · Amar Bouchareb</title>
+<link rel="icon" type="image/png" href="/favicon-512x512.png">
+<script>
+(()=>{let t=null;try{t=localStorage.getItem('ab-theme')}catch(e){}
+document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')})();
+</script>
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/admin/admin.css">
+<script type="module" src="/admin/admin.js"></script>
+</head>
+<body class="admin">
+<div class="amb" aria-hidden="true"><span></span><span></span><span></span></div>
+
+<form id="connexion" class="box connexion" hidden>
+  <h1>Admin</h1>
+  <p>Connecte-toi pour modifier ton site.</p>
+  <label for="motDePasse">Mot de passe</label>
+  <input id="motDePasse" type="password" autocomplete="current-password" required>
+  <p id="connexionErreur" class="erreur" role="alert"></p>
+  <button class="btn pri" type="submit">Se connecter</button>
+</form>
+
+<div id="app" hidden>
+  <header class="adm-top">
+    <b>Admin</b>
+    <a class="btn" href="/" target="_blank" rel="noopener">Voir le site</a>
+    <button class="btn" type="button" id="deconnexion">Se déconnecter</button>
+  </header>
+  <nav class="ecrans" aria-label="Écrans de l'admin"></nav>
+  <main id="ecran" tabindex="-1"></main>
+  <footer class="adm-bas glass">
+    <span id="nonEnregistre" class="point" hidden>Modifications non enregistrées</span>
+    <span id="etat" role="status" aria-live="polite"></span>
+    <button class="btn pri" type="button" id="enregistrer">Enregistrer</button>
+  </footer>
+</div>
+
+<div id="conflit" class="dialogue" role="alertdialog" aria-modal="true" aria-labelledby="conflitTitre" hidden>
+  <div class="box">
+    <h2 id="conflitTitre">Le site a été modifié ailleurs</h2>
+    <p>Une autre version a été enregistrée depuis un autre appareil ou un autre onglet.</p>
+    <div class="acts"><button class="btn" type="button" id="conflitRecharger">Recharger la dernière version</button><button class="btn pri" type="button" id="conflitEcraser">Écraser avec la mienne</button></div>
+  </div>
+</div>
+
+<div id="brouillon" class="dialogue" role="alertdialog" aria-modal="true" aria-labelledby="brouillonTitre" hidden>
+  <div class="box">
+    <h2 id="brouillonTitre">Reprendre ton brouillon ?</h2>
+    <p>Des modifications non enregistrées ont été trouvées sur cet appareil.</p>
+    <div class="acts"><button class="btn" type="button" id="brouillonIgnorer">Les supprimer</button><button class="btn pri" type="button" id="brouillonReprendre">Reprendre</button></div>
+  </div>
+</div>
+</body>
+</html>
