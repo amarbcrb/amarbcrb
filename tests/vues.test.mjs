@@ -246,3 +246,24 @@ test('couleur par rubrique : Formation bleu, Certifications vert, catégories de
   [pc, bleu, vert] = await couleur('#vue .vt-voir');
   assert.equal(pc, vert);
 });
+
+test('fiche : poignée et période à la couleur de la rubrique, Contact sans couleur de rubrique', async () => {
+  reinit();
+  const p = await env.page({ chemin: '/#parcours/certifications/k1' });
+  await ouverte(p);
+  const lire = () => p.evaluate(() => [getComputedStyle(document.getElementById('feuille')).getPropertyValue('--pc').trim(),
+    getComputedStyle(document.documentElement).getPropertyValue('--c-green').trim(), getComputedStyle(document.documentElement).getPropertyValue('--c-blue').trim(),
+    getComputedStyle(document.querySelector('#feuille .poignee')).backgroundColor]);
+  let [pc, vert] = await lire();
+  assert.equal(pc, vert);
+  await p.keyboard.press('Escape');
+  await p.evaluate(() => { location.hash = '#parcours/formation/f1'; });
+  await ouverte(p);
+  let bleu; [pc, , bleu] = await lire();
+  assert.equal(pc, bleu);
+  await p.keyboard.press('Escape');
+  await p.click('#contactBtn');
+  await ouverte(p);
+  [pc] = await lire();
+  assert.equal(pc, '');
+});

@@ -7,8 +7,10 @@ const etat = { ouverte: false, onFerme: null, retour: null, minuteur: 0 };
 
 export const ficheOuverte = () => etat.ouverte;
 
-export function ouvrirFiche({ titre, corps, retour = null, onFerme = null }) {
+export function ouvrirFiche({ titre, corps, retour = null, onFerme = null, couleur = null }) {
   clearTimeout(etat.minuteur);
+  /* couleur de la rubrique (poignée, période) ; aucune pour Contact */
+  if (couleur) $('feuille').style.setProperty('--pc', `var(${couleur})`); else $('feuille').style.removeProperty('--pc');
   $('ficheTitre').textContent = titre;
   $('ficheCorps').replaceChildren(corps);
   $('ficheCorps').scrollTop = 0;

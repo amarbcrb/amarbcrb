@@ -1,6 +1,6 @@
 /* Démarrage du site : thème, contenu, maintenance, en-tête, barre d'onglets et vues. */
 import { chargerContenu, lireJeton, lirePortfolio } from './api.js';
-import { ongletsVisibles, contactVisible, parties, ONGLETS } from './model.js';
+import { ongletsVisibles, contactVisible, parties, couleurPartie, ONGLETS } from './model.js';
 import { parse, format } from './router.js';
 import { monterBarre } from './nav.js';
 import { rendreVue } from './render.js';
@@ -194,9 +194,9 @@ function ficheFermee() {
 }
 
 /* meme : la même fiche est déjà ouverte (contenu rafraîchi), son entrée d'historique ne change pas */
-function surcouche(titre, corps, direct, meme) {
+function surcouche(titre, corps, direct, meme, couleur = null) {
   if (!meme) etat.empilee = !direct;
-  ouvrirFiche({ titre, corps, onFerme: ficheFermee });
+  ouvrirFiche({ titre, corps, onFerme: ficheFermee, couleur });
 }
 
 function afficher(anim = true) {
@@ -214,9 +214,11 @@ function afficher(anim = true) {
     : cible.element ? (etat.base || { onglet: cible.onglet, sous: cible.sous })
       : { onglet: cible.onglet, sous: cible.sous };
   dessinerPage(base, anim);
-  const item = cible.element && parties(c, cible.onglet).find((p) => p.id === cible.sous).items.find((x) => x.id === cible.element);
+  const liste = cible.element ? parties(c, cible.onglet) : [];
+  const n = liste.findIndex((p) => p.id === cible.sous);
+  const item = cible.element && liste[n].items.find((x) => x.id === cible.element);
   if (cible.contact) surcouche('Contact', corpsContact(c), direct, meme);
-  else if (item) surcouche(titreFiche(item), corpsFiche(item, cible.sous), direct, meme);
+  else if (item) surcouche(titreFiche(item), corpsFiche(item, cible.sous), direct, meme, couleurPartie(cible.onglet, cible.sous, n));
   else fermerFiche({ silencieux: true });
 }
 
