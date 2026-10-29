@@ -77,3 +77,5 @@ input:focus,textarea:focus,select:focus{border-color:var(--acc)}
 input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
 .groupe>label.btn{align-self:flex-start;color:var(--tx);cursor:pointer}
 .groupe .acts{margin-top:0}
+.champ-titre{font-size:14px;font-weight:600;color:var(--tx2)}
+.champ .acts{margin-top:4px}

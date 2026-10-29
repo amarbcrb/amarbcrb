@@ -103,8 +103,8 @@ test('coller le lien du dossier Drive → sous-dossiers listés ; masquer l\'un 
   await enregistrer(p);
   assert.equal(env.faux.etat.contenu.portfolio.dossierRacineId, 'racine');
   const site = await env.page({ chemin: '/#portfolio' });
-  await site.waitForSelector('.sous-onglets [role="tab"]');
-  assert.deepEqual(await site.$$eval('.sous-onglets [role="tab"]', (xs) => xs.map((x) => x.textContent)), ['Illustrations']);
+  await site.waitForSelector('#vue .rangee');
+  assert.deepEqual(await site.$$eval('#vue .rangee .rangee-tete h2', (xs) => xs.map((x) => x.textContent)), ['Illustrations']);
 });
 
 test('Relire Drive → lirePortfolio({ frais: true }), le faux script reçoit frais=1', async () => {
@@ -177,4 +177,14 @@ test('photo PNG → envoyée en JPEG', async () => {
   await p.setInputFiles('[data-media="photo"]', { name: 'p.png', mimeType: 'image/png', buffer: await image(p, 600, 600) });
   await p.waitForSelector('[data-apercu="photo"][src*="/media/"]');
   assert.equal(env.faux.etat.medias.photo.type, 'image/jpeg');
+});
+
+test('lien : texte du bouton → affiché sur la carte', async () => {
+  reinit();
+  const p = await ecran('liens');
+  await p.click('[data-bloc="liens"] li >> nth=0 >> .modifier');
+  await p.fill(champ('liens.items.0.bouton'), 'Visiter');
+  await enregistrer(p);
+  const site = await env.page({ chemin: '/#liens' });
+  assert.equal(await site.innerText('#vue a.carte-lien >> nth=0 >> .btn'), 'Visiter');
 });

@@ -32,7 +32,7 @@ test('ajouter une expérience avec dates → visible sur le site dans Parcours �
   await p.fill(champ('parcours.experience.5.fin'), '2026-07');
   await enregistrer(p);
   const site = await env.page({ chemin: '/#parcours/experience' });
-  const premier = await site.locator('#vue .ti').first().innerText();
+  const premier = await site.locator('#vue .grille > .carte').first().innerText();
   assert.match(premier, /avril 2026 – juillet 2026[\s\S]*Stage contrôle qualité[\s\S]*Laboratoire X, Lyon/);
 });
 
@@ -46,7 +46,7 @@ test('en cours coché → fin vide, période "… – aujourd\'hui"', async () =
   await enregistrer(p);
   assert.equal(env.faux.etat.contenu.parcours.experience[0].fin, null);
   const site = await env.page({ chemin: '/#parcours/experience' });
-  assert.match(await site.locator('#vue .ti.now').first().innerText(), /juin 2023 – aujourd'hui/);
+  assert.match(await site.locator('#vue .carte-texte:has(.en-cours)').first().innerText(), /juin 2023 – aujourd'hui/);
 });
 
 test('fin avant début → erreur, Enregistrer désactivé', async () => {
@@ -112,7 +112,60 @@ test('interrupteur de sous-onglet (ex. Intérêts) → absent du site', async ()
   await p.uncheck(`[data-bloc="interets"] ${champ('onglets.parcours.sous.interets.visible')}`);
   await enregistrer(p);
   const site = await env.page({ chemin: '/#parcours' });
-  const noms = await site.$$eval('.sous-onglets [role="tab"]', (xs) => xs.map((x) => x.textContent));
+  const noms = await site.$$eval('#vue .rangee .rangee-tete h2', (xs) => xs.map((x) => x.textContent));
   assert.ok(!noms.includes('Intérêts'));
+  assert.deepEqual(p.erreurs, []);
+});
+
+test('certificat : lien saisi → bouton Voir le certificat sur le site', async () => {
+  reinit();
+  const p = await parcours();
+  await p.click('[data-bloc="certifications"] li >> nth=0 >> .modifier');
+  await p.fill(champ('parcours.certifications.0.url'), 'https://coursera.org/verify/ABC');
+  await enregistrer(p);
+  const site = await env.page({ chemin: '/#parcours/certifications' });
+  assert.equal(await site.getAttribute('#vue .grille > .carte >> nth=0 >> a.btn', 'href'), 'https://coursera.org/verify/ABC');
+});
+
+test('url de certificat invalide → erreur, Enregistrer désactivé', async () => {
+  reinit();
+  const p = await parcours();
+  await p.click('[data-bloc="certifications"] li >> nth=0 >> .modifier');
+  await p.fill(champ('parcours.certifications.0.url'), 'pas une url');
+  await p.waitForSelector('[data-erreur="parcours.certifications.0.url"]:not(:empty)');
+  assert.equal(await p.isDisabled('#enregistrer'), true);
+});
+
+async function png(p, l, h) {
+  const b64 = await p.evaluate(([l, h]) => { const c = document.createElement('canvas'); c.width = l; c.height = h; c.getContext('2d').fillRect(0, 0, l, h); return c.toDataURL('image/png').split(',')[1]; }, [l, h]);
+  return Buffer.from(b64, 'base64');
+}
+
+test('intérêt : envoyer une image → aperçu, enregistrer → carte image sur le site', async () => {
+  reinit();
+  const p = await parcours();
+  await p.click('[data-bloc="interets"] li >> nth=0 >> .modifier');
+  await p.setInputFiles('[data-media="image-parcours.interets.0"]', { name: 'astro.png', mimeType: 'image/png', buffer: await png(p, 2400, 1600) });
+  await p.waitForSelector('[data-apercu="image-parcours.interets.0"][src*="/media/"]');
+  assert.equal(env.faux.etat.medias.image.type, 'image/jpeg');
+  const url = await p.getAttribute('[data-apercu="image-parcours.interets.0"]', 'src');
+  await enregistrer(p);
+  assert.equal(env.faux.etat.contenu.parcours.interets[0].image.url, url);
+  const site = await env.page({ chemin: '/#parcours' });
+  assert.equal(await site.getAttribute('#vue a.carte-image >> nth=0 >> img', 'src'), url);
+  const taille = await site.evaluate((u) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i.naturalWidth); i.src = u; }), url);
+  assert.equal(taille, 1600);
+});
+
+test('intérêt : retirer l\'image → repli dégradé', async () => {
+  reinit();
+  env.faux.etat.contenu.parcours.interets[0].image = { id: 'x', url: '/favicon-512x512.png?astro' };
+  const p = await parcours();
+  await p.click('[data-bloc="interets"] li >> nth=0 >> .modifier');
+  await p.click('[data-bloc="interets"] button:has-text("Retirer l\'image")');
+  await enregistrer(p);
+  assert.equal(env.faux.etat.contenu.parcours.interets[0].image, null);
+  const site = await env.page({ chemin: '/#parcours' });
+  assert.equal(await site.locator('#vue a.carte-image >> nth=0 >> img').count(), 0);
   assert.deepEqual(p.erreurs, []);
 });
