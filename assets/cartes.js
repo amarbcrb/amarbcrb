@@ -26,7 +26,7 @@ export function corpsContact(c) {
       el('span', {}, el('b', {}, c.site.nom), el('small', {}, c.site.surtitre))),
     lignes.length ? el('ul', { class: 'box rows' }, lignes) : null,
     cv ? el('a', { class: 'btn pri ct-cv', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV') : null,
-    ouvert.length ? el('span', { class: 'gh' }, 'Ouvert à') : null,
+    ouvert.length ? el('h3', { class: 'ct-titre' }, 'Ouvert à') : null,
     ouvert.length ? el('ul', { class: 'box rows' }, ouvert.map((x) => el('li', { class: 'row' }, el('span', { class: 't' }, el('b', {}, x.titre), x.detail ? el('small', {}, x.detail) : null)))) : null);
 }
 

@@ -106,10 +106,15 @@ test('pas de bouton EN, en-tête sans grand titre', async () => {
   const p = await env.page();
   assert.equal(await p.locator('#langBtn').count(), 0);
   assert.equal(await p.locator('[data-en]').count(), 0);
-  const tailles = await p.$$eval('h1, h2', (hs) => hs.map((h) => parseFloat(getComputedStyle(h).fontSize)));
+  /* la salutation de l'Accueil (serif fin) peut aller jusqu'à 52 px ; les autres titres restent à 40 px au plus */
+  const tailles = await p.$$eval('h1:not(.salut), h2', (hs) => hs.map((h) => parseFloat(getComputedStyle(h).fontSize)));
   tailles.forEach((t) => assert.ok(t <= 40, `titre de ${t}px`));
-  assert.equal(await p.textContent('.brand b'), 'Amar Bouchareb');
-  assert.equal(await p.textContent('.brand small'), 'Microbiologie · Lyon 1');
+  assert.ok(await p.$eval('h1.salut', (h) => parseFloat(getComputedStyle(h).fontSize)) <= 52);
+  assert.equal(await p.textContent('.brand .nom'), 'Amar Bouchareb');
+  assert.equal(await p.textContent('.brand .nom i'), 'Amar');
+  assert.match(await p.$eval('.brand .nom', (x) => getComputedStyle(x).fontFamily), /^"Instrument Serif"/);
+  assert.ok(await p.evaluate(() => document.fonts.check('24px "Instrument Serif"')));
+  assert.equal(await p.locator('.brand small').count(), 0);
 });
 
 test('favicon et logo pris dans medias', async () => {
@@ -120,10 +125,10 @@ test('favicon et logo pris dans medias', async () => {
 });
 
 test('mise à jour en silence depuis la copie du navigateur', async () => {
-  reinit((c) => { c.version = 5; c.site.surtitre = 'Nouveau surtitre'; });
+  reinit((c) => { c.version = 5; c.site.nom = 'Amar B.'; });
   const ancien = DEFAUT();
   const p = await env.page({ stockage: { 'ab-contenu': JSON.stringify({ version: 1, contenu: ancien }) } });
-  await p.waitForFunction(() => document.querySelector('.brand small').textContent === 'Nouveau surtitre');
+  await p.waitForFunction(() => document.querySelector('.brand .nom').textContent === 'Amar B.');
 });
 
 test('aucune erreur console sur chaque onglet', async () => {
@@ -140,7 +145,7 @@ test('tous les onglets masqués → Accueil seul, sans erreur', async () => {
   reinit((c) => { Object.values(c.onglets).forEach((o) => { o.visible = false; }); });
   const p = await env.page();
   assert.deepEqual(await p.$$eval('.nav .nb', (bs) => bs.map((b) => b.dataset.v)), ['accueil']);
-  assert.match(await p.innerText('#vue h1'), /microbiologie/i);
+  assert.equal(await p.innerText('#vue h1'), 'Bonjour, je suis Amar');
   assert.deepEqual(p.erreurs, []);
 });
 
