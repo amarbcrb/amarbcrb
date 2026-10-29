@@ -13,7 +13,8 @@ export function ouvrirFiche({ titre, corps, retour = null, onFerme = null }) {
   $('ficheCorps').replaceChildren(corps);
   $('ficheCorps').scrollTop = 0;
   etat.onFerme = onFerme;
-  etat.retour = retour || (document.activeElement !== document.body ? document.activeElement : null);
+  /* déjà ouverte (contenu rafraîchi) : on garde l'élément d'origine */
+  if (!etat.ouverte) etat.retour = retour || (document.activeElement !== document.body ? document.activeElement : null);
   if (!etat.ouverte) {
     $('fiche').hidden = false;
     void $('fiche').offsetWidth; /* applique l'état de départ avant l'animation */
@@ -31,7 +32,10 @@ export function fermerFiche({ silencieux = false } = {}) {
   $('feuille').style.transform = '';
   etat.minuteur = setTimeout(() => { $('fiche').hidden = true; }, RM ? 0 : 320);
   const { retour, onFerme } = etat;
-  if (retour && retour.isConnected) retour.focus({ preventScroll: true });
+  /* la page a pu être redessinée sous la fiche : on retrouve l'élément d'origine par son lien */
+  const href = retour && !retour.isConnected && retour.getAttribute && retour.getAttribute('href');
+  const cible = retour && retour.isConnected ? retour : href ? document.querySelector(`#vue [href="${CSS.escape(href)}"]`) : null;
+  if (cible) cible.focus({ preventScroll: true });
   if (!silencieux && onFerme) onFerme();
 }
 

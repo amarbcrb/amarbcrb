@@ -284,7 +284,7 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 .rech-champ input{flex:1;min-width:0;height:56px;border:0;background:none;color:var(--tx);font:inherit;font-size:17px;outline:none}
 .rech-champ input::-webkit-search-cancel-button{display:none}
 .rech-champ input:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:10px}
-.rech-champ button{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:var(--tx2)}
+.rech-champ button{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--tx2)}
 .rech-res{list-style:none;overflow-y:auto;position:relative;z-index:1}
 .rech-res button{width:100%;text-align:left;display:flex;flex-direction:column;gap:2px;padding:12px 20px;border-top:.75px solid var(--sep)}
 .rech-res li:first-child button{border-top:0}

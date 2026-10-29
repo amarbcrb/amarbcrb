@@ -3,7 +3,7 @@ import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { demarrer } from './helpers.mjs';
 
-const PAGES = ['#accueil', '#parcours', '#parcours/certifications', '#liens', '#portfolio/dd', '#contact', 'recherche'];
+const PAGES = ['#accueil', '#parcours', '#parcours/certifications', '#parcours/formation/f1', '#liens', '#portfolio/dd', '#contact', 'recherche'];
 const TAILLES = [390, 1366];
 const THEMES = ['dark', 'light'];
 
@@ -100,10 +100,12 @@ async function ouvrirPage(p, page) {
     await p.click('.nav-search');
     await p.fill('#rechInput', 'pcr');
     await p.waitForSelector('#rechRes li');
+    /* le panneau s'ouvre en fondu : tant qu'un ancêtre est transparent, ses boutons seraient ignorés par la mesure */
+    await p.waitForFunction(() => { for (let x = document.getElementById('rechFermer'); x; x = x.parentElement) if (Number(getComputedStyle(x).opacity) < 1) return false; return true; });
     return;
   }
   await p.evaluate((h) => { location.hash = h; }, page);
-  if (page === '#contact') await p.waitForSelector('#fiche', { state: 'visible' });
+  if (page === '#contact' || page.split('/').length === 3) await p.waitForSelector('#fiche', { state: 'visible' });
   else await p.waitForSelector('#vue .vt');
   await p.waitForTimeout(450);
 }

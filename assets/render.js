@@ -57,7 +57,8 @@ function vueAccueil(c) {
 /* ---------- Profil (en tête de Parcours) ---------- */
 function profil(c) {
   const { titre, texte } = c.parcours.profil;
-  if (!String(texte || '').trim()) return null;
+  const reglage = c.onglets.parcours.sous.profil;
+  if ((reglage && reglage.visible === false) || !String(texte || '').trim()) return null;
   const paragraphes = texte.split(/\n\s*\n/).filter((x) => x.trim()).map((x) => el('p', {}, x.trim()));
   const corps = el('div', { class: 'profil-texte', id: 'profilTexte' }, paragraphes);
   const long = paragraphes.length > 1 || texte.length > 220;
