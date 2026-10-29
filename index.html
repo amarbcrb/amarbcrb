@@ -77,6 +77,11 @@ document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme: li
 </filter></svg>
 <div id="navHote"></div>
 
+<div id="lb" role="dialog" aria-modal="true" aria-label="Aperçu">
+  <img alt="">
+  <button class="lbx glass" type="button" id="lbClose" aria-label="Fermer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+  <div class="lbn glass"><button type="button" id="lbPrev" aria-label="Image précédente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><span id="lbCount"></span><button type="button" id="lbNext" aria-label="Image suivante"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div>
+</div>
 <div id="toast" class="glass" role="status" aria-live="polite"></div>
 <noscript><p style="padding:24px">Ce site a besoin de JavaScript.</p></noscript>
 </body>

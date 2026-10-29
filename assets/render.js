@@ -6,6 +6,7 @@ import { COULEURS } from './nav.js';
 
 const TITRES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Liens', contact: 'Contact' };
 const CHEVRON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+const FICHIER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>';
 
 const hrefSur = (v) => lienSur(v) || /^#/.test(v) || /^mailto:[^\s]+$/.test(v);
 const srcSur = (v) => lienSur(v) || /^\/(?!\/)/.test(v);
@@ -92,6 +93,20 @@ function vueLiens(c, sous) {
     el('div', {}, el('b', {}, x.titre), x.description ? el('p', {}, x.description) : null, domaine(x.url) ? el('small', {}, domaine(x.url)) : null))));
 }
 
+/* ---------- Portfolio : fichiers d'un sous-dossier Drive ---------- */
+const sansExtension = (nom) => String(nom).replace(/\.[^.]+$/, '');
+function vuePortfolio(dossiers, sous) {
+  const d = dossiers.find((x) => x.id === sous);
+  const fichiers = (d && d.fichiers) || [];
+  if (!fichiers.length) return el('p', { class: 'vide' }, 'Ce dossier est vide pour le moment.');
+  let n = 0;
+  return el('div', { class: 'galerie' }, fichiers.map((f) => (String(f.type).startsWith('image/')
+    ? el('button', { class: 'box vignette', type: 'button', 'data-dossier': d.id, 'data-i': n++, 'aria-label': 'Agrandir ' + f.nom },
+      el('img', { src: f.apercu, alt: sansExtension(f.nom), loading: 'lazy' }))
+    : el(lienSur(f.lien) ? 'a' : 'div', { class: 'box vignette doc', href: f.lien, target: '_blank', rel: 'noopener' },
+      el('i', { html: FICHIER }), el('b', {}, f.nom), el('small', {}, 'Ouvrir dans Drive')))));
+}
+
 /* ---------- Contact ---------- */
 function vueContact(c) {
   const k = c.contact;
@@ -111,15 +126,20 @@ function vueContact(c) {
 }
 
 /* ---------- Point d'entrée ---------- */
-export function rendreVue(racine, c, { onglet, sous }, dossiers = []) {
+/* dossiers : liste Drive, null si le script est en panne, undefined tant qu'elle n'est pas chargée */
+export function rendreVue(racine, c, { onglet, sous }, dossiers) {
   if (onglet === 'accueil') { racine.replaceChildren(vueAccueil(c)); return; }
-  const liste = sousOnglets(c, onglet, dossiers);
+  const liste = sousOnglets(c, onglet, Array.isArray(dossiers) ? dossiers : []);
   const section = el('section', { class: `vt v-${onglet}` }, el('h1', {}, TITRES[onglet]), rangeeSousOnglets(onglet, liste, sous));
   let panneau = null;
   if (onglet === 'parcours') panneau = sous && PARCOURS[sous] ? PARCOURS[sous](c) : el('p', { class: 'vide' }, 'Parcours bientôt disponible.');
   else if (onglet === 'liens') panneau = sous ? vueLiens(c, sous) : el('p', { class: 'vide' }, 'Aucun lien pour le moment.');
   else if (onglet === 'contact') panneau = vueContact(c);
-  else if (onglet === 'portfolio') panneau = el('p', { class: 'vide' }, 'Portfolio bientôt disponible.');
+  else if (onglet === 'portfolio') {
+    if (dossiers === undefined) panneau = el('p', { class: 'vide' }, 'Chargement du portfolio…');
+    else if (dossiers === null) panneau = el('p', { class: 'vide' }, 'Portfolio momentanément indisponible.');
+    else panneau = sous ? vuePortfolio(dossiers, sous) : el('p', { class: 'vide' }, 'Portfolio bientôt disponible.');
+  }
   section.append(el('div', { class: 'panneau', role: liste.length ? 'tabpanel' : null }, panneau));
   racine.replaceChildren(section);
 }

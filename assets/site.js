@@ -1,5 +1,5 @@
 /* Démarrage du site : thème, contenu, maintenance, en-tête, barre d'onglets et vues. */
-import { chargerContenu, lireJeton } from './api.js';
+import { chargerContenu, lireJeton, lirePortfolio } from './api.js';
 import { ongletsVisibles, ONGLETS } from './model.js';
 import { parse, format } from './router.js';
 import { monterBarre } from './nav.js';
@@ -8,7 +8,9 @@ import { rendreVue } from './render.js';
 const $ = (id) => document.getElementById(id);
 const root = document.documentElement;
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const etat = { contenu: null, dossiers: [], barre: null, cleBarre: '', vue: null };
+/* dossiers : undefined tant que le portfolio n'est pas lu, null si le script est en panne */
+const etat = { contenu: null, dossiers: undefined, chargementPortfolio: null, barre: null, cleBarre: '', vue: null };
+const listeDossiers = () => (Array.isArray(etat.dossiers) ? etat.dossiers : []);
 
 /* ---------- Thème ---------- */
 const sv = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
@@ -81,18 +83,33 @@ function appliquer(c) {
 
 /* ---------- Navigation ---------- */
 function aller(onglet) {
-  const cible = format(parse('#' + onglet, etat.contenu, etat.dossiers));
+  const cible = format(parse('#' + onglet, etat.contenu, listeDossiers()));
   if (location.hash !== cible) history.pushState(null, '', cible);
   afficher();
 }
 
 function ouvrirRecherche() {}
 
+/* le portfolio n'est lu dans Drive qu'à la première ouverture de l'onglet (ou de la recherche) */
+function chargerPortfolio() {
+  if (!etat.chargementPortfolio) {
+    etat.chargementPortfolio = lirePortfolio().then((d) => {
+      etat.dossiers = d;
+      if (etat.vue && etat.vue.onglet === 'portfolio') afficher(false);
+      return d;
+    });
+  }
+  return etat.chargementPortfolio;
+}
+
 function afficher(anim = true) {
   const c = etat.contenu;
-  const cible = parse(location.hash, c, etat.dossiers);
+  const cible = parse(location.hash, c, listeDossiers());
+  const enAttente = cible.onglet === 'portfolio' && etat.dossiers === undefined;
+  if (enAttente) chargerPortfolio();
   const canonique = format(cible);
-  if (location.hash !== canonique) history.replaceState(null, '', canonique);
+  /* tant que les dossiers ne sont pas lus, on garde #portfolio/<dossier> tel quel */
+  if (location.hash !== canonique && !enAttente) history.replaceState(null, '', canonique);
   const avant = etat.vue;
   etat.vue = cible;
   etat.barre.select(cible.onglet, anim);
@@ -110,10 +127,50 @@ function afficher(anim = true) {
 /* retour arrière, lien #… dans la page : ne redessine que si la partie affichée change */
 function synchroniser() {
   if (!etat.contenu || $('shell').hidden) return;
-  if (!etat.vue || format(parse(location.hash, etat.contenu, etat.dossiers)) !== format(etat.vue)) afficher();
+  if (!etat.vue || format(parse(location.hash, etat.contenu, listeDossiers())) !== format(etat.vue)) afficher();
 }
 addEventListener('popstate', synchroniser);
 addEventListener('hashchange', synchroniser);
+
+/* ---------- Visionneuse des images du portfolio ---------- */
+const lb = { liste: [], i: 0, retour: null };
+const grandeImage = (url) => String(url).replace(/([?&]sz=)w\d+/, '$1w2000');
+function montrerImage() {
+  const f = lb.liste[lb.i];
+  const image = $('lb').querySelector('img');
+  image.src = grandeImage(f.apercu);
+  image.alt = f.nom.replace(/\.[^.]+$/, '');
+  $('lbCount').textContent = `${lb.i + 1} / ${lb.liste.length}`;
+  $('lbPrev').disabled = lb.liste.length < 2;
+  $('lbNext').disabled = lb.liste.length < 2;
+}
+function ouvrirVisionneuse(liste, i, retour) {
+  Object.assign(lb, { liste, i, retour });
+  montrerImage();
+  $('lb').classList.add('on');
+  $('lbClose').focus();
+}
+function fermerVisionneuse() {
+  $('lb').classList.remove('on');
+  if (lb.retour) lb.retour.focus();
+}
+const deplacer = (pas) => { lb.i = (lb.i + pas + lb.liste.length) % lb.liste.length; montrerImage(); };
+$('lbClose').addEventListener('click', fermerVisionneuse);
+$('lbPrev').addEventListener('click', () => deplacer(-1));
+$('lbNext').addEventListener('click', () => deplacer(1));
+$('lb').addEventListener('click', (e) => { if (e.target === $('lb')) fermerVisionneuse(); });
+addEventListener('keydown', (e) => {
+  if (!$('lb').classList.contains('on')) return;
+  if (e.key === 'Escape') fermerVisionneuse();
+  else if (e.key === 'ArrowRight') deplacer(1);
+  else if (e.key === 'ArrowLeft') deplacer(-1);
+});
+document.addEventListener('click', (e) => {
+  const v = e.target.closest('.vignette[data-dossier]');
+  if (!v) return;
+  const d = listeDossiers().find((x) => x.id === v.dataset.dossier);
+  if (d) ouvrirVisionneuse(d.fichiers.filter((f) => String(f.type).startsWith('image/')), Number(v.dataset.i), v);
+});
 
 /* bouton Copier (Contact) */
 document.addEventListener('click', async (e) => {

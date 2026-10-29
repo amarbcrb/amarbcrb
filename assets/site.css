@@ -213,6 +213,17 @@ footer b{color:var(--tx2);font-weight:600}
 .carte p{font-size:14.5px;color:var(--tx2);line-height:1.5}
 .carte small{margin-top:4px;font-size:13px;color:var(--tx3)}
 @media(hover:hover){a.carte:hover{border-color:var(--line2)}}
+/* portfolio */
+.galerie{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.vignette{aspect-ratio:4/5;padding:0;cursor:zoom-in;display:block;transition:transform .35s var(--spring),border-color .25s}
+.vignette img{width:100%;height:100%;object-fit:cover;background:var(--fill)}
+.vignette:active{transform:scale(.97)}
+.vignette.doc{cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;text-align:center}
+.vignette.doc i svg{width:30px;height:30px;color:var(--tx2)}
+.vignette.doc b{font-size:14px;font-weight:600;word-break:break-word}
+.vignette.doc small{font-size:12.5px;color:var(--tx3)}
+@media(hover:hover){.vignette:hover{border-color:var(--line2)}}
+@media(min-width:700px){.galerie{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}}
 /* contact */
 .ct{margin-top:0}.ct .row i{color:var(--tx3)}.ct .gh{margin-top:28px}
 @media(min-width:700px){.blocs{grid-template-columns:repeat(3,minmax(0,1fr))}}
