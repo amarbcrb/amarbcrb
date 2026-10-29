@@ -229,7 +229,11 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 .carte-langue{min-width:128px;padding:14px 18px;border-radius:999px;flex-direction:row;align-items:baseline;gap:8px}
 .carte-image{width:min(40vw,168px);aspect-ratio:2/3;padding:0;justify-content:flex-end}
 .carte-image img,.carte-image .degrade{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.degrade{display:grid;place-items:center;padding:12px;text-align:center;font-weight:700;color:#fff;background:linear-gradient(150deg,color-mix(in srgb,var(--tc,var(--c-blue)) 85%,#000),color-mix(in srgb,var(--tc,var(--c-blue)) 35%,#000))}
+.degrade{display:grid;place-items:center;align-content:center;gap:8px;padding:12px;text-align:center;font-weight:700;color:#fff;background:linear-gradient(150deg,color-mix(in srgb,var(--pc,var(--tc,var(--c-blue))) 55%,#000),color-mix(in srgb,var(--pc,var(--tc,var(--c-blue))) 22%,#000))}
+.degrade i{display:grid;place-items:center;width:54px;height:54px;border-radius:16px;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 .75px rgba(255,255,255,.22)}
+.type-icone{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.badge-type{position:absolute;top:10px;left:10px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:5px 10px 5px 8px;border-radius:999px;font-size:12px;font-weight:600;color:#fff;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.badge-type .type-icone{width:15px;height:15px;stroke-width:2}
 .carte-image::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 45%,rgba(0,0,0,.78))}
 .carte-image .titre{position:relative;z-index:1;padding:14px;color:#fff;font-size:17px;font-weight:700;line-height:1.2}
 .carte-lien{width:min(78vw,300px);padding:0}

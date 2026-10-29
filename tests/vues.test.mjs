@@ -100,7 +100,7 @@ test('certificat : bouton Voir le certificat si url, absent sinon', async () => 
 
 test('lien : image, titre, description, bouton (texte réglé ou « Ouvrir »), nouvel onglet', async () => {
   reinit((c) => {
-    Object.assign(c.liens.items[0], { image: 'https://exemple.fr/a.png', bouton: 'Visiter BioStudy', date: '2026-12-01' });
+    Object.assign(c.liens.items[0], { image: `${env.site.url}/favicon-512x512.png?a`, bouton: 'Visiter BioStudy', date: '2026-12-01' });
   });
   const p = await env.page({ chemin: '/#liens' });
   assert.deepEqual(await titres(p, '#vue .rangee .rangee-tete h2'), ['Projets']);
@@ -108,7 +108,7 @@ test('lien : image, titre, description, bouton (texte réglé ou « Ouvrir »), 
   assert.equal(await premiere.getAttribute('href'), 'https://www.biostudy.xyz/');
   assert.equal(await premiere.getAttribute('target'), '_blank');
   assert.match(await premiere.getAttribute('rel'), /noopener/);
-  assert.equal(await premiere.locator('img').getAttribute('src'), 'https://exemple.fr/a.png');
+  assert.equal(await premiere.locator('img').getAttribute('src'), `${env.site.url}/favicon-512x512.png?a`);
   assert.equal(await premiere.locator('b').innerText(), 'BioStudy');
   assert.match(await premiere.locator('p').innerText(), /Plateforme fondée en 2022/);
   assert.equal(await premiere.locator('.btn').innerText(), 'Visiter BioStudy');
@@ -266,4 +266,30 @@ test('fiche : poignée et période à la couleur de la rubrique, Contact sans co
   await ouverte(p);
   [pc] = await lire();
   assert.equal(pc, '');
+});
+
+test('lien sans image : pictogramme du type sur le dégradé de la catégorie, avec le domaine', async () => {
+  reinit((c) => { Object.assign(c.liens.items[1], { url: 'https://www.youtube.com/watch?v=abc', image: '' }); });
+  const p = await env.page({ chemin: '/#liens/projets' });
+  const carte = p.locator('#vue a.carte-lien[href="https://www.youtube.com/watch?v=abc"]');
+  assert.equal(await carte.getAttribute('data-type'), 'video');
+  assert.equal(await carte.locator('.degrade svg.type-icone').count(), 1);
+  assert.equal(await carte.locator('.degrade').innerText(), 'youtube.com');
+  assert.equal(await carte.locator('.badge-type').count(), 0);
+  assert.equal(await p.getAttribute('#vue a.carte-lien[href="https://www.biostudy.xyz/"]', 'data-type'), 'web');
+});
+
+test('lien avec image : badge du type ; type forcé dans l\'admin respecté', async () => {
+  reinit((c) => { Object.assign(c.liens.items[0], { image: `${env.site.url}/favicon-512x512.png?a`, type: 'article' }); });
+  const p = await env.page({ chemin: '/#liens' });
+  const carte = p.locator('#vue a.carte-lien >> nth=0');
+  assert.equal(await carte.getAttribute('data-type'), 'article');
+  assert.equal(await carte.locator('.badge-type').innerText(), 'Article');
+  assert.equal(await carte.locator('.badge-type svg.type-icone').count(), 1);
+});
+
+test('lien : image choisie (envoyée) prioritaire sur l\'aperçu automatique', async () => {
+  reinit((c) => { Object.assign(c.liens.items[0], { image: 'https://exemple.fr/a.png', media: { id: 'm1', url: '/favicon-512x512.png?perso' } }); });
+  const p = await env.page({ chemin: '/#liens' });
+  assert.equal(await p.getAttribute('#vue a.carte-lien >> nth=0 >> img', 'src'), '/favicon-512x512.png?perso');
 });

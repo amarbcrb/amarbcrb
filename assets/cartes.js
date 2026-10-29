@@ -1,5 +1,5 @@
 /* Cartes des rangées et contenu des fiches (feuille qui monte du bas). */
-import { lienSur, periode } from './model.js';
+import { lienSur, periode, typeLien, TYPES_LIEN } from './model.js';
 import { format } from './router.js';
 import { el } from './dom.js';
 
@@ -30,6 +30,18 @@ export function corpsContact(c) {
     ouvert.length ? el('ul', { class: 'box rows' }, ouvert.map((x) => el('li', { class: 'row' }, el('span', { class: 't' }, el('b', {}, x.titre), x.detail ? el('small', {}, x.detail) : null)))) : null);
 }
 
+/* pictogramme de la nature d'un lien */
+const TRACES = {
+  web: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  video: '<rect x="2" y="5" width="20" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/>',
+  image: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
+  appli: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
+  document: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h8M8 17h5"/>',
+  code: '<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>',
+  article: '<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/>',
+};
+const icone = (type) => `<svg class="type-icone" viewBox="0 0 24 24" aria-hidden="true">${TRACES[type]}</svg>`;
+
 const FICHIER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>';
 const DATEES = ['formation', 'experience', 'engagement'];
 const sansExtension = (nom) => String(nom).replace(/\.[^.]+$/, '');
@@ -50,10 +62,14 @@ export function carte(x, { onglet, partie, c, indice = 0 }) {
   const style = `--k:${Math.min(indice, 12)}`;
   const fiche = format({ onglet, sous: partie, element: x.id });
   if (onglet === 'liens') {
-    const site = domaine(x.url);
-    const degrade = () => el('span', { class: 'degrade', 'aria-hidden': 'true' }, site);
-    return el(lienSur(x.url) ? 'a' : 'div', { class: 'carte carte-lien', href: x.url, target: '_blank', rel: 'noopener noreferrer', style },
-      lienSur(x.image) ? imageOuRepli(x.image, degrade) : degrade(),
+    const site = domaine(x.url), type = typeLien(x, c);
+    const degrade = () => el('span', { class: 'degrade', 'aria-hidden': 'true' }, el('i', { html: icone(type) }), site);
+    /* image envoyée dans l'admin, sinon aperçu automatique, sinon pictogramme */
+    const image = imageSure(x.media) || (lienSur(x.image) ? x.image : null);
+    const badge = image ? el('span', { class: 'badge-type', html: icone(type) }, TYPES_LIEN[type]) : null;
+    /* image introuvable : le dégradé porte déjà le pictogramme, le badge devient inutile */
+    return el(lienSur(x.url) ? 'a' : 'div', { class: 'carte carte-lien', href: x.url, target: '_blank', rel: 'noopener noreferrer', style, 'data-type': type },
+      image ? imageOuRepli(image, () => { badge.remove(); return degrade(); }) : degrade(), badge,
       el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.description ? el('p', {}, x.description) : null, site ? el('small', {}, site) : null,
         el('span', { class: 'btn' }, x.bouton || 'Ouvrir')));
   }
