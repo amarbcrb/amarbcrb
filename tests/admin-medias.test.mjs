@@ -242,6 +242,7 @@ test('écran Accueil : repère ajouté, domaine avec image envoyée, projet phar
   await p.fill(champ('accueil.reperes.3.libelle'), 'certificats Coursera');
   await p.click('[data-bloc="domaines"] li >> nth=1 >> .modifier');
   await p.fill(champ('accueil.domaines.1.texte'), 'Affiches et identités visuelles.');
+  await p.fill(champ('accueil.domaines.1.lien'), '#portfolio');
   await p.setInputFiles('[data-media="image-accueil.domaines.1"]', { name: 'design.png', mimeType: 'image/png', buffer: await image(p, 1200, 900) });
   await p.waitForSelector('[data-apercu="image-accueil.domaines.1"][src*="/media/"]');
   assert.deepEqual(await p.$$eval(`${champ('accueil.projetPhare')} option`, (xs) => xs.slice(0, 3).map((x) => [x.value, x.textContent])), [['', 'Aucun'], ['u1', 'BioStudy'], ['u2', 'BioCampus']]);
@@ -256,6 +257,7 @@ test('écran Accueil : repère ajouté, domaine avec image envoyée, projet phar
   assert.match(await site.innerText('#vue .reperes li >> nth=3'), /18\s+certificats Coursera/);
   assert.equal(await site.getAttribute('#vue .carte-domaine >> nth=1 >> img', 'src'), a.domaines[1].image.url);
   assert.match(await site.innerText('#vue .carte-domaine >> nth=1'), /Affiches et identités visuelles\./);
-  assert.equal(await site.getAttribute('#vue .projet-phare a.carte-lien', 'href'), 'https://www.biostudy.xyz/BioCampus/');
+  assert.equal(await site.getAttribute('#vue .carrousel .diapo >> nth=1 >> a.btn', 'href'), '#portfolio');
+  assert.equal(await site.getAttribute('#vue .carrousel .diapo >> nth=-1 >> a.btn', 'href'), 'https://www.biostudy.xyz/BioCampus/');
   assert.deepEqual(p.erreurs, []);
 });

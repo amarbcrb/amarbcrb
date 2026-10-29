@@ -181,3 +181,20 @@ test('intérêt : retirer l\'image → repli dégradé', async () => {
   assert.equal(await site.locator('#vue .carte-interet >> nth=0 >> img').count(), 0);
   assert.deepEqual(p.erreurs, []);
 });
+
+test('certification et compétence : image envoyée → visuel sur le site', async () => {
+  reinit();
+  const p = await parcours();
+  await p.click('[data-bloc="certifications"] li >> nth=0 >> .modifier');
+  await p.setInputFiles('[data-media="image-parcours.certifications.0"]', { name: 'c.png', mimeType: 'image/png', buffer: await png(p, 800, 1200) });
+  await p.waitForSelector('[data-apercu="image-parcours.certifications.0"][src*="/media/"]');
+  await p.click('[data-bloc="competences"] li >> nth=0 >> .modifier');
+  await p.setInputFiles('[data-media="image-parcours.competences.0"]', { name: 'm.png', mimeType: 'image/png', buffer: await png(p, 1200, 800) });
+  await p.waitForSelector('[data-apercu="image-parcours.competences.0"][src*="/media/"]');
+  await enregistrer(p);
+  const c = env.faux.etat.contenu.parcours;
+  const site = await env.page({ chemin: '/#parcours' });
+  assert.equal(await site.getAttribute('#vue .carte-cert >> nth=0 >> .visuel img', 'src'), c.certifications[0].image.url);
+  assert.equal(await site.getAttribute('#vue .carte-comp >> nth=0 >> .visuel img', 'src'), c.competences[0].image.url);
+  assert.deepEqual(p.erreurs, []);
+});

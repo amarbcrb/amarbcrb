@@ -7,8 +7,11 @@ const etat = { ouverte: false, onFerme: null, retour: null, minuteur: 0 };
 
 export const ficheOuverte = () => etat.ouverte;
 
-export function ouvrirFiche({ titre, corps, retour = null, onFerme = null, couleur = null }) {
+export function ouvrirFiche({ titre, corps, retour = null, onFerme = null, couleur = null, fond = null }) {
   clearTimeout(etat.minuteur);
+  /* image floutée derrière la feuille, comme les pages détail de Nuvio ; adresse déjà filtrée (http(s) ou /…) */
+  if (fond) $('feuille').style.setProperty('--fond', `url("${String(fond).replace(/["\\\n\r]/g, encodeURIComponent)}")`);
+  else $('feuille').style.removeProperty('--fond');
   /* couleur de la rubrique (poignée, période) ; aucune pour Contact */
   if (couleur) $('feuille').style.setProperty('--pc', `var(${couleur})`); else $('feuille').style.removeProperty('--pc');
   $('ficheTitre').textContent = titre;

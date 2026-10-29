@@ -292,3 +292,19 @@ test('enregistrer garde les images des domaines de l\'Accueil', () => {
   assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 2, contenu: c }).version, 3);
   assert.equal(g.fichiers.get(a.id).isTrashed(), true);
 });
+
+test('enregistrer garde les images des certifications et des compétences', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const a = g.post({ a: 'envoyerMedia', jeton, emplacement: 'image', nom: 'a.jpg', type: 'image/jpeg', base64: PNG });
+  const b = g.post({ a: 'envoyerMedia', jeton, emplacement: 'image', nom: 'b.jpg', type: 'image/jpeg', base64: PNG });
+  const c = JSON.parse(DEFAUT);
+  c.parcours.certifications[0].image = { id: a.id, url: a.url };
+  c.parcours.competences[0].image = { id: b.id, url: b.url };
+  assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 1, contenu: c }).version, 2);
+  assert.equal(g.fichiers.get(a.id).isTrashed(), false);
+  assert.equal(g.fichiers.get(b.id).isTrashed(), false);
+  c.parcours.competences[0].image = null;
+  assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 2, contenu: c }).version, 3);
+  assert.equal(g.fichiers.get(b.id).isTrashed(), true);
+});

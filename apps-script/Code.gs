@@ -154,12 +154,18 @@ function nettoyerMedias(contenu) {
     const utilises = {};
     const medias = contenu.medias || {};
     EMPLACEMENTS.forEach((k) => { if (medias[k] && medias[k].id) utilises[medias[k].id] = true; });
-    const interets = (contenu.parcours && contenu.parcours.interets) || [];
-    interets.forEach((x) => { if (x && x.image && x.image.id) utilises[x.image.id] = true; });
-    const domaines = (contenu.accueil && contenu.accueil.domaines) || [];
-    domaines.forEach((x) => { if (x && x.image && x.image.id) utilises[x.image.id] = true; });
-    const liens = (contenu.liens && contenu.liens.items) || [];
-    liens.forEach((x) => { if (x && x.media && x.media.id) utilises[x.media.id] = true; });
+    /* toute image envoyée depuis l'admin est rangée sous une clé « image » ou « media » : on les garde toutes */
+    const parcourir = (v) => {
+      if (Array.isArray(v)) { v.forEach(parcourir); return; }
+      if (!v || typeof v !== 'object') return;
+      Object.keys(v).forEach((k) => {
+        if ((k === 'image' || k === 'media') && v[k] && typeof v[k] === 'object' && v[k].id) utilises[v[k].id] = true;
+        else parcourir(v[k]);
+      });
+    };
+    parcourir(contenu.parcours);
+    parcourir(contenu.accueil);
+    parcourir(contenu.liens);
     const it = DriveApp.getFolderById(proprietes().getProperty('ID_MEDIAS')).getFiles();
     while (it.hasNext()) {
       const f = it.next();

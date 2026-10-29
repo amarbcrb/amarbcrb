@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import {
   ONGLETS, SOUS_PARCOURS, normaliser, formaterDate, periode, trierParDate, formationActuelle,
   derniereExperience, ongletsVisibles, parties, aFiche, contactVisible, PARTIES_PARCOURS, nomAffiche, lienSur, valider, nouvelId, echapper,
-  TYPES_LIEN, typeLien, couleurPartie, DRAPEAUX, drapeauLangue,
+  TYPES_LIEN, typeLien, couleurPartie, DRAPEAUX, drapeauLangue, duree,
 } from '../assets/model.js';
 
 test('constantes', () => {
@@ -113,8 +113,9 @@ test('parties liens : catégories non vides, plus récents d\'abord', () => {
       { url: 'https://b.fr', titre: 'B', categorie: 'android', visible: false }, { url: 'https://c.fr', titre: 'C', categorie: 'cache' }],
   } });
   const r = parties(c, 'liens');
-  assert.deepEqual(r.map((x) => [x.id, x.titre]), [['projets', 'Projets']]);
+  assert.deepEqual(r.map((x) => [x.id, x.titre]), [['projets', 'Projets'], ['tous', 'Tous les liens']]);
   assert.deepEqual(r[0].items.map((x) => x.id), ['u2', 'u1']);
+  assert.deepEqual(r[1].items.map((x) => x.id), ['u2', 'u1']);
 });
 
 test('parties portfolio : tri par préfixe, nom réglé, dossiers masqués exclus', () => {
@@ -257,11 +258,14 @@ test('accueil : salutation, intro, repères, domaines (avec image), projet phare
   assert.equal(c.accueil.salutation, '');
   assert.equal(c.accueil.intro, '');
   assert.equal(c.accueil.projetPhare, '');
-  assert.deepEqual({ ...c.accueil.domaines[0], id: 'x' }, { id: 'x', titre: 'Design', texte: '', image: null, visible: true });
+  assert.deepEqual({ ...c.accueil.domaines[0], id: 'x' }, { id: 'x', titre: 'Design', texte: '', image: null, lien: '', visible: true });
   assert.ok(c.accueil.domaines[0].id);
   assert.equal(c.accueil.reperes[0].libelle, 'BioStudy');
   c.accueil.domaines[0].titre = ' ';
-  assert.deepEqual(valider(c).map((e) => e.chemin), ['accueil.domaines.0.titre']);
+  c.accueil.domaines[0].lien = 'javascript:alert(1)';
+  assert.deepEqual(valider(c).map((e) => e.chemin), ['accueil.domaines.0.titre', 'accueil.domaines.0.lien']);
+  c.accueil.domaines[0].titre = 'Design';
+  for (const ok of ['', '#portfolio', 'https://exemple.fr']) { c.accueil.domaines[0].lien = ok; assert.deepEqual(valider(c), []); }
 });
 
 test('drapeauLangue : drapeau choisi, sinon deviné depuis le nom de la langue', () => {
@@ -280,4 +284,25 @@ test('drapeauLangue : drapeau choisi, sinon deviné depuis le nom de la langue',
   assert.equal(d('Anglais', 'us'), 'us');
   assert.equal(d('Anglais', 'zz'), 'gb');
   assert.equal(normaliser({ parcours: { langues: [{ langue: 'Kabyle' }] } }).parcours.langues[0].drapeau, '');
+});
+
+test('duree : mois inclus, années, en cours jusqu\'à aujourd\'hui', () => {
+  const ref = new Date(2026, 9, 29);
+  assert.equal(duree({ debut: '2023-06', fin: '2023-08' }, ref), '3 mois');
+  assert.equal(duree({ debut: '2023-06', fin: '2023-06' }, ref), '1 mois');
+  assert.equal(duree({ debut: '2022-09', fin: '2024-06' }, ref), '1 an et 10 mois');
+  assert.equal(duree({ debut: '2021-09', fin: '2023-08' }, ref), '2 ans');
+  assert.equal(duree({ debut: '2023', fin: '2025' }, ref), '2 ans');
+  assert.equal(duree({ debut: '2016', fin: '2017' }, ref), '1 an');
+  assert.equal(duree({ debut: '2025', fin: '2025' }, ref), '');
+  assert.equal(duree({ debut: '2025-09', enCours: true }, ref), '1 an et 2 mois');
+  assert.equal(duree({ debut: '', fin: '2020' }, ref), '');
+});
+
+test('parties(liens) : « Tous les liens » en dernier quand il y a des liens', () => {
+  const c = normaliser(JSON.parse(readFileSync(new URL('../content/default.json', import.meta.url), 'utf8')));
+  const l = parties(c, 'liens');
+  assert.deepEqual(l.map((p) => [p.id, p.titre, p.items.length]), [['projets', 'Projets', 9], ['tous', 'Tous les liens', 9]]);
+  c.liens.items.forEach((x) => { x.visible = false; });
+  assert.deepEqual(parties(c, 'liens'), []);
 });

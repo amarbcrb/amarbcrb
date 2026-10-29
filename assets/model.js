@@ -20,13 +20,13 @@ const ITEMS = {
   'parcours.formation': DATE_ITEM,
   'parcours.experience': DATE_ITEM,
   'parcours.engagement': DATE_ITEM,
-  'parcours.competences': { domaine: '', resume: '', techniques: [] },
+  'parcours.competences': { domaine: '', resume: '', techniques: [], image: null },
   'parcours.langues': { langue: '', niveau: '', drapeau: '' },
-  'parcours.certifications': { titre: '', organisme: '', annee: '', url: '' },
+  'parcours.certifications': { titre: '', organisme: '', annee: '', url: '', image: null },
   'parcours.interets': { titre: '', texte: '', image: null },
   'liens.categories': { nom: '' },
   'accueil.reperes': { valeur: '', libelle: '' },
-  'accueil.domaines': { titre: '', texte: '', image: null },
+  'accueil.domaines': { titre: '', texte: '', image: null, lien: '' },
   'liens.items': { url: '', titre: '', description: '', image: '', categorie: '', date: '', bouton: '', type: '', media: null },
   'contact.autres': { label: '', url: '' },
   'contact.ouvertA': { titre: '', detail: '' },
@@ -125,6 +125,18 @@ export function periode(item) {
   return `${debut} – ${fin}`;
 }
 
+/* durée d'une étape (« 3 mois », « 1 an et 10 mois ») ; mois comptés inclus ; en cours : jusqu'à aujourd'hui */
+export function duree(item, aujourdhui = new Date()) {
+  const lire = (d) => { const m = /^(\d{4})(?:-(\d{2}))?$/.exec(String(d || '')); return m ? { a: Number(m[1]), m: m[2] ? Number(m[2]) : null } : null; };
+  const debut = lire(item.debut);
+  const fin = item.enCours ? { a: aujourdhui.getFullYear(), m: aujourdhui.getMonth() + 1 } : lire(item.fin);
+  if (!debut || !fin) return '';
+  const mois = debut.m && fin.m ? (fin.a - debut.a) * 12 + (fin.m - debut.m) + 1 : (fin.a - debut.a) * 12;
+  if (mois <= 0) return '';
+  const ans = Math.floor(mois / 12), reste = mois % 12;
+  return [ans ? `${ans} an${ans > 1 ? 's' : ''}` : '', reste ? `${reste} mois` : ''].filter(Boolean).join(' et ');
+}
+
 export function trierParDate(items) {
   return [...items].sort((a, b) => (Number(!!b.enCours) - Number(!!a.enCours)) || String(b.debut || '').localeCompare(String(a.debut || '')));
 }
@@ -171,9 +183,11 @@ export function parties(c, onglet, dossiersPortfolio = []) {
   if (onglet === 'liens') {
     const items = visibles(c.liens.items).map((x, i) => [x, i])
       .sort((a, b) => String(b[0].date || '').localeCompare(String(a[0].date || '')) || a[1] - b[1]).map((x) => x[0]);
-    return visibles(c.liens.categories)
+    const cats = visibles(c.liens.categories)
       .map((cat) => ({ id: cat.id, titre: cat.nom, items: items.filter((x) => x.categorie === cat.id) }))
       .filter((p) => p.items.length);
+    /* « Tous les liens » : page Voir tout de l'onglet entier (lien « Tout afficher ») */
+    return cats.length ? [...cats, { id: 'tous', titre: 'Tous les liens', items: cats.flatMap((p) => p.items).sort((a, b) => items.indexOf(a) - items.indexOf(b)) }] : [];
   }
   if (onglet === 'portfolio') {
     const reglages = c.portfolio.dossiers;
@@ -269,6 +283,7 @@ export function valider(c) {
   c.parcours.certifications.forEach((x, i) => { if (x.url && !lienSur(x.url)) err(`parcours.certifications.${i}.url`, 'Adresse web invalide (https://…)'); });
   requis(c.parcours.interets, 'parcours.interets', 'titre', 'Titre');
   requis(c.accueil.domaines, 'accueil.domaines', 'titre', 'Titre');
+  c.accueil.domaines.forEach((x, i) => { if (x.lien && !/^#[\w/-]*$/.test(x.lien) && !lienSur(x.lien)) err(`accueil.domaines.${i}.lien`, 'Lien invalide (#onglet ou https://…)'); });
   requis(c.liens.categories, 'liens.categories', 'nom', 'Nom');
   requis(c.liens.items, 'liens.items', 'titre', 'Titre');
   c.liens.items.forEach((x, i) => { if (!lienSur(x.url)) err(`liens.items.${i}.url`, 'Adresse web invalide (https://…)'); });

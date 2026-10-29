@@ -90,7 +90,9 @@ function focusVisible() {
     el.focus({ preventScroll: true });
     if (document.activeElement !== el || !el.matches(':focus-visible')) return;
     const s = getComputedStyle(el);
-    if (s.outlineStyle === 'none' || parseFloat(s.outlineWidth) < 1) defauts.push(`focus invisible : ${el.tagName.toLowerCase()}.${String(el.className).trim().split(/\s+/).join('.')}`);
+    /* le champ de recherche montre son focus par l'anneau de toute la pastille */
+    const anneau = el.id === 'rechInput' && getComputedStyle(el.closest('.rech-in')).boxShadow !== 'none';
+    if (!anneau && (s.outlineStyle === 'none' || parseFloat(s.outlineWidth) < 1)) defauts.push(`focus invisible : ${el.tagName.toLowerCase()}.${String(el.className).trim().split(/\s+/).join('.')}`);
   });
   return defauts;
 }
@@ -142,7 +144,7 @@ for (const theme of THEMES) {
     }));
     assert.ok(degrades.length > 0);
     degrades.forEach((r) => assert.ok(r >= 4.5, `contraste du dégradé ${r.toFixed(2)}`));
-    const hauts = await p.$$eval('#vue .rangee:first-of-type .carte-lien .btn', (xs) => xs.slice(0, 4).map((x) => Math.round(x.getBoundingClientRect().top)));
+    const hauts = await p.$$eval('#vue .liens-une .carte-lien .btn', (xs) => xs.slice(0, 4).map((x) => Math.round(x.getBoundingClientRect().top)));
     assert.equal(new Set(hauts).size, 1, `boutons Ouvrir à des hauteurs différentes : ${hauts}`);
     await ouvrirPage(p, '#accueil');
     const lbl = await p.$$eval('#vue .carte-domaine b', (xs) => xs.map((x) => Math.round(x.getBoundingClientRect().top)));
@@ -195,4 +197,29 @@ test('320 px : en-tête lisible, textes contenus dans leurs cartes', async () =>
     });
   await a.close();
   assert.deepEqual([...new Set(defauts)], []);
+});
+
+test('ambiance Nuvio : noir pur en sombre, titres de rangée soulignés, recherche sans cadre dans le champ', async () => {
+  const p = await env.page({ viewport: { width: 390, height: 844 }, stockage: { 'ab-theme': 'dark' } });
+  await ouvrirPage(p, '#parcours');
+  assert.equal(await p.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(0, 0, 0)');
+  const souligne = await p.$eval('#vue .rangee-tete h2', (h) => { const a = getComputedStyle(h, '::after'); return [a.content, a.width, a.height, a.backgroundColor]; });
+  assert.deepEqual(souligne, ['""', '36px', '3px', 'rgb(255, 255, 255)']);
+  assert.equal(await p.$eval('#vue .rangee-tete h2', (h) => getComputedStyle(h, '::before').content), 'none');
+  await ouvrirPage(p, 'recherche');
+  await p.focus('#rechInput');
+  await p.keyboard.press('a');
+  assert.equal(await p.$eval('#rechInput', (x) => getComputedStyle(x).outlineStyle), 'none');
+  assert.notEqual(await p.$eval('.rech-in', (x) => getComputedStyle(x).boxShadow), 'none');
+  await p.close();
+});
+
+test('bouton « Contact » entier, sur téléphone comme sur ordinateur', async () => {
+  for (const largeur of [390, 1366]) {
+    const p = await env.page({ viewport: { width: largeur, height: 850 } });
+    const [contenu, visible, droite] = await p.$eval('#contactBtn', (b) => [b.scrollWidth, b.clientWidth, b.closest('.tools').getBoundingClientRect().right]);
+    assert.ok(contenu <= visible, `${largeur} px : texte de ${contenu} px dans un bouton de ${visible} px`);
+    assert.ok(droite <= largeur, `${largeur} px : pastille qui dépasse (${droite} px)`);
+    await p.close();
+  }
 });

@@ -56,7 +56,7 @@ test('étape → fiche (#parcours/experience/e1), contenu complet, Échap revien
   await ouverte(p);
   assert.equal(await hash(p), '#parcours/experience/e1');
   assert.equal(await p.innerText('#ficheTitre'), 'Stage parasitologie-mycologie');
-  assert.match(await p.innerText('#ficheCorps'), /juin 2023 – août 2023[\s\S]*CHU Nedir Mohamed[\s\S]*Préparation d'échantillons/);
+  assert.match(await p.innerText('#ficheCorps'), /Préparation d'échantillons[\s\S]*Détails[\s\S]*CHU Nedir Mohamed[\s\S]*juin 2023 – août 2023/);
   await p.keyboard.press('Escape');
   await p.waitForSelector('#fiche', { state: 'hidden' });
   await p.waitForFunction(() => location.hash === '#parcours/experience');
@@ -103,8 +103,7 @@ test('lien : image, titre, description, bouton (texte réglé ou « Ouvrir »), 
     Object.assign(c.liens.items[0], { image: `${env.site.url}/favicon-512x512.png?a`, bouton: 'Visiter BioStudy', date: '2026-12-01' });
   });
   const p = await env.page({ chemin: '/#liens' });
-  assert.deepEqual(await titres(p, '#vue .rangee .rangee-tete h2'), ['Projets']);
-  const premiere = p.locator('#vue a.carte-lien >> nth=0');
+  const premiere = p.locator('#vue .liens-une a.carte-lien >> nth=0');
   assert.equal(await premiere.getAttribute('href'), 'https://www.biostudy.xyz/');
   assert.equal(await premiere.getAttribute('target'), '_blank');
   assert.match(await premiere.getAttribute('rel'), /noopener/);
@@ -120,7 +119,7 @@ test('replis des cartes', async () => {
   const p = await env.page({ chemin: '/#parcours' });
   const interet = p.locator('#vue .carte-interet >> nth=0');
   assert.equal(await interet.locator('img').count(), 0);
-  assert.equal(await interet.locator('.degrade').count(), 0);
+  assert.equal(await interet.locator('.affiche-repli').count(), 1);
   assert.equal(await interet.locator('b').innerText(), 'Astronomie');
   await p.goto(env.site.url + '/#liens/projets');
   await p.waitForSelector('#vue .grille a.carte-lien');
@@ -180,33 +179,53 @@ test('Lire la suite déplie le profil', async () => {
   assert.equal(await hash(p), '#parcours');
 });
 
-test('accueil : salutation, présentation, repères, Ce que je fais, projet phare, boutons', async () => {
+test('accueil : carrousel (domaines puis projet phare), salutation, compteurs, rangées d\'images', async () => {
   reinit();
   const p = await env.page();
+  assert.deepEqual(await titres(p, '#vue .carrousel .diapo h2'), ['Microbiologie', 'Graphisme', 'Montage vidéo', 'BioStudy']);
+  assert.equal(await p.getAttribute('#vue .carrousel .diapo >> nth=0 >> a.btn', 'href'), '#parcours/competences');
+  assert.equal(await p.getAttribute('#vue .carrousel .diapo >> nth=3 >> a.btn', 'href'), 'https://www.biostudy.xyz/');
+  assert.equal(await p.getAttribute('#vue .carrousel .diapo >> nth=3 >> a.btn', 'target'), '_blank');
+  assert.equal(await p.locator('#vue .carrousel .points button').count(), 4);
+  assert.equal(await p.getAttribute('#vue .carrousel .points button >> nth=0', 'aria-current'), 'true');
+  await p.click('#vue .carrousel .points button >> nth=2');
+  await p.waitForFunction(() => document.querySelector('#vue .carrousel .points button:nth-child(3)').getAttribute('aria-current') === 'true');
   assert.equal(await p.innerText('#vue h1'), 'Bonjour, je suis Amar');
   assert.match(await p.innerText('#vue .intro'), /Master 1 de microbiologie[\s\S]*BioStudy/);
   assert.equal(await p.locator('#vue .reperes li').count(), 3);
-  assert.match(await p.innerText('#vue .reperes li >> nth=0'), /Master 1\s+Microbiologie, Lyon 1/);
-  assert.deepEqual(await titres(p, '#vue .accueil h2'), ['Ce que je fais', 'Projet phare']);
-  assert.deepEqual(await titres(p, '#vue .carte-domaine b'), ['Microbiologie', 'Graphisme', 'Montage vidéo']);
-  assert.match(await p.innerText('#vue .carte-domaine >> nth=2 >> p'), /Vidéos courtes/);
-  /* sans image : carte de texte, pas de grand bloc de couleur vide ; texte entier */
-  assert.equal(await p.locator('#vue .carte-domaine >> nth=0 >> .degrade, #vue .carte-domaine >> nth=0 >> img').count(), 0);
-  assert.ok(await p.locator('#vue .carte-domaine >> nth=0 >> p').evaluate((x) => x.scrollHeight <= x.clientHeight + 1 && getComputedStyle(x).webkitLineClamp === 'none'));
-  assert.equal(await p.getAttribute('#vue .projet-phare a.carte-lien', 'href'), 'https://www.biostudy.xyz/');
+  assert.match(await p.innerText('#vue .reperes li >> nth=2'), /6 ans\s+de design freelance/);
+  assert.deepEqual(await titres(p, '#vue .accueil .rangee-tete h2'), ['Ce que je fais', 'Projets', 'Certifications', 'Passions']);
+  assert.equal(await p.getAttribute('#vue .rangee:has(h2:text-is("Certifications")) a.voir', 'href'), '#parcours/certifications');
+  assert.equal(await p.locator('#vue .rangee:has(h2:text-is("Ce que je fais")) a.voir').count(), 0);
+  assert.match(await p.innerText('#vue .carte-domaine >> nth=2'), /Montage vidéo[\s\S]*Vidéos courtes/);
   assert.equal(await p.getAttribute('#vue .accueil .acts a:has-text("Me contacter")', 'href'), '#contact');
 });
 
-test('accueil : domaine avec image, repère masqué, projet phare introuvable ou domaines vides → blocs absents', async () => {
+test('accueil : carrousel qui défile seul (sauf mouvement réduit), compteurs qui comptent', async () => {
+  reinit();
+  let p = await env.page({ mouvementReduit: false });
+  /* une diapo toutes les 5 s ; marge large car, sous la charge de toute la suite, le défilement peut prendre plusieurs secondes de plus */
+  await p.waitForFunction(() => document.querySelector('#vue .carrousel .points button:nth-child(2)').getAttribute('aria-current') === 'true', null, { timeout: 15000 });
+  await p.evaluate(() => document.querySelector('#vue .reperes').scrollIntoView());
+  await p.waitForFunction(() => document.querySelector('#vue .reperes li:nth-child(3) b').textContent === '6 ans');
+  p = await env.page();
+  await p.waitForTimeout(6000);
+  assert.equal(await p.getAttribute('#vue .carrousel .points button >> nth=0', 'aria-current'), 'true');
+  assert.equal(await p.innerText('#vue .reperes li >> nth=2 >> b'), '6 ans');
+});
+
+test('accueil : domaine avec image, repère masqué, projet absent, listes vides → blocs absents', async () => {
   reinit((c) => { c.accueil.domaines[1].image = { id: 'g', url: '/favicon-512x512.png?g' }; c.accueil.reperes[2].visible = false; c.accueil.projetPhare = 'zzz'; });
   let p = await env.page();
   assert.equal(await p.getAttribute('#vue .carte-domaine >> nth=1 >> img', 'src'), '/favicon-512x512.png?g');
+  assert.equal(await p.getAttribute('#vue .carrousel .diapo >> nth=1 >> img', 'src'), '/favicon-512x512.png?g');
   assert.equal(await p.locator('#vue .reperes li').count(), 2);
-  assert.equal(await p.locator('#vue .projet-phare').count(), 0);
-  reinit((c) => { c.accueil.domaines = []; c.accueil.reperes = []; });
+  assert.equal(await p.locator('#vue .carrousel .diapo').count(), 3);
+  reinit((c) => { c.accueil.domaines = []; c.accueil.reperes = []; c.accueil.projetPhare = ''; });
   p = await env.page();
-  assert.deepEqual(await titres(p, '#vue .accueil h2'), ['Projet phare']);
+  assert.equal(await p.locator('#vue .carrousel').count(), 0);
   assert.equal(await p.locator('#vue .reperes').count(), 0);
+  assert.deepEqual(await titres(p, '#vue .accueil .rangee-tete h2'), ['Projets', 'Certifications', 'Passions']);
 });
 
 test('echappe le HTML', async () => {
@@ -284,9 +303,9 @@ test('couleur par rubrique : Formation bleu, Certifications vert, catégories de
   assert.equal(pc, bleu);
   [pc, bleu, vert] = await couleur('#vue .rangee:has(h2:text-is("Certifications"))');
   assert.equal(pc, vert);
-  await p.evaluate(() => { location.hash = '#liens'; });
-  await p.waitForSelector('#vue .rangee');
-  const [p1, b1] = await couleur('#vue .rangee');
+  await p.evaluate(() => { location.hash = '#liens/projets'; });
+  await p.waitForSelector('#vue .vt-voir');
+  const [p1, b1] = await couleur('#vue .vt-voir');
   assert.equal(p1, b1);
   await p.evaluate(() => { location.hash = '#parcours/certifications'; });
   await p.waitForSelector('#vue .vt-voir');
@@ -339,4 +358,60 @@ test('lien : image choisie (envoyée) prioritaire sur l\'aperçu automatique', a
   reinit((c) => { Object.assign(c.liens.items[0], { image: 'https://exemple.fr/a.png', media: { id: 'm1', url: '/favicon-512x512.png?perso' } }); });
   const p = await env.page({ chemin: '/#liens' });
   assert.equal(await p.getAttribute('#vue a.carte-lien >> nth=0 >> img', 'src'), '/favicon-512x512.png?perso');
+});
+
+test('affiches : chaque certification, compétence et passion a un visuel (image, sinon affiche dessinée)', async () => {
+  reinit((c) => { c.parcours.certifications[1].image = { id: 'k', url: '/favicon-512x512.png?cert' }; c.parcours.competences[0].image = { id: 'c', url: '/favicon-512x512.png?comp' }; });
+  const p = await env.page({ chemin: '/#parcours' });
+  const cert = (n) => `#vue .rangee:has(h2:text-is("Certifications")) .carte-cert >> nth=${n}`;
+  assert.equal(await p.innerText(`${cert(0)} >> .visuel .affiche-repli`), 'Google');
+  assert.match(await p.getAttribute(`${cert(1)} >> .visuel img`, 'src'), /\?cert$/);
+  assert.match(await p.innerText(cert(0)), /Gestion de projet[\s\S]*2024-2025/);
+  assert.match(await p.getAttribute('#vue .carte-comp >> nth=0 >> .visuel img', 'src'), /\?comp$/);
+  assert.equal(await p.innerText('#vue .carte-comp >> nth=1 >> .visuel .affiche-repli'), 'Biologie moléculaire');
+  assert.equal(await p.innerText('#vue .carte-interet >> nth=0 >> .visuel .affiche-repli'), 'Astronomie');
+  assert.equal(await p.getAttribute('#vue .carte-interet >> nth=0 >> .visuel', 'aria-hidden'), 'true');
+});
+
+test('fiche façon Nuvio : bannière, description, « Détails » en lignes libellé / valeur, fond flouté', async () => {
+  reinit((c) => { c.parcours.certifications[0].url = 'https://coursera.org/verify/ABC'; c.parcours.certifications[0].image = { id: 'k', url: '/favicon-512x512.png?cert' }; });
+  const p = await env.page({ chemin: '/#parcours/experience/e1' });
+  await ouverte(p);
+  const details = () => p.$$eval('#ficheCorps dl.details > div', (xs) => xs.map((x) => [x.querySelector('dt').textContent, x.querySelector('dd').textContent]));
+  assert.equal(await p.locator('#ficheCorps .fiche-banniere .visuel').count(), 1);
+  assert.equal(await p.innerText('#ficheCorps h3'), 'Détails');
+  assert.deepEqual(await details(), [['Lieu', "CHU Nedir Mohamed, Tizi-Ouzou"], ['Période', 'juin 2023 – août 2023'], ['Durée', '3 mois'], ['Statut', 'Terminé']]);
+  assert.equal(await p.evaluate(() => document.getElementById('feuille').style.getPropertyValue('--fond')), '');
+  await p.keyboard.press('Escape');
+  await p.evaluate(() => { location.hash = '#parcours/certifications/k1'; });
+  await ouverte(p);
+  assert.deepEqual(await details(), [['Organisme', "Google · Coursera"], ['Année', "2024-2025"], ['Statut', 'Obtenu']]);
+  assert.match(await p.getAttribute('#ficheCorps .fiche-banniere img', 'src'), /\?cert$/);
+  assert.match(await p.evaluate(() => document.getElementById('feuille').style.getPropertyValue('--fond')), /^url\(".*\?cert"\)$/);
+  assert.equal(await p.getAttribute('#ficheCorps a.btn:has-text("Voir le certificat")', 'href'), 'https://coursera.org/verify/ABC');
+  await p.keyboard.press('Escape');
+  await p.evaluate(() => { location.hash = '#parcours/formation/f1'; });
+  await ouverte(p);
+  assert.equal((await details()).find((d) => d[0] === 'Statut')[1], 'En cours');
+});
+
+test('liens façon Bibliothèque : carte résumé + liens à la une, une ligne par catégorie, récents en tuiles', async () => {
+  reinit((c) => { c.liens.items[1].categorie = 'android'; c.liens.items[1].date = '2026-12-01'; });
+  const p = await env.page({ chemin: '/#liens' });
+  assert.match(await p.innerText('#vue .liens-une .carte-resume'), /Mes liens[\s\S]*9\s+liens partagés[\s\S]*8 projets · 1 applis android/i);
+  assert.equal(await p.locator('#vue .liens-une a.carte-lien').count(), 3);
+  assert.equal(await p.getAttribute('#vue .liens-une a.carte-lien >> nth=0', 'href'), 'https://www.biostudy.xyz/BioCampus/');
+  const lignes = await p.$$eval('#vue .liste-categories a', (xs) => xs.map((x) => [x.querySelector('b').textContent, x.querySelector('small').textContent, x.getAttribute('href')]));
+  assert.deepEqual(lignes, [['Projets', '8', '#liens/projets'], ['Applis Android', '1', '#liens/android']]);
+  assert.equal(await p.locator('#vue .liste-categories a >> nth=0 >> svg').count() >= 1, true);
+  assert.equal(await p.innerText('#vue .recents h2'), 'Récents');
+  assert.equal(await p.getAttribute('#vue .recents a.tout', 'href'), '#liens/tous');
+  assert.equal(await p.locator('#vue .recents a.tuile').count(), 9);
+  assert.equal(await p.getAttribute('#vue .recents a.tuile >> nth=0', 'target'), '_blank');
+  assert.equal(await p.innerText('#vue .recents a.tuile >> nth=0 >> b'), 'BioCampus');
+  assert.equal(await p.locator('#vue .recents a.tuile >> nth=0 >> .tuile-visuel').count(), 1);
+  await p.click('#vue .recents a.tout');
+  await p.waitForFunction(() => location.hash === '#liens/tous');
+  assert.equal(await p.innerText('#vue .vt-tete h1'), 'Tous les liens');
+  assert.equal(await p.locator('#vue .grille > .carte-lien').count(), 9);
 });

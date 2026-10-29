@@ -101,6 +101,7 @@
     "titre": "Microbiologie",
     "texte": "Préparation d'échantillons, colorations, microscopie et identification : l'expérience concrète du laboratoire hospitalier.",
     "image": null,
+    "lien": "#parcours/competences",
     "visible": true
    },
    {
@@ -108,6 +109,7 @@
     "titre": "Graphisme",
     "texte": "Affiches, infographies, posters scientifiques et identités visuelles, en freelance depuis six ans.",
     "image": null,
+    "lien": "#portfolio",
     "visible": true
    },
    {
@@ -115,6 +117,7 @@
     "titre": "Montage vidéo",
     "texte": "Vidéos courtes pour les réseaux sociaux et vulgarisation scientifique.",
     "image": null,
+    "lien": "#liens",
     "visible": true
    }
   ],
@@ -263,6 +266,7 @@
      "Tests d'identification",
      "Antibiogramme"
     ],
+    "image": null,
     "visible": true
    },
    {
@@ -276,6 +280,7 @@
      "PCR",
      "RT-PCR"
     ],
+    "image": null,
     "visible": true
    },
    {
@@ -289,6 +294,7 @@
      "Cytométrie en flux",
      "Immunofluorescence"
     ],
+    "image": null,
     "visible": true
    },
    {
@@ -302,6 +308,7 @@
      "Alignements",
      "Phylogénie"
     ],
+    "image": null,
     "visible": true
    },
    {
@@ -314,6 +321,7 @@
      "Cultures microbiennes",
      "Interprétation des résultats"
     ],
+    "image": null,
     "visible": true
    }
   ],
@@ -361,6 +369,7 @@
     "organisme": "Google · Coursera",
     "annee": "2024-2025",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -369,6 +378,7 @@
     "organisme": "Adobe · Coursera",
     "annee": "2024-2025",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -377,6 +387,7 @@
     "organisme": "Université de Manchester",
     "annee": "2025",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -385,6 +396,7 @@
     "organisme": "Duke University · KCMC",
     "annee": "2025",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -393,6 +405,7 @@
     "organisme": "University of Colorado",
     "annee": "2025",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -401,6 +414,7 @@
     "organisme": "Johns Hopkins University",
     "annee": "2021",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -409,6 +423,7 @@
     "organisme": "UNICEF Agora",
     "annee": "2025",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -417,6 +432,7 @@
     "organisme": "AMBS · APSYS",
     "annee": "2025",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -425,6 +441,7 @@
     "organisme": "Université Clermont Auvergne",
     "annee": "2024",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -433,6 +450,7 @@
     "organisme": "Adobe · Coursera · Spécialisation",
     "annee": "",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -441,6 +459,7 @@
     "organisme": "Adobe · Coursera",
     "annee": "",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -449,6 +468,7 @@
     "organisme": "Adobe · Coursera",
     "annee": "",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -457,6 +477,7 @@
     "organisme": "Adobe · Coursera",
     "annee": "",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -465,6 +486,7 @@
     "organisme": "Adobe · Coursera",
     "annee": "",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -473,6 +495,7 @@
     "organisme": "Coursera · Illustration vectorielle",
     "annee": "",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -481,6 +504,7 @@
     "organisme": "Coursera · Montage vidéo",
     "annee": "",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -489,6 +513,7 @@
     "organisme": "Coursera · Réseaux sociaux",
     "annee": "",
     "url": "",
+    "image": null,
     "visible": true
    },
    {
@@ -497,6 +522,7 @@
     "organisme": "Coursera",
     "annee": "2024",
     "url": "",
+    "image": null,
     "visible": true
    }
   ],

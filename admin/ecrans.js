@@ -365,10 +365,11 @@ export const ECRANS = [
       bloc('reperes', groupe('Repères', 'Trois chiffres ou faits marquants, affichés sous la présentation.', editeurListe(etat, modifier, rafraichir, 'accueil.reperes', {
         libelleElement: 'un repère', prefixe: 'r', resume: (x) => `${x.valeur} ${x.libelle}`.trim(), nouveau: { valeur: '', libelle: '' },
         champs: [{ cle: 'valeur', libelle: 'Valeur (ex. 2022, 6 ans)' }, { cle: 'libelle', libelle: 'Libellé' }] }))),
-      bloc('domaines', groupe('Ce que je fais', 'Une grande carte par domaine : image, titre et texte toujours visibles.', editeurListe(etat, modifier, rafraichir, 'accueil.domaines', {
-        libelleElement: 'un domaine', prefixe: 'd', resume: (x) => x.titre, nouveau: { titre: '', texte: '', image: null },
-        champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'texte', libelle: 'Texte', type: 'multiligne' }, { cle: 'image', libelle: 'Image', type: 'image' }] }))),
-      groupe('Projet phare', 'Un de tes liens, mis en avant en grand sur l\'Accueil.', f.champSelect('accueil.projetPhare', 'Lien mis en avant', projets)));
+      bloc('domaines', groupe('Ce que je fais', 'Chaque domaine devient une bannière du carrousel et une carte de la rangée « Ce que je fais ».', editeurListe(etat, modifier, rafraichir, 'accueil.domaines', {
+        libelleElement: 'un domaine', prefixe: 'd', resume: (x) => x.titre, nouveau: { titre: '', texte: '', image: null, lien: '' },
+        champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'texte', libelle: 'Texte', type: 'multiligne' }, { cle: 'image', libelle: 'Image', type: 'image' },
+          { cle: 'lien', libelle: 'Lien du bouton « Découvrir » (#portfolio, #liens… ou https://…)' }] }))),
+      groupe('Projet phare', 'Un de tes liens, en dernière bannière du carrousel.', f.champSelect('accueil.projetPhare', 'Lien mis en avant', projets)));
   } },
   { id: 'parcours', titre: 'Parcours', rendre(racine, etat, modifier, rafraichir) {
     const f = champs(etat, modifier);
@@ -381,14 +382,15 @@ export const ECRANS = [
       formation: () => liste('parcours.formation', { libelleElement: 'une formation', champs: DATES, resume: (x) => x.titre, nouveau: NOUVEAU_DATE, prefixe: 'f' }),
       experience: () => liste('parcours.experience', { libelleElement: 'une expérience', champs: DATES, resume: (x) => x.titre, nouveau: NOUVEAU_DATE, prefixe: 'e' }),
       engagement: () => liste('parcours.engagement', { libelleElement: 'un engagement', champs: DATES, resume: (x) => x.titre, nouveau: NOUVEAU_DATE, prefixe: 'g' }),
-      competences: () => liste('parcours.competences', { libelleElement: 'une compétence', prefixe: 'c', nouveau: { domaine: '', resume: '', techniques: [] }, resume: (x) => x.domaine,
-        champs: [{ cle: 'domaine', libelle: 'Domaine' }, { cle: 'resume', libelle: 'Résumé', type: 'multiligne' }, { cle: 'techniques', libelle: 'Techniques', type: 'puces' }] }),
+      competences: () => liste('parcours.competences', { libelleElement: 'une compétence', prefixe: 'c', nouveau: { domaine: '', resume: '', techniques: [], image: null }, resume: (x) => x.domaine,
+        champs: [{ cle: 'domaine', libelle: 'Domaine' }, { cle: 'resume', libelle: 'Résumé', type: 'multiligne' }, { cle: 'techniques', libelle: 'Techniques', type: 'puces' },
+          { cle: 'image', libelle: 'Image', type: 'image' }] }),
       langues: () => liste('parcours.langues', { libelleElement: 'une langue', prefixe: 'l', nouveau: { langue: '', niveau: '', drapeau: '' }, resume: (x) => x.langue,
         champs: [{ cle: 'langue', libelle: 'Langue' }, { cle: 'niveau', libelle: 'Niveau' },
           { cle: 'drapeau', libelle: 'Drapeau', type: 'select', options: () => [{ valeur: '', libelle: 'Automatique (selon la langue)' }, ...Object.entries(DRAPEAUX).map(([valeur, libelle]) => ({ valeur, libelle }))] }] }),
-      certifications: () => liste('parcours.certifications', { libelleElement: 'une certification', prefixe: 'k', nouveau: { titre: '', organisme: '', annee: '', url: '' }, resume: (x) => x.titre,
+      certifications: () => liste('parcours.certifications', { libelleElement: 'une certification', prefixe: 'k', nouveau: { titre: '', organisme: '', annee: '', url: '', image: null }, resume: (x) => x.titre,
         champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'organisme', libelle: 'Organisme' }, { cle: 'annee', libelle: 'Année' },
-          { cle: 'url', libelle: 'Lien du certificat (https://…)' }] }),
+          { cle: 'url', libelle: 'Lien du certificat (https://…)' }, { cle: 'image', libelle: 'Affiche', type: 'image' }] }),
       interets: () => liste('parcours.interets', { libelleElement: 'un intérêt', prefixe: 'i', nouveau: { titre: '', texte: '', image: null }, resume: (x) => x.titre,
         champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'texte', libelle: 'Texte', type: 'multiligne' }, { cle: 'image', libelle: 'Image', type: 'image' }] }),
     };

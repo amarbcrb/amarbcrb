@@ -1,10 +1,13 @@
 /* Pages du site : Accueil, page de rangées d'un onglet, page « Voir tout » d'une partie.
    Tout texte venant du contenu passe par el() (assets/dom.js). */
-import { parties, contactVisible, couleurPartie, periode } from './model.js';
+import { parties, contactVisible, couleurPartie, periode, ongletsVisibles, lienSur } from './model.js';
 import { format } from './router.js';
 import { COULEURS } from './nav.js';
 import { el } from './dom.js';
-import { carte, carteDomaine } from './cartes.js';
+import { carte, carteDomaine, tuileLien, typeDominant, iconeType } from './cartes.js';
+import { carrousel } from './carrousel.js';
+
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const TITRES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Liens' };
 const VIDES = { parcours: 'Parcours bientôt disponible.', liens: 'Aucun lien pour le moment.', portfolio: 'Portfolio bientôt disponible.' };
@@ -18,10 +21,10 @@ const ICONES = {
 };
 const nElements = (n) => `${n} élément${n > 1 ? 's' : ''}`;
 
-/* rangée horizontale : titre, nombre, bouton › vers Voir tout, au plus 10 cartes puis « Voir tout (N) » */
-export function rangee({ titre, nombre, href, cartes, indice = 0, couleur = '--c-blue' }) {
+/* rangée horizontale : titre, nombre, bouton › vers Voir tout (si href), au plus 10 cartes puis « Voir tout (N) » */
+export function rangee({ titre, nombre, href = null, cartes, indice = 0, couleur = '--c-blue' }) {
   const piste = el('div', { class: 'piste' }, cartes.slice(0, MAX_RANGEE),
-    cartes.length > MAX_RANGEE ? el('a', { class: 'carte carte-plus', href }, `Voir tout (${cartes.length})`) : null);
+    cartes.length > MAX_RANGEE && href ? el('a', { class: 'carte carte-plus', href }, `Voir tout (${cartes.length})`) : null);
   const fleche = (sens, libelle) => {
     const b = el('button', { type: 'button', class: `piste-fleche ${sens}`, 'aria-label': libelle, html: sens === 'avant' ? ICONES.suite : ICONES.retour });
     b.addEventListener('click', () => piste.scrollBy({ left: (sens === 'avant' ? 1 : -1) * piste.clientWidth * 0.9, behavior: 'smooth' }));
@@ -31,8 +34,8 @@ export function rangee({ titre, nombre, href, cartes, indice = 0, couleur = '--c
     el('div', { class: 'piste-cadre' }, fleche('arriere', `Précédent : ${titre}`), piste, fleche('avant', `Suivant : ${titre}`)));
 }
 
-const teteRangee = (titre, nombre, href) => el('div', { class: 'rangee-tete' }, el('h2', {}, titre), el('small', {}, String(nombre)),
-  el('a', { class: 'voir', href, 'aria-label': `Voir tout : ${titre}`, html: ICONES.suite }));
+const teteRangee = (titre, nombre, href) => el('div', { class: 'rangee-tete' }, el('h2', {}, titre), nombre === null ? null : el('small', {}, String(nombre)),
+  href ? el('a', { class: 'voir', href, 'aria-label': `Voir tout : ${titre}`, html: ICONES.suite }) : null);
 
 /* frise chronologique : un point par étape (qui pulse si en cours), période, titre, lieu ; chaque étape ouvre sa fiche */
 export function frise(items, partie) {
@@ -55,19 +58,57 @@ function vueAccueil(c) {
   const visibles = (l) => l.filter((x) => x.visible !== false);
   const reperes = visibles(a.reperes), domaines = visibles(a.domaines);
   const projet = a.projetPhare && c.liens.items.find((x) => x.id === a.projetPhare && x.visible !== false);
+  const onglets = ongletsVisibles(c);
+  const image = (x) => (x && (lienSur(x.url) || /^\/(?!\/)/.test(String(x.url))) ? x.url : null);
+  const diapos = [
+    ...domaines.map((x) => ({ titre: x.titre, texte: x.texte, image: image(x.image), lien: x.lien, externe: lienSur(x.lien) })),
+    projet && { titre: projet.titre, texte: projet.description, image: image(projet.media) || (lienSur(projet.image) ? projet.image : null),
+      lien: projet.url, externe: true, bouton: projet.bouton || 'Ouvrir' },
+  ].filter(Boolean);
+  /* rangées d'images : ce que je fais, projets, certifications, passions */
+  const parcours = onglets.includes('parcours') ? parties(c, 'parcours') : [];
+  const partie = (id) => parcours.find((p) => p.id === id);
+  const liens = onglets.includes('liens') ? parties(c, 'liens').filter((p) => p.id !== 'tous').flatMap((p) => p.items.map((x) => [x, p.id])) : [];
+  const rangees = [
+    domaines.length && rangee({ titre: 'Ce que je fais', nombre: null, cartes: domaines.map((x, i) => carteDomaine(x, i)), couleur: '--c-teal' }),
+    liens.length && rangee({ titre: 'Projets', nombre: liens.length, href: '#liens', couleur: '--c-pink',
+      cartes: liens.map(([x, cat], k) => carte(x, { onglet: 'liens', partie: cat, c, indice: k })) }),
+    ...[['certifications', 'Certifications'], ['interets', 'Passions']].map(([id, titre]) => partie(id) && rangee({
+      titre, nombre: partie(id).items.length, href: format({ onglet: 'parcours', sous: id }), couleur: couleurPartie('parcours', id, 0),
+      cartes: partie(id).items.map((x, k) => carte(x, { onglet: 'parcours', partie: id, c, indice: k })) })),
+  ].filter(Boolean);
   const cv = c.medias.cv && c.medias.cv.url;
   const contact = contactVisible(c);
   return el('section', { class: 'vt accueil' },
+    diapos.length ? carrousel(diapos) : null,
     el('h1', { class: 'salut' }, a.salutation || c.site.nom),
     a.intro ? el('p', { class: 'intro' }, a.intro) : null,
-    reperes.length ? el('ul', { class: 'reperes' }, reperes.map((x) => el('li', {}, el('b', {}, x.valeur), el('span', {}, x.libelle)))) : null,
-    domaines.length ? el('section', { class: 'bloc-accueil' }, el('h2', {}, 'Ce que je fais'),
-      el('div', { class: 'piste domaines' }, domaines.map((x, i) => carteDomaine(x, i)))) : null,
-    projet ? el('section', { class: 'bloc-accueil projet-phare', style: '--pc:var(--c-blue)' }, el('h2', {}, 'Projet phare'),
-      carte(projet, { onglet: 'liens', partie: projet.categorie, c })) : null,
+    reperes.length ? el('ul', { class: 'reperes' }, reperes.map((x) => el('li', {}, compteur(x.valeur), el('span', {}, x.libelle)))) : null,
     (cv || contact) ? el('div', { class: 'acts' },
       contact ? el('a', { class: 'btn pri', href: '#contact' }, 'Me contacter') : null,
-      cv ? el('a', { class: contact ? 'btn' : 'btn pri', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV') : null) : null);
+      cv ? el('a', { class: contact ? 'btn' : 'btn pri', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV') : null) : null,
+    rangees);
+}
+
+/* chiffre d'un repère : compte de 0 à sa valeur quand il apparaît (« 6 ans », « 18 ») ; texte final dès le départ */
+function compteur(valeur) {
+  const b = el('b', {}, valeur);
+  const m = /^(\d{1,3})(\D.*)?$/.exec(String(valeur).trim());
+  if (!m || RM || !('IntersectionObserver' in window)) return b;
+  const fin = Number(m[1]), suite = m[2] || '';
+  const vu = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting) return;
+    vu.disconnect();
+    const debut = performance.now();
+    const pas = (t) => {
+      const k = Math.min(1, (t - debut) / 900);
+      b.textContent = `${Math.round(fin * (1 - (1 - k) ** 3))}${suite}`;
+      if (k < 1) requestAnimationFrame(pas);
+    };
+    requestAnimationFrame(pas);
+  }, { threshold: 0.6 });
+  vu.observe(b);
+  return b;
 }
 
 /* ---------- Profil (en tête de Parcours) ---------- */
@@ -100,6 +141,32 @@ function voirTout(onglet, p, c, couleur) {
       el('h1', {}, p.titre), el('small', {}, nElements(p.items.length))), contenu);
 }
 
+/* ---------- Liens, façon Bibliothèque ---------- */
+function vueLiens(c, liste) {
+  const cats = liste.filter((p) => p.id !== 'tous');
+  const tous = liste.find((p) => p.id === 'tous');
+  const section = (...enfants) => el('section', { class: 'vt v-liens', style: `--tc:var(${COULEURS.liens})` }, el('h1', {}, TITRES.liens), enfants);
+  if (!tous) return section(el('p', { class: 'vide' }, VIDES.liens));
+  const total = tous.items.length;
+  const couleur = (cat) => couleurPartie('liens', cat, cats.findIndex((p) => p.id === cat));
+  const resume = el('article', { class: 'carte carte-resume' },
+    el('span', { class: 'lbl' }, 'Mes liens'), el('span', { class: 'icone-resume', html: iconeType('web') }),
+    el('span', { class: 'chiffre' }, el('b', {}, String(total)), el('span', {}, total > 1 ? 'liens partagés' : 'lien partagé')),
+    el('small', {}, cats.map((p) => `${p.items.length} ${p.titre.toLowerCase()}`).join(' · ')));
+  const une = tous.items.slice(0, 3).map((x, k) => {
+    const e = carte(x, { onglet: 'liens', partie: x.categorie, c, indice: k + 1 });
+    e.style.setProperty('--pc', `var(${couleur(x.categorie)})`);
+    return e;
+  });
+  return section(
+    el('div', { class: 'piste liens-une' }, resume, une),
+    el('ul', { class: 'liste-categories' }, cats.map((p) => el('li', {}, el('a', { class: 'ligne-cat', href: format({ onglet: 'liens', sous: p.id }), style: `--pc:var(${couleur(p.id)})` },
+      el('span', { class: 'ico', html: iconeType(typeDominant(p.items, c)) }), el('b', {}, p.titre), el('small', {}, String(p.items.length)), el('i', { html: ICONES.suite }))))),
+    el('section', { class: 'recents' },
+      el('div', { class: 'recents-tete' }, el('h2', {}, 'Récents'), el('a', { class: 'tout', href: format({ onglet: 'liens', sous: 'tous' }) }, 'Tout afficher')),
+      el('div', { class: 'piste tuiles' }, tous.items.slice(0, 10).map((x, k) => tuileLien(x, c, k)))));
+}
+
 /* dossiers : liste Drive, null si le script est en panne, undefined tant qu'elle n'est pas chargée */
 export function rendreVue(racine, c, { onglet, sous }, dossiers) {
   if (onglet === 'accueil') { racine.replaceChildren(vueAccueil(c)); return; }
@@ -111,6 +178,7 @@ export function rendreVue(racine, c, { onglet, sous }, dossiers) {
   const liste = parties(c, onglet, dossiers || []);
   const n = sous ? liste.findIndex((x) => x.id === sous) : -1;
   if (n >= 0) { racine.replaceChildren(voirTout(onglet, liste[n], c, couleurPartie(onglet, sous, n))); return; }
+  if (onglet === 'liens') { racine.replaceChildren(vueLiens(c, liste)); return; }
   const rangees = liste.map((x, i) => {
     const commun = { titre: x.titre, href: format({ onglet, sous: x.id }), indice: i + 1, couleur: couleurPartie(onglet, x.id, i) };
     if (onglet === 'parcours' && FRISES.includes(x.id)) return rangeeFrise({ ...commun, items: x.items, partie: x.id });
