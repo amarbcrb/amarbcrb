@@ -1,5 +1,5 @@
 /* Cartes des rangées et contenu des fiches (feuille qui monte du bas). */
-import { lienSur, periode, typeLien, TYPES_LIEN, drapeauLangue } from './model.js';
+import { lienSur, periode, duree, typeLien, TYPES_LIEN, drapeauLangue } from './model.js';
 import { drapeauSvg } from './drapeaux.js';
 import { format } from './router.js';
 import { el } from './dom.js';
@@ -129,18 +129,29 @@ export function carte(x, { onglet, partie, c, indice = 0 }) {
   return el('div', { class: 'carte', style }, el('b', {}, titreFiche(x)));
 }
 
-/* contenu complet de la fiche d'un élément de Parcours */
+/* image de fond (floutée) de la fiche d'un élément, s'il en a une */
+export const fondFiche = (x) => imageSure(x.image);
+
+/* contenu complet de la fiche d'un élément de Parcours, façon page détail de Nuvio :
+   bannière, description, puis « Détails » en lignes libellé / valeur */
 export function corpsFiche(x, partie) {
   const paragraphes = (t) => String(t || '').split(/\n\s*\n/).filter((p) => p.trim()).map((p) => el('p', {}, p.trim()));
+  const banniere = (image, texte) => el('div', { class: 'fiche-banniere' }, visuel(image, texte));
+  const details = (lignes) => {
+    const l = lignes.filter(([, v]) => v);
+    return l.length ? [el('h3', { class: 'fiche-sous-titre' }, 'Détails'), el('dl', { class: 'details' }, l.map(([k, v]) => el('div', {}, el('dt', {}, k), el('dd', {}, v))))] : [];
+  };
   if (DATEES.includes(partie)) {
-    return el('div', { class: 'fiche-contenu' }, periode(x) ? el('p', { class: 'periode' }, periode(x)) : null,
-      x.lieu ? el('p', { class: 'lieu' }, x.lieu) : null, paragraphes(x.description));
+    return el('div', { class: 'fiche-contenu' }, banniere(imageSure(x.image), x.lieu || x.titre), paragraphes(x.description),
+      details([['Lieu', x.lieu], ['Période', periode(x)], ['Durée', duree(x)], ['Statut', x.enCours ? 'En cours' : (x.debut || x.fin ? 'Terminé' : '')]]));
   }
   if (partie === 'competences') {
-    return el('div', { class: 'fiche-contenu' }, paragraphes(x.resume), x.techniques.length ? el('ul', { class: 'techniques' }, x.techniques.map((t) => el('li', {}, t))) : null);
+    return el('div', { class: 'fiche-contenu' }, banniere(imageSure(x.image), x.domaine), paragraphes(x.resume),
+      x.techniques.length ? [el('h3', { class: 'fiche-sous-titre' }, 'Techniques'), el('ul', { class: 'techniques' }, x.techniques.map((t) => el('li', {}, t)))] : null);
   }
   if (partie === 'certifications') {
-    return el('div', { class: 'fiche-contenu' }, el('p', { class: 'lieu' }, [x.organisme, x.annee].filter(Boolean).join(' · ')), boutonCertificat(x));
+    return el('div', { class: 'fiche-contenu' }, banniere(imageSure(x.image), String(x.organisme || x.titre).split(' · ')[0]),
+      details([['Organisme', x.organisme], ['Année', x.annee], ['Statut', 'Obtenu']]), boutonCertificat(x));
   }
   return el('div', { class: 'fiche-contenu' });
 }

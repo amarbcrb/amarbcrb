@@ -125,6 +125,18 @@ export function periode(item) {
   return `${debut} – ${fin}`;
 }
 
+/* durée d'une étape (« 3 mois », « 1 an et 10 mois ») ; mois comptés inclus ; en cours : jusqu'à aujourd'hui */
+export function duree(item, aujourdhui = new Date()) {
+  const lire = (d) => { const m = /^(\d{4})(?:-(\d{2}))?$/.exec(String(d || '')); return m ? { a: Number(m[1]), m: m[2] ? Number(m[2]) : null } : null; };
+  const debut = lire(item.debut);
+  const fin = item.enCours ? { a: aujourdhui.getFullYear(), m: aujourdhui.getMonth() + 1 } : lire(item.fin);
+  if (!debut || !fin) return '';
+  const mois = debut.m && fin.m ? (fin.a - debut.a) * 12 + (fin.m - debut.m) + 1 : (fin.a - debut.a) * 12;
+  if (mois <= 0) return '';
+  const ans = Math.floor(mois / 12), reste = mois % 12;
+  return [ans ? `${ans} an${ans > 1 ? 's' : ''}` : '', reste ? `${reste} mois` : ''].filter(Boolean).join(' et ');
+}
+
 export function trierParDate(items) {
   return [...items].sort((a, b) => (Number(!!b.enCours) - Number(!!a.enCours)) || String(b.debut || '').localeCompare(String(a.debut || '')));
 }

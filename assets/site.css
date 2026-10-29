@@ -313,6 +313,16 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 .lire{margin-top:8px;min-height:44px;padding:0 2px;font-weight:600;color:var(--tx)}
 /* fiche d'un élément */
 .fiche-contenu{display:flex;flex-direction:column;gap:10px}
+.fiche-banniere .visuel{aspect-ratio:16/9;margin-bottom:6px}
+.fiche-banniere .affiche-repli span{font-size:clamp(28px,8vw,40px)}
+.fiche-sous-titre{margin-top:14px;font-size:20px;font-weight:700;letter-spacing:-.01em}
+.details{display:flex;flex-direction:column}
+.details>div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:14px 0;border-bottom:.75px solid var(--sep)}
+.details dt{font-size:15px;font-weight:600;color:var(--tx2)}
+.details dd{font-size:15px;text-align:right}
+/* fond flouté de la feuille (image de l'élément), comme les pages détail de Nuvio */
+#feuille[style*="--fond"]{overflow:hidden}
+#feuille[style*="--fond"]::before{content:"";position:absolute;inset:-40px;z-index:0;background:var(--fond) center/cover;filter:blur(40px) saturate(1.3);opacity:.32;pointer-events:none}
 .fiche-contenu .periode{font-size:14px;font-weight:600;color:var(--pc-tx,var(--tx3))}
 .fiche-contenu .lieu{font-size:16px;color:var(--tx2)}
 .fiche-contenu p{font-size:16px;line-height:1.6}

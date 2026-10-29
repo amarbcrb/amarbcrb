@@ -6,7 +6,7 @@ import { monterBarre } from './nav.js';
 import { rendreVue } from './render.js';
 import { construireIndex, chercher } from './search.js';
 import { ouvrirFiche, fermerFiche, ficheOuverte } from './fiche.js';
-import { corpsContact, corpsFiche, titreFiche } from './cartes.js';
+import { corpsContact, corpsFiche, titreFiche, fondFiche } from './cartes.js';
 
 const $ = (id) => document.getElementById(id);
 const root = document.documentElement;
@@ -193,9 +193,9 @@ function ficheFermee() {
 }
 
 /* meme : la même fiche est déjà ouverte (contenu rafraîchi), son entrée d'historique ne change pas */
-function surcouche(titre, corps, direct, meme, couleur = null) {
+function surcouche(titre, corps, direct, meme, couleur = null, fond = null) {
   if (!meme) etat.empilee = !direct;
-  ouvrirFiche({ titre, corps, onFerme: ficheFermee, couleur });
+  ouvrirFiche({ titre, corps, onFerme: ficheFermee, couleur, fond });
 }
 
 function afficher(anim = true) {
@@ -217,7 +217,7 @@ function afficher(anim = true) {
   const n = liste.findIndex((p) => p.id === cible.sous);
   const item = cible.element && liste[n].items.find((x) => x.id === cible.element);
   if (cible.contact) surcouche('Contact', corpsContact(c), direct, meme);
-  else if (item) surcouche(titreFiche(item), corpsFiche(item, cible.sous), direct, meme, couleurPartie(cible.onglet, cible.sous, n));
+  else if (item) surcouche(titreFiche(item), corpsFiche(item, cible.sous), direct, meme, couleurPartie(cible.onglet, cible.sous, n), fondFiche(item));
   else fermerFiche({ silencieux: true });
 }
 

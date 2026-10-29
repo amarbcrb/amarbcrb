@@ -56,7 +56,7 @@ test('étape → fiche (#parcours/experience/e1), contenu complet, Échap revien
   await ouverte(p);
   assert.equal(await hash(p), '#parcours/experience/e1');
   assert.equal(await p.innerText('#ficheTitre'), 'Stage parasitologie-mycologie');
-  assert.match(await p.innerText('#ficheCorps'), /juin 2023 – août 2023[\s\S]*CHU Nedir Mohamed[\s\S]*Préparation d'échantillons/);
+  assert.match(await p.innerText('#ficheCorps'), /Préparation d'échantillons[\s\S]*Détails[\s\S]*CHU Nedir Mohamed[\s\S]*juin 2023 – août 2023/);
   await p.keyboard.press('Escape');
   await p.waitForSelector('#fiche', { state: 'hidden' });
   await p.waitForFunction(() => location.hash === '#parcours/experience');
@@ -371,4 +371,26 @@ test('affiches : chaque certification, compétence et passion a un visuel (image
   assert.equal(await p.innerText('#vue .carte-comp >> nth=1 >> .visuel .affiche-repli'), 'Biologie moléculaire');
   assert.equal(await p.innerText('#vue .carte-interet >> nth=0 >> .visuel .affiche-repli'), 'Astronomie');
   assert.equal(await p.getAttribute('#vue .carte-interet >> nth=0 >> .visuel', 'aria-hidden'), 'true');
+});
+
+test('fiche façon Nuvio : bannière, description, « Détails » en lignes libellé / valeur, fond flouté', async () => {
+  reinit((c) => { c.parcours.certifications[0].url = 'https://coursera.org/verify/ABC'; c.parcours.certifications[0].image = { id: 'k', url: '/favicon-512x512.png?cert' }; });
+  const p = await env.page({ chemin: '/#parcours/experience/e1' });
+  await ouverte(p);
+  const details = () => p.$$eval('#ficheCorps dl.details > div', (xs) => xs.map((x) => [x.querySelector('dt').textContent, x.querySelector('dd').textContent]));
+  assert.equal(await p.locator('#ficheCorps .fiche-banniere .visuel').count(), 1);
+  assert.equal(await p.innerText('#ficheCorps h3'), 'Détails');
+  assert.deepEqual(await details(), [['Lieu', "CHU Nedir Mohamed, Tizi-Ouzou"], ['Période', 'juin 2023 – août 2023'], ['Durée', '3 mois'], ['Statut', 'Terminé']]);
+  assert.equal(await p.evaluate(() => document.getElementById('feuille').style.getPropertyValue('--fond')), '');
+  await p.keyboard.press('Escape');
+  await p.evaluate(() => { location.hash = '#parcours/certifications/k1'; });
+  await ouverte(p);
+  assert.deepEqual(await details(), [['Organisme', "Google · Coursera"], ['Année', "2024-2025"], ['Statut', 'Obtenu']]);
+  assert.match(await p.getAttribute('#ficheCorps .fiche-banniere img', 'src'), /\?cert$/);
+  assert.match(await p.evaluate(() => document.getElementById('feuille').style.getPropertyValue('--fond')), /^url\(".*\?cert"\)$/);
+  assert.equal(await p.getAttribute('#ficheCorps a.btn:has-text("Voir le certificat")', 'href'), 'https://coursera.org/verify/ABC');
+  await p.keyboard.press('Escape');
+  await p.evaluate(() => { location.hash = '#parcours/formation/f1'; });
+  await ouverte(p);
+  assert.equal((await details()).find((d) => d[0] === 'Statut')[1], 'En cours');
 });

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import {
   ONGLETS, SOUS_PARCOURS, normaliser, formaterDate, periode, trierParDate, formationActuelle,
   derniereExperience, ongletsVisibles, parties, aFiche, contactVisible, PARTIES_PARCOURS, nomAffiche, lienSur, valider, nouvelId, echapper,
-  TYPES_LIEN, typeLien, couleurPartie, DRAPEAUX, drapeauLangue,
+  TYPES_LIEN, typeLien, couleurPartie, DRAPEAUX, drapeauLangue, duree,
 } from '../assets/model.js';
 
 test('constantes', () => {
@@ -283,4 +283,17 @@ test('drapeauLangue : drapeau choisi, sinon deviné depuis le nom de la langue',
   assert.equal(d('Anglais', 'us'), 'us');
   assert.equal(d('Anglais', 'zz'), 'gb');
   assert.equal(normaliser({ parcours: { langues: [{ langue: 'Kabyle' }] } }).parcours.langues[0].drapeau, '');
+});
+
+test('duree : mois inclus, années, en cours jusqu\'à aujourd\'hui', () => {
+  const ref = new Date(2026, 9, 29);
+  assert.equal(duree({ debut: '2023-06', fin: '2023-08' }, ref), '3 mois');
+  assert.equal(duree({ debut: '2023-06', fin: '2023-06' }, ref), '1 mois');
+  assert.equal(duree({ debut: '2022-09', fin: '2024-06' }, ref), '1 an et 10 mois');
+  assert.equal(duree({ debut: '2021-09', fin: '2023-08' }, ref), '2 ans');
+  assert.equal(duree({ debut: '2023', fin: '2025' }, ref), '2 ans');
+  assert.equal(duree({ debut: '2016', fin: '2017' }, ref), '1 an');
+  assert.equal(duree({ debut: '2025', fin: '2025' }, ref), '');
+  assert.equal(duree({ debut: '2025-09', enCours: true }, ref), '1 an et 2 mois');
+  assert.equal(duree({ debut: '', fin: '2020' }, ref), '');
 });
