@@ -40,7 +40,8 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       etat.version += 1;
       etat.contenu = { ...d.contenu, version: etat.version, updatedAt: new Date().toISOString() };
       /* comme Code.gs : les médias envoyés que le contenu n'utilise plus partent à la corbeille */
-      const utilises = new Set([...Object.values(etat.contenu.medias || {}), ...((etat.contenu.parcours || {}).interets || []).map((x) => x && x.image)]
+      const utilises = new Set([...Object.values(etat.contenu.medias || {}), ...((etat.contenu.parcours || {}).interets || []).map((x) => x && x.image),
+        ...((etat.contenu.liens || {}).items || []).map((x) => x && x.media)]
         .filter((m) => m && m.id).map((m) => m.id));
       etat.envoyes.filter((id) => !utilises.has(id) && !etat.corbeille.includes(id)).forEach((id) => etat.corbeille.push(id));
       return { version: etat.version };

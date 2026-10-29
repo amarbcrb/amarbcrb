@@ -74,9 +74,9 @@ input:focus,textarea:focus,select:focus{border-color:var(--acc)}
 .dossiers{display:flex;flex-direction:column;gap:8px}
 .ligne.dossier{display:flex;flex-direction:column;gap:6px;padding:10px 14px}
 .apercu-media{width:96px;height:96px;border-radius:20px;object-fit:cover;background:var(--fill);border:.75px solid var(--line)}
-.apercu-media:not([src]){visibility:hidden}
 input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
 .groupe>label.btn{align-self:flex-start;color:var(--tx);cursor:pointer}
 .groupe .acts{margin-top:0}
 .champ-titre{font-size:14px;font-weight:600;color:var(--tx2)}
 .champ .acts{margin-top:4px}
+.apercu-media:not([src]){display:none}

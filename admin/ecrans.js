@@ -1,5 +1,5 @@
 /* Écrans de l'admin : formulaires qui lisent et modifient etat.contenu par chemin (« accueil.positionnement »). */
-import { SOUS_PARCOURS, nouvelId, periode, lienSur, nomAffiche } from '../assets/model.js';
+import { SOUS_PARCOURS, nouvelId, periode, lienSur, nomAffiche, TYPES_LIEN } from '../assets/model.js';
 import { appeler, lirePortfolio } from '../assets/api.js';
 import { reduireImage, enBase64 } from './images.js';
 import { el } from '../assets/dom.js';
@@ -150,6 +150,7 @@ const messageErreur = (err) => ERREURS[err && err.code] || ERREURS.interne;
 const bouton = (id, texte, cls = 'btn') => el('button', { type: 'button', id, class: cls }, texte);
 
 /* ---------- Liens : ajout par URL, liste, catégories ---------- */
+const optionsType = () => [{ valeur: '', libelle: 'Automatique' }, ...Object.entries(TYPES_LIEN).map(([valeur, libelle]) => ({ valeur, libelle }))];
 function ecranLiens(racine, etat, modifier, rafraichir) {
   const c = etat.contenu;
   const options = () => c.liens.categories.map((x) => ({ valeur: x.id, libelle: x.nom }));
@@ -159,19 +160,45 @@ function ecranLiens(racine, etat, modifier, rafraichir) {
     saisie('ajoutUrl', 'Adresse', { placeholder: 'https://…' }),
     el('div', { class: 'champ' }, el('label', { for: 'ajoutCat' }, 'Catégorie'), el('select', { id: 'ajoutCat' }, options().map((o) => el('option', { value: o.valeur }, o.libelle)))),
     bouton('ajoutApercu', 'Récupérer l\'aperçu'),
-    saisie('ajoutTitre', 'Titre'), saisie('ajoutDesc', 'Description', { multiligne: true }), saisie('ajoutImage', 'Image (adresse)', { placeholder: 'https://…' }),
+    saisie('ajoutTitre', 'Titre'), saisie('ajoutDesc', 'Description', { multiligne: true }), saisie('ajoutImage', 'Image de l\'aperçu (adresse)', { placeholder: 'https://…' }),
+    el('div', { class: 'champ' }, el('label', { for: 'ajoutType' }, 'Type'), el('select', { id: 'ajoutType' }, optionsType().map((o) => el('option', { value: o.valeur }, o.libelle)))),
+    el('div', { class: 'champ' }, el('span', { class: 'champ-titre' }, 'Mon image (remplace l\'aperçu, facultatif)'), el('img', { id: 'ajoutApercuImage', class: 'apercu-media', alt: '' }),
+      el('div', { class: 'acts' }, el('label', { class: 'btn', for: 'ajoutFichier' }, 'Choisir mon image')),
+      el('input', { type: 'file', accept: 'image/*', id: 'ajoutFichier' }), el('small', { id: 'ajoutFichierMessage', class: 'aide', role: 'status' })),
     bouton('ajoutValider', 'Ajouter le lien', 'btn pri'), el('p', { id: 'ajoutMessage', class: 'aide', role: 'status' }));
   const q = (id) => ajout.querySelector('#' + id);
   const message = (t) => { q('ajoutMessage').textContent = t; };
+  let media = null;
+  q('ajoutFichier').addEventListener('change', async () => {
+    const f = q('ajoutFichier').files[0];
+    if (!f) return;
+    const dire = (t) => { q('ajoutFichierMessage').textContent = t; };
+    if (!f.type.startsWith('image/')) { dire('Choisis une image.'); return; }
+    try {
+      dire('Envoi de l\'image…');
+      const envoi = await reduireImage(f, 1600, 'image/jpeg');
+      const r = await appeler('envoyerMedia', { emplacement: 'image', nom: f.name, type: envoi.type, base64: envoi.base64 });
+      media = { id: r.id, url: r.url };
+      q('ajoutApercuImage').src = r.url;
+      dire('Image prête.');
+    } catch (err) {
+      dire(messageErreur(err));
+    } finally {
+      q('ajoutFichier').value = '';
+    }
+  });
   async function apercu() {
     const url = q('ajoutUrl').value.trim();
     if (!lienSur(url)) { message('Adresse web invalide (https://…).'); return; }
     message('Lecture de la page…');
+    /* un champ modifié pendant la lecture garde ce qui a été saisi */
+    const avant = ['ajoutTitre', 'ajoutDesc', 'ajoutImage'].map((id) => q(id).value);
+    const remplir = (id, i, v) => { if (q(id).value === avant[i]) q(id).value = v || ''; };
     try {
       const r = await appeler('apercuLien', { url });
-      q('ajoutTitre').value = r.titre || '';
-      q('ajoutDesc').value = r.description || '';
-      q('ajoutImage').value = r.image || '';
+      remplir('ajoutTitre', 0, r.titre);
+      remplir('ajoutDesc', 1, r.description);
+      remplir('ajoutImage', 2, r.image);
       message(r.titre ? 'Aperçu récupéré.' : 'Aperçu indisponible : remplis les champs.');
     } catch (err) {
       message(err.code === 'jeton' ? messageErreur(err) : 'Aperçu indisponible : remplis les champs.');
@@ -186,14 +213,16 @@ function ecranLiens(racine, etat, modifier, rafraichir) {
     if (!q('ajoutCat').value) { message('Crée d\'abord une catégorie.'); return; }
     const image = q('ajoutImage').value.trim();
     modifier('liens.items', [...c.liens.items, { id: nouvelId('u'), url, titre, description: q('ajoutDesc').value.trim(), image: lienSur(image) ? image : '',
-      categorie: q('ajoutCat').value, date: new Date().toISOString().slice(0, 10), visible: true }]);
+      categorie: q('ajoutCat').value, date: new Date().toISOString().slice(0, 10), bouton: '', type: q('ajoutType').value, media, visible: true }]);
     rafraichir();
     racine.querySelector('#ajoutMessage').textContent = 'Lien ajouté. Pense à enregistrer.';
   });
   const liens = groupe('Liens', 'Les plus récents s\'affichent en premier sur le site.', editeurListe(etat, modifier, rafraichir, 'liens.items', {
-    libelleElement: 'un lien', prefixe: 'u', resume: (x) => x.titre, nouveau: { url: '', titre: '', description: '', image: '', categorie: (c.liens.categories[0] || {}).id || '', date: new Date().toISOString().slice(0, 10), bouton: '' },
+    libelleElement: 'un lien', prefixe: 'u', resume: (x) => x.titre, nouveau: { url: '', titre: '', description: '', image: '', categorie: (c.liens.categories[0] || {}).id || '', date: new Date().toISOString().slice(0, 10), bouton: '', type: '', media: null },
     champs: [{ cle: 'url', libelle: 'Adresse' }, { cle: 'titre', libelle: 'Titre' }, { cle: 'description', libelle: 'Description', type: 'multiligne' },
-      { cle: 'image', libelle: 'Image (adresse)' }, { cle: 'bouton', libelle: 'Texte du bouton (facultatif, « Ouvrir » par défaut)' },
+      { cle: 'type', libelle: 'Type', type: 'select', options: optionsType },
+      { cle: 'media', libelle: 'Mon image (remplace l\'aperçu)', type: 'image' },
+      { cle: 'image', libelle: 'Image de l\'aperçu (adresse)' }, { cle: 'bouton', libelle: 'Texte du bouton (facultatif, « Ouvrir » par défaut)' },
       { cle: 'categorie', libelle: 'Catégorie', type: 'select', options }, { cle: 'date', libelle: 'Date (AAAA-MM-JJ)' }] }));
   liens.dataset.bloc = 'liens';
   const cats = groupe('Catégories', 'Chaque catégorie avec au moins un lien visible devient un sous-onglet.', editeurListe(etat, modifier, rafraichir, 'liens.categories', {

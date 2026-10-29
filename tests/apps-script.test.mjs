@@ -266,3 +266,16 @@ test('enregistrer garde l\'image d\'un intérêt et met à la corbeille l\'image
   assert.equal(g.fichiers.get(a.id).isTrashed(), false);
   assert.equal(g.fichiers.get(b.id).isTrashed(), true);
 });
+
+test('enregistrer garde l\'image choisie d\'un lien et met à la corbeille celle qu\'on retire', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const a = g.post({ a: 'envoyerMedia', jeton, emplacement: 'image', nom: 'a.jpg', type: 'image/jpeg', base64: PNG });
+  const c = JSON.parse(DEFAUT);
+  c.liens.items[0].media = { id: a.id, url: a.url };
+  assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 1, contenu: c }).version, 2);
+  assert.equal(g.fichiers.get(a.id).isTrashed(), false);
+  c.liens.items[0].media = null;
+  assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 2, contenu: c }).version, 3);
+  assert.equal(g.fichiers.get(a.id).isTrashed(), true);
+});
