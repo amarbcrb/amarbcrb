@@ -5,7 +5,7 @@ import { parse, format } from './router.js';
 import { monterBarre } from './nav.js';
 import { rendreVue } from './render.js';
 import { construireIndex, chercher } from './search.js';
-import { ouvrirFiche, fermerFiche } from './fiche.js';
+import { ouvrirFiche, fermerFiche, ficheOuverte } from './fiche.js';
 import { corpsContact, corpsFiche, titreFiche } from './cartes.js';
 
 const $ = (id) => document.getElementById(id);
@@ -13,7 +13,7 @@ const root = document.documentElement;
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* dossiers : undefined tant que le portfolio n'est pas lu, null si le script est en panne */
 /* base : page affichée sous une éventuelle fiche ; empilee : la fiche a sa propre entrée d'historique */
-const etat = { contenu: null, dossiers: undefined, chargementPortfolio: null, barre: null, cleBarre: null, vue: null, base: null, cleBase: null, empilee: false, index: null };
+const etat = { positions: {}, contenu: null, dossiers: undefined, chargementPortfolio: null, barre: null, cleBarre: null, vue: null, base: null, cleBase: null, empilee: false, index: null };
 const listeDossiers = () => (Array.isArray(etat.dossiers) ? etat.dossiers : []);
 
 /* ---------- Thème ---------- */
@@ -168,14 +168,20 @@ function dessinerPage(base, anim) {
   const k = format(base);
   if (k === etat.cleBase) return;
   const avant = etat.base;
+  if (etat.cleBase) etat.positions[etat.cleBase] = scrollY;
   etat.base = base;
   etat.cleBase = k;
   const vue = $('vue');
-  const dessiner = () => { rendreVue(vue, etat.contenu, base, etat.dossiers); reflet(vue); };
+  /* nouvelle page : en haut ; retour d'un Voir tout vers ses rangées : position d'avant ; même page redessinée : on ne bouge pas */
+  const defiler = () => {
+    if (avant && format(avant) === k) return;
+    const versRangees = avant && avant.onglet === base.onglet && avant.sous !== null && base.sous === null;
+    scrollTo({ top: versRangees ? etat.positions[k] || 0 : 0, behavior: 'instant' });
+  };
+  const dessiner = () => { rendreVue(vue, etat.contenu, base, etat.dossiers); reflet(vue); defiler(); };
   if (!anim || RM || !avant || !vue.animate) { dessiner(); return; }
   const sens = ONGLETS.indexOf(base.onglet) >= ONGLETS.indexOf(avant.onglet) ? 1 : -1;
   dessiner();
-  if (avant.onglet !== base.onglet) scrollTo(0, 0);
   vue.animate([{ opacity: 0, transform: `translateX(${sens * 34}px)`, filter: 'blur(8px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }],
     { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' });
 }
@@ -187,8 +193,9 @@ function ficheFermee() {
   etat.vue = { ...etat.base, element: null, contact: false };
 }
 
-function surcouche(titre, corps, direct) {
-  etat.empilee = !direct;
+/* meme : la même fiche est déjà ouverte (contenu rafraîchi), son entrée d'historique ne change pas */
+function surcouche(titre, corps, direct, meme) {
+  if (!meme) etat.empilee = !direct;
   ouvrirFiche({ titre, corps, onFerme: ficheFermee });
 }
 
@@ -200,16 +207,16 @@ function afficher(anim = true) {
   /* tant que les dossiers ne sont pas lus, on garde #portfolio/<dossier> tel quel */
   if (location.hash !== cle(cible) && !enAttente) history.replaceState(null, '', cle(cible));
   const direct = !etat.vue;
+  const meme = ficheOuverte() && etat.vue && (etat.vue.element || etat.vue.contact) && cle(etat.vue) === cle(cible);
   etat.vue = cible;
-  /* sous une fiche d'élément, on garde la page déjà affichée si c'est l'onglet ou le Voir tout de l'élément */
-  const garde = etat.base && etat.base.onglet === cible.onglet && (etat.base.sous === null || etat.base.sous === cible.sous);
+  /* sous une fiche, on garde la page déjà affichée ; en arrivée directe, c'est le Voir tout de l'élément */
   const base = cible.contact ? (etat.base || { onglet: 'accueil', sous: null })
-    : cible.element ? (garde ? etat.base : { onglet: cible.onglet, sous: cible.sous })
+    : cible.element ? (etat.base || { onglet: cible.onglet, sous: cible.sous })
       : { onglet: cible.onglet, sous: cible.sous };
   dessinerPage(base, anim);
   const item = cible.element && parties(c, cible.onglet).find((p) => p.id === cible.sous).items.find((x) => x.id === cible.element);
-  if (cible.contact) surcouche('Contact', corpsContact(c), direct);
-  else if (item) surcouche(titreFiche(item), corpsFiche(item, cible.sous), direct);
+  if (cible.contact) surcouche('Contact', corpsContact(c), direct, meme);
+  else if (item) surcouche(titreFiche(item), corpsFiche(item, cible.sous), direct, meme);
   else fermerFiche({ silencieux: true });
 }
 
