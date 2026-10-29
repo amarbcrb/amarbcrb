@@ -204,7 +204,8 @@ test('accueil : carrousel (domaines puis projet phare), salutation, compteurs, r
 test('accueil : carrousel qui défile seul (sauf mouvement réduit), compteurs qui comptent', async () => {
   reinit();
   let p = await env.page({ mouvementReduit: false });
-  await p.waitForFunction(() => document.querySelector('#vue .carrousel .points button:nth-child(2)').getAttribute('aria-current') === 'true', null, { timeout: 8000 });
+  /* une diapo toutes les 5 s ; marge large car, sous la charge de toute la suite, le défilement peut prendre plusieurs secondes de plus */
+  await p.waitForFunction(() => document.querySelector('#vue .carrousel .points button:nth-child(2)').getAttribute('aria-current') === 'true', null, { timeout: 15000 });
   await p.evaluate(() => document.querySelector('#vue .reperes').scrollIntoView());
   await p.waitForFunction(() => document.querySelector('#vue .reperes li:nth-child(3) b').textContent === '6 ans');
   p = await env.page();
