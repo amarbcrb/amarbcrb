@@ -1,7 +1,10 @@
 /* Modèle de contenu du site : forme attendue de contenu.json et fonctions pures pour le lire.
    Aucune dépendance au DOM : le module est importé par le site, l'admin et les tests Node. */
 
-export const ONGLETS = ['accueil', 'parcours', 'portfolio', 'liens', 'contact'];
+/* onglets de la barre ; Contact n'en fait plus partie (fiche ouverte depuis l'en-tête) */
+export const ONGLETS = ['accueil', 'parcours', 'portfolio', 'liens'];
+/* rangées de l'onglet Parcours, dans l'ordre d'affichage (le profil est en tête de page) */
+export const PARTIES_PARCOURS = ['formation', 'experience', 'competences', 'certifications', 'langues', 'engagement', 'interets'];
 export const SOUS_PARCOURS = ['profil', 'formation', 'experience', 'engagement', 'competences', 'langues', 'certifications', 'interets'];
 
 const TITRES_PARCOURS = {
@@ -19,10 +22,10 @@ const ITEMS = {
   'parcours.engagement': DATE_ITEM,
   'parcours.competences': { domaine: '', resume: '', techniques: [] },
   'parcours.langues': { langue: '', niveau: '' },
-  'parcours.certifications': { titre: '', organisme: '', annee: '' },
-  'parcours.interets': { titre: '', texte: '' },
+  'parcours.certifications': { titre: '', organisme: '', annee: '', url: '' },
+  'parcours.interets': { titre: '', texte: '', image: null },
   'liens.categories': { nom: '' },
-  'liens.items': { url: '', titre: '', description: '', image: '', categorie: '', date: '' },
+  'liens.items': { url: '', titre: '', description: '', image: '', categorie: '', date: '', bouton: '' },
   'contact.autres': { label: '', url: '' },
   'contact.ouvertA': { titre: '', detail: '' },
 };
@@ -145,27 +148,37 @@ export function nomAffiche(nom) {
   return String(nom || '').replace(/^\d+\s*-\s*/, '');
 }
 
-export function sousOnglets(c, onglet, dossiersPortfolio = []) {
+export const contactVisible = (c) => !(c.onglets.contact && c.onglets.contact.visible === false);
+
+/* seules les parties de Parcours (hors langues) ouvrent une fiche détaillée */
+export const aFiche = (onglet, partie) => onglet === 'parcours' && PARTIES_PARCOURS.includes(partie) && partie !== 'langues';
+
+const DATEES = ['formation', 'experience', 'engagement'];
+
+/* parties d'un onglet, chacune avec ses éléments visibles : une rangée par partie */
+export function parties(c, onglet, dossiersPortfolio = []) {
   if (onglet === 'parcours') {
     const sous = c.onglets.parcours.sous;
-    return SOUS_PARCOURS.filter((id) => {
-      if (!sous[id] || sous[id].visible === false) return false;
-      if (id === 'profil') return !!String(c.parcours.profil.texte || '').trim();
-      return visibles(c.parcours[id]).length > 0;
-    }).map((id) => ({ id, titre: sous[id].titre || TITRES_PARCOURS[id] }));
+    return PARTIES_PARCOURS.filter((id) => !sous[id] || sous[id].visible !== false)
+      .map((id) => {
+        const items = visibles(c.parcours[id]);
+        return { id, titre: (sous[id] && sous[id].titre) || TITRES_PARCOURS[id], items: DATEES.includes(id) ? trierParDate(items) : items };
+      })
+      .filter((p) => p.items.length);
   }
   if (onglet === 'liens') {
-    const items = visibles(c.liens.items);
+    const items = visibles(c.liens.items).map((x, i) => [x, i])
+      .sort((a, b) => String(b[0].date || '').localeCompare(String(a[0].date || '')) || a[1] - b[1]).map((x) => x[0]);
     return visibles(c.liens.categories)
-      .filter((cat) => items.some((x) => x.categorie === cat.id))
-      .map((cat) => ({ id: cat.id, titre: cat.nom }));
+      .map((cat) => ({ id: cat.id, titre: cat.nom, items: items.filter((x) => x.categorie === cat.id) }))
+      .filter((p) => p.items.length);
   }
   if (onglet === 'portfolio') {
     const reglages = c.portfolio.dossiers;
     return [...dossiersPortfolio]
       .filter((d) => !reglages[d.id] || reglages[d.id].visible !== false)
       .sort((a, b) => String(a.nom).localeCompare(String(b.nom), 'fr', { numeric: true }))
-      .map((d) => ({ id: d.id, titre: (reglages[d.id] && reglages[d.id].nom) || nomAffiche(d.nom) }));
+      .map((d) => ({ id: d.id, titre: (reglages[d.id] && reglages[d.id].nom) || nomAffiche(d.nom), items: d.fichiers || [] }));
   }
   return [];
 }
@@ -206,6 +219,7 @@ export function valider(c) {
   requis(c.parcours.competences, 'parcours.competences', 'domaine', 'Domaine');
   requis(c.parcours.langues, 'parcours.langues', 'langue', 'Langue');
   requis(c.parcours.certifications, 'parcours.certifications', 'titre', 'Titre');
+  c.parcours.certifications.forEach((x, i) => { if (x.url && !lienSur(x.url)) err(`parcours.certifications.${i}.url`, 'Adresse web invalide (https://…)'); });
   requis(c.parcours.interets, 'parcours.interets', 'titre', 'Titre');
   requis(c.liens.categories, 'liens.categories', 'nom', 'Nom');
   requis(c.liens.items, 'liens.items', 'titre', 'Titre');

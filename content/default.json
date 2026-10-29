@@ -316,6 +316,7 @@
     "titre": "Gestion de projet",
     "organisme": "Google · Coursera",
     "annee": "2024-2025",
+    "url": "",
     "visible": true
    },
    {
@@ -323,6 +324,7 @@
     "titre": "Créateur de contenu Adobe",
     "organisme": "Adobe · Coursera",
     "annee": "2024-2025",
+    "url": "",
     "visible": true
    },
    {
@@ -330,6 +332,7 @@
     "titre": "Biotechnologie industrielle",
     "organisme": "Université de Manchester",
     "annee": "2025",
+    "url": "",
     "visible": true
    },
    {
@@ -337,6 +340,7 @@
     "titre": "Parasitologie tropicale",
     "organisme": "Duke University · KCMC",
     "annee": "2025",
+    "url": "",
     "visible": true
    },
    {
@@ -344,6 +348,7 @@
     "titre": "Épidémiologie génétique",
     "organisme": "University of Colorado",
     "annee": "2025",
+    "url": "",
     "visible": true
    },
    {
@@ -351,6 +356,7 @@
     "titre": "Chemicals and Health",
     "organisme": "Johns Hopkins University",
     "annee": "2021",
+    "url": "",
     "visible": true
    },
    {
@@ -358,6 +364,7 @@
     "titre": "Préparation et réponse aux urgences",
     "organisme": "UNICEF Agora",
     "annee": "2025",
+    "url": "",
     "visible": true
    },
    {
@@ -365,6 +372,7 @@
     "titre": "Premiers Secours en Santé Mentale",
     "organisme": "AMBS · APSYS",
     "annee": "2025",
+    "url": "",
     "visible": true
    },
    {
@@ -372,6 +380,7 @@
     "titre": "Développement durable",
     "organisme": "Université Clermont Auvergne",
     "annee": "2024",
+    "url": "",
     "visible": true
    },
    {
@@ -379,6 +388,7 @@
     "titre": "Adobe Content Creator",
     "organisme": "Adobe · Coursera · Spécialisation",
     "annee": "",
+    "url": "",
     "visible": true
    },
    {
@@ -386,6 +396,7 @@
     "titre": "Design Fundamentals with AI",
     "organisme": "Adobe · Coursera",
     "annee": "",
+    "url": "",
     "visible": true
    },
    {
@@ -393,6 +404,7 @@
     "titre": "Generative AI Content Creation",
     "organisme": "Adobe · Coursera",
     "annee": "",
+    "url": "",
     "visible": true
    },
    {
@@ -400,6 +412,7 @@
     "titre": "Multimedia Content Creation",
     "organisme": "Adobe · Coursera",
     "annee": "",
+    "url": "",
     "visible": true
    },
    {
@@ -407,6 +420,7 @@
     "titre": "Social Media Content and Strategy",
     "organisme": "Adobe · Coursera",
     "annee": "",
+    "url": "",
     "visible": true
    },
    {
@@ -414,6 +428,7 @@
     "titre": "Adobe Illustrator for Beginners",
     "organisme": "Coursera · Illustration vectorielle",
     "annee": "",
+    "url": "",
     "visible": true
    },
    {
@@ -421,6 +436,7 @@
     "titre": "Adobe Premiere Pro for Beginners",
     "organisme": "Coursera · Montage vidéo",
     "annee": "",
+    "url": "",
     "visible": true
    },
    {
@@ -428,6 +444,7 @@
     "titre": "How to Optimize Your Instagram Account",
     "organisme": "Coursera · Réseaux sociaux",
     "annee": "",
+    "url": "",
     "visible": true
    },
    {
@@ -435,6 +452,7 @@
     "titre": "Graphic Design",
     "organisme": "Coursera",
     "annee": "2024",
+    "url": "",
     "visible": true
    }
   ],
@@ -442,19 +460,22 @@
    {
     "id": "i1",
     "titre": "Astronomie",
-    "texte": "Le goût des grandes échelles, de l'espace et des questions qu'il pose.",
+    "texte": "Membre d'un club d'astronomie, j'ai participé à plusieurs observations d'occultations stellaires.",
+    "image": null,
     "visible": true
    },
    {
     "id": "i2",
     "titre": "Cartomagie",
-    "texte": "Précision, perception, pratique et créativité.",
+    "texte": "Je maîtrise des tours de cartes qui demandent précision, sens de l'observation et beaucoup de pratique.",
+    "image": null,
     "visible": true
    },
    {
     "id": "i3",
     "titre": "Design",
     "texte": "Le fil rouge : transformer une idée en expérience.",
+    "image": null,
     "visible": true
    }
   ]
@@ -486,6 +507,7 @@
     "image": "",
     "categorie": "projets",
     "date": "2026-10-29",
+    "bouton": "",
     "visible": true
    },
    {
@@ -496,6 +518,7 @@
     "image": "",
     "categorie": "projets",
     "date": "2026-10-29",
+    "bouton": "",
     "visible": true
    },
    {
@@ -506,6 +529,7 @@
     "image": "",
     "categorie": "projets",
     "date": "2026-10-29",
+    "bouton": "",
     "visible": true
    },
    {
@@ -516,6 +540,7 @@
     "image": "",
     "categorie": "projets",
     "date": "2026-10-29",
+    "bouton": "",
     "visible": true
    },
    {
@@ -526,6 +551,7 @@
     "image": "",
     "categorie": "projets",
     "date": "2026-10-29",
+    "bouton": "",
     "visible": true
    },
    {
@@ -536,6 +562,7 @@
     "image": "",
     "categorie": "projets",
     "date": "2026-10-29",
+    "bouton": "",
     "visible": true
    },
    {
@@ -546,6 +573,7 @@
     "image": "",
     "categorie": "projets",
     "date": "2026-10-29",
+    "bouton": "",
     "visible": true
    },
    {
@@ -556,6 +584,7 @@
     "image": "",
     "categorie": "projets",
     "date": "2026-10-29",
+    "bouton": "",
     "visible": true
    },
    {
@@ -566,6 +595,7 @@
     "image": "",
     "categorie": "projets",
     "date": "2026-10-29",
+    "bouton": "",
     "visible": true
    }
   ]

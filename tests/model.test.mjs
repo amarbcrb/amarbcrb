@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   ONGLETS, SOUS_PARCOURS, normaliser, formaterDate, periode, trierParDate, formationActuelle,
-  derniereExperience, ongletsVisibles, sousOnglets, nomAffiche, lienSur, valider, nouvelId, echapper,
+  derniereExperience, ongletsVisibles, parties, aFiche, contactVisible, PARTIES_PARCOURS, nomAffiche, lienSur, valider, nouvelId, echapper,
 } from '../assets/model.js';
 
 test('constantes', () => {
-  assert.deepEqual(ONGLETS, ['accueil', 'parcours', 'portfolio', 'liens', 'contact']);
+  assert.deepEqual(ONGLETS, ['accueil', 'parcours', 'portfolio', 'liens']);
+  assert.deepEqual(PARTIES_PARCOURS, ['formation', 'experience', 'competences', 'certifications', 'langues', 'engagement', 'interets']);
   assert.deepEqual(SOUS_PARCOURS, ['profil', 'formation', 'experience', 'engagement', 'competences', 'langues', 'certifications', 'interets']);
 });
 
@@ -64,40 +65,63 @@ test('derniereExperience : la plus récente visible', () => {
   assert.equal(derniereExperience(c).id, 'y');
 });
 
-test('ongletsVisibles', () => {
+test('ongletsVisibles sans contact', () => {
   const c = normaliser({ onglets: { liens: { visible: false } } });
-  assert.deepEqual(ongletsVisibles(c), ['accueil', 'parcours', 'portfolio', 'contact']);
+  assert.deepEqual(ongletsVisibles(c), ['accueil', 'parcours', 'portfolio']);
+  assert.deepEqual(ongletsVisibles(normaliser({})), ['accueil', 'parcours', 'portfolio', 'liens']);
 });
 
-test('sousOnglets parcours : visibles et non vides', () => {
+test('contactVisible', () => {
+  assert.equal(contactVisible(normaliser({})), true);
+  assert.equal(contactVisible(normaliser({ onglets: { contact: { visible: false } } })), false);
+});
+
+test('aFiche', () => {
+  assert.equal(aFiche('parcours', 'formation'), true);
+  assert.equal(aFiche('parcours', 'certifications'), true);
+  assert.equal(aFiche('parcours', 'langues'), false);
+  assert.equal(aFiche('liens', 'projets'), false);
+  assert.equal(aFiche('portfolio', 'd1'), false);
+});
+
+test('parties parcours : ordre, visibles, non vides, sans profil', () => {
   const c = normaliser({
     onglets: { parcours: { sous: { langues: { visible: false } } } },
-    parcours: { profil: { titre: 'P', texte: 'Texte' }, formation: [{ titre: 'M1' }], langues: [{ langue: 'FR' }], interets: [{ titre: 'Astro', visible: false }] },
+    parcours: {
+      profil: { titre: 'P', texte: 'Texte' },
+      formation: [{ id: 'a', titre: 'L3', debut: '2023' }, { id: 'b', titre: 'M1', debut: '2025', enCours: true }, { id: 'h', titre: 'Caché', visible: false }],
+      certifications: [{ id: 'k2', titre: 'B' }, { id: 'k1', titre: 'A' }],
+      competences: [{ id: 'c1', domaine: 'Micro' }],
+      langues: [{ langue: 'FR' }],
+      interets: [{ titre: 'Astro', visible: false }],
+    },
   });
-  assert.deepEqual(sousOnglets(c, 'parcours'), [{ id: 'profil', titre: 'Profil' }, { id: 'formation', titre: 'Formation' }]);
+  const r = parties(c, 'parcours');
+  assert.deepEqual(r.map((x) => x.id), ['formation', 'competences', 'certifications']);
+  assert.deepEqual(r.map((x) => x.titre), ['Formation', 'Compétences', 'Certifications']);
+  assert.deepEqual(r[0].items.map((x) => x.id), ['b', 'a']);
+  assert.deepEqual(r[2].items.map((x) => x.id), ['k2', 'k1']);
 });
 
-test('sousOnglets liens masque les catégories vides', () => {
+test('parties liens : catégories non vides, plus récents d\'abord', () => {
   const c = normaliser({ liens: {
     categories: [{ id: 'projets', nom: 'Projets' }, { id: 'android', nom: 'Applis Android' }, { id: 'cache', nom: 'Caché', visible: false }],
-    items: [{ url: 'https://a.fr', titre: 'A', categorie: 'projets' }, { url: 'https://b.fr', titre: 'B', categorie: 'android', visible: false },
-      { url: 'https://c.fr', titre: 'C', categorie: 'cache' }],
+    items: [{ id: 'u1', url: 'https://a.fr', titre: 'A', categorie: 'projets', date: '2026-01-01' },
+      { id: 'u2', url: 'https://d.fr', titre: 'D', categorie: 'projets', date: '2026-05-01' },
+      { url: 'https://b.fr', titre: 'B', categorie: 'android', visible: false }, { url: 'https://c.fr', titre: 'C', categorie: 'cache' }],
   } });
-  assert.deepEqual(sousOnglets(c, 'liens'), [{ id: 'projets', titre: 'Projets' }]);
+  const r = parties(c, 'liens');
+  assert.deepEqual(r.map((x) => [x.id, x.titre]), [['projets', 'Projets']]);
+  assert.deepEqual(r[0].items.map((x) => x.id), ['u2', 'u1']);
 });
 
-test('sousOnglets portfolio trie et retire le préfixe', () => {
-  const r = sousOnglets(normaliser({}), 'portfolio', [{ id: 'b', nom: '2 - Posters' }, { id: 'a', nom: '1 - Design' }]);
-  assert.deepEqual(r, [{ id: 'a', titre: 'Design' }, { id: 'b', titre: 'Posters' }]);
-  const masque = normaliser({ portfolio: { dossiers: { b: { visible: false } } } });
-  assert.deepEqual(sousOnglets(masque, 'portfolio', [{ id: 'b', nom: 'Posters' }, { id: 'a', nom: 'Design' }]), [{ id: 'a', titre: 'Design' }]);
-  const renomme = normaliser({ portfolio: { dossiers: { a: { visible: true, nom: 'Illustrations' } } } });
-  assert.deepEqual(sousOnglets(renomme, 'portfolio', [{ id: 'a', nom: 'Design' }]), [{ id: 'a', titre: 'Illustrations' }]);
-});
-
-test('sousOnglets accueil et contact : aucun', () => {
-  assert.deepEqual(sousOnglets(normaliser({}), 'accueil'), []);
-  assert.deepEqual(sousOnglets(normaliser({}), 'contact'), []);
+test('parties portfolio : tri par préfixe, nom réglé, dossiers masqués exclus', () => {
+  const dossiers = [{ id: 'b', nom: '2 - Posters', fichiers: [{ id: 'f' }] }, { id: 'a', nom: '1 - Design', fichiers: [] }, { id: 'x', nom: '3 - Brouillons', fichiers: [] }];
+  const c = normaliser({ portfolio: { dossiers: { x: { visible: false }, a: { nom: 'Illustrations' } } } });
+  const r = parties(c, 'portfolio', dossiers);
+  assert.deepEqual(r.map((x) => [x.id, x.titre]), [['a', 'Illustrations'], ['b', 'Posters']]);
+  assert.deepEqual(r[1].items, [{ id: 'f' }]);
+  assert.deepEqual(parties(c, 'accueil'), []);
 });
 
 test('nomAffiche', () => {
@@ -116,6 +140,11 @@ test('lienSur', () => {
 
 test('echapper', () => {
   assert.equal(echapper('<img src=x onerror="a">&\''), '&lt;img src=x onerror=&quot;a&quot;&gt;&amp;&#39;');
+});
+
+test('valider url de certificat', () => {
+  const c = normaliser({ parcours: { certifications: [{ titre: 'A', url: 'pas une url' }, { titre: 'B', url: '' }, { titre: 'C', url: 'https://coursera.org/verify/x' }] } });
+  assert.deepEqual(valider(c).map((e) => e.chemin), ['parcours.certifications.0.url']);
 });
 
 test('valider', () => {
@@ -147,6 +176,11 @@ test('default.json est déjà normalisé et valide', () => {
   assert.equal(brut.liens.items.filter((x) => x.categorie === 'projets').length, 9);
   assert.equal(brut.parcours.langues.length, 5);
   assert.ok(brut.parcours.formation.some((x) => x.titre === 'Master 1 Microbiologie' && x.enCours));
+  assert.equal(brut.parcours.interets.find((x) => x.titre === 'Astronomie').texte, "Membre d'un club d'astronomie, j'ai participé à plusieurs observations d'occultations stellaires.");
+  assert.equal(brut.parcours.interets.find((x) => x.titre === 'Cartomagie').texte, 'Je maîtrise des tours de cartes qui demandent précision, sens de l\'observation et beaucoup de pratique.');
+  assert.ok(brut.parcours.interets.every((x) => x.image === null));
+  assert.ok(brut.parcours.certifications.every((x) => x.url === ''));
+  assert.ok(brut.liens.items.every((x) => x.bouton === ''));
 });
 
 test('ongletsVisibles : jamais vide, Accueil en dernier recours', () => {
