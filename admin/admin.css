@@ -51,3 +51,22 @@ input:focus,textarea:focus,select:focus{border-color:var(--acc)}
 .adm-top{grid-column:1/-1}
 .ecrans{flex-direction:column;overflow:visible;padding:16px 0 0 var(--gx);position:sticky;top:76px;align-self:start}
 .ecrans button{text-align:left}}
+.liste ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.ligne{border:.75px solid var(--line);border-radius:18px;background:var(--fill);padding:8px 10px 10px}
+.ligne.ouverte{border-color:var(--line2)}
+.ligne .entete{display:flex;align-items:center;gap:6px}
+.ligne .poignee{cursor:grab;color:var(--tx3);display:grid}
+.ligne .poignee svg{width:18px;height:18px}
+.ligne .resume{flex:1;min-width:0;display:flex;flex-direction:column}
+.ligne .resume b{font-size:15.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ligne .resume small{font-size:13px;color:var(--tx2)}
+.ligne .inter{min-height:36px;font-size:13px;color:var(--tx2);gap:8px}
+.ligne .monter,.ligne .descendre{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--tx2)}
+.ligne .monter:disabled,.ligne .descendre:disabled{opacity:.3}
+.ligne .actions{display:flex;gap:8px;margin:6px 0 0 24px}
+.ligne .actions .btn{min-height:34px;padding:0 14px;font-size:13.5px;font-weight:600}
+.ligne .supprimer{color:var(--c-red)}
+.edition{display:flex;flex-direction:column;gap:12px;margin:12px 0 4px 24px}
+.deux{display:flex;align-items:flex-end;gap:14px}.deux .champ{flex:1}
+.ajouter{align-self:flex-start;margin-top:10px;min-height:42px}
+.aide{font-size:13.5px;color:var(--tx3)}
