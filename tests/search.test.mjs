@@ -15,7 +15,7 @@ test('chercher ignore accents et casse', () => {
   const r = chercher(idx, 'BIOLOGIE moleculaire');
   assert.equal(r[0].titre, 'Biologie moléculaire');
   assert.equal(r[0].type, 'Compétence');
-  assert.deepEqual(r[0].cible, { onglet: 'parcours', sous: 'competences' });
+  assert.equal(r[0].hash, '#parcours/competences/c2');
 });
 
 test('chercher : plusieurs mots tous requis', () => {
@@ -25,13 +25,22 @@ test('chercher : plusieurs mots tous requis', () => {
   assert.equal(r[0].type, 'Expérience');
 });
 
-test('chercher : technique dans une compétence', () => assert.equal(chercher(idx, 'elisa')[0].titre, 'Immunologie'));
+test('chercher : technique dans une compétence', () => {
+  assert.equal(chercher(idx, 'elisa')[0].titre, 'Immunologie');
+  assert.equal(chercher(idx, 'elisa')[0].hash, '#parcours/competences/c3');
+});
+
+test('chercher : langue → page Voir tout (pas de fiche)', () => assert.equal(chercher(idx, 'kabyle')[0].hash, '#parcours/langues'));
+
+test('chercher : certificat → fiche', () => assert.equal(chercher(idx, 'manchester')[0].hash, '#parcours/certifications/k3'));
+
+test('chercher : contact', () => assert.equal(chercher(idx, 'linkedin')[0].hash, '#contact'));
 
 test('chercher : titre avant contenu', () => {
   const r = chercher(idx, 'biostudy');
   assert.equal(r[0].titre, 'BioStudy');
   assert.equal(r[0].type, 'Lien');
-  assert.deepEqual(r[0].cible, { onglet: 'liens', sous: 'projets' });
+  assert.equal(r[0].hash, '#liens/projets');
 });
 
 test('chercher : éléments masqués absents', () => {
@@ -44,10 +53,10 @@ test('chercher : sous-onglet ou onglet masqué absent', () => {
   assert.equal(chercher(construireIndex(m, []), 'bioband').length, 0);
 });
 
-test('chercher : fichier du portfolio → cible portfolio/<idDossier>', () => {
+test('chercher : fichier du portfolio → portfolio/<idDossier>', () => {
   const r = chercher(idx, 'variole');
   assert.equal(r[0].type, 'Portfolio');
-  assert.deepEqual(r[0].cible, { onglet: 'portfolio', sous: 'd1' });
+  assert.equal(r[0].hash, '#portfolio/d1');
   assert.equal(r[0].extrait, 'Posters');
 });
 
