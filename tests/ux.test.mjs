@@ -90,7 +90,9 @@ function focusVisible() {
     el.focus({ preventScroll: true });
     if (document.activeElement !== el || !el.matches(':focus-visible')) return;
     const s = getComputedStyle(el);
-    if (s.outlineStyle === 'none' || parseFloat(s.outlineWidth) < 1) defauts.push(`focus invisible : ${el.tagName.toLowerCase()}.${String(el.className).trim().split(/\s+/).join('.')}`);
+    /* le champ de recherche montre son focus par l'anneau de toute la pastille */
+    const anneau = el.id === 'rechInput' && getComputedStyle(el.closest('.rech-in')).boxShadow !== 'none';
+    if (!anneau && (s.outlineStyle === 'none' || parseFloat(s.outlineWidth) < 1)) defauts.push(`focus invisible : ${el.tagName.toLowerCase()}.${String(el.className).trim().split(/\s+/).join('.')}`);
   });
   return defauts;
 }
@@ -195,4 +197,19 @@ test('320 px : en-tête lisible, textes contenus dans leurs cartes', async () =>
     });
   await a.close();
   assert.deepEqual([...new Set(defauts)], []);
+});
+
+test('ambiance Nuvio : noir pur en sombre, titres de rangée soulignés, recherche sans cadre dans le champ', async () => {
+  const p = await env.page({ viewport: { width: 390, height: 844 }, stockage: { 'ab-theme': 'dark' } });
+  await ouvrirPage(p, '#parcours');
+  assert.equal(await p.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(0, 0, 0)');
+  const souligne = await p.$eval('#vue .rangee-tete h2', (h) => { const a = getComputedStyle(h, '::after'); return [a.content, a.width, a.height, a.backgroundColor]; });
+  assert.deepEqual(souligne, ['""', '36px', '3px', 'rgb(255, 255, 255)']);
+  assert.equal(await p.$eval('#vue .rangee-tete h2', (h) => getComputedStyle(h, '::before').content), 'none');
+  await ouvrirPage(p, 'recherche');
+  await p.focus('#rechInput');
+  await p.keyboard.press('a');
+  assert.equal(await p.$eval('#rechInput', (x) => getComputedStyle(x).outlineStyle), 'none');
+  assert.notEqual(await p.$eval('.rech-in', (x) => getComputedStyle(x).boxShadow), 'none');
+  await p.close();
 });

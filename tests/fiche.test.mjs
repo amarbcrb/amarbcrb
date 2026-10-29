@@ -15,9 +15,8 @@ const fermee = (p) => p.waitForSelector('#fiche', { state: 'hidden' });
 test('icône Contact de l\'en-tête (pas la photo, déjà dans le logo) ouvre la fiche Contact (#contact), e-mail copiable', async () => {
   reinit((c) => { c.medias.photo = { url: '/favicon-512x512.png?photo' }; });
   const p = await env.page({ permissions: ['clipboard-read', 'clipboard-write'] });
-  assert.equal(await p.getAttribute('#contactBtn', 'aria-label'), 'Contact');
-  assert.equal(await p.locator('#contactBtn img').count(), 0);
-  assert.equal(await p.locator('#contactBtn svg').count(), 1);
+  assert.equal(await p.locator('#contactBtn img, #contactBtn svg').count(), 0);
+  assert.equal(await p.innerText('#contactBtn'), 'Contact');
   await p.click('#contactBtn');
   await ouverte(p);
   assert.equal(await p.evaluate(() => document.activeElement.id), 'ficheFermer');

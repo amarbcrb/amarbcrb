@@ -1,13 +1,13 @@
-/* ===== Jetons : style Nuvio (fond #0D0D0D, accent monochrome, verre givré), couleurs système Apple réservées aux icônes ===== */
+/* ===== Jetons : style Nuvio (fond noir pur, cartes gris très foncé, accent monochrome, verre givré) ===== */
 @font-face{font-family:"Instrument Serif";font-style:normal;font-weight:400;font-display:swap;src:url(/assets/fonts/instrument-serif-latin.woff2) format("woff2")}
 @font-face{font-family:"Instrument Serif";font-style:italic;font-weight:400;font-display:swap;src:url(/assets/fonts/instrument-serif-italic-latin.woff2) format("woff2")}
 :root{--serif:"Instrument Serif",Georgia,"Times New Roman",serif;--font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 --ease:cubic-bezier(.2,0,0,1);--spring:cubic-bezier(.34,1.45,.64,1);--navh:64px;--gx:20px;--top:72px;--max:1120px;
---bg:#0d0d0d;--sf:#1a1a1a;--sf2:#222;--fill:rgba(255,255,255,.06);--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
+--bg:#000;--sf:#141414;--sf2:#1c1c1e;--fill:rgba(255,255,255,.06);--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
 --tx:#fff;--tx2:#969ca3;--tx3:#8b9198;--sep:rgba(255,255,255,.08);--hair:rgba(255,255,255,.08);--shadow:none;
---card:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
---glass-bg:rgba(28,28,30,.55);--glass-line:rgba(255,255,255,.14);--lg-sh:rgba(0,0,0,.35);
---nav-bg:rgba(26,26,26,.4);--nav-rim1:rgba(255,255,255,.27);--nav-rim2:rgba(255,255,255,.02);--nav-sh:rgba(0,0,0,.1);--pill-sf:#1a1a1a;--mut:#969ca3;
+--card:#141414;
+--glass-bg:rgba(24,24,26,.6);--glass-line:rgba(255,255,255,.14);--lg-sh:rgba(0,0,0,.35);
+--nav-bg:rgba(26,26,26,.4);--nav-rim1:rgba(255,255,255,.27);--nav-rim2:rgba(255,255,255,.02);--nav-sh:rgba(0,0,0,.1);--pill-sf:#141414;--mut:#969ca3;
 --acc:#f5f5f5;--acc-tx:#f5f5f5;--on-acc:#111;
 --c-blue:#0a84ff;--c-indigo:#5e5ce6;--c-purple:#bf5af2;--c-pink:#ff375f;--c-red:#ff453a;--c-orange:#ff9f0a;--c-yellow:#ffd60a;--c-green:#30d158;--c-teal:#40cbe0;--c-cyan:#64d2ff;--pc-k:80%;color-scheme:dark}
 [data-theme=light]{--bg:#f5f5f7;--sf:#fff;--sf2:#f5f5f7;--fill:rgba(0,0,0,.05);--line:rgba(0,0,0,.07);--line2:rgba(0,0,0,.12);
@@ -56,6 +56,7 @@ box-shadow:inset 0 0 0 .75px var(--glass-line),0 10px 30px var(--lg-sh)}
 .tools{pointer-events:auto;height:52px;padding:0 4px;border-radius:999px;display:flex;align-items:center;gap:2px}
 .tb{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;position:relative;z-index:1;font-size:12.5px;font-weight:700;letter-spacing:.02em;transition:transform .35s var(--spring),background .3s}
 .tb:active{transform:scale(.86);background:var(--fill)}
+.tb-texte{width:auto;padding:0 16px;border-radius:999px;font-size:14px;font-weight:600;letter-spacing:0}
 @media(hover:hover){.tb:hover{background:var(--fill)}}
 /* ===== Mise en page : une vue par onglet ===== */
 .shell{position:relative;z-index:1;max-width:var(--max);margin:auto;padding:calc(var(--top) + env(safe-area-inset-top)) var(--gx) calc(var(--navh) + 40px + env(safe-area-inset-bottom))}
@@ -307,7 +308,8 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 .rech-champ svg{color:var(--tx2)}
 .rech-champ input{flex:1;min-width:0;height:56px;border:0;background:none;color:var(--tx);font:inherit;font-size:17px;outline:none}
 .rech-champ input::-webkit-search-cancel-button{display:none}
-.rech-champ input:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:10px}
+/* le focus se voit sur toute la pastille, pas dans le champ (évite le cadre qui déborde) */
+.rech-in:focus-within{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--tx) 45%,transparent),0 12px 40px var(--lg-sh)}
 .rech-champ button{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--tx2)}
 .rech-res{list-style:none;overflow-y:auto;position:relative;z-index:1}
 .rech-res button{width:100%;text-align:left;display:flex;flex-direction:column;gap:2px;padding:12px 20px;border-top:.75px solid var(--sep)}
@@ -347,8 +349,8 @@ img.tb.avatar{width:44px;height:44px;padding:3px}
 .hobs{grid-template-columns:repeat(3,minmax(0,1fr))}}
 /* ===== Couleur de rubrique (--pc, posée par la rangée ou la page Voir tout) ===== */
 #feuille[style*="--pc"],.rangee,.vt-voir{--pc-tx:color-mix(in srgb,var(--pc,var(--tx)) var(--pc-k),var(--tx))}
-.rangee-tete h2{display:flex;align-items:center;gap:10px}
-.rangee-tete h2::before{content:"";flex:none;width:10px;height:10px;border-radius:50%;background:var(--pc);box-shadow:0 0 0 4px color-mix(in srgb,var(--pc) 22%,transparent)}
+/* titre de rangée façon Nuvio : petit trait blanc dessous */
+.rangee-tete h2::after{content:"";display:block;width:36px;height:3px;margin-top:8px;border-radius:2px;background:var(--tx)}
 .rangee .periode,.vt-voir .periode{color:var(--pc-tx)}
 .carte-texte .en-cours{color:var(--pc-tx)}
 
