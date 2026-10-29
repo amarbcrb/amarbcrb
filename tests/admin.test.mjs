@@ -45,14 +45,14 @@ test('connexion → jeton stocké, écran Accueil', async () => {
   await p.click('#connexion button[type="submit"]');
   await p.waitForSelector('#app:not([hidden])');
   assert.ok(JSON.parse(await p.evaluate(() => localStorage.getItem('ab-jeton'))).jeton.startsWith('jeton-'));
-  assert.equal(await p.inputValue(champ('accueil.positionnement')), DEFAUT().accueil.positionnement);
+  assert.equal(await p.inputValue(champ('accueil.salutation')), DEFAUT().accueil.salutation);
   assert.equal(await p.getAttribute('.ecrans [data-ecran="accueil"]', 'aria-current'), 'page');
 });
 
-test('modifier positionnement puis Enregistrer → faux script version 2, site public affiche la nouvelle phrase', async () => {
+test('modifier la salutation puis Enregistrer → faux script version 2, site public affiche la nouvelle phrase', async () => {
   reinit();
   const p = await connecte();
-  await p.fill(champ('accueil.positionnement'), 'Microbiologiste, qualité et sécurité des aliments.');
+  await p.fill(champ('accueil.salutation'), 'Microbiologiste, qualité et sécurité des aliments.');
   await p.click('#enregistrer');
   await p.waitForSelector('#etat:has-text("Enregistré")');
   assert.equal(env.faux.etat.version, 2);
@@ -64,7 +64,7 @@ test('point "non enregistré" visible après modification, absent après enregis
   reinit();
   const p = await connecte();
   assert.equal(await p.isVisible('#nonEnregistre'), false);
-  await p.fill(champ('accueil.situation'), 'Master 1 · Lyon');
+  await p.fill(champ('accueil.intro'), 'Master 1 · Lyon');
   assert.equal(await p.isVisible('#nonEnregistre'), true);
   await p.click('#enregistrer');
   await p.waitForSelector('#etat:has-text("Enregistré")');
@@ -76,28 +76,28 @@ test('conflit (version modifiée dans le faux script) → choix Recharger / Écr
   reinit();
   let p = await connecte();
   env.faux.etat.version = 7;
-  env.faux.etat.contenu.accueil.situation = 'Version distante';
-  await p.fill(champ('accueil.situation'), 'Version locale');
+  env.faux.etat.contenu.accueil.intro = 'Version distante';
+  await p.fill(champ('accueil.intro'), 'Version locale');
   await p.click('#enregistrer');
   await p.waitForSelector('#conflit', { state: 'visible' });
   await p.click('#conflitRecharger');
   await p.waitForSelector('#etat:has-text("Dernière version chargée")');
-  assert.equal(await p.inputValue(champ('accueil.situation')), 'Version distante');
+  assert.equal(await p.inputValue(champ('accueil.intro')), 'Version distante');
   p = await connecte();
   env.faux.etat.version = 9;
-  await p.fill(champ('accueil.situation'), 'Version écrasante');
+  await p.fill(champ('accueil.intro'), 'Version écrasante');
   await p.click('#enregistrer');
   await p.waitForSelector('#conflit', { state: 'visible' });
   await p.click('#conflitEcraser');
   await p.waitForSelector('#etat:has-text("Enregistré")');
   assert.equal(env.faux.etat.version, 10);
-  assert.equal(env.faux.etat.contenu.accueil.situation, 'Version écrasante');
+  assert.equal(env.faux.etat.contenu.accueil.intro, 'Version écrasante');
 });
 
 test('réseau coupé à l\'enregistrement → message, brouillon gardé ; rechargement → brouillon proposé', async () => {
   reinit();
   const p = await connecte();
-  await p.fill(champ('accueil.situation'), 'Brouillon hors ligne');
+  await p.fill(champ('accueil.intro'), 'Brouillon hors ligne');
   env.faux.regler({ panne: true });
   await p.click('#enregistrer');
   await p.waitForSelector('#etat:has-text("Pas de réseau")');
@@ -106,14 +106,14 @@ test('réseau coupé à l\'enregistrement → message, brouillon gardé ; rechar
   await p.reload();
   await p.waitForSelector('#brouillon', { state: 'visible' });
   await p.click('#brouillonReprendre');
-  assert.equal(await p.inputValue(champ('accueil.situation')), 'Brouillon hors ligne');
+  assert.equal(await p.inputValue(champ('accueil.intro')), 'Brouillon hors ligne');
   assert.equal(await p.isVisible('#nonEnregistre'), true);
 });
 
 test('jeton expiré → retour connexion, brouillon gardé', async () => {
   reinit();
   const p = await admin({ stockage: { 'ab-jeton': JSON.stringify({ jeton: 'jeton-1', expire: Date.now() + 864e5 }) } });
-  await p.fill(champ('accueil.situation'), 'Gardé malgré tout');
+  await p.fill(champ('accueil.intro'), 'Gardé malgré tout');
   await p.click('#enregistrer');
   await p.waitForSelector('#connexion', { state: 'visible' });
   assert.equal(await p.innerText('#connexionErreur'), 'Session expirée : reconnecte-toi, tes modifications sont gardées.');
@@ -162,18 +162,18 @@ test('champ invalide → Enregistrer désactivé, erreur affichée', async () =>
 test('modification tapée pendant un enregistrement → reste non enregistrée et dans le brouillon', async () => {
   reinit();
   const p = await connecte();
-  await p.fill(champ('accueil.positionnement'), 'Première version');
+  await p.fill(champ('accueil.salutation'), 'Première version');
   env.faux.regler({ lent: 1200 });
   await p.click('#enregistrer');
-  await p.fill(champ('accueil.situation'), 'Tapé pendant l\'envoi');
+  await p.fill(champ('accueil.intro'), 'Tapé pendant l\'envoi');
   await p.waitForSelector('#etat:has-text("Enregistré")');
   env.faux.regler({ lent: 0 });
-  assert.equal(env.faux.etat.contenu.accueil.positionnement, 'Première version');
+  assert.equal(env.faux.etat.contenu.accueil.salutation, 'Première version');
   assert.equal(await p.isVisible('#nonEnregistre'), true);
   assert.match(await p.evaluate(() => localStorage.getItem('ab-brouillon')), /Tapé pendant l'envoi/);
   await p.click('#enregistrer');
   await p.waitForFunction(() => document.getElementById('nonEnregistre').hidden);
-  assert.equal(env.faux.etat.contenu.accueil.situation, 'Tapé pendant l\'envoi');
+  assert.equal(env.faux.etat.contenu.accueil.intro, 'Tapé pendant l\'envoi');
 });
 
 test('visibilité : Fiche Contact masquée → plus de photo cliquable', async () => {

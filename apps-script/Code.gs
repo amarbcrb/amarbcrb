@@ -156,6 +156,8 @@ function nettoyerMedias(contenu) {
     EMPLACEMENTS.forEach((k) => { if (medias[k] && medias[k].id) utilises[medias[k].id] = true; });
     const interets = (contenu.parcours && contenu.parcours.interets) || [];
     interets.forEach((x) => { if (x && x.image && x.image.id) utilises[x.image.id] = true; });
+    const domaines = (contenu.accueil && contenu.accueil.domaines) || [];
+    domaines.forEach((x) => { if (x && x.image && x.image.id) utilises[x.image.id] = true; });
     const liens = (contenu.liens && contenu.liens.items) || [];
     liens.forEach((x) => { if (x && x.media && x.media.id) utilises[x.media.id] = true; });
     const it = DriveApp.getFolderById(proprietes().getProperty('ID_MEDIAS')).getFiles();

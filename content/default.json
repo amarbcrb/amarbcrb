@@ -73,13 +73,52 @@
   }
  },
  "accueil": {
-  "positionnement": "La microbiologie au service de la sécurité des aliments, de la santé publique et du contrôle qualité.",
-  "situation": "Master 1 · UCBL Lyon 1",
-  "competencesCles": [
-   "Culture",
-   "PCR",
-   "ELISA"
-  ]
+  "salutation": "Bonjour, je suis Amar",
+  "intro": "Étudiant en Master 1 de microbiologie à l'Université Claude Bernard Lyon 1, je m'intéresse à la sécurité des aliments, à la santé publique et au contrôle qualité. Designer depuis six ans, j'ai créé BioStudy pour rendre la biologie plus claire et plus accessible.",
+  "reperes": [
+   {
+    "id": "r1",
+    "valeur": "Master 1",
+    "libelle": "Microbiologie, Lyon 1",
+    "visible": true
+   },
+   {
+    "id": "r2",
+    "valeur": "2022",
+    "libelle": "Création de BioStudy",
+    "visible": true
+   },
+   {
+    "id": "r3",
+    "valeur": "6 ans",
+    "libelle": "de design freelance",
+    "visible": true
+   }
+  ],
+  "domaines": [
+   {
+    "id": "d1",
+    "titre": "Microbiologie",
+    "texte": "Préparation d'échantillons, colorations, microscopie et identification : l'expérience concrète du laboratoire hospitalier.",
+    "image": null,
+    "visible": true
+   },
+   {
+    "id": "d2",
+    "titre": "Graphisme",
+    "texte": "Affiches, infographies, posters scientifiques et identités visuelles, en freelance depuis six ans.",
+    "image": null,
+    "visible": true
+   },
+   {
+    "id": "d3",
+    "titre": "Montage vidéo",
+    "texte": "Vidéos courtes pour les réseaux sociaux et vulgarisation scientifique.",
+    "image": null,
+    "visible": true
+   }
+  ],
+  "projetPhare": "u1"
  },
  "parcours": {
   "profil": {
@@ -283,30 +322,35 @@
     "id": "l1",
     "langue": "Français",
     "niveau": "Natif",
+    "drapeau": "",
     "visible": true
    },
    {
     "id": "l2",
     "langue": "Arabe",
     "niveau": "Natif",
+    "drapeau": "",
     "visible": true
    },
    {
     "id": "l3",
     "langue": "Kabyle",
     "niveau": "Natif",
+    "drapeau": "",
     "visible": true
    },
    {
     "id": "l4",
     "langue": "Anglais",
     "niveau": "Professionnel",
+    "drapeau": "",
     "visible": true
    },
    {
     "id": "l5",
     "langue": "Espagnol",
     "niveau": "Élémentaire",
+    "drapeau": "",
     "visible": true
    }
   ],
@@ -636,20 +680,20 @@
   "ouvertA": [
    {
     "id": "o1",
-    "titre": "Stages en laboratoire",
-    "detail": "Microbiologie, contrôle qualité, sécurité des aliments",
+    "titre": "Stages",
+    "detail": "Laboratoire de microbiologie, contrôle qualité, sécurité des aliments",
     "visible": true
    },
    {
     "id": "o2",
-    "titre": "Collaborations scientifiques",
-    "detail": "Outils pédagogiques, vulgarisation scientifique",
+    "titre": "Graphisme",
+    "detail": "Affiches, infographies, identité visuelle",
     "visible": true
    },
    {
     "id": "o3",
-    "titre": "Projets de design",
-    "detail": "Infographies, posters, diaporamas",
+    "titre": "Montage vidéo",
+    "detail": "Vidéos courtes, réseaux sociaux, vulgarisation",
     "visible": true
    }
   ]

@@ -118,10 +118,10 @@ test('lien : image, titre, description, bouton (texte réglé ou « Ouvrir »), 
 test('replis des cartes', async () => {
   reinit((c) => { c.liens.items[1].description = ''; });
   const p = await env.page({ chemin: '/#parcours' });
-  const interet = p.locator('#vue a.carte-image >> nth=0');
+  const interet = p.locator('#vue .carte-interet >> nth=0');
   assert.equal(await interet.locator('img').count(), 0);
-  assert.equal(await interet.locator('.degrade').count(), 1);
-  assert.equal(await interet.locator('.titre').innerText(), 'Astronomie');
+  assert.equal(await interet.locator('.degrade').count(), 0);
+  assert.equal(await interet.locator('b').innerText(), 'Astronomie');
   await p.goto(env.site.url + '/#liens/projets');
   await p.waitForSelector('#vue .grille a.carte-lien');
   const sansImage = p.locator('#vue .grille a.carte-lien[href="https://www.biostudy.xyz/BioCampus/"]');
@@ -130,14 +130,43 @@ test('replis des cartes', async () => {
   assert.equal(await sansImage.locator('p').count(), 0);
 });
 
-test('intérêt avec image : affiche en carte, image en grand dans la fiche', async () => {
+test('intérêt : image, titre et texte visibles sur la carte, sans fiche à ouvrir', async () => {
   reinit((c) => { c.parcours.interets[0].image = { id: 'x', url: '/favicon-512x512.png?astro' }; });
   const p = await env.page({ chemin: '/#parcours' });
-  assert.match(await p.getAttribute('#vue a.carte-image >> nth=0 >> img', 'src'), /\?astro$/);
-  await p.click('#vue a.carte-image >> nth=0');
+  const carte = p.locator('#vue .carte-interet >> nth=0');
+  assert.match(await carte.locator('img').getAttribute('src'), /\?astro$/);
+  assert.equal(await carte.locator('b').innerText(), 'Astronomie');
+  assert.match(await carte.locator('p').innerText(), /club d'astronomie[\s\S]*occultations/);
+  assert.ok(await carte.locator('p').isVisible());
+  /* texte entier, jamais coupé par des points de suspension */
+  assert.ok(await carte.locator('p').evaluate((x) => x.scrollHeight <= x.clientHeight + 1 && getComputedStyle(x).webkitLineClamp === 'none'));
+  assert.equal(await p.locator('#vue a.carte-interet').count(), 0);
+  await p.goto(env.site.url + '/#parcours/interets/i1');
+  await p.waitForFunction(() => location.hash === '#parcours/interets');
+  assert.equal(await p.locator('#fiche:not([hidden])').count(), 0);
+});
+
+test('cartes sobres : pas de trait de couleur en haut ; compétences en texte simple, sans capsules', async () => {
+  reinit();
+  const p = await env.page({ chemin: '/#parcours' });
+  assert.equal(await p.$eval('#vue .rangee .carte-cert', (x) => getComputedStyle(x, '::before').content), 'none');
+  assert.equal(await p.locator('#vue .tags').count(), 0);
+  assert.equal(await p.innerText('#vue .carte-comp >> nth=0 >> p'), 'Colorations, Isolement, Milieux de culture et 2 autres');
+  assert.equal(await p.innerText('#vue .carte-comp >> nth=4 >> p'), 'Bonnes pratiques de laboratoire, Biosécurité, Cultures microbiennes et 1 autre');
+  await p.click('#vue .carte-comp >> nth=0');
   await ouverte(p);
-  assert.match(await p.getAttribute('#ficheCorps img.fiche-image', 'src'), /\?astro$/);
-  assert.match(await p.innerText('#ficheCorps'), /club d'astronomie/);
+  assert.equal(await p.locator('#ficheCorps .tags').count(), 0);
+  assert.deepEqual(await titres(p, '#ficheCorps ul.techniques li'), ['Colorations', 'Isolement', 'Milieux de culture', "Tests d'identification", DEFAUT().parcours.competences[0].techniques[4]]);
+});
+
+test('langues : drapeau devant chaque langue, deviné ou choisi', async () => {
+  reinit((c) => { c.parcours.langues[3].drapeau = 'us'; c.parcours.langues.push({ id: 'lx', langue: 'Japonais', niveau: 'Notions', drapeau: '', visible: true }); });
+  const p = await env.page({ chemin: '/#parcours/langues' });
+  const drapeaux = await p.$$eval('#vue .carte-langue', (xs) => xs.map((x) => [x.querySelector('b').textContent, x.querySelector('.drapeau') ? x.querySelector('.drapeau').dataset.drapeau : '']));
+  assert.deepEqual(drapeaux, [['Français', 'fr'], ['Arabe', 'arabe'], ['Kabyle', 'amazigh'], ['Anglais', 'us'], ['Espagnol', 'es'], ['Japonais', '']]);
+  assert.equal(await p.locator('#vue .carte-langue .drapeau svg').count(), 5);
+  assert.equal(await p.getAttribute('#vue .carte-langue .drapeau >> nth=0', 'aria-hidden'), 'true');
+  assert.notEqual(await p.$eval('#vue .carte-langue', (x) => getComputedStyle(x).borderRadius), '999px');
 });
 
 test('Lire la suite déplie le profil', async () => {
@@ -151,15 +180,33 @@ test('Lire la suite déplie le profil', async () => {
   assert.equal(await hash(p), '#parcours');
 });
 
-test('accueil : 3 grandes cartes ouvrent fiche ou page', async () => {
+test('accueil : salutation, présentation, repères, Ce que je fais, projet phare, boutons', async () => {
   reinit();
   const p = await env.page();
-  assert.equal(await p.innerText('#vue h1'), DEFAUT().accueil.positionnement);
-  const liens = await p.$$eval('#vue .rangee-accueil a.carte', (xs) => xs.map((x) => x.getAttribute('href')));
-  assert.deepEqual(liens, ['#parcours/formation/f1', '#parcours/experience/e5', '#parcours/competences']);
-  await p.click('#vue .rangee-accueil a.carte >> nth=0');
-  await ouverte(p);
-  assert.equal(await p.innerText('#ficheTitre'), 'Master 1 Microbiologie');
+  assert.equal(await p.innerText('#vue h1'), 'Bonjour, je suis Amar');
+  assert.match(await p.innerText('#vue .intro'), /Master 1 de microbiologie[\s\S]*BioStudy/);
+  assert.equal(await p.locator('#vue .reperes li').count(), 3);
+  assert.match(await p.innerText('#vue .reperes li >> nth=0'), /Master 1\s+Microbiologie, Lyon 1/);
+  assert.deepEqual(await titres(p, '#vue .accueil h2'), ['Ce que je fais', 'Projet phare']);
+  assert.deepEqual(await titres(p, '#vue .carte-domaine b'), ['Microbiologie', 'Graphisme', 'Montage vidéo']);
+  assert.match(await p.innerText('#vue .carte-domaine >> nth=2 >> p'), /Vidéos courtes/);
+  /* sans image : carte de texte, pas de grand bloc de couleur vide ; texte entier */
+  assert.equal(await p.locator('#vue .carte-domaine >> nth=0 >> .degrade, #vue .carte-domaine >> nth=0 >> img').count(), 0);
+  assert.ok(await p.locator('#vue .carte-domaine >> nth=0 >> p').evaluate((x) => x.scrollHeight <= x.clientHeight + 1 && getComputedStyle(x).webkitLineClamp === 'none'));
+  assert.equal(await p.getAttribute('#vue .projet-phare a.carte-lien', 'href'), 'https://www.biostudy.xyz/');
+  assert.equal(await p.getAttribute('#vue .accueil .acts a:has-text("Me contacter")', 'href'), '#contact');
+});
+
+test('accueil : domaine avec image, repère masqué, projet phare introuvable ou domaines vides → blocs absents', async () => {
+  reinit((c) => { c.accueil.domaines[1].image = { id: 'g', url: '/favicon-512x512.png?g' }; c.accueil.reperes[2].visible = false; c.accueil.projetPhare = 'zzz'; });
+  let p = await env.page();
+  assert.equal(await p.getAttribute('#vue .carte-domaine >> nth=1 >> img', 'src'), '/favicon-512x512.png?g');
+  assert.equal(await p.locator('#vue .reperes li').count(), 2);
+  assert.equal(await p.locator('#vue .projet-phare').count(), 0);
+  reinit((c) => { c.accueil.domaines = []; c.accueil.reperes = []; });
+  p = await env.page();
+  assert.deepEqual(await titres(p, '#vue .accueil h2'), ['Projet phare']);
+  assert.equal(await p.locator('#vue .reperes').count(), 0);
 });
 
 test('echappe le HTML', async () => {

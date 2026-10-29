@@ -71,14 +71,13 @@ function appliquer(c) {
     $('maintenanceMail').href = 'mailto:' + c.contact.email;
     return false;
   }
-  $('nomSite').textContent = c.site.nom;
-  $('surtitre').textContent = c.site.surtitre;
+  /* nom en Instrument Serif, prénom en italique */
+  const [prenom, ...reste] = String(c.site.nom).trim().split(/\s+/);
+  const italique = document.createElement('i');
+  italique.textContent = prenom;
+  $('nomSite').replaceChildren(italique, reste.length ? ' ' + reste.join(' ') : '');
   $('logo').src = logo;
-  const photo = (c.medias.photo && c.medias.photo.url) || logo;
   $('contactBtn').hidden = !contactVisible(c);
-  $('contactPhoto').hidden = contactVisible(c);
-  $('contactBtn').querySelector('img').src = photo;
-  $('contactPhoto').src = photo;
   if (c.medias.favicon && c.medias.favicon.url) $('favicon').href = c.medias.favicon.url;
   const onglets = ongletsVisibles(c);
   if (onglets.join() !== etat.cleBarre) {

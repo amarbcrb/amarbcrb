@@ -66,3 +66,5 @@ test('chercher : requête vide → []', () => {
 });
 
 test('chercher : max', () => assert.ok(chercher(idx, 'a', 3).length <= 3));
+
+test('chercher : intérêt → page Voir tout (pas de fiche)', () => assert.equal(chercher(idx, 'cartomagie')[0].hash, '#parcours/interets'));

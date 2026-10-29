@@ -279,3 +279,16 @@ test('enregistrer garde l\'image choisie d\'un lien et met à la corbeille celle
   assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 2, contenu: c }).version, 3);
   assert.equal(g.fichiers.get(a.id).isTrashed(), true);
 });
+
+test('enregistrer garde les images des domaines de l\'Accueil', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const a = g.post({ a: 'envoyerMedia', jeton, emplacement: 'image', nom: 'a.jpg', type: 'image/jpeg', base64: PNG });
+  const c = JSON.parse(DEFAUT);
+  c.accueil.domaines[0].image = { id: a.id, url: a.url };
+  assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 1, contenu: c }).version, 2);
+  assert.equal(g.fichiers.get(a.id).isTrashed(), false);
+  c.accueil.domaines[0].image = null;
+  assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 2, contenu: c }).version, 3);
+  assert.equal(g.fichiers.get(a.id).isTrashed(), true);
+});
