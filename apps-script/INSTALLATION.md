@@ -20,7 +20,7 @@ Avant de commencer, le site doit déjà être publié avec `content/default.json
 5. Le journal d'exécution affiche « Installation terminée ». Dans ton Drive, tu as maintenant un dossier **Site amarbcrb** avec `contenu.json`, **Médias** et **Portfolio**.
 6. Remets `const MOT_DE_PASSE_INITIAL = '';`, puis enregistre. Ton mot de passe est gardé haché dans les propriétés du script, il n'a plus besoin d'être dans le code.
 
-Pour changer de mot de passe plus tard, refais l'étape 2 : seul le mot de passe change, ton contenu reste.
+Pour changer de mot de passe plus tard, refais l'étape 2 : ton contenu reste, et tous les appareils déjà connectés à l'admin sont déconnectés (utile si tu perds ton téléphone).
 
 ## 3. Déployer
 
@@ -47,6 +47,6 @@ Le site relit Drive au plus tard 5 minutes après un ajout. Le bouton **Relire D
 - [ ] Modifier la phrase de l'accueil, enregistrer, recharger le site : la nouvelle phrase s'affiche.
 - [ ] Envoyer une photo dans **Médias** : elle s'affiche dans l'en-tête du site.
 - [ ] Coller un lien dans **Liens** : le titre et la description se remplissent seuls.
-- [ ] Un fichier déposé dans un sous-dossier du Portfolio apparaît sur le site après **Relire Drive**.
+- [ ] Un fichier déposé dans un sous-dossier du Portfolio apparaît sur le site après **Relire Drive**, y compris dans une fenêtre de navigation privée (sans être connecté à Google).
 - [ ] L'image du portfolio s'affiche avec l'adresse `https://drive.google.com/thumbnail?id=…`. Si elle reste vide, prévenir : on passera à `https://lh3.googleusercontent.com/d/…`.
 - [ ] Activer la maintenance : le site affiche la page de maintenance dans une fenêtre de navigation privée, et le site normal avec un bandeau dans ton navigateur connecté.

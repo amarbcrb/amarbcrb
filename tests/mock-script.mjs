@@ -7,8 +7,8 @@ const MAX = { cv: 10 * 1024 * 1024, image: 10 * 1024 * 1024 };
 
 export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' } = {}) {
   const etat = {
-    version: contenu.version || 1, contenu, motDePasse, echecs: 0, medias: {}, racineId: '',
-    portfolio: { dossiers: [] }, apercus: {}, appels: { contenu: 0, portfolio: 0, frais: 0, enregistrer: 0 },
+    version: contenu.version || 1, contenu, motDePasse, echecs: 0, medias: {}, corbeille: [], racineId: '',
+    portfolio: { dossiers: [] }, apercus: {}, envoyes: [], appels: { contenu: 0, portfolio: 0, frais: 0, enregistrer: 0 },
     reglages: { lent: 0, panne: false, html: false },
   };
   let n = 0;
@@ -39,6 +39,9 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       if (Number(d.versionDeBase) !== etat.version) return { erreur: 'conflit', version: etat.version };
       etat.version += 1;
       etat.contenu = { ...d.contenu, version: etat.version, updatedAt: new Date().toISOString() };
+      /* comme Code.gs : les médias envoyés que le contenu n'utilise plus partent à la corbeille */
+      const utilises = new Set(Object.values(etat.contenu.medias || {}).filter((m) => m && m.id).map((m) => m.id));
+      etat.envoyes.filter((id) => !utilises.has(id) && !etat.corbeille.includes(id)).forEach((id) => etat.corbeille.push(id));
       return { version: etat.version };
     }
     if (d.a === 'envoyerMedia') {
@@ -47,9 +50,9 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       if (cv ? d.type !== 'application/pdf' : !String(d.type).startsWith('image/')) return { erreur: 'entree' };
       const octets = Buffer.from(String(d.base64 || ''), 'base64');
       if (octets.length > (cv ? MAX.cv : MAX.image)) return { erreur: 'entree' };
-      const ancien = etat.medias[d.emplacement];
       const id = 'media' + (++n);
-      etat.medias[d.emplacement] = { id, nom: d.nom, type: d.type, octets, ancien: ancien ? ancien.id : null };
+      etat.medias[d.emplacement] = { id, nom: d.nom, type: d.type, octets };
+      etat.envoyes.push(id);
       return { id, url: cv ? `https://drive.google.com/uc?export=download&id=${id}` : `${base}/media/${id}` };
     }
     if (d.a === 'apercuLien') {

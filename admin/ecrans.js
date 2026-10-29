@@ -266,7 +266,8 @@ function ecranMedias(racine, etat, modifier) {
         } else {
           if (!f.type.startsWith('image/')) { message.textContent = 'Choisis une image.'; return; }
           message.textContent = 'Préparation de l\'image…';
-          envoi = await reduireImage(f, m.max, m.type || 'image/jpeg');
+          /* un logo PNG reste en PNG pour garder sa transparence */
+          envoi = await reduireImage(f, m.max, m.type || (m.id === 'logo' && f.type === 'image/png' ? 'image/png' : 'image/jpeg'));
         }
         message.textContent = 'Envoi…';
         const r = await appeler('envoyerMedia', { emplacement: m.id, nom: f.name, type: envoi.type, base64: envoi.base64 });

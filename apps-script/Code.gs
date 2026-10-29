@@ -32,15 +32,19 @@ function installer() {
     const site = DriveApp.createFolder('Site amarbcrb');
     const medias = site.createFolder('Médias');
     const portfolio = site.createFolder('Portfolio');
+    /* les visiteurs doivent pouvoir voir les aperçus et ouvrir les fichiers */
+    portfolio.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     const defaut = UrlFetchApp.fetch(URL_CONTENU_DEFAUT, { muteHttpExceptions: true });
     if (defaut.getResponseCode() !== 200) throw new Error('Impossible de lire ' + URL_CONTENU_DEFAUT);
     const contenu = site.createFile('contenu.json', defaut.getContentText(), MimeType.PLAIN_TEXT);
     p.setProperties({
       ID_SITE: site.getId(), ID_CONTENU: contenu.getId(), ID_MEDIAS: medias.getId(), ID_PORTFOLIO: portfolio.getId(),
-      CLE: Utilities.getUuid() + Utilities.getUuid(), MDP_SEL: Utilities.getUuid(),
+      MDP_SEL: Utilities.getUuid(),
     });
   }
   p.setProperty('MDP_HASH', hacher(MOT_DE_PASSE_INITIAL, p.getProperty('MDP_SEL')));
+  /* nouvelle clé de signature : tous les appareils déjà connectés sont déconnectés */
+  p.setProperty('CLE', Utilities.getUuid() + Utilities.getUuid());
   console.log('Installation terminée. Efface maintenant le mot de passe de MOT_DE_PASSE_INITIAL, enregistre, puis déploie en Application Web.');
 }
 
@@ -137,13 +141,29 @@ function enregistrer(versionDeBase, contenu) {
     contenu.version = actuel.version + 1;
     contenu.updatedAt = new Date().toISOString();
     fichierContenu().setContent(JSON.stringify(contenu));
+    nettoyerMedias(contenu);
     return { version: contenu.version };
   } finally {
     verrou.releaseLock();
   }
 }
 
-/* ---------- Médias : le nouveau remplace l'ancien ---------- */
+/* ---------- Médias : un envoi ajoute un fichier ; l'enregistrement met à la corbeille ceux que le contenu n'utilise plus ---------- */
+function nettoyerMedias(contenu) {
+  try {
+    const utilises = {};
+    const medias = contenu.medias || {};
+    EMPLACEMENTS.forEach((k) => { if (medias[k] && medias[k].id) utilises[medias[k].id] = true; });
+    const it = DriveApp.getFolderById(proprietes().getProperty('ID_MEDIAS')).getFiles();
+    while (it.hasNext()) {
+      const f = it.next();
+      if (!f.isTrashed() && !utilises[f.getId()]) f.setTrashed(true);
+    }
+  } catch (err) {
+    console.error(err); /* le contenu est enregistré ; un fichier en trop reste dans Médias */
+  }
+}
+
 const urlImage = (id, largeur) => 'https://drive.google.com/thumbnail?id=' + id + '&sz=w' + largeur;
 
 function envoyerMedia(d) {
@@ -157,11 +177,6 @@ function envoyerMedia(d) {
   const nom = String(d.nom || emplacement).slice(0, 120);
   const fichier = DriveApp.getFolderById(p.getProperty('ID_MEDIAS')).createFile(Utilities.newBlob(octets, d.type, nom));
   fichier.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-  const ancien = p.getProperty('MEDIA_' + emplacement);
-  if (ancien) {
-    try { DriveApp.getFileById(ancien).setTrashed(true); } catch (_) { /* déjà supprimé à la main */ }
-  }
-  p.setProperty('MEDIA_' + emplacement, fichier.getId());
   const id = fichier.getId();
   return { id: id, url: estCv ? 'https://drive.google.com/uc?export=download&id=' + id : urlImage(id, emplacement === 'favicon' ? 512 : 2000) };
 }
@@ -223,7 +238,10 @@ function idDepuisLien(lien) {
 function sousDossiers(racine) {
   const liste = [];
   const it = racine.getFolders();
-  while (it.hasNext()) liste.push(it.next());
+  while (it.hasNext()) {
+    const d = it.next();
+    if (!d.isTrashed()) liste.push(d);
+  }
   return liste;
 }
 
@@ -251,6 +269,7 @@ function listerPortfolio(frais) {
     const it = d.getFiles();
     while (it.hasNext()) {
       const f = it.next();
+      if (f.isTrashed()) continue;
       fichiers.push({ id: f.getId(), nom: f.getName(), type: f.getMimeType(), apercu: urlImage(f.getId(), 800), lien: f.getUrl() });
     }
     fichiers.sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { numeric: true }));

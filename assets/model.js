@@ -135,8 +135,10 @@ export function derniereExperience(c) {
   return trierParDate(visibles(c.parcours.experience))[0] || null;
 }
 
+/* jamais vide : si tout est masqué, l'Accueil reste affiché */
 export function ongletsVisibles(c) {
-  return ONGLETS.filter((id) => c.onglets[id] && c.onglets[id].visible !== false);
+  const liste = ONGLETS.filter((id) => c.onglets[id] && c.onglets[id].visible !== false);
+  return liste.length ? liste : ['accueil'];
 }
 
 export function nomAffiche(nom) {

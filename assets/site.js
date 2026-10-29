@@ -10,7 +10,7 @@ const $ = (id) => document.getElementById(id);
 const root = document.documentElement;
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* dossiers : undefined tant que le portfolio n'est pas lu, null si le script est en panne */
-const etat = { contenu: null, dossiers: undefined, chargementPortfolio: null, barre: null, cleBarre: '', vue: null, index: null };
+const etat = { contenu: null, dossiers: undefined, chargementPortfolio: null, barre: null, cleBarre: null, vue: null, index: null };
 const listeDossiers = () => (Array.isArray(etat.dossiers) ? etat.dossiers : []);
 
 /* ---------- Thème ---------- */
@@ -221,6 +221,9 @@ document.addEventListener('click', (e) => {
   const d = listeDossiers().find((x) => x.id === v.dataset.dossier);
   if (d) ouvrirVisionneuse(d.fichiers.filter((f) => String(f.type).startsWith('image/')), Number(v.dataset.i), v);
 });
+
+/* lien « Aller au contenu » : donne le focus à la vue sans changer d'adresse */
+document.querySelector('.skip').addEventListener('click', (e) => { e.preventDefault(); $('vue').focus(); });
 
 /* bouton Copier (Contact) */
 document.addEventListener('click', async (e) => {

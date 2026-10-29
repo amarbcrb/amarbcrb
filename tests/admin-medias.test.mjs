@@ -11,7 +11,7 @@ before(async () => { env = await demarrer(); });
 after(async () => { await env.fermer(); });
 const reinit = () => {
   const c = DEFAUT();
-  Object.assign(env.faux.etat, { contenu: c, version: c.version, medias: {}, apercus: {} });
+  Object.assign(env.faux.etat, { contenu: c, version: c.version, medias: {}, apercus: {}, envoyes: [], corbeille: [] });
   env.faux.etat.portfolio.dossiers = [{ id: 'dd', nom: '1 - Design', fichiers: [] }, { id: 'dp', nom: '2 - Posters', fichiers: [] }];
   env.faux.etat.appels.frais = 0;
 };
@@ -116,13 +116,13 @@ test('Relire Drive → lirePortfolio({ frais: true }), le faux script reçoit fr
   assert.equal(env.faux.etat.appels.frais, 1);
 });
 
-test('logo 4000×3000 → envoyé en 2000×1500, aperçu mis à jour, logo du site public mis à jour', async () => {
+test('logo PNG 4000×3000 → envoyé en PNG 2000×1500 (transparence gardée), logo du site public mis à jour', async () => {
   reinit();
   const p = await ecran('medias');
   await p.setInputFiles('[data-media="logo"]', { name: 'logo.png', mimeType: 'image/png', buffer: await image(p, 4000, 3000) });
   await p.waitForSelector('[data-apercu="logo"][src*="/media/"]');
   const m = env.faux.etat.medias.logo;
-  assert.equal(m.type, 'image/jpeg');
+  assert.equal(m.type, 'image/png');
   const url = await p.getAttribute('[data-apercu="logo"]', 'src');
   assert.deepEqual(await tailleDistante(p, url), [2000, 1500]);
   await enregistrer(p);
@@ -130,7 +130,7 @@ test('logo 4000×3000 → envoyé en 2000×1500, aperçu mis à jour, logo du si
   assert.equal(await site.getAttribute('.brand img', 'src'), url);
 });
 
-test('remplacer une photo signale l\'ancien fichier', async () => {
+test('remplacer une photo : l\'ancienne part à la corbeille seulement à l\'enregistrement', async () => {
   reinit();
   const p = await ecran('medias');
   await p.setInputFiles('[data-media="photo"]', { name: 'a.png', mimeType: 'image/png', buffer: await image(p, 800, 800) });
@@ -138,7 +138,9 @@ test('remplacer une photo signale l\'ancien fichier', async () => {
   const premier = env.faux.etat.medias.photo.id;
   await p.setInputFiles('[data-media="photo"]', { name: 'b.png', mimeType: 'image/png', buffer: await image(p, 800, 800) });
   await p.waitForFunction((id) => !document.querySelector('[data-apercu="photo"]').src.endsWith(id), premier);
-  assert.equal(env.faux.etat.medias.photo.ancien, premier);
+  assert.deepEqual(env.faux.etat.corbeille, []);
+  await enregistrer(p);
+  assert.deepEqual(env.faux.etat.corbeille, [premier]);
 });
 
 test('favicon → PNG 512 px', async () => {
@@ -167,4 +169,12 @@ test('CV accepté → bouton Télécharger mon CV sur l\'accueil', async () => {
   const site = await env.page();
   assert.match(await site.getAttribute('#vue a:has-text("Télécharger mon CV")', 'href'), /uc\?export=download&id=media/);
   assert.deepEqual(p.erreurs, []);
+});
+
+test('photo PNG → envoyée en JPEG', async () => {
+  reinit();
+  const p = await ecran('medias');
+  await p.setInputFiles('[data-media="photo"]', { name: 'p.png', mimeType: 'image/png', buffer: await image(p, 600, 600) });
+  await p.waitForSelector('[data-apercu="photo"][src*="/media/"]');
+  assert.equal(env.faux.etat.medias.photo.type, 'image/jpeg');
 });

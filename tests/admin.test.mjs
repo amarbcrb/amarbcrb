@@ -158,3 +158,20 @@ test('champ invalide → Enregistrer désactivé, erreur affichée', async () =>
   assert.equal(await p.isDisabled('#enregistrer'), false);
   assert.deepEqual(p.erreurs, []);
 });
+
+test('modification tapée pendant un enregistrement → reste non enregistrée et dans le brouillon', async () => {
+  reinit();
+  const p = await connecte();
+  await p.fill(champ('accueil.positionnement'), 'Première version');
+  env.faux.regler({ lent: 1200 });
+  await p.click('#enregistrer');
+  await p.fill(champ('accueil.situation'), 'Tapé pendant l\'envoi');
+  await p.waitForSelector('#etat:has-text("Enregistré")');
+  env.faux.regler({ lent: 0 });
+  assert.equal(env.faux.etat.contenu.accueil.positionnement, 'Première version');
+  assert.equal(await p.isVisible('#nonEnregistre'), true);
+  assert.match(await p.evaluate(() => localStorage.getItem('ab-brouillon')), /Tapé pendant l'envoi/);
+  await p.click('#enregistrer');
+  await p.waitForFunction(() => document.getElementById('nonEnregistre').hidden);
+  assert.equal(env.faux.etat.contenu.accueil.situation, 'Tapé pendant l\'envoi');
+});

@@ -35,13 +35,15 @@ export function creerGas({ motDePasse = 'secret', pages = {} } = {}) {
   const iter = (liste) => { let i = 0; return { hasNext: () => i < liste.length, next: () => liste[i++] }; };
   function dossier(nom, parent) {
     const d = {
-      _id: id('folder'), _nom: nom, _parent: parent, _partage: null,
+      _id: id('folder'), _nom: nom, _parent: parent, _partage: null, _corbeille: false,
+      setTrashed(v) { this._corbeille = v; return this; }, isTrashed() { return this._corbeille; },
       getId() { return this._id; }, getName() { return this._nom; },
       getUrl() { return `https://drive.google.com/drive/folders/${this._id}`; },
       createFolder(x) { return dossier(x, this); },
       createFile(a, b, c) { return typeof a === 'string' ? fichier(a, b, c || 'text/plain', this) : fichier(a.getName(), a._buf, a.getContentType(), this); },
       getFolders() { appels.folderReads++; return iter([...dossiers.values()].filter((x) => x._parent === this)); },
-      getFiles() { return iter([...fichiers.values()].filter((x) => x._parent === this && !x._corbeille)); },
+      /* comme le vrai DriveApp, les itérateurs renvoient aussi les éléments à la corbeille */
+      getFiles() { return iter([...fichiers.values()].filter((x) => x._parent === this)); },
       setSharing(a, p) { this._partage = [a, p]; return this; },
     };
     dossiers.set(d._id, d);

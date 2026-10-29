@@ -5,7 +5,8 @@ import { ECRANS } from './ecrans.js';
 
 const $ = (id) => document.getElementById(id);
 const CLE_BROUILLON = 'ab-brouillon';
-const etat = { contenu: null, versionDeBase: 0, sale: false, ecran: 'accueil' };
+/* rev augmente à chaque modification : un enregistrement ne vaut que pour la révision envoyée */
+const etat = { contenu: null, versionDeBase: 0, sale: false, rev: 0, ecran: 'accueil' };
 
 const MESSAGES = {
   mot_de_passe: 'Mot de passe incorrect.',
@@ -30,6 +31,7 @@ export function modifier(chemin, valeur) {
   cles.slice(0, -1).forEach((k) => { if (o[k] === undefined || o[k] === null) o[k] = {}; o = o[k]; });
   o[cles.at(-1)] = valeur;
   etat.sale = true;
+  etat.rev += 1;
   ecrireBrouillon();
   majBarre();
 }
@@ -123,13 +125,19 @@ async function enregistrer() {
   if (valider(etat.contenu).length) return;
   $('enregistrer').disabled = true;
   dire('Enregistrement…');
+  const revEnvoyee = etat.rev;
   try {
     const r = await appeler('enregistrer', { versionDeBase: etat.versionDeBase, contenu: etat.contenu });
     etat.versionDeBase = r.version;
     etat.contenu.version = r.version;
-    etat.sale = false;
-    effacerBrouillon();
-    dire('Enregistré. Le site est à jour.');
+    if (etat.rev === revEnvoyee) {
+      etat.sale = false;
+      effacerBrouillon();
+      dire('Enregistré. Le site est à jour.');
+    } else {
+      ecrireBrouillon(); /* modifié pendant l'envoi : ces changements restent à enregistrer */
+      dire('Enregistré. Les dernières modifications restent à enregistrer.');
+    }
   } catch (err) {
     if (err.code === 'conflit') { etat.versionDistante = err.version; $('conflit').hidden = false; dire(''); }
     else if (err.code === 'jeton') { effacerJeton(); montrerConnexion('Session expirée : reconnecte-toi, tes modifications sont gardées.'); }

@@ -148,3 +148,8 @@ test('default.json est déjà normalisé et valide', () => {
   assert.equal(brut.parcours.langues.length, 5);
   assert.ok(brut.parcours.formation.some((x) => x.titre === 'Master 1 Microbiologie' && x.enCours));
 });
+
+test('ongletsVisibles : jamais vide, Accueil en dernier recours', () => {
+  const c = normaliser({ onglets: Object.fromEntries(ONGLETS.map((id) => [id, { visible: false }])) });
+  assert.deepEqual(ongletsVisibles(c), ['accueil']);
+});

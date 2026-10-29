@@ -122,3 +122,22 @@ test('aucune erreur console sur chaque onglet', async () => {
   }
   assert.deepEqual(p.erreurs, []);
 });
+
+test('tous les onglets masqués → Accueil seul, sans erreur', async () => {
+  reinit((c) => { Object.values(c.onglets).forEach((o) => { o.visible = false; }); });
+  const p = await env.page();
+  assert.deepEqual(await p.$$eval('.nav .nb', (bs) => bs.map((b) => b.dataset.v)), ['accueil']);
+  assert.match(await p.innerText('#vue h1'), /microbiologie/i);
+  assert.deepEqual(p.erreurs, []);
+});
+
+test('lien « Aller au contenu » garde la vue courante', async () => {
+  reinit();
+  const p = await env.page({ chemin: '/#parcours/langues' });
+  await p.focus('.skip');
+  await p.keyboard.press('Enter');
+  await p.waitForTimeout(200);
+  assert.equal(await p.evaluate(() => location.hash), '#parcours/langues');
+  assert.equal(await p.evaluate(() => document.activeElement.id), 'vue');
+  assert.match(await p.innerText('#vue'), /Kabyle/);
+});

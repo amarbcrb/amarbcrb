@@ -98,16 +98,32 @@ test('enregistrer : contenu absent → entree', () => {
 
 const PNG = Buffer.from('89504e470d0a1a0a', 'hex').toString('base64');
 
-test('envoyerMedia : l\'ancien fichier part à la corbeille, nouveau partagé en lecture publique', () => {
+test('envoyerMedia ne supprime rien ; enregistrer met à la corbeille les médias non référencés', () => {
   const g = installe();
   const jeton = connecte(g);
   const a = g.post({ a: 'envoyerMedia', jeton, emplacement: 'photo', nom: 'a.png', type: 'image/png', base64: PNG });
   assert.equal(a.ok, true);
   assert.match(a.url, /^https:\/\/drive\.google\.com\/thumbnail\?id=.+&sz=w2000$/);
+  const c = JSON.parse(DEFAUT);
+  c.medias.photo = { id: a.id, url: a.url };
+  assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 1, contenu: c }).version, 2);
   const b = g.post({ a: 'envoyerMedia', jeton, emplacement: 'photo', nom: 'b.png', type: 'image/png', base64: PNG });
-  assert.equal(g.fichiers.get(a.id).isTrashed(), true);
-  assert.equal(g.fichiers.get(b.id).isTrashed(), false);
+  const orphelin = g.post({ a: 'envoyerMedia', jeton, emplacement: 'logo', nom: 'o.png', type: 'image/png', base64: PNG });
+  assert.equal(g.fichiers.get(a.id).isTrashed(), false, 'pas de suppression à l\'envoi');
   assert.deepEqual(g.fichiers.get(b.id)._partage, ['ANYONE_WITH_LINK', 'VIEW']);
+  c.medias.photo = { id: b.id, url: b.url };
+  assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 2, contenu: c }).version, 3);
+  assert.equal(g.fichiers.get(a.id).isTrashed(), true);
+  assert.equal(g.fichiers.get(orphelin.id).isTrashed(), true);
+  assert.equal(g.fichiers.get(b.id).isTrashed(), false);
+});
+
+test('enregistrer en conflit ne supprime aucun média', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const a = g.post({ a: 'envoyerMedia', jeton, emplacement: 'photo', nom: 'a.png', type: 'image/png', base64: PNG });
+  g.post({ a: 'enregistrer', jeton, versionDeBase: 0, contenu: JSON.parse(DEFAUT) });
+  assert.equal(g.fichiers.get(a.id).isTrashed(), false);
 });
 
 test('envoyerMedia : CV de plus de 10 Mo → entree', () => {
@@ -196,4 +212,32 @@ test('installer relancé : change seulement le mot de passe', () => {
   assert.equal(g.props.get('ID_CONTENU'), id);
   assert.equal(g.props.get('MDP_HASH'), hash);
   assert.equal([...g.fichiers.values()].filter((f) => f.getName() === 'contenu.json').length, 1);
+});
+
+test('installer : le dossier Portfolio par défaut est partagé en lecture publique', () => {
+  const g = installe();
+  const racine = [...g.dossiers.values()].find((d) => d.getName() === 'Portfolio');
+  assert.deepEqual(racine._partage, ['ANYONE_WITH_LINK', 'VIEW']);
+  assert.equal(g.props.get('ID_PORTFOLIO'), racine.getId());
+});
+
+test('installer relancé : nouvelle clé, les anciens jetons sont refusés', () => {
+  const g = installe();
+  const ancien = connecte(g);
+  const cle = g.props.get('CLE');
+  g.ctx.installer();
+  assert.notEqual(g.props.get('CLE'), cle);
+  assert.equal(g.post({ a: 'enregistrer', jeton: ancien, versionDeBase: 1, contenu: {} }).erreur, 'jeton');
+  assert.equal(g.ctx.verifierJeton(connecte(g)), true);
+});
+
+test('portfolio : fichiers et dossiers à la corbeille ignorés', () => {
+  const g = installe();
+  const racine = portfolioDeTest(g);
+  const design = [...g.dossiers.values()].find((d) => d.getName() === '1 - Design');
+  design.createFile('supprime.jpg', 'x', 'image/jpeg').setTrashed(true);
+  racine.createFolder('Ancien').setTrashed(true);
+  const r = g.get({ a: 'portfolio' });
+  assert.deepEqual(r.dossiers.map((d) => d.nom).sort(), ['1 - Design', '2 - Posters']);
+  assert.deepEqual(r.dossiers.find((d) => d.nom === '1 - Design').fichiers.map((f) => f.nom), ['a.jpg']);
 });
