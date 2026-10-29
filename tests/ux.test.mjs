@@ -148,3 +148,41 @@ for (const theme of THEMES) {
     await p.close();
   });
 }
+
+/* passe visuelle à 320 px : en-tête sur deux lignes au plus, aucun texte qui sort de sa carte, en-tête admin sur une ligne */
+test('320 px : en-tête lisible, textes contenus dans leurs cartes', async () => {
+  const defauts = [];
+  for (const page of ['#accueil', '#parcours', '#parcours/formation', '#parcours/certifications', '#liens/projets']) {
+    const p = await env.page({ viewport: { width: 320, height: 760 } });
+    await ouvrirPage(p, page);
+    (await p.evaluate(() => {
+      const d = [];
+      const brand = document.querySelector('.brand');
+      if (brand.getBoundingClientRect().height > 44.5) d.push(`marque haute de ${Math.round(brand.getBoundingClientRect().height)} px`);
+      brand.querySelectorAll('b, small').forEach((x) => { if (x.scrollWidth > x.clientWidth + 1) d.push(`marque tronquée : ${x.textContent}`); });
+      document.querySelectorAll('#vue .carte').forEach((carte) => {
+        const r = carte.getBoundingClientRect();
+        const w = document.createTreeWalker(carte, NodeFilter.SHOW_TEXT);
+        for (let n = w.nextNode(); n; n = w.nextNode()) {
+          if (!n.textContent.trim()) continue;
+          const g = document.createRange(); g.selectNodeContents(n);
+          const t = g.getBoundingClientRect();
+          if (t.width && t.right > r.right + 1) d.push(`texte hors de sa carte : « ${n.textContent.trim().slice(0, 30)} »`);
+        }
+      });
+      return d;
+    })).forEach((x) => defauts.push(`${page} : ${x}`));
+    await p.close();
+  }
+  const jeton = JSON.stringify({ jeton: 'jeton-' + (Date.now() + 864e5), expire: Date.now() + 864e5 });
+  const a = await env.page({ chemin: '/admin/', viewport: { width: 320, height: 760 }, stockage: { 'ab-jeton': jeton } });
+  await a.waitForSelector('.adm-top .btn');
+  (await a.$$eval('.adm-top .btn', (xs) => xs.map((x) => { const g = document.createRange(); g.selectNodeContents(x); const lignes = new Set([...g.getClientRects()].map((q) => Math.round(q.top))).size; return { t: x.textContent, h: x.getBoundingClientRect().height, r: x.getBoundingClientRect().right, lignes }; })))
+    .forEach((b) => {
+      if (b.h > 48 || b.h < 44) defauts.push(`admin : bouton « ${b.t} » haut de ${Math.round(b.h)} px`);
+      if (b.lignes > 1) defauts.push(`admin : bouton « ${b.t} » sur ${b.lignes} lignes`);
+      if (b.r > 320) defauts.push(`admin : bouton « ${b.t} » hors de l'écran`);
+    });
+  await a.close();
+  assert.deepEqual([...new Set(defauts)], []);
+});

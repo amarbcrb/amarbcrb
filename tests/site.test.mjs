@@ -27,9 +27,11 @@ test('affiche 5 onglets et le bouton recherche', async () => {
 test('onglet masqué → 3 boutons, barre redimensionnée', async () => {
   reinit((c) => { c.onglets.liens.visible = false; });
   const p = await env.page();
-  const boutons = await p.$$eval('.nav .nb', (bs) => bs.map((b) => [b.textContent.trim(), b.getBoundingClientRect().width]));
+  /* une seule mesure, dans la même image : la mise en page peut bouger entre deux évaluations pendant le chargement */
+  const { boutons, piste } = await p.evaluate(() => ({
+    boutons: [...document.querySelectorAll('.nav .nb')].map((b) => [b.textContent.trim(), b.getBoundingClientRect().width]),
+    piste: document.querySelector('.nav-in').clientWidth - 8 }));
   assert.deepEqual(boutons.map((b) => b[0]), ['Accueil', 'Parcours', 'Portfolio']);
-  const piste = await p.locator('.nav-in').evaluate((e) => e.clientWidth - 8);
   boutons.forEach(([, w]) => assert.ok(Math.abs(w - piste / 3) < 1.5));
 });
 

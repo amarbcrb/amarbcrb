@@ -50,6 +50,8 @@ box-shadow:inset 0 0 0 .75px var(--glass-line),0 10px 30px var(--lg-sh)}
 .brand{flex:1;min-width:0;min-height:44px;display:flex;align-items:center;gap:10px;pointer-events:auto;font-weight:900;font-size:14px;letter-spacing:.18em;text-transform:uppercase}
 .brand img{width:34px;height:34px;border-radius:50%;object-fit:cover}
 .brand small{display:block;margin-top:2px;font-size:11.5px;font-weight:600;color:var(--tx2);letter-spacing:.04em;text-transform:none;line-height:1.2}
+.brand span{min-width:0}.brand b,.brand small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.brand b{display:block}
+@media(max-width:359px){.hin{padding-left:16px;padding-right:16px}.brand{font-size:13px;letter-spacing:.06em;gap:8px}.brand img{width:30px;height:30px}}
 .tools{pointer-events:auto;height:52px;padding:0 4px;border-radius:999px;display:flex;align-items:center;gap:2px}
 .tb{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;position:relative;z-index:1;font-size:12.5px;font-weight:700;letter-spacing:.02em;transition:transform .35s var(--spring),background .3s}
 .tb:active{transform:scale(.86);background:var(--fill)}
@@ -212,7 +214,7 @@ footer b{color:var(--tx2);font-weight:600}
 .carte{position:relative;flex:0 0 auto;display:flex;flex-direction:column;gap:4px;border-radius:22px;background:var(--card);border:.75px solid var(--line);box-shadow:var(--shadow);overflow:hidden;transition:transform .35s var(--spring),border-color .2s,box-shadow .3s;animation:monte .45s var(--ease) both;animation-delay:calc(var(--k,0)*35ms)}
 a.carte:active,.vignette:active{transform:scale(.97)}
 @media(hover:hover){a.carte:hover,.carte-cert:hover,.vignette:hover{transform:translateY(-3px);border-color:var(--line2)}}
-.carte b{font-size:16px;font-weight:600;line-height:1.3}
+.carte b{font-size:16px;font-weight:600;line-height:1.3;overflow-wrap:break-word;hyphens:auto}
 .carte small{font-size:13.5px;color:var(--tx2)}
 .carte-texte{width:min(64vw,240px);min-height:128px;padding:16px 18px}
 .carte-texte .periode{font-size:12.5px;font-weight:600;color:var(--tx3);letter-spacing:.02em}
