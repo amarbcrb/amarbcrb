@@ -1,0 +1,128 @@
+/* Démarrage du site : thème, contenu, maintenance, en-tête, barre d'onglets et vues. */
+import { chargerContenu, lireJeton } from './api.js';
+import { ongletsVisibles, ONGLETS } from './model.js';
+import { parse, format } from './router.js';
+import { monterBarre } from './nav.js';
+import { rendreVue } from './render.js';
+
+const $ = (id) => document.getElementById(id);
+const root = document.documentElement;
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const etat = { contenu: null, dossiers: [], barre: null, cleBarre: '', vue: null };
+
+/* ---------- Thème ---------- */
+const sv = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const SOLEIL = sv('<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>');
+const LUNE = sv('<path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/>');
+function appliquerTheme(t) {
+  root.dataset.theme = t;
+  $('themeBtn').innerHTML = t === 'dark' ? SOLEIL : LUNE;
+  $('metaTheme').content = t === 'dark' ? '#0d0d0d' : '#f5f5f7';
+}
+function themeMemorise() { try { return localStorage.getItem('ab-theme'); } catch { return null; } }
+appliquerTheme(root.dataset.theme || 'dark');
+$('themeBtn').addEventListener('click', () => {
+  const t = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('ab-theme', t); } catch { /* navigation privée */ }
+  appliquerTheme(t);
+});
+matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => { if (!themeMemorise()) appliquerTheme(e.matches ? 'light' : 'dark'); });
+
+/* ---------- Reflet sous la souris ou le doigt ---------- */
+export function reflet(racine = document) {
+  racine.querySelectorAll('.box,.glass').forEach((el) => {
+    if (el.dataset.fx) return;
+    el.dataset.fx = '1';
+    const viser = (e) => { const b = el.getBoundingClientRect(); el.style.setProperty('--mx', e.clientX - b.left + 'px'); el.style.setProperty('--my', e.clientY - b.top + 'px'); };
+    el.addEventListener('pointerenter', (e) => { viser(e); el.classList.add('lit'); });
+    el.addEventListener('pointermove', viser);
+    el.addEventListener('pointerleave', () => el.classList.remove('lit'));
+  });
+}
+
+/* ---------- Message éphémère ---------- */
+let minuteurToast = 0;
+export function toast(message) {
+  const t = $('toast');
+  t.textContent = message;
+  t.classList.add('show');
+  clearTimeout(minuteurToast);
+  minuteurToast = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ---------- En-tête, médias, maintenance, barre ---------- */
+function appliquer(c) {
+  const enMaintenance = c.site.maintenance.active && !lireJeton();
+  const logo = (c.medias.logo && c.medias.logo.url) || '/favicon-512x512.png';
+  $('maintenance').hidden = !enMaintenance;
+  ['shell', 'navHote'].forEach((id) => { $(id).hidden = enMaintenance; });
+  document.querySelector('.top').hidden = enMaintenance;
+  $('bandeauAdmin').hidden = !(c.site.maintenance.active && !enMaintenance);
+  if (enMaintenance) {
+    $('maintenanceLogo').src = logo;
+    $('maintenanceMsg').textContent = c.site.maintenance.message;
+    $('maintenanceMail').textContent = c.contact.email;
+    $('maintenanceMail').href = 'mailto:' + c.contact.email;
+    return false;
+  }
+  $('nomSite').textContent = c.site.nom;
+  $('surtitre').textContent = c.site.surtitre;
+  $('logo').src = logo;
+  if (c.medias.favicon && c.medias.favicon.url) $('favicon').href = c.medias.favicon.url;
+  const onglets = ongletsVisibles(c);
+  if (onglets.join() !== etat.cleBarre) {
+    if (etat.barre) etat.barre.detruire();
+    etat.cleBarre = onglets.join();
+    etat.barre = monterBarre({ conteneur: $('navHote'), onglets, onSelect: aller, onRecherche: ouvrirRecherche });
+  }
+  reflet();
+  return true;
+}
+
+/* ---------- Navigation ---------- */
+function aller(onglet) {
+  const cible = format(parse('#' + onglet, etat.contenu, etat.dossiers));
+  if (location.hash !== cible) history.pushState(null, '', cible);
+  afficher();
+}
+
+function ouvrirRecherche() {}
+
+function afficher(anim = true) {
+  const c = etat.contenu;
+  const cible = parse(location.hash, c, etat.dossiers);
+  const canonique = format(cible);
+  if (location.hash !== canonique) history.replaceState(null, '', canonique);
+  const avant = etat.vue;
+  etat.vue = cible;
+  etat.barre.select(cible.onglet, anim);
+  const vue = $('vue');
+  const dessiner = () => { rendreVue(vue, c, cible, etat.dossiers); reflet(vue); };
+  const changeOnglet = avant && avant.onglet !== cible.onglet;
+  if (!anim || RM || !avant || !vue.animate) { dessiner(); return; }
+  const sens = ONGLETS.indexOf(cible.onglet) >= ONGLETS.indexOf(avant.onglet) ? 1 : -1;
+  dessiner();
+  if (changeOnglet) scrollTo(0, 0);
+  vue.animate([{ opacity: 0, transform: `translateX(${sens * 34}px)`, filter: 'blur(8px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }],
+    { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' });
+}
+
+/* retour arrière, lien #… dans la page : ne redessine que si la partie affichée change */
+function synchroniser() {
+  if (!etat.contenu || $('shell').hidden) return;
+  if (!etat.vue || format(parse(location.hash, etat.contenu, etat.dossiers)) !== format(etat.vue)) afficher();
+}
+addEventListener('popstate', synchroniser);
+addEventListener('hashchange', synchroniser);
+
+/* ---------- Démarrage ---------- */
+async function demarrer() {
+  const { contenu } = await chargerContenu((frais) => {
+    etat.contenu = frais;
+    if (appliquer(frais)) afficher(false);
+  });
+  $('chargement').hidden = true;
+  etat.contenu = contenu;
+  if (appliquer(contenu)) afficher(false);
+}
+demarrer();
