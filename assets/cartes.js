@@ -42,6 +42,7 @@ const TRACES = {
   article: '<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/>',
 };
 const icone = (type) => `<svg class="type-icone" viewBox="0 0 24 24" aria-hidden="true">${TRACES[type]}</svg>`;
+export const iconeType = icone;
 
 const FICHIER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>';
 const DATEES = ['formation', 'experience', 'engagement'];
@@ -72,6 +73,24 @@ export function carteDomaine(x, indice = 0) {
 
 /* « Culture, PCR, ELISA et 2 autres » */
 const apercuTechniques = (t) => t.slice(0, 3).join(', ') + (t.length > 3 ? ` et ${t.length - 3} autre${t.length > 4 ? 's' : ''}` : '');
+
+/* tuile carrée des liens récents (façon playlists) : image, sinon pictogramme du type sur un dégradé */
+export function tuileLien(x, c, indice = 0) {
+  const type = typeLien(x, c);
+  const image = imageSure(x.media) || (lienSur(x.image) ? x.image : null);
+  const [a, b] = teinte(x.titre);
+  const repli = () => el('span', { class: 'tuile-repli', style: `--a:var(${a});--b:var(${b})`, html: icone(type) });
+  return el(lienSur(x.url) ? 'a' : 'div', { class: 'tuile', href: x.url, target: '_blank', rel: 'noopener noreferrer', style: `--k:${indice}`, 'data-type': type },
+    el('span', { class: 'tuile-visuel', 'aria-hidden': 'true' }, image ? imageOuRepli(image, repli) : repli()),
+    el('b', {}, x.titre), el('small', {}, domaine(x.url)));
+}
+
+/* type le plus fréquent d'une liste de liens (icône de la catégorie) */
+export function typeDominant(items, c) {
+  const n = {};
+  items.forEach((x) => { const t = typeLien(x, c); n[t] = (n[t] || 0) + 1; });
+  return Object.keys(n).sort((a, b) => n[b] - n[a])[0] || 'web';
+}
 
 /* titre de la fiche d'un élément */
 export const titreFiche = (x) => x.titre || x.domaine || '';

@@ -68,3 +68,5 @@ test('chercher : requête vide → []', () => {
 test('chercher : max', () => assert.ok(chercher(idx, 'a', 3).length <= 3));
 
 test('chercher : intérêt → page Voir tout (pas de fiche)', () => assert.equal(chercher(idx, 'cartomagie')[0].hash, '#parcours/interets'));
+
+test('chercher : un lien n\'apparaît qu\'une fois (pas de doublon par « Tous les liens »)', () => assert.equal(chercher(idx, 'biocampus').filter((r) => r.titre === 'BioCampus').length, 1));

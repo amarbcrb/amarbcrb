@@ -144,7 +144,7 @@ for (const theme of THEMES) {
     }));
     assert.ok(degrades.length > 0);
     degrades.forEach((r) => assert.ok(r >= 4.5, `contraste du dégradé ${r.toFixed(2)}`));
-    const hauts = await p.$$eval('#vue .rangee:first-of-type .carte-lien .btn', (xs) => xs.slice(0, 4).map((x) => Math.round(x.getBoundingClientRect().top)));
+    const hauts = await p.$$eval('#vue .liens-une .carte-lien .btn', (xs) => xs.slice(0, 4).map((x) => Math.round(x.getBoundingClientRect().top)));
     assert.equal(new Set(hauts).size, 1, `boutons Ouvrir à des hauteurs différentes : ${hauts}`);
     await ouvrirPage(p, '#accueil');
     const lbl = await p.$$eval('#vue .carte-domaine b', (xs) => xs.map((x) => Math.round(x.getBoundingClientRect().top)));
@@ -212,4 +212,14 @@ test('ambiance Nuvio : noir pur en sombre, titres de rangée soulignés, recherc
   assert.equal(await p.$eval('#rechInput', (x) => getComputedStyle(x).outlineStyle), 'none');
   assert.notEqual(await p.$eval('.rech-in', (x) => getComputedStyle(x).boxShadow), 'none');
   await p.close();
+});
+
+test('bouton « Contact » entier, sur téléphone comme sur ordinateur', async () => {
+  for (const largeur of [390, 1366]) {
+    const p = await env.page({ viewport: { width: largeur, height: 850 } });
+    const [contenu, visible, droite] = await p.$eval('#contactBtn', (b) => [b.scrollWidth, b.clientWidth, b.closest('.tools').getBoundingClientRect().right]);
+    assert.ok(contenu <= visible, `${largeur} px : texte de ${contenu} px dans un bouton de ${visible} px`);
+    assert.ok(droite <= largeur, `${largeur} px : pastille qui dépasse (${droite} px)`);
+    await p.close();
+  }
 });

@@ -34,7 +34,7 @@ export function construireIndex(c, dossiersPortfolio = []) {
   }
 
   if (onglets.includes('liens')) {
-    parties(c, 'liens').forEach((p) => p.items.forEach((x) => ajouter('Lien', x.titre, x.description, format({ onglet: 'liens', sous: p.id }), x.url)));
+    parties(c, 'liens').filter((p) => p.id !== 'tous').forEach((p) => p.items.forEach((x) => ajouter('Lien', x.titre, x.description, format({ onglet: 'liens', sous: p.id }), x.url)));
   }
 
   if (onglets.includes('portfolio')) {

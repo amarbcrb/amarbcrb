@@ -103,8 +103,7 @@ test('lien : image, titre, description, bouton (texte réglé ou « Ouvrir »), 
     Object.assign(c.liens.items[0], { image: `${env.site.url}/favicon-512x512.png?a`, bouton: 'Visiter BioStudy', date: '2026-12-01' });
   });
   const p = await env.page({ chemin: '/#liens' });
-  assert.deepEqual(await titres(p, '#vue .rangee .rangee-tete h2'), ['Projets']);
-  const premiere = p.locator('#vue a.carte-lien >> nth=0');
+  const premiere = p.locator('#vue .liens-une a.carte-lien >> nth=0');
   assert.equal(await premiere.getAttribute('href'), 'https://www.biostudy.xyz/');
   assert.equal(await premiere.getAttribute('target'), '_blank');
   assert.match(await premiere.getAttribute('rel'), /noopener/);
@@ -303,9 +302,9 @@ test('couleur par rubrique : Formation bleu, Certifications vert, catégories de
   assert.equal(pc, bleu);
   [pc, bleu, vert] = await couleur('#vue .rangee:has(h2:text-is("Certifications"))');
   assert.equal(pc, vert);
-  await p.evaluate(() => { location.hash = '#liens'; });
-  await p.waitForSelector('#vue .rangee');
-  const [p1, b1] = await couleur('#vue .rangee');
+  await p.evaluate(() => { location.hash = '#liens/projets'; });
+  await p.waitForSelector('#vue .vt-voir');
+  const [p1, b1] = await couleur('#vue .vt-voir');
   assert.equal(p1, b1);
   await p.evaluate(() => { location.hash = '#parcours/certifications'; });
   await p.waitForSelector('#vue .vt-voir');
@@ -393,4 +392,25 @@ test('fiche façon Nuvio : bannière, description, « Détails » en lignes libe
   await p.evaluate(() => { location.hash = '#parcours/formation/f1'; });
   await ouverte(p);
   assert.equal((await details()).find((d) => d[0] === 'Statut')[1], 'En cours');
+});
+
+test('liens façon Bibliothèque : carte résumé + liens à la une, une ligne par catégorie, récents en tuiles', async () => {
+  reinit((c) => { c.liens.items[1].categorie = 'android'; c.liens.items[1].date = '2026-12-01'; });
+  const p = await env.page({ chemin: '/#liens' });
+  assert.match(await p.innerText('#vue .liens-une .carte-resume'), /Mes liens[\s\S]*9\s+liens partagés[\s\S]*8 projets · 1 applis android/i);
+  assert.equal(await p.locator('#vue .liens-une a.carte-lien').count(), 3);
+  assert.equal(await p.getAttribute('#vue .liens-une a.carte-lien >> nth=0', 'href'), 'https://www.biostudy.xyz/BioCampus/');
+  const lignes = await p.$$eval('#vue .liste-categories a', (xs) => xs.map((x) => [x.querySelector('b').textContent, x.querySelector('small').textContent, x.getAttribute('href')]));
+  assert.deepEqual(lignes, [['Projets', '8', '#liens/projets'], ['Applis Android', '1', '#liens/android']]);
+  assert.equal(await p.locator('#vue .liste-categories a >> nth=0 >> svg').count() >= 1, true);
+  assert.equal(await p.innerText('#vue .recents h2'), 'Récents');
+  assert.equal(await p.getAttribute('#vue .recents a.tout', 'href'), '#liens/tous');
+  assert.equal(await p.locator('#vue .recents a.tuile').count(), 9);
+  assert.equal(await p.getAttribute('#vue .recents a.tuile >> nth=0', 'target'), '_blank');
+  assert.equal(await p.innerText('#vue .recents a.tuile >> nth=0 >> b'), 'BioCampus');
+  assert.equal(await p.locator('#vue .recents a.tuile >> nth=0 >> .tuile-visuel').count(), 1);
+  await p.click('#vue .recents a.tout');
+  await p.waitForFunction(() => location.hash === '#liens/tous');
+  assert.equal(await p.innerText('#vue .vt-tete h1'), 'Tous les liens');
+  assert.equal(await p.locator('#vue .grille > .carte-lien').count(), 9);
 });

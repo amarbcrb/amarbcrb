@@ -56,7 +56,7 @@ box-shadow:inset 0 0 0 .75px var(--glass-line),0 10px 30px var(--lg-sh)}
 .tools{pointer-events:auto;height:52px;padding:0 4px;border-radius:999px;display:flex;align-items:center;gap:2px}
 .tb{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;position:relative;z-index:1;font-size:12.5px;font-weight:700;letter-spacing:.02em;transition:transform .35s var(--spring),background .3s}
 .tb:active{transform:scale(.86);background:var(--fill)}
-.tb-texte{width:auto;padding:0 16px;border-radius:999px;font-size:14px;font-weight:600;letter-spacing:0}
+.tb.tb-texte{width:auto;padding:0 16px;border-radius:999px;font-size:14px;font-weight:600;letter-spacing:0}
 @media(hover:hover){.tb:hover{background:var(--fill)}}
 /* ===== Mise en page : une vue par onglet ===== */
 .shell{position:relative;z-index:1;max-width:var(--max);margin:auto;padding:calc(var(--top) + env(safe-area-inset-top)) var(--gx) calc(var(--navh) + 40px + env(safe-area-inset-bottom))}
@@ -214,9 +214,6 @@ footer b{color:var(--tx2);font-weight:600}
 /* téléphone : une ligne par repère, chiffre à gauche, libellé à droite */
 @media(max-width:559px){.reperes{grid-template-columns:1fr;gap:8px}.reperes li{flex-direction:row;align-items:baseline;gap:14px;padding:12px 16px}.reperes b{flex:none;min-width:5.2ch;white-space:nowrap;font-size:28px}.reperes span{font-size:14px}}
 .accueil>.rangee{margin-top:34px}
-.bloc-accueil{margin-top:36px}
-.bloc-accueil h2{margin-bottom:12px;font-size:20px;font-weight:700;letter-spacing:-.01em;max-width:none}
-.projet-phare .carte-lien{width:100%;max-width:560px}
 .accueil>.acts{margin-top:34px}
 /* rangée */
 .rangee{margin-top:30px;animation:monte .5s var(--ease) both;animation-delay:calc(var(--i,0)*60ms)}
@@ -248,6 +245,37 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 .carte-lien-fiche{display:block}
 .carte-lien-fiche::after{content:"";position:absolute;inset:0;z-index:0}
 .carte-cert .btn{position:relative;z-index:1;margin-top:8px;align-self:flex-start;min-height:44px;padding:0 16px;font-size:14px}
+/* ===== Liens façon Bibliothèque ===== */
+.liens-une{margin-top:4px}
+.liens-une>.carte{width:min(84vw,340px)}
+.carte-resume{min-height:220px;padding:20px 22px;gap:10px;color:#fff;border:0;
+  background:radial-gradient(120% 100% at 0% 0%,color-mix(in srgb,var(--c-pink) 42%,#000),transparent 62%),radial-gradient(110% 100% at 100% 100%,color-mix(in srgb,var(--c-purple) 40%,#000),transparent 60%),#0c0c0e}
+.carte-resume .lbl{font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.78)}
+.icone-resume{position:absolute;top:18px;right:20px}.icone-resume .type-icone{width:30px;height:30px}
+.carte-resume .chiffre{margin-top:auto;display:flex;flex-direction:column}
+.carte-resume .chiffre b{font-size:52px;font-weight:800;line-height:1;letter-spacing:-.02em}
+.carte-resume .chiffre span{font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.78)}
+.carte-resume small{font-size:14px;color:rgba(255,255,255,.86)}
+.liste-categories{list-style:none;margin-top:22px}
+.ligne-cat{--pc-tx:color-mix(in srgb,var(--pc) var(--pc-k),var(--tx));display:flex;align-items:center;gap:14px;min-height:64px;border-bottom:.75px solid var(--sep);transition:background .2s}
+.ligne-cat .ico{flex:none;width:42px;height:42px;border-radius:13px;display:grid;place-items:center;color:var(--pc-tx);background:color-mix(in srgb,var(--pc) 20%,transparent)}
+.ligne-cat .ico .type-icone{width:22px;height:22px}
+.ligne-cat b{flex:1;font-size:17px;font-weight:600}
+.ligne-cat small{font-size:15px;color:var(--tx2)}
+.ligne-cat i{color:var(--tx3);display:grid}
+@media(hover:hover){.ligne-cat:hover{background:var(--fill)}}
+.recents{margin-top:30px}
+.recents-tete{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.recents-tete h2{font-size:20px;font-weight:700;letter-spacing:-.01em}
+.recents-tete .tout{min-height:44px;display:inline-flex;align-items:center;font-size:15px;font-weight:600}
+.tuile{flex:0 0 auto;width:min(40vw,160px);display:flex;flex-direction:column;gap:2px;min-width:0}
+.tuile-visuel{position:relative;display:block;aspect-ratio:1;border-radius:20px;overflow:hidden;background:#111;margin-bottom:6px;box-shadow:inset 0 0 0 .75px var(--line)}
+.tuile-visuel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tuile-repli{position:absolute;inset:0;display:grid;place-items:center;color:#fff;
+  background:radial-gradient(110% 80% at 20% 0%,color-mix(in srgb,var(--a) 70%,#000),transparent 65%),radial-gradient(90% 90% at 100% 100%,color-mix(in srgb,var(--b) 60%,#000),transparent 60%),#0a0a0a}
+.tuile-repli .type-icone{width:44px;height:44px;stroke-width:1.5}
+.tuile b{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tuile small{font-size:13px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* ===== Affiches façon Nuvio : visuel arrondi, texte dessous, pas de boîte autour ===== */
 .carte-cert,.carte-comp,.carte-interet,.carte-domaine{padding:0;gap:4px;background:none;border:0;box-shadow:none;overflow:visible;border-radius:0}
 .visuel{position:relative;display:block;overflow:hidden;border-radius:18px;background:#111;margin-bottom:8px;box-shadow:inset 0 0 0 .75px var(--line)}

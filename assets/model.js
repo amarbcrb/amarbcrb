@@ -183,9 +183,11 @@ export function parties(c, onglet, dossiersPortfolio = []) {
   if (onglet === 'liens') {
     const items = visibles(c.liens.items).map((x, i) => [x, i])
       .sort((a, b) => String(b[0].date || '').localeCompare(String(a[0].date || '')) || a[1] - b[1]).map((x) => x[0]);
-    return visibles(c.liens.categories)
+    const cats = visibles(c.liens.categories)
       .map((cat) => ({ id: cat.id, titre: cat.nom, items: items.filter((x) => x.categorie === cat.id) }))
       .filter((p) => p.items.length);
+    /* « Tous les liens » : page Voir tout de l'onglet entier (lien « Tout afficher ») */
+    return cats.length ? [...cats, { id: 'tous', titre: 'Tous les liens', items: cats.flatMap((p) => p.items).sort((a, b) => items.indexOf(a) - items.indexOf(b)) }] : [];
   }
   if (onglet === 'portfolio') {
     const reglages = c.portfolio.dossiers;

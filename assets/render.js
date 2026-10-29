@@ -4,7 +4,7 @@ import { parties, contactVisible, couleurPartie, periode, ongletsVisibles, lienS
 import { format } from './router.js';
 import { COULEURS } from './nav.js';
 import { el } from './dom.js';
-import { carte, carteDomaine } from './cartes.js';
+import { carte, carteDomaine, tuileLien, typeDominant, iconeType } from './cartes.js';
 import { carrousel } from './carrousel.js';
 
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -68,7 +68,7 @@ function vueAccueil(c) {
   /* rangées d'images : ce que je fais, projets, certifications, passions */
   const parcours = onglets.includes('parcours') ? parties(c, 'parcours') : [];
   const partie = (id) => parcours.find((p) => p.id === id);
-  const liens = onglets.includes('liens') ? parties(c, 'liens').flatMap((p) => p.items.map((x) => [x, p.id])) : [];
+  const liens = onglets.includes('liens') ? parties(c, 'liens').filter((p) => p.id !== 'tous').flatMap((p) => p.items.map((x) => [x, p.id])) : [];
   const rangees = [
     domaines.length && rangee({ titre: 'Ce que je fais', nombre: null, cartes: domaines.map((x, i) => carteDomaine(x, i)), couleur: '--c-teal' }),
     liens.length && rangee({ titre: 'Projets', nombre: liens.length, href: '#liens', couleur: '--c-pink',
@@ -141,6 +141,32 @@ function voirTout(onglet, p, c, couleur) {
       el('h1', {}, p.titre), el('small', {}, nElements(p.items.length))), contenu);
 }
 
+/* ---------- Liens, façon Bibliothèque ---------- */
+function vueLiens(c, liste) {
+  const cats = liste.filter((p) => p.id !== 'tous');
+  const tous = liste.find((p) => p.id === 'tous');
+  const section = (...enfants) => el('section', { class: 'vt v-liens', style: `--tc:var(${COULEURS.liens})` }, el('h1', {}, TITRES.liens), enfants);
+  if (!tous) return section(el('p', { class: 'vide' }, VIDES.liens));
+  const total = tous.items.length;
+  const couleur = (cat) => couleurPartie('liens', cat, cats.findIndex((p) => p.id === cat));
+  const resume = el('article', { class: 'carte carte-resume' },
+    el('span', { class: 'lbl' }, 'Mes liens'), el('span', { class: 'icone-resume', html: iconeType('web') }),
+    el('span', { class: 'chiffre' }, el('b', {}, String(total)), el('span', {}, total > 1 ? 'liens partagés' : 'lien partagé')),
+    el('small', {}, cats.map((p) => `${p.items.length} ${p.titre.toLowerCase()}`).join(' · ')));
+  const une = tous.items.slice(0, 3).map((x, k) => {
+    const e = carte(x, { onglet: 'liens', partie: x.categorie, c, indice: k + 1 });
+    e.style.setProperty('--pc', `var(${couleur(x.categorie)})`);
+    return e;
+  });
+  return section(
+    el('div', { class: 'piste liens-une' }, resume, une),
+    el('ul', { class: 'liste-categories' }, cats.map((p) => el('li', {}, el('a', { class: 'ligne-cat', href: format({ onglet: 'liens', sous: p.id }), style: `--pc:var(${couleur(p.id)})` },
+      el('span', { class: 'ico', html: iconeType(typeDominant(p.items, c)) }), el('b', {}, p.titre), el('small', {}, String(p.items.length)), el('i', { html: ICONES.suite }))))),
+    el('section', { class: 'recents' },
+      el('div', { class: 'recents-tete' }, el('h2', {}, 'Récents'), el('a', { class: 'tout', href: format({ onglet: 'liens', sous: 'tous' }) }, 'Tout afficher')),
+      el('div', { class: 'piste tuiles' }, tous.items.slice(0, 10).map((x, k) => tuileLien(x, c, k)))));
+}
+
 /* dossiers : liste Drive, null si le script est en panne, undefined tant qu'elle n'est pas chargée */
 export function rendreVue(racine, c, { onglet, sous }, dossiers) {
   if (onglet === 'accueil') { racine.replaceChildren(vueAccueil(c)); return; }
@@ -152,6 +178,7 @@ export function rendreVue(racine, c, { onglet, sous }, dossiers) {
   const liste = parties(c, onglet, dossiers || []);
   const n = sous ? liste.findIndex((x) => x.id === sous) : -1;
   if (n >= 0) { racine.replaceChildren(voirTout(onglet, liste[n], c, couleurPartie(onglet, sous, n))); return; }
+  if (onglet === 'liens') { racine.replaceChildren(vueLiens(c, liste)); return; }
   const rangees = liste.map((x, i) => {
     const commun = { titre: x.titre, href: format({ onglet, sous: x.id }), indice: i + 1, couleur: couleurPartie(onglet, x.id, i) };
     if (onglet === 'parcours' && FRISES.includes(x.id)) return rangeeFrise({ ...commun, items: x.items, partie: x.id });
