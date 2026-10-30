@@ -7,7 +7,6 @@ import { el } from './dom.js';
 import { carte, carteDomaine, tuileLien, typeDominant, iconeType, mediaLien } from './cartes.js';
 import { carrousel } from './carrousel.js';
 
-const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const TITRES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Liens' };
 const VIDES = { parcours: 'Parcours bientôt disponible.', liens: 'Aucun lien pour le moment.', portfolio: 'Portfolio bientôt disponible.' };
@@ -39,7 +38,7 @@ export function rangee({ titre, nombre, href = null, cartes, indice = 0, couleur
 const teteRangee = (titre, nombre, href, editTitre = null) => el('div', { class: 'rangee-tete' }, el('h2', { 'data-edit': editTitre }, titre), nombre === null ? null : el('small', {}, String(nombre)),
   href ? el('a', { class: 'voir', href, 'aria-label': `Voir tout : ${titre}`, html: ICONES.suite }) : null);
 
-/* frise chronologique : un point par étape (qui pulse si en cours), période, titre, lieu ; chaque étape ouvre sa fiche */
+/* frise chronologique : un point par étape (plein si en cours), période, titre, lieu ; chaque étape ouvre sa fiche */
 export function frise(items, partie) {
   return el('ol', { class: 'frise' }, items.map((x, k) => el('li', { class: 'etape', style: `--k:${Math.min(k, 12)}`, 'data-element': `parcours.${partie}#${x.id}` },
     el('a', { class: 'etape', href: format({ onglet: 'parcours', sous: partie, element: x.id }) },
@@ -93,82 +92,15 @@ function vueAccueil(c) {
     contact && el('a', { class: parcoursVisible ? 'btn' : 'btn pri', href: '#contact' }, 'Me contacter'),
     cv && el('a', { class: parcoursVisible || contact ? 'btn' : 'btn pri', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV'),
   ].filter(Boolean);
-  const photo = c.medias.photo && c.medias.photo.url;
-  const roles = [...domaines.map((x) => x.titre), projet && projet.titre].filter(Boolean);
-  const techniques = [...new Set(visibles(c.parcours.competences || []).flatMap((x) => x.techniques || []))].slice(0, 18);
   return el('section', { class: 'vt accueil' },
-    photo || c.site.surtitre ? el('div', { class: 'hero-tete' },
-      photo ? el('img', { class: 'avatar', src: photo, alt: '', width: 56, height: 56 }) : null,
-      c.site.surtitre ? el('span', { class: 'statut' }, el('i', { 'aria-hidden': 'true' }), el('span', {}, c.site.surtitre)) : null) : null,
     el('h1', { class: 'salut', 'data-edit': 'accueil.salutation', 'data-repli': a.salutation ? null : c.site.nom }, a.salutation || c.site.nom),
-    roles.length > 1 ? defileRoles(roles) : null,
     a.intro ? el('p', { class: 'intro', 'data-edit': 'accueil.intro', 'data-multiligne': '' }, a.intro) : null,
     actions.length ? el('div', { class: 'acts' }, actions) : null,
-    techniques.length > 3 ? bandeTechniques(techniques, onglets.includes('parcours')) : null,
     diapos.length ? carrousel(diapos) : null,
-    reperes.length ? revele(el('ul', { class: 'reperes', 'data-liste': 'accueil.reperes' }, reperes.map((x, k) => el('li', { 'data-element': `accueil.reperes#${x.id}`, style: `--pc:var(${TEINTES[k % TEINTES.length]})` }, compteur(x.valeur), el('span', {}, x.libelle))))) : null,
-    rangees.map(revele));
+    reperes.length ? el('ul', { class: 'reperes', 'data-liste': 'accueil.reperes' }, reperes.map((x) => el('li', { 'data-element': `accueil.reperes#${x.id}` }, el('b', {}, x.valeur), el('span', {}, x.libelle)))) : null,
+    rangees);
 }
 
-const TEINTES = ['--c-blue', '--c-teal', '--c-orange', '--c-pink', '--c-purple'];
-
-/* ce que je fais, un mot à la fois (mouvement réduit : tous les mots à la suite) */
-function defileRoles(mots) {
-  if (RM) return el('p', { class: 'roles' }, mots.join(' · '));
-  const spans = mots.map((m, k) => el('span', { class: k ? null : 'on', style: `--pc:var(${TEINTES[k % TEINTES.length]})` }, m));
-  const p = el('p', { class: 'roles', 'aria-label': mots.join(', ') }, el('span', { class: 'roles-mots', 'aria-hidden': 'true' }, spans));
-  let k = 0, monte = false;
-  /* s'arrête quand la page quitte l'écran (avant d'y être insérée, on attend) */
-  const minuteur = setInterval(() => {
-    if (!p.isConnected) { if (monte) clearInterval(minuteur); return; }
-    monte = true;
-    const avant = spans[k % spans.length];
-    k += 1;
-    spans.forEach((s) => s.classList.remove('part'));
-    avant.classList.replace('on', 'part');
-    spans[k % spans.length].classList.add('on');
-  }, 2200);
-  return p;
-}
-
-/* bande de techniques qui défile en continu (la 2e copie, décorative, est cachée aux lecteurs d'écran) */
-function bandeTechniques(mots, versParcours) {
-  const puce = (m, k, cache) => el('li', { style: `--pc:var(${TEINTES[k % TEINTES.length]})`, 'aria-hidden': cache ? 'true' : null }, m);
-  const bande = el('div', { class: 'defile' }, el('ul', { 'aria-label': 'Techniques maîtrisées' }, [...mots.map((m, k) => puce(m, k)), ...mots.map((m, k) => puce(m, k, true))]));
-  return versParcours ? el('a', { class: 'defile', href: format({ onglet: 'parcours', sous: 'competences' }), 'aria-label': 'Mes compétences' }, bande.firstChild) : bande;
-}
-
-/* les blocs apparaissent en glissant vers le haut quand ils entrent à l'écran */
-const temoin = !RM && 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => {
-  if (e.isIntersecting) { e.target.classList.add('vu'); temoin.unobserve(e.target); }
-}), { rootMargin: '0px 0px -8% 0px' }) : null;
-function revele(n) {
-  if (!temoin || !n) return n;
-  n.classList.add('revele');
-  temoin.observe(n);
-  return n;
-}
-
-/* chiffre d'un repère : compte de 0 à sa valeur quand il apparaît (« 6 ans », « 18 ») ; texte final dès le départ */
-function compteur(valeur) {
-  const b = el('b', {}, valeur);
-  const m = /^(\d{1,3})(\D.*)?$/.exec(String(valeur).trim());
-  if (!m || RM || !('IntersectionObserver' in window)) return b;
-  const fin = Number(m[1]), suite = m[2] || '';
-  const vu = new IntersectionObserver(([e]) => {
-    if (!e.isIntersecting) return;
-    vu.disconnect();
-    const debut = performance.now();
-    const pas = (t) => {
-      const k = Math.min(1, (t - debut) / 900);
-      b.textContent = `${Math.round(fin * (1 - (1 - k) ** 3))}${suite}`;
-      if (k < 1) requestAnimationFrame(pas);
-    };
-    requestAnimationFrame(pas);
-  }, { threshold: 0.6 });
-  vu.observe(b);
-  return b;
-}
 
 /* ---------- Profil (en tête de Parcours) ---------- */
 function profil(c) {
