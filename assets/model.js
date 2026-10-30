@@ -1,6 +1,5 @@
 /* Modèle de contenu du site : forme attendue de contenu.json et fonctions pures pour le lire.
    Aucune dépendance au DOM : le module est importé par le site, l'admin et les tests Node. */
-import { avecImage } from './images-integrees.js';
 
 /* onglets de la barre ; Contact n'en fait plus partie (fiche ouverte depuis l'en-tête) */
 export const ONGLETS = ['accueil', 'parcours', 'portfolio', 'liens'];
@@ -206,8 +205,7 @@ export function parties(c, onglet, dossiersPortfolio = []) {
     const sous = c.onglets.parcours.sous;
     return PARTIES_PARCOURS.filter((id) => !sous[id] || sous[id].visible !== false)
       .map((id) => {
-        /* image par défaut (mes posters, logos) sur une copie : voir assets/images-integrees.js */
-        const items = visibles(c.parcours[id]).map((x) => avecImage(`parcours.${id}`, x));
+        const items = visibles(c.parcours[id]);
         return { id, titre: (sous[id] && sous[id].titre) || TITRES_PARCOURS[id], items: DATEES.includes(id) ? trierParDate(items) : items };
       })
       .filter((p) => p.items.length);
