@@ -8,7 +8,7 @@ const MAX = { cv: 10 * 1024 * 1024, image: 10 * 1024 * 1024 };
 export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' } = {}) {
   const etat = {
     version: contenu.version || 1, contenu, motDePasse, echecs: 0, medias: {}, fichiersMedias: [], corbeille: [], racineId: '',
-    portfolio: { dossiers: [] }, apercus: {}, envoyes: [], appels: { contenu: 0, portfolio: 0, frais: 0, enregistrer: 0 },
+    portfolio: { dossiers: [] }, galeries: {}, apercus: {}, envoyes: [], appels: { contenu: 0, portfolio: 0, frais: 0, enregistrer: 0 },
     reglages: { lent: 0, panne: false, html: false },
   };
   let n = 0;
@@ -20,6 +20,12 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       etat.appels.portfolio++;
       if (q.get('frais') === '1' && jetonValide(q.get('jeton'))) etat.appels.frais++;
       return { dossiers: etat.portfolio.dossiers };
+    }
+    if (q.get('a') === 'galerie') {
+      /* comme Code.gs : seulement un dossier déclaré par un onglet « drive » du contenu */
+      const declare = ((etat.contenu.onglets || {}).perso || []).some((o) => o.type === 'drive' && o.dossierId === q.get('id'));
+      const g = etat.galeries[q.get('id')];
+      return declare && g ? g : { erreur: 'entree' };
     }
     return { erreur: 'entree' };
   }

@@ -1,5 +1,5 @@
 /* Cartes des rangées et contenu des fiches (feuille qui monte du bas). */
-import { lienSur, periode, duree, typeLien, TYPES_LIEN, drapeauLangue, typeMedia, idYoutube } from './model.js';
+import { lienSur, periode, duree, typeLien, TYPES_LIEN, drapeauLangue, typeMedia, idYoutube, ongletPerso } from './model.js';
 import { visuel as visuelMedia, urlMedia, lecteurYoutube } from './media.js';
 import { drapeauSvg } from './drapeaux.js';
 import { format } from './router.js';
@@ -104,7 +104,13 @@ export function carte(x, { onglet, partie, c, indice = 0 }) {
       el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.description ? el('p', {}, x.description) : null, site ? el('small', {}, site) : null,
         el('span', { class: 'btn' }, x.bouton || 'Ouvrir')));
   }
-  if (onglet === 'portfolio') {
+  const perso = c ? ongletPerso(c, onglet) : null;
+  if (perso && perso.type === 'rangees') {
+    /* carte d'un onglet libre : média, titre et texte visibles ; toucher ouvre sa fiche */
+    return el('a', { class: 'carte carte-libre', href: fiche, style }, visuel(x.media, x.titre),
+      el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
+  }
+  if (onglet === 'portfolio' || (perso && perso.type === 'drive')) {
     if (String(x.type).startsWith('image/')) {
       return el('button', { class: 'vignette', type: 'button', 'data-dossier': partie, 'data-fichier': x.id, 'aria-label': 'Agrandir ' + x.nom, style },
         el('img', { src: x.apercu, alt: sansExtension(x.nom), loading: 'lazy' }));
@@ -141,11 +147,11 @@ export function carte(x, { onglet, partie, c, indice = 0 }) {
 }
 
 /* image de fond (floutée) de la fiche d'un élément : seulement une vraie image (pas une vidéo) */
-export const fondFiche = (x) => (typeMedia(x.image) === 'image' ? urlMedia(x.image) : null);
+export const fondFiche = (x) => { const m = x.image || x.media; return typeMedia(m) === 'image' ? urlMedia(m) : null; };
 
 /* contenu complet de la fiche d'un élément de Parcours, façon page détail de Nuvio :
    bannière, description, puis « Détails » en lignes libellé / valeur */
-export function corpsFiche(x, partie) {
+export function corpsFiche(x, partie, perso = null) {
   const paragraphes = (t) => String(t || '').split(/\n\s*\n/).filter((p) => p.trim()).map((p) => el('p', {}, p.trim()));
   /* une vidéo YouTube se lit dans la fiche, avec le son */
   const banniere = (media, texte) => el('div', { class: 'fiche-banniere' }, (typeMedia(media) === 'youtube' && lecteurYoutube(media)) || visuel(media, texte));
@@ -153,6 +159,11 @@ export function corpsFiche(x, partie) {
     const l = lignes.filter(([, v]) => v);
     return l.length ? [el('h3', { class: 'fiche-sous-titre' }, 'Détails'), el('dl', { class: 'details' }, l.map(([k, v]) => el('div', {}, el('dt', {}, k), el('dd', {}, v))))] : [];
   };
+  if (perso && perso.type === 'rangees') {
+    const externe = lienSur(x.lien);
+    return el('div', { class: 'fiche-contenu' }, banniere(x.media, x.titre), paragraphes(x.texte),
+      x.lien ? el('a', { class: 'btn pri', href: x.lien, target: externe ? '_blank' : null, rel: externe ? 'noopener' : null }, x.bouton || 'Ouvrir') : null);
+  }
   if (DATEES.includes(partie)) {
     return el('div', { class: 'fiche-contenu' }, banniere(x.image, x.lieu || x.titre), paragraphes(x.description),
       details([['Lieu', x.lieu], ['Période', periode(x)], ['Durée', duree(x)], ['Statut', x.enCours ? 'En cours' : (x.debut || x.fin ? 'Terminé' : '')]]));

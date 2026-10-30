@@ -97,6 +97,16 @@ export async function chargerContenu(onMaj) {
   }
 }
 
+/* galerie Drive d'un onglet : { dossiers, fichiers }, null si le script est en panne */
+export async function lireGalerie(id) {
+  try {
+    const r = await lireScript('galerie', { id });
+    return { dossiers: Array.isArray(r.dossiers) ? r.dossiers : [], fichiers: Array.isArray(r.fichiers) ? r.fichiers : [], protege: !!r.protege };
+  } catch {
+    return null;
+  }
+}
+
 export async function lirePortfolio({ frais = false } = {}) {
   const jeton = lireJeton();
   try {

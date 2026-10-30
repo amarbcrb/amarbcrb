@@ -1,6 +1,6 @@
 /* Pages du site : Accueil, page de rangées d'un onglet, page « Voir tout » d'une partie.
    Tout texte venant du contenu passe par el() (assets/dom.js). */
-import { parties, contactVisible, couleurPartie, periode, ongletsVisibles, lienSur } from './model.js';
+import { parties, contactVisible, couleurPartie, periode, ongletsVisibles, lienSur, ongletPerso } from './model.js';
 import { format } from './router.js';
 import { COULEURS } from './nav.js';
 import { el } from './dom.js';
@@ -134,7 +134,7 @@ function profil(c) {
 function voirTout(onglet, p, c, couleur) {
   const contenu = onglet === 'parcours' && FRISES.includes(p.id) ? frise(p.items, p.id)
     : el('div', { class: `grille grille-${onglet === 'parcours' ? p.id : onglet}` }, p.items.map((x, i) => carte(x, { onglet, partie: p.id, c, indice: i })));
-  return el('section', { class: `vt vt-voir v-${onglet}`, style: `--tc:var(${COULEURS[onglet]});--pc:var(${couleur})` },
+  return el('section', { class: `vt vt-voir v-${onglet}`, style: `--tc:var(${couleurOnglet(c, onglet)});--pc:var(${couleur})` },
     el('header', { class: 'vt-tete' },
       el('a', { class: 'retour', href: format({ onglet }), 'aria-label': 'Retour', html: ICONES.retour }),
       el('h1', {}, p.titre), el('small', {}, nElements(p.items.length))), contenu);
@@ -166,15 +166,21 @@ function vueLiens(c, liste) {
       el('div', { class: 'piste tuiles' }, tous.items.slice(0, 10).map((x, k) => tuileLien(x, c, k)))));
 }
 
-/* dossiers : liste Drive, null si le script est en panne, undefined tant qu'elle n'est pas chargée */
+/* titre et couleur d'un onglet, intégré ou créé dans l'admin */
+const titreOnglet = (c, onglet) => TITRES[onglet] || (ongletPerso(c, onglet) || {}).nom || '';
+const couleurOnglet = (c, onglet) => COULEURS[onglet] || ((ongletPerso(c, onglet) || {}).couleur || '').replace(/[^\w-]/g, '') || '--c-purple';
+
+/* dossiers : données Drive (portfolio, galerie), null si le script est en panne, undefined tant qu'elles ne sont pas lues */
 export function rendreVue(racine, c, { onglet, sous }, dossiers) {
   if (onglet === 'accueil') { racine.replaceChildren(vueAccueil(c)); return; }
-  if (onglet === 'portfolio' && !Array.isArray(dossiers)) {
-    racine.replaceChildren(el('section', { class: 'vt' }, el('h1', {}, TITRES.portfolio),
-      el('p', { class: 'vide' }, dossiers === null ? 'Portfolio momentanément indisponible.' : 'Chargement du portfolio…')));
+  const perso = ongletPerso(c, onglet);
+  const drive = onglet === 'portfolio' || (perso && perso.type === 'drive');
+  if (drive && (dossiers === undefined || dossiers === null)) {
+    racine.replaceChildren(el('section', { class: 'vt' }, el('h1', {}, titreOnglet(c, onglet)),
+      el('p', { class: 'vide' }, dossiers === null ? `${titreOnglet(c, onglet)} momentanément indisponible.` : `Chargement…`)));
     return;
   }
-  const liste = parties(c, onglet, dossiers || []);
+  const liste = parties(c, onglet, dossiers || (perso ? { dossiers: [], fichiers: [] } : []));
   const n = sous ? liste.findIndex((x) => x.id === sous) : -1;
   if (n >= 0) { racine.replaceChildren(voirTout(onglet, liste[n], c, couleurPartie(onglet, sous, n))); return; }
   if (onglet === 'liens') { racine.replaceChildren(vueLiens(c, liste)); return; }
@@ -183,7 +189,7 @@ export function rendreVue(racine, c, { onglet, sous }, dossiers) {
     if (onglet === 'parcours' && FRISES.includes(x.id)) return rangeeFrise({ ...commun, items: x.items, partie: x.id });
     return rangee({ ...commun, nombre: x.items.length, cartes: x.items.map((item, k) => carte(item, { onglet, partie: x.id, c, indice: k })) });
   });
-  racine.replaceChildren(el('section', { class: `vt v-${onglet}`, style: `--tc:var(${COULEURS[onglet]})` }, el('h1', {}, TITRES[onglet]),
+  racine.replaceChildren(el('section', { class: `vt v-${onglet}`, style: `--tc:var(${couleurOnglet(c, onglet)})` }, el('h1', {}, titreOnglet(c, onglet)),
     onglet === 'parcours' ? profil(c) : null,
-    rangees.length ? rangees : el('p', { class: 'vide' }, VIDES[onglet])));
+    rangees.length ? rangees : el('p', { class: 'vide' }, VIDES[onglet] || 'Bientôt disponible.')));
 }

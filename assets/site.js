@@ -1,6 +1,6 @@
 /* Démarrage du site : thème, contenu, maintenance, en-tête, barre d'onglets et vues. */
-import { chargerContenu, lireJeton, lirePortfolio } from './api.js';
-import { ongletsVisibles, contactVisible, parties, couleurPartie, ONGLETS } from './model.js';
+import { chargerContenu, lireJeton, lirePortfolio, lireGalerie } from './api.js';
+import { ongletsVisibles, contactVisible, parties, couleurPartie, ongletPerso } from './model.js';
 import { parse, format } from './router.js';
 import { monterBarre } from './nav.js';
 import { rendreVue } from './render.js';
@@ -11,10 +11,14 @@ import { corpsContact, corpsFiche, titreFiche, fondFiche } from './cartes.js';
 const $ = (id) => document.getElementById(id);
 const root = document.documentElement;
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-/* dossiers : undefined tant que le portfolio n'est pas lu, null si le script est en panne */
+/* drive[onglet] : données Drive du Portfolio ou d'une galerie ; undefined tant qu'elles ne sont pas lues, null si le script est en panne */
 /* base : page affichée sous une éventuelle fiche ; empilee : la fiche a sa propre entrée d'historique */
-const etat = { positions: {}, contenu: null, dossiers: undefined, chargementPortfolio: null, barre: null, cleBarre: null, vue: null, base: null, cleBase: null, empilee: false, index: null };
-const listeDossiers = () => (Array.isArray(etat.dossiers) ? etat.dossiers : []);
+const etat = { positions: {}, contenu: null, drive: {}, chargements: {}, barre: null, cleBarre: null, vue: null, base: null, cleBase: null, empilee: false, index: null };
+const estDrive = (onglet) => onglet === 'portfolio' || (ongletPerso(etat.contenu, onglet) || {}).type === 'drive';
+/* données Drive lues (ou vides) d'un onglet, pour le routeur et les rangées */
+const donneesDrive = (onglet) => etat.drive[onglet] || (onglet === 'portfolio' ? [] : { dossiers: [], fichiers: [] });
+const listeDossiers = () => (Array.isArray(etat.drive.portfolio) ? etat.drive.portfolio : []);
+const enAttenteDrive = (onglet) => estDrive(onglet) && etat.drive[onglet] === undefined;
 
 /* ---------- Thème ---------- */
 const sv = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
@@ -76,10 +80,13 @@ function appliquer(c) {
   $('contactBtn').hidden = !contactVisible(c);
   if (c.medias.favicon && c.medias.favicon.url) $('favicon').href = c.medias.favicon.url;
   const onglets = ongletsVisibles(c);
-  if (onglets.join() !== etat.cleBarre) {
+  /* onglets créés par Amar : nom, icône et couleur choisis dans l'admin */
+  const infos = Object.fromEntries((c.onglets.perso || []).map((o) => [o.id, { libelle: o.nom, icone: o.icone, couleur: o.couleur }]));
+  const cleBarre = JSON.stringify([onglets, onglets.map((id) => infos[id] || null)]);
+  if (cleBarre !== etat.cleBarre) {
     if (etat.barre) etat.barre.detruire();
-    etat.cleBarre = onglets.join();
-    etat.barre = monterBarre({ conteneur: $('navHote'), onglets, onSelect: aller, onRecherche: ouvrirRecherche });
+    etat.cleBarre = cleBarre;
+    etat.barre = monterBarre({ conteneur: $('navHote'), onglets, infos, onSelect: aller, onRecherche: ouvrirRecherche });
   }
   reflet();
   return true;
@@ -87,7 +94,7 @@ function appliquer(c) {
 
 /* ---------- Navigation ---------- */
 function aller(onglet) {
-  const cible = format(parse('#' + onglet, etat.contenu, listeDossiers()));
+  const cible = format(parse('#' + onglet, etat.contenu, donneesDrive));
   if (location.hash !== cible) history.pushState(null, '', cible);
   afficher();
 }
@@ -143,17 +150,19 @@ $('recherche').addEventListener('click', (e) => {
 });
 addEventListener('keydown', (e) => { if (e.key === 'Escape' && rech.ouvert) fermerRecherche(); });
 
-/* le portfolio n'est lu dans Drive qu'à la première ouverture de l'onglet (ou de la recherche) */
-function chargerPortfolio() {
-  if (!etat.chargementPortfolio) {
-    etat.chargementPortfolio = lirePortfolio().then((d) => {
-      etat.dossiers = d;
-      if (etat.vue && etat.vue.onglet === 'portfolio') { etat.cleBase = null; afficher(false); }
+/* Portfolio et galeries : lus dans Drive à la première ouverture de leur onglet (ou de la recherche pour le portfolio) */
+function chargerDrive(onglet) {
+  if (!etat.chargements[onglet]) {
+    const perso = ongletPerso(etat.contenu, onglet);
+    etat.chargements[onglet] = (onglet === 'portfolio' ? lirePortfolio() : lireGalerie(perso.dossierId)).then((d) => {
+      etat.drive[onglet] = d;
+      if (etat.vue && etat.vue.onglet === onglet) { etat.cleBase = null; afficher(false); }
       return d;
     });
   }
-  return etat.chargementPortfolio;
+  return etat.chargements[onglet];
 }
+const chargerPortfolio = () => chargerDrive('portfolio');
 
 const cle = (cible) => (cible.contact ? '#contact' : format(cible));
 
@@ -173,9 +182,10 @@ function dessinerPage(base, anim) {
     const versRangees = avant && avant.onglet === base.onglet && avant.sous !== null && base.sous === null;
     scrollTo({ top: versRangees ? etat.positions[k] || 0 : 0, behavior: 'instant' });
   };
-  const dessiner = () => { rendreVue(vue, etat.contenu, base, etat.dossiers); reflet(vue); defiler(); };
+  const dessiner = () => { rendreVue(vue, etat.contenu, base, etat.drive[base.onglet]); reflet(vue); defiler(); };
   if (!anim || RM || !avant || !vue.animate) { dessiner(); return; }
-  const sens = ONGLETS.indexOf(base.onglet) >= ONGLETS.indexOf(avant.onglet) ? 1 : -1;
+  const ordre = ongletsVisibles(etat.contenu);
+  const sens = ordre.indexOf(base.onglet) >= ordre.indexOf(avant.onglet) ? 1 : -1;
   dessiner();
   vue.animate([{ opacity: 0, transform: `translateX(${sens * 34}px)`, filter: 'blur(8px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }],
     { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' });
@@ -196,9 +206,9 @@ function surcouche(titre, corps, direct, meme, couleur = null, fond = null) {
 
 function afficher(anim = true) {
   const c = etat.contenu;
-  const cible = parse(location.hash, c, listeDossiers());
-  const enAttente = cible.onglet === 'portfolio' && etat.dossiers === undefined;
-  if (enAttente) chargerPortfolio();
+  const cible = parse(location.hash, c, donneesDrive);
+  const enAttente = enAttenteDrive(cible.onglet);
+  if (enAttente) chargerDrive(cible.onglet);
   /* tant que les dossiers ne sont pas lus, on garde #portfolio/<dossier> tel quel */
   if (location.hash !== cle(cible) && !enAttente) history.replaceState(null, '', cle(cible));
   const direct = !etat.vue;
@@ -209,22 +219,22 @@ function afficher(anim = true) {
     : cible.element ? (etat.base || { onglet: cible.onglet, sous: cible.sous })
       : { onglet: cible.onglet, sous: cible.sous };
   dessinerPage(base, anim);
-  const liste = cible.element ? parties(c, cible.onglet) : [];
+  const liste = cible.element ? parties(c, cible.onglet, donneesDrive(cible.onglet)) : [];
   const n = liste.findIndex((p) => p.id === cible.sous);
   const item = cible.element && liste[n].items.find((x) => x.id === cible.element);
   if (cible.contact) surcouche('Contact', corpsContact(c), direct, meme);
-  else if (item) surcouche(titreFiche(item), corpsFiche(item, cible.sous), direct, meme, couleurPartie(cible.onglet, cible.sous, n), fondFiche(item));
+  else if (item) surcouche(titreFiche(item), corpsFiche(item, cible.sous, ongletPerso(c, cible.onglet)), direct, meme, couleurPartie(cible.onglet, cible.sous, n), fondFiche(item));
   else fermerFiche({ silencieux: true });
 }
 
 /* retour arrière, lien #… dans la page : ne redessine que si l'adresse affichée change */
 function synchroniser() {
   if (!etat.contenu || $('shell').hidden) return;
-  const cible = parse(location.hash, etat.contenu, listeDossiers());
+  const cible = parse(location.hash, etat.contenu, donneesDrive);
   const k = cle(cible);
   if (!etat.vue || k !== cle(etat.vue)) afficher();
   /* adresse masquée ou inconnue qui mène à la page déjà affichée ; on attend Drive avant de corriger #portfolio/… */
-  else if (location.hash !== k && !(cible.onglet === 'portfolio' && etat.dossiers === undefined)) history.replaceState(null, '', k);
+  else if (location.hash !== k && !enAttenteDrive(cible.onglet)) history.replaceState(null, '', k);
 }
 addEventListener('popstate', synchroniser);
 addEventListener('hashchange', synchroniser);
@@ -270,9 +280,10 @@ addEventListener('keydown', (e) => {
 document.addEventListener('click', (e) => {
   const v = e.target.closest('.vignette[data-dossier]');
   if (!v) return;
-  const d = listeDossiers().find((x) => x.id === v.dataset.dossier);
+  const onglet = etat.base && etat.base.onglet;
+  const d = parties(etat.contenu, onglet, donneesDrive(onglet)).find((x) => x.id === v.dataset.dossier);
   if (!d) return;
-  const images = d.fichiers.filter((f) => String(f.type).startsWith('image/'));
+  const images = d.items.filter((f) => String(f.type).startsWith('image/'));
   ouvrirVisionneuse(images, Math.max(0, images.findIndex((f) => f.id === v.dataset.fichier)), v);
 });
 

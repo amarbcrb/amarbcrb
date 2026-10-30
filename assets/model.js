@@ -3,6 +3,9 @@
 
 /* onglets de la barre ; Contact n'en fait plus partie (fiche ouverte depuis l'en-tête) */
 export const ONGLETS = ['accueil', 'parcours', 'portfolio', 'liens'];
+/* onglets créés dans l'admin : icônes au choix, 6 onglets au plus dans la barre (intégrés compris) */
+export const ICONES_ONGLET = ['etoile', 'appareil', 'carte', 'livre', 'musique', 'globe', 'pinceau', 'flacon'];
+export const MAX_ONGLETS = 6;
 /* rangées de l'onglet Parcours, dans l'ordre d'affichage (le profil est en tête de page) */
 export const PARTIES_PARCOURS = ['formation', 'experience', 'competences', 'certifications', 'langues', 'engagement', 'interets'];
 export const SOUS_PARCOURS = ['profil', 'formation', 'experience', 'engagement', 'competences', 'langues', 'certifications', 'interets'];
@@ -27,6 +30,9 @@ const ITEMS = {
   'liens.categories': { nom: '' },
   'accueil.reperes': { valeur: '', libelle: '' },
   'accueil.domaines': { titre: '', texte: '', image: null, lien: '' },
+  'onglets.perso': { nom: '', icone: 'etoile', couleur: '--c-purple', type: 'rangees', dossierId: '' },
+  'pages.rangees': { titre: '', cartes: [] },
+  cartes: { titre: '', texte: '', media: null, lien: '', bouton: '' },
   'liens.items': { url: '', titre: '', description: '', image: '', categorie: '', date: '', bouton: '', type: '', media: null },
   'contact.autres': { label: '', url: '' },
   'contact.ouvertA': { titre: '', detail: '' },
@@ -34,7 +40,7 @@ const ITEMS = {
 const PREFIXES = {
   'parcours.formation': 'f', 'parcours.experience': 'e', 'parcours.engagement': 'g', 'parcours.competences': 'c',
   'parcours.langues': 'l', 'parcours.certifications': 'k', 'parcours.interets': 'i', 'liens.categories': 'cat',
-  'liens.items': 'u', 'contact.autres': 'a', 'contact.ouvertA': 'o', 'accueil.reperes': 'r', 'accueil.domaines': 'd',
+  'liens.items': 'u', 'contact.autres': 'a', 'contact.ouvertA': 'o', 'accueil.reperes': 'r', 'accueil.domaines': 'd', 'onglets.perso': 'tab', 'pages.rangees': 'rg', cartes: 'ct',
 };
 
 function squelette() {
@@ -47,7 +53,7 @@ function squelette() {
     medias: { photo: { url: IMAGE_DEFAUT }, logo: { url: IMAGE_DEFAUT }, favicon: { url: IMAGE_DEFAUT }, cv: null },
     onglets: {
       accueil: { visible: true }, parcours: { visible: true, sous }, portfolio: { visible: true },
-      liens: { visible: true }, contact: { visible: true },
+      liens: { visible: true }, contact: { visible: true }, perso: [],
     },
     accueil: { salutation: '', intro: '', reperes: [], domaines: [], projetPhare: '' },
     parcours: {
@@ -56,6 +62,7 @@ function squelette() {
     },
     liens: { categories: [], items: [] },
     portfolio: { dossierRacineId: '', dossiers: {} },
+    pages: {},
     contact: { email: '', linkedin: '', autres: [], ouvertA: [] },
   };
 }
@@ -106,6 +113,12 @@ export function normaliser(brut) {
     dossiers[id] = { ...o, visible: o.visible !== false, nom: typeof o.nom === 'string' ? o.nom : '' };
   });
   c.portfolio.dossiers = dossiers;
+  /* pages des onglets libres : { idOnglet: { rangees: [{ titre, cartes: [...] }] } } */
+  const pages = {};
+  Object.entries(estObjet(brut) && estObjet(brut.pages) ? brut.pages : {}).forEach(([id, pg]) => {
+    pages[id] = { rangees: fusionner([], estObjet(pg) ? pg.rangees : [], 'pages.rangees') };
+  });
+  c.pages = pages;
   return c;
 }
 
@@ -154,9 +167,12 @@ export function derniereExperience(c) {
 
 /* jamais vide : si tout est masqué, l'Accueil reste affiché */
 export function ongletsVisibles(c) {
-  const liste = ONGLETS.filter((id) => c.onglets[id] && c.onglets[id].visible !== false);
+  const perso = (c.onglets.perso || []).filter((o) => o.visible !== false).map((o) => o.id);
+  const liste = [...ONGLETS.filter((id) => c.onglets[id] && c.onglets[id].visible !== false), ...perso].slice(0, MAX_ONGLETS);
   return liste.length ? liste : ['accueil'];
 }
+
+export const ongletPerso = (c, id) => (c.onglets.perso || []).find((o) => o.id === id) || null;
 
 export function nomAffiche(nom) {
   return String(nom || '').replace(/^\d+\s*-\s*/, '');
@@ -165,7 +181,12 @@ export function nomAffiche(nom) {
 export const contactVisible = (c) => !(c.onglets.contact && c.onglets.contact.visible === false);
 
 /* seules les parties de Parcours ouvrent une fiche détaillée ; langues et intérêts montrent tout sur leur carte */
-export const aFiche = (onglet, partie) => onglet === 'parcours' && PARTIES_PARCOURS.includes(partie) && partie !== 'langues' && partie !== 'interets';
+export const aFiche = (onglet, partie, c = null) => {
+  if (onglet === 'parcours') return PARTIES_PARCOURS.includes(partie) && partie !== 'langues' && partie !== 'interets';
+  /* cartes des onglets libres : fiche avec texte, lecteur vidéo et bouton du lien */
+  const o = c && ongletPerso(c, onglet);
+  return !!o && o.type === 'rangees';
+};
 
 const DATEES = ['formation', 'experience', 'engagement'];
 
@@ -188,6 +209,19 @@ export function parties(c, onglet, dossiersPortfolio = []) {
       .filter((p) => p.items.length);
     /* « Tous les liens » : page Voir tout de l'onglet entier (lien « Tout afficher ») */
     return cats.length ? [...cats, { id: 'tous', titre: 'Tous les liens', items: cats.flatMap((p) => p.items).sort((a, b) => items.indexOf(a) - items.indexOf(b)) }] : [];
+  }
+  const perso = ongletPerso(c, onglet);
+  if (perso && perso.type === 'rangees') {
+    return visibles(((c.pages[onglet] || {}).rangees) || [])
+      .map((r) => ({ id: r.id, titre: r.titre, items: visibles(r.cartes) }))
+      .filter((p) => p.items.length);
+  }
+  if (perso && perso.type === 'drive') {
+    /* dossiersPortfolio : réponse ?a=galerie { dossiers, fichiers } ; les fichiers de la racine forment la première rangée */
+    const liste = dossiersPortfolio && !Array.isArray(dossiersPortfolio) ? dossiersPortfolio : { dossiers: dossiersPortfolio || [], fichiers: [] };
+    const racine = (liste.fichiers || []).length ? [{ id: 'racine', titre: perso.nom, items: liste.fichiers }] : [];
+    return racine.concat([...(liste.dossiers || [])].sort((a, b) => String(a.nom).localeCompare(String(b.nom), 'fr', { numeric: true }))
+      .map((d) => ({ id: d.id, titre: nomAffiche(d.nom), items: d.fichiers || [], protege: !!d.protege, liens: d.liens || [] })));
   }
   if (onglet === 'portfolio') {
     const reglages = c.portfolio.dossiers;
@@ -301,6 +335,16 @@ export function valider(c) {
   c.parcours.certifications.forEach((x, i) => { if (x.url && !lienSur(x.url)) err(`parcours.certifications.${i}.url`, 'Adresse web invalide (https://…)'); });
   requis(c.parcours.interets, 'parcours.interets', 'titre', 'Titre');
   requis(c.accueil.domaines, 'accueil.domaines', 'titre', 'Titre');
+  requis(c.onglets.perso, 'onglets.perso', 'nom', 'Nom');
+  c.onglets.perso.forEach((o, i) => {
+    if (!['rangees', 'drive'].includes(o.type)) err(`onglets.perso.${i}.type`, 'Type inconnu');
+    else if (o.type === 'drive' && !o.dossierId) err(`onglets.perso.${i}.dossierId`, 'Choisis le dossier Drive');
+  });
+  Object.entries(c.pages).forEach(([id, pg]) => pg.rangees.forEach((r, i) => r.cartes.forEach((x, k) => {
+    const ch = `pages.${id}.rangees.${i}.cartes.${k}`;
+    if (!String(x.titre || '').trim()) err(`${ch}.titre`, 'Titre obligatoire');
+    if (x.lien && !lienSur(x.lien) && !/^#[\w/-]*$/.test(x.lien)) err(`${ch}.lien`, 'Lien invalide (#onglet ou https://…)');
+  })));
   c.accueil.domaines.forEach((x, i) => { if (x.lien && !/^#[\w/-]*$/.test(x.lien) && !lienSur(x.lien)) err(`accueil.domaines.${i}.lien`, 'Lien invalide (#onglet ou https://…)'); });
   requis(c.liens.categories, 'liens.categories', 'nom', 'Nom');
   requis(c.liens.items, 'liens.items', 'titre', 'Titre');

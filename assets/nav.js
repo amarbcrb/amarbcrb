@@ -9,12 +9,23 @@ const ICONES = {
   portfolio: '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
   liens: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
 };
+/* icônes au choix des onglets créés dans l'admin (noms : ICONES_ONGLET dans model.js) */
+export const ICONES_PERSO = {
+  etoile: '<path d="M11.5 2.6a.6.6 0 0 1 1 0l2.6 5.3 5.9.9a.6.6 0 0 1 .3 1l-4.3 4.2 1 5.8a.6.6 0 0 1-.8.6L12 17.6l-5.3 2.8a.6.6 0 0 1-.8-.6l1-5.8L2.6 9.8a.6.6 0 0 1 .3-1l5.9-.9z"/>',
+  appareil: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/>',
+  carte: '<rect x="4" y="3" width="13" height="18" rx="2"/><path d="M20 6.5 17 5.7M20 6.5l-2.3 13"/><path d="m10.5 9.5 1.5 2.5-1.5 2.5L9 12z"/>',
+  livre: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/>',
+  musique: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+  globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  pinceau: '<path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/>',
+  flacon: '<path d="M9 3h6M10 3v6.5L4.5 19a1.5 1.5 0 0 0 1.3 2h12.4a1.5 1.5 0 0 0 1.3-2L14 9.5V3"/><path d="M7.5 15h9"/>',
+};
 const LIBELLES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Liens' };
 export const COULEURS = { accueil: '--c-blue', parcours: '--c-teal', portfolio: '--c-orange', liens: '--c-pink' };
 const LOUPE = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
 
 /* construit la barre (un bouton par onglet visible) et le bouton Recherche dans conteneur */
-export function monterBarre({ conteneur, onglets, onSelect, onRecherche }) {
+export function monterBarre({ conteneur, onglets, infos = {}, onSelect, onRecherche }) {
   const barre = document.createElement('div');
   barre.className = 'barre';
   const nav = document.createElement('nav');
@@ -31,10 +42,11 @@ export function monterBarre({ conteneur, onglets, onSelect, onRecherche }) {
     b.type = 'button';
     b.className = 'nb';
     b.dataset.v = id;
-    b.style.setProperty('--nc', `var(${COULEURS[id]})`);
-    b.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONES[id]}</svg>`;
+    const perso = infos[id];
+    b.style.setProperty('--nc', `var(${COULEURS[id] || (perso && /^--c-[a-z]+$/.test(perso.couleur) ? perso.couleur : '--c-purple')})`);
+    b.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONES[id] || ICONES_PERSO[perso && perso.icone] || ICONES_PERSO.etoile}</svg>`;
     const libelle = document.createElement('span');
-    libelle.textContent = LIBELLES[id];
+    libelle.textContent = LIBELLES[id] || (perso && perso.nom) || (perso && perso.libelle) || id;
     b.append(libelle);
     piste.append(b);
     return b;
