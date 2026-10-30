@@ -60,13 +60,16 @@
      "visible": true,
      "titre": "Intérêts"
     }
-   }
+   },
+   "sousTitre": "Ma formation, mes expériences et ce que je sais faire."
   },
   "portfolio": {
-   "visible": true
+   "visible": true,
+   "sousTitre": "Mes travaux en design, posters et montages vidéo."
   },
   "liens": {
-   "visible": true
+   "visible": true,
+   "sousTitre": "Mes projets, mes applis et les articles que je recommande."
   },
   "contact": {
    "visible": true

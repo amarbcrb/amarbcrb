@@ -30,7 +30,7 @@ const ITEMS = {
   'liens.categories': { nom: '' },
   'accueil.reperes': { valeur: '', libelle: '' },
   'accueil.domaines': { titre: '', texte: '', image: null, lien: '' },
-  'onglets.perso': { nom: '', icone: 'etoile', couleur: '--c-purple', type: 'rangees', dossierId: '' },
+  'onglets.perso': { nom: '', icone: 'etoile', couleur: '--c-purple', type: 'rangees', dossierId: '', sousTitre: '' },
   'pages.rangees': { titre: '', cartes: [] },
   cartes: { titre: '', texte: '', media: null, lien: '', bouton: '' },
   'liens.items': { url: '', titre: '', description: '', image: '', categorie: '', date: '', bouton: '', type: '', media: null, avis: '' },
@@ -52,8 +52,10 @@ function squelette() {
     site: { nom: 'Amar Bouchareb', surtitre: 'Microbiologie · Lyon 1', maintenance: { active: false, message: 'Le site revient très vite.' } },
     medias: { photo: { url: IMAGE_DEFAUT }, logo: { url: IMAGE_DEFAUT }, favicon: { url: IMAGE_DEFAUT }, cv: null },
     onglets: {
-      accueil: { visible: true }, parcours: { visible: true, sous }, portfolio: { visible: true },
-      liens: { visible: true }, contact: { visible: true }, perso: [],
+      /* sousTitre : la phrase sous le titre de l'onglet, pour qu'un visiteur sache ce qu'il y trouve */
+      accueil: { visible: true }, parcours: { visible: true, sous, sousTitre: 'Ma formation, mes expériences et ce que je sais faire.' },
+      portfolio: { visible: true, sousTitre: 'Mes travaux en design, posters et montages vidéo.' },
+      liens: { visible: true, sousTitre: 'Mes projets, mes applis et les articles que je recommande.' }, contact: { visible: true }, perso: [],
     },
     accueil: { salutation: '', intro: '', reperes: [], domaines: [], projetPhare: '' },
     parcours: {

@@ -553,3 +553,9 @@ blockquote.avis{margin:4px 0 16px;padding:14px 16px;border-radius:16px;backgroun
 blockquote.avis small{display:block;font-size:12.5px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
 blockquote.avis p{font-size:16px;font-style:italic}
 .lecteur-linkedin{display:block;width:100%;height:min(58vh,540px);border:0;border-radius:18px;background:var(--fill);margin-bottom:16px}
+
+/* ===== Phrase sous le titre d'un onglet ===== */
+.vt > .sous-titre{margin:6px 0 18px;max-width:620px;font-size:clamp(16px,4.2vw,18px);line-height:1.5;color:var(--tx2)}
+body:not(.edition) .vt > .sous-titre:empty{display:none}
+body.edition .vt > .sous-titre:empty::before{content:attr(data-vide);opacity:.6;font-style:italic}
+.accueil > .carrousel{margin-top:22px}

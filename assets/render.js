@@ -85,14 +85,19 @@ function vueAccueil(c) {
   ].filter(Boolean);
   const cv = c.medias.cv && c.medias.cv.url;
   const contact = contactVisible(c);
+  /* d'abord qui je suis et où aller, puis le carrousel, les repères et les rangées */
+  const parcoursVisible = onglets.includes('parcours');
+  const actions = [
+    parcoursVisible && el('a', { class: 'btn pri', href: '#parcours' }, 'Voir mon parcours'),
+    contact && el('a', { class: parcoursVisible ? 'btn' : 'btn pri', href: '#contact' }, 'Me contacter'),
+    cv && el('a', { class: parcoursVisible || contact ? 'btn' : 'btn pri', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV'),
+  ].filter(Boolean);
   return el('section', { class: 'vt accueil' },
-    diapos.length ? carrousel(diapos) : null,
     el('h1', { class: 'salut', 'data-edit': 'accueil.salutation' }, a.salutation || c.site.nom),
     a.intro ? el('p', { class: 'intro', 'data-edit': 'accueil.intro', 'data-multiligne': '' }, a.intro) : null,
+    actions.length ? el('div', { class: 'acts' }, actions) : null,
+    diapos.length ? carrousel(diapos) : null,
     reperes.length ? el('ul', { class: 'reperes', 'data-liste': 'accueil.reperes' }, reperes.map((x) => el('li', { 'data-element': `accueil.reperes#${x.id}` }, compteur(x.valeur), el('span', {}, x.libelle)))) : null,
-    (cv || contact) ? el('div', { class: 'acts' },
-      contact ? el('a', { class: 'btn pri', href: '#contact' }, 'Me contacter') : null,
-      cv ? el('a', { class: contact ? 'btn' : 'btn pri', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV') : null) : null,
     rangees);
 }
 
@@ -151,7 +156,7 @@ function voirTout(onglet, p, c, couleur) {
 function vueLiens(c, liste) {
   const cats = liste.filter((p) => p.id !== 'tous');
   const tous = liste.find((p) => p.id === 'tous');
-  const section = (...enfants) => el('section', { class: 'vt v-liens', style: `--tc:var(${COULEURS.liens})` }, el('h1', {}, TITRES.liens), enfants);
+  const section = (...enfants) => el('section', { class: 'vt v-liens', style: `--tc:var(${COULEURS.liens})` }, enTete(c, 'liens'), enfants);
   if (!tous) return section(el('p', { class: 'vide' }, VIDES.liens));
   const total = tous.items.length;
   const couleur = (cat) => couleurPartie('liens', cat, cats.findIndex((p) => p.id === cat));
@@ -196,6 +201,13 @@ const carteLienDossier = (l) => el('a', { class: 'vignette doc lien-dossier', hr
 
 /* titre et couleur d'un onglet, intégré ou créé dans l'admin */
 const titreOnglet = (c, onglet) => TITRES[onglet] || (ongletPerso(c, onglet) || {}).nom || '';
+/* titre de l'onglet et phrase qui dit ce qu'on y trouve (modifiable sur place ; vide : masquée hors mode Modifier) */
+function enTete(c, onglet) {
+  const perso = ongletPerso(c, onglet);
+  const chemin = perso ? `onglets.perso#${perso.id}.sousTitre` : `onglets.${onglet}.sousTitre`;
+  const texte = (perso ? perso.sousTitre : (c.onglets[onglet] || {}).sousTitre) || '';
+  return [el('h1', {}, titreOnglet(c, onglet)), el('p', { class: 'sous-titre', 'data-edit': chemin, 'data-vide': 'Une phrase qui dit ce qu\'on trouve ici' }, texte)];
+}
 export const couleurOnglet = (c, onglet) => COULEURS[onglet] || ((ongletPerso(c, onglet) || {}).couleur || '').replace(/[^\w-]/g, '') || '--c-purple';
 
 /* dossiers : données Drive (portfolio, galerie), null si le script est en panne, undefined tant qu'elles ne sont pas lues */
@@ -213,7 +225,7 @@ export function rendreVue(racine, c, { onglet, sous }, dossiers) {
     const verrou = rangee({ titre: 'Dossier protégé', href: format({ onglet }), indice: 1, couleur: couleurPartie(onglet, 'racine', 0), nombre: '🔒',
       cartes: [carteVerrou({ id: perso.dossierId, titre: perso.nom })], attrs: { 'data-dossier': perso.dossierId, class: 'protege' } });
     racine.replaceChildren(el('section', { class: `vt v-${onglet}`, style: `--tc:var(${couleurOnglet(c, onglet)})`, 'data-drive-racine': perso.dossierId, 'data-drive-onglet': onglet },
-      el('h1', {}, titreOnglet(c, onglet)), verrou));
+      enTete(c, onglet), verrou));
     return;
   }
   const liste = parties(c, onglet, dossiers || (perso ? { dossiers: [], fichiers: [] } : []));
@@ -234,7 +246,7 @@ export function rendreVue(racine, c, { onglet, sous }, dossiers) {
     return rangee({ ...commun, ...marques, nombre: x.items.length, cartes: x.items.map((item, k) => carte(item, { onglet, partie: x.id, c, indice: k })) });
   });
   const rangeesLibres = perso && perso.type === 'rangees' ? `pages.${onglet}.rangees` : null;
-  racine.replaceChildren(el('section', { class: `vt v-${onglet}`, style: `--tc:var(${couleurOnglet(c, onglet)})`, 'data-liste': rangeesLibres, 'data-drive-racine': drive ? racineDrive : null, 'data-drive-onglet': drive ? onglet : null }, el('h1', {}, titreOnglet(c, onglet)),
+  racine.replaceChildren(el('section', { class: `vt v-${onglet}`, style: `--tc:var(${couleurOnglet(c, onglet)})`, 'data-liste': rangeesLibres, 'data-drive-racine': drive ? racineDrive : null, 'data-drive-onglet': drive ? onglet : null }, enTete(c, onglet),
     onglet === 'parcours' ? profil(c) : null,
     rangees.length ? rangees : el('p', { class: 'vide' }, VIDES[onglet] || 'Bientôt disponible.')));
 }
