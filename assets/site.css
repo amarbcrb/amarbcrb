@@ -37,6 +37,19 @@ img{display:block;max-width:100%}
 .amb{position:fixed;inset:0;z-index:0;pointer-events:none;
 background:radial-gradient(140% 62% at 50% -14%,color-mix(in srgb,var(--halo) 40%,transparent),transparent 72%),radial-gradient(75% 50% at 108% 6%,color-mix(in srgb,var(--halo) 16%,transparent),transparent 70%)}
 [data-theme=light] .amb{opacity:.45}
+/* ===== Changement d'onglet : glissement avec flou (View Transitions) ; l'en-tête et la barre ne bougent pas ===== */
+#vue{view-transition-name:vue}
+::view-transition-old(root),::view-transition-new(root){animation:none}
+::view-transition-group(vue){animation:none}
+::view-transition-old(vue),::view-transition-new(vue){height:100%;object-fit:none;object-position:50% 0;mix-blend-mode:normal}
+::view-transition-old(vue){animation:vt-part .5s cubic-bezier(.4,0,.2,1) both}
+::view-transition-new(vue){animation:vt-vient .6s cubic-bezier(.22,1,.36,1) both}
+:root[data-sens=arriere]::view-transition-old(vue){animation-name:vt-part-d}
+:root[data-sens=arriere]::view-transition-new(vue){animation-name:vt-vient-g}
+@keyframes vt-part{to{opacity:0;transform:translateX(-56px);filter:blur(14px)}}
+@keyframes vt-part-d{to{opacity:0;transform:translateX(56px);filter:blur(14px)}}
+@keyframes vt-vient{from{opacity:0;transform:translateX(56px);filter:blur(14px)}}
+@keyframes vt-vient-g{from{opacity:0;transform:translateX(-56px);filter:blur(14px)}}
 /* ===== Icônes animées (coupées si mouvement réduit) ===== */
 @media (prefers-reduced-motion:no-preference){
 #themeBtn.tourne svg{animation:tourne-icone .6s var(--spring)}

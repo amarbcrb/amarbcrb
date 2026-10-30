@@ -191,6 +191,14 @@ function dessinerPage(base, anim) {
   if (!anim || RM || !avant || !vue.animate) { dessiner(); return; }
   const ordre = ongletsVisibles(etat.contenu);
   const sens = ordre.indexOf(base.onglet) >= ordre.indexOf(avant.onglet) ? 1 : -1;
+  /* l'ancienne page glisse et se floute vers un côté, la nouvelle arrive de l'autre (View Transitions) ; sinon, entrée seule */
+  if (document.startViewTransition) {
+    const racine = document.documentElement;
+    racine.dataset.sens = sens > 0 ? 'avant' : 'arriere';
+    const t = document.startViewTransition(dessiner);
+    t.finished.finally(() => { if (etat.cleBase === k) delete racine.dataset.sens; });
+    return;
+  }
   dessiner();
   vue.animate([{ opacity: 0, transform: `translateX(${sens * 34}px)`, filter: 'blur(8px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }],
     { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' });
