@@ -174,7 +174,7 @@ test('intérêt : retirer l\'image → repli dégradé', async () => {
   env.faux.etat.contenu.parcours.interets[0].image = { id: 'x', url: '/favicon-512x512.png?astro' };
   const p = await parcours();
   await p.click('[data-bloc="interets"] li >> nth=0 >> .modifier');
-  await p.click('[data-bloc="interets"] button:has-text("Retirer l\'image")');
+  await p.click('[data-bloc="interets"] .champ-media button:has-text("Retirer")');
   await enregistrer(p);
   assert.equal(env.faux.etat.contenu.parcours.interets[0].image, null);
   const site = await env.page({ chemin: '/#parcours' });

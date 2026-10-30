@@ -7,7 +7,7 @@ const MAX = { cv: 10 * 1024 * 1024, image: 10 * 1024 * 1024 };
 
 export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' } = {}) {
   const etat = {
-    version: contenu.version || 1, contenu, motDePasse, echecs: 0, medias: {}, corbeille: [], racineId: '',
+    version: contenu.version || 1, contenu, motDePasse, echecs: 0, medias: {}, fichiersMedias: [], corbeille: [], racineId: '',
     portfolio: { dossiers: [] }, apercus: {}, envoyes: [], appels: { contenu: 0, portfolio: 0, frais: 0, enregistrer: 0 },
     reglages: { lent: 0, panne: false, html: false },
   };
@@ -62,8 +62,29 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       if (octets.length > (cv ? MAX.cv : MAX.image)) return { erreur: 'entree' };
       const id = 'media' + (++n);
       etat.medias[d.emplacement] = { id, nom: d.nom, type: d.type, octets };
+      etat.fichiersMedias.push({ id, nom: d.nom, type: d.type, octets, date: Date.now() + n });
       etat.envoyes.push(id);
       return { id, url: cv ? `https://drive.google.com/uc?export=download&id=${id}` : `${base}/media/${id}` };
+    }
+    if (d.a === 'listerMedias') {
+      return { medias: etat.fichiersMedias.filter((f) => !etat.corbeille.includes(f.id)).sort((a, b) => b.date - a.date)
+        .map((f) => ({ id: f.id, nom: f.nom, type: f.type, taille: f.octets.length, date: f.date,
+          url: f.type === 'application/pdf' ? `https://drive.google.com/uc?export=download&id=${f.id}` : `${base}/media/${f.id}` })) };
+    }
+    if (d.a === 'supprimerMedia') {
+      if (!etat.fichiersMedias.some((f) => f.id === d.id)) return { erreur: 'entree' };
+      /* comme Code.gs : chemins de toutes les clés « image » / « media » et des médias du site qui l'utilisent */
+      const chemins = [];
+      const parcourir = (v, ch) => {
+        if (Array.isArray(v)) { v.forEach((x, i) => parcourir(x, `${ch}.${i}`)); return; }
+        if (!v || typeof v !== 'object') return;
+        Object.entries(v).forEach(([k, x]) => { if ((k === 'image' || k === 'media') && x && x.id === d.id) chemins.push(`${ch}.${k}`); else parcourir(x, `${ch}.${k}`); });
+      };
+      ['accueil', 'parcours', 'liens', 'pages'].forEach((k) => parcourir(etat.contenu[k], k));
+      Object.entries(etat.contenu.medias || {}).forEach(([k, m]) => { if (m && m.id === d.id) chemins.push(`medias.${k}`); });
+      if (chemins.length) return { erreur: 'utilise', emplacements: chemins };
+      etat.corbeille.push(d.id);
+      return {};
     }
     if (d.a === 'apercuLien') {
       if (!/^https?:\/\//.test(String(d.url))) return { erreur: 'entree' };
@@ -95,7 +116,7 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       if (etat.reglages.lent) setTimeout(fin, etat.reglages.lent); else fin();
     };
     if (url.pathname.startsWith('/media/')) {
-      const m = Object.values(etat.medias).find((x) => x.id === url.pathname.slice(7));
+      const m = [...Object.values(etat.medias), ...etat.fichiersMedias].find((x) => x.id === url.pathname.slice(7));
       res.writeHead(m ? 200 : 404, { 'Content-Type': m ? m.type : 'text/plain', 'Access-Control-Allow-Origin': '*' });
       res.end(m ? m.octets : '');
       return;

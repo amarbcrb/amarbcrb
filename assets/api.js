@@ -113,6 +113,10 @@ export function appeler(action, donnees = {}) {
   return requete(cfg.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(corps) }, cfg.delaiEcriture);
 }
 
+/* médiathèque : fichiers déjà envoyés (plus récents d'abord) ; suppression refusée s'ils sont utilisés */
+export async function listerMedias() { return (await appeler('listerMedias')).medias || []; }
+export function supprimerMedia(id) { return appeler('supprimerMedia', { id }); }
+
 export function lireJeton() {
   const j = lire(CLE_JETON);
   if (!j || typeof j.jeton !== 'string' || !(j.expire > Date.now())) return null;

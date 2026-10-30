@@ -3,6 +3,7 @@ import { SOUS_PARCOURS, nouvelId, periode, lienSur, nomAffiche, TYPES_LIEN, DRAP
 import { appeler, lirePortfolio } from '../assets/api.js';
 import { reduireImage, enBase64 } from './images.js';
 import { el } from '../assets/dom.js';
+import { champMedia } from '../assets/champ-media.js';
 
 const ICONE_X = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
 
@@ -269,36 +270,9 @@ function ecranPortfolio(racine, etat, modifier) {
   lirePortfolio().then(dessiner);
 }
 
-/* ---------- Image d'un élément de liste (intérêts) : envoi dans Drive, aperçu, retrait ---------- */
+/* ---------- Média d'un élément (image, GIF, vidéo, YouTube) : envoyer, médiathèque ou lien ---------- */
 function champImage(etat, modifier, chemin, libelle) {
-  const actuel = lire(etat.contenu, chemin);
-  const id = 'img-' + chemin.replace(/\W/g, '-');
-  const apercu = el('img', { class: 'apercu-media', 'data-apercu': 'image-' + chemin.replace(/\.image$/, ''), src: actuel && actuel.url, alt: '' });
-  const fichier = el('input', { type: 'file', accept: 'image/*', id, 'data-media': 'image-' + chemin.replace(/\.image$/, '') });
-  const message = el('small', { class: 'aide', role: 'status' });
-  const retirer = el('button', { type: 'button', class: 'btn', hidden: !actuel }, 'Retirer l\'image');
-  fichier.addEventListener('change', async () => {
-    const f = fichier.files[0];
-    if (!f) return;
-    if (!f.type.startsWith('image/')) { message.textContent = 'Choisis une image.'; return; }
-    try {
-      message.textContent = 'Préparation de l\'image…';
-      const envoi = await reduireImage(f, 1600, 'image/jpeg');
-      message.textContent = 'Envoi…';
-      const r = await appeler('envoyerMedia', { emplacement: 'image', nom: f.name, type: envoi.type, base64: envoi.base64 });
-      modifier(chemin, { id: r.id, url: r.url });
-      apercu.src = r.url;
-      retirer.hidden = false;
-      message.textContent = 'Image envoyée. Pense à enregistrer.';
-    } catch (err) {
-      message.textContent = messageErreur(err);
-    } finally {
-      fichier.value = '';
-    }
-  });
-  retirer.addEventListener('click', () => { modifier(chemin, null); apercu.removeAttribute('src'); retirer.hidden = true; message.textContent = 'Image retirée. Pense à enregistrer.'; });
-  return el('div', { class: 'champ' }, el('span', { class: 'champ-titre' }, libelle), apercu,
-    el('div', { class: 'acts' }, el('label', { class: 'btn', for: id }, 'Choisir une image'), retirer), fichier, message);
+  return champMedia({ valeur: lire(etat.contenu, chemin), libelle, cle: 'image-' + chemin.replace(/\.image$/, ''), onChange: (v) => modifier(chemin, v) });
 }
 
 /* ---------- Médias : le nouveau fichier remplace l'ancien ---------- */

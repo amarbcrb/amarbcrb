@@ -229,7 +229,7 @@ test('lien existant : changer le type, choisir puis retirer mon image (gardée d
   assert.equal(env.faux.etat.contenu.liens.items[0].type, 'code');
   assert.ok(media && media.id);
   assert.ok(!env.faux.etat.corbeille.includes(media.id));
-  await p.click('[data-bloc="liens"] button:has-text("Retirer l\'image")');
+  await p.click('[data-bloc="liens"] .champ-media button:has-text("Retirer")');
   await enregistrer(p);
   assert.equal(env.faux.etat.contenu.liens.items[0].media, null);
   assert.ok(!env.faux.etat.corbeille.includes(media.id));
