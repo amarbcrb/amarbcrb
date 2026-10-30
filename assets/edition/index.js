@@ -5,6 +5,7 @@ import { normaliser, valider } from '../model.js';
 import { lireChemin, ecrireChemin } from '../chemins.js';
 import { lireBrouillon, ecrireBrouillon, effacerBrouillon } from './brouillon.js';
 import { monterBarreEdition } from './barre.js';
+import { outilsListes } from './listes.js';
 
 const cloner = (o) => JSON.parse(JSON.stringify(o));
 const MESSAGES = { reseau: 'Pas de réseau : tes modifications sont gardées sur cet appareil. Réessaie.', interne: 'Le script Google a rencontré une erreur. Réessaie.', entree: 'Données refusées par le script.' };
@@ -20,9 +21,12 @@ export function activer(site) {
 
   const garder = () => { ecrireBrouillon(b); barre.compter(b.chemins.length); };
   const noter = (chemin) => { if (!b.chemins.includes(chemin)) b.chemins.push(chemin); garder(); };
+  const listes = outilsListes({ contenu: () => b.contenu, noter, rendre: () => montrer(), dire: (t, action) => barre.dire(t, action) });
 
   /* textes marqués data-edit : modifiables sur place, enregistrés dans le brouillon en quittant le champ */
   function cabler(racine) {
+    if (!racine) return;
+    listes.cabler(racine);
     racine.querySelectorAll('[data-edit]:not([data-cable])').forEach((x) => {
       x.dataset.cable = '1';
       x.setAttribute('contenteditable', 'plaintext-only');

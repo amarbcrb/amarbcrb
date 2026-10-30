@@ -22,7 +22,8 @@ const ICONES = {
 const nElements = (n) => `${n} élément${n > 1 ? 's' : ''}`;
 
 /* rangée horizontale : titre, nombre, bouton › vers Voir tout (si href), au plus 10 cartes puis « Voir tout (N) » */
-export function rangee({ titre, nombre, href = null, cartes, indice = 0, couleur = '--c-blue' }) {
+/* liste : chemin de la liste affichée (édition : « + Ajouter ») ; editTitre : chemin du titre modifiable */
+export function rangee({ titre, nombre, href = null, cartes, indice = 0, couleur = '--c-blue', liste = null, editTitre = null }) {
   const piste = el('div', { class: 'piste' }, cartes.slice(0, MAX_RANGEE),
     cartes.length > MAX_RANGEE && href ? el('a', { class: 'carte carte-plus', href }, `Voir tout (${cartes.length})`) : null);
   const fleche = (sens, libelle) => {
@@ -30,24 +31,24 @@ export function rangee({ titre, nombre, href = null, cartes, indice = 0, couleur
     b.addEventListener('click', () => piste.scrollBy({ left: (sens === 'avant' ? 1 : -1) * piste.clientWidth * 0.9, behavior: 'smooth' }));
     return b;
   };
-  return el('section', { class: 'rangee', style: `--i:${indice};--pc:var(${couleur})` }, teteRangee(titre, nombre, href),
+  return el('section', { class: 'rangee', style: `--i:${indice};--pc:var(${couleur})`, 'data-liste': liste, 'data-vide': cartes.length || !String(liste).startsWith('pages.') ? null : '' }, teteRangee(titre, nombre, href, editTitre),
     el('div', { class: 'piste-cadre' }, fleche('arriere', `Précédent : ${titre}`), piste, fleche('avant', `Suivant : ${titre}`)));
 }
 
-const teteRangee = (titre, nombre, href) => el('div', { class: 'rangee-tete' }, el('h2', {}, titre), nombre === null ? null : el('small', {}, String(nombre)),
+const teteRangee = (titre, nombre, href, editTitre = null) => el('div', { class: 'rangee-tete' }, el('h2', { 'data-edit': editTitre }, titre), nombre === null ? null : el('small', {}, String(nombre)),
   href ? el('a', { class: 'voir', href, 'aria-label': `Voir tout : ${titre}`, html: ICONES.suite }) : null);
 
 /* frise chronologique : un point par étape (qui pulse si en cours), période, titre, lieu ; chaque étape ouvre sa fiche */
 export function frise(items, partie) {
-  return el('ol', { class: 'frise' }, items.map((x, k) => el('li', { class: 'etape', style: `--k:${Math.min(k, 12)}` },
+  return el('ol', { class: 'frise' }, items.map((x, k) => el('li', { class: 'etape', style: `--k:${Math.min(k, 12)}`, 'data-element': `parcours.${partie}#${x.id}` },
     el('a', { class: 'etape', href: format({ onglet: 'parcours', sous: partie, element: x.id }) },
       el('span', { class: x.enCours ? 'point actif' : 'point', 'aria-hidden': 'true' }),
       periode(x) ? el('small', { class: 'periode' }, periode(x)) : null, el('b', {}, x.titre),
       x.lieu ? el('span', { class: 'lieu' }, x.lieu) : null, x.enCours ? el('span', { class: 'en-cours' }, 'En cours') : null))));
 }
 
-function rangeeFrise({ titre, href, items, partie, indice, couleur }) {
-  return el('section', { class: 'rangee rangee-frise', style: `--i:${indice};--pc:var(${couleur})` }, teteRangee(titre, items.length, href),
+function rangeeFrise({ titre, href, items, partie, indice, couleur, editTitre = null }) {
+  return el('section', { class: 'rangee rangee-frise', style: `--i:${indice};--pc:var(${couleur})`, 'data-liste': `parcours.${partie}` }, teteRangee(titre, items.length, href, editTitre),
     frise(items.slice(0, MAX_FRISE), partie),
     items.length > MAX_FRISE ? el('a', { class: 'frise-plus', href }, `Voir tout (${items.length})`) : null);
 }
@@ -69,7 +70,7 @@ function vueAccueil(c) {
   const partie = (id) => parcours.find((p) => p.id === id);
   const liens = onglets.includes('liens') ? parties(c, 'liens').filter((p) => p.id !== 'tous').flatMap((p) => p.items.map((x) => [x, p.id])) : [];
   const rangees = [
-    domaines.length && rangee({ titre: 'Ce que je fais', nombre: null, cartes: domaines.map((x, i) => carteDomaine(x, i)), couleur: '--c-teal' }),
+    domaines.length && rangee({ titre: 'Ce que je fais', nombre: null, cartes: domaines.map((x, i) => carteDomaine(x, i)), couleur: '--c-teal', liste: 'accueil.domaines' }),
     liens.length && rangee({ titre: 'Projets', nombre: liens.length, href: '#liens', couleur: '--c-pink',
       cartes: liens.map(([x, cat], k) => carte(x, { onglet: 'liens', partie: cat, c, indice: k })) }),
     ...[['certifications', 'Certifications'], ['interets', 'Passions']].map(([id, titre]) => partie(id) && rangee({
@@ -82,7 +83,7 @@ function vueAccueil(c) {
     diapos.length ? carrousel(diapos) : null,
     el('h1', { class: 'salut', 'data-edit': 'accueil.salutation' }, a.salutation || c.site.nom),
     a.intro ? el('p', { class: 'intro', 'data-edit': 'accueil.intro', 'data-multiligne': '' }, a.intro) : null,
-    reperes.length ? el('ul', { class: 'reperes' }, reperes.map((x) => el('li', {}, compteur(x.valeur), el('span', {}, x.libelle)))) : null,
+    reperes.length ? el('ul', { class: 'reperes', 'data-liste': 'accueil.reperes' }, reperes.map((x) => el('li', { 'data-element': `accueil.reperes#${x.id}` }, compteur(x.valeur), el('span', {}, x.libelle)))) : null,
     (cv || contact) ? el('div', { class: 'acts' },
       contact ? el('a', { class: 'btn pri', href: '#contact' }, 'Me contacter') : null,
       cv ? el('a', { class: contact ? 'btn' : 'btn pri', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV') : null) : null,
@@ -116,7 +117,7 @@ function profil(c) {
   const reglage = c.onglets.parcours.sous.profil;
   if ((reglage && reglage.visible === false) || !String(texte || '').trim()) return null;
   const paragraphes = texte.split(/\n\s*\n/).filter((x) => x.trim()).map((x) => el('p', {}, x.trim()));
-  const corps = el('div', { class: 'profil-texte', id: 'profilTexte' }, paragraphes);
+  const corps = el('div', { class: 'profil-texte', id: 'profilTexte', 'data-edit': 'parcours.profil.texte', 'data-multiligne': '' }, paragraphes);
   const long = paragraphes.length > 1 || texte.length > 220;
   const bouton = long ? el('button', { type: 'button', class: 'lire', 'aria-expanded': 'false', 'aria-controls': 'profilTexte' }, 'Lire la suite') : null;
   if (bouton) {
@@ -127,13 +128,13 @@ function profil(c) {
       bouton.textContent = ouvert ? 'Réduire' : 'Lire la suite';
     });
   }
-  return el('div', { class: 'profil' }, titre ? el('h2', {}, titre) : null, corps, bouton);
+  return el('div', { class: 'profil' }, titre ? el('h2', { 'data-edit': 'parcours.profil.titre' }, titre) : null, corps, bouton);
 }
 
 /* ---------- Voir tout ---------- */
 function voirTout(onglet, p, c, couleur) {
   const contenu = onglet === 'parcours' && FRISES.includes(p.id) ? frise(p.items, p.id)
-    : el('div', { class: `grille grille-${onglet === 'parcours' ? p.id : onglet}` }, p.items.map((x, i) => carte(x, { onglet, partie: p.id, c, indice: i })));
+    : el('div', { class: `grille grille-${onglet === 'parcours' ? p.id : onglet}`, 'data-liste': listeDe(c, onglet, p.id) }, p.items.map((x, i) => carte(x, { onglet, partie: p.id, c, indice: i })));
   return el('section', { class: `vt vt-voir v-${onglet}`, style: `--tc:var(${couleurOnglet(c, onglet)});--pc:var(${couleur})` },
     el('header', { class: 'vt-tete' },
       el('a', { class: 'retour', href: format({ onglet }), 'aria-label': 'Retour', html: ICONES.retour }),
@@ -159,11 +160,24 @@ function vueLiens(c, liste) {
   });
   return section(
     el('div', { class: 'piste liens-une' }, resume, une),
-    el('ul', { class: 'liste-categories' }, cats.map((p) => el('li', {}, el('a', { class: 'ligne-cat', href: format({ onglet: 'liens', sous: p.id }), style: `--pc:var(${couleur(p.id)})` },
+    el('ul', { class: 'liste-categories', 'data-liste': 'liens.categories' }, cats.map((p) => el('li', {}, el('a', { class: 'ligne-cat', href: format({ onglet: 'liens', sous: p.id }), style: `--pc:var(${couleur(p.id)})`, 'data-element': `liens.categories#${p.id}` },
       el('span', { class: 'ico', html: iconeType(typeDominant(p.items, c)) }), el('b', {}, p.titre), el('small', {}, String(p.items.length)), el('i', { html: ICONES.suite }))))),
-    el('section', { class: 'recents' },
+    el('section', { class: 'recents', 'data-liste': 'liens.items' },
       el('div', { class: 'recents-tete' }, el('h2', {}, 'Récents'), el('a', { class: 'tout', href: format({ onglet: 'liens', sous: 'tous' }) }, 'Tout afficher')),
       el('div', { class: 'piste tuiles' }, tous.items.slice(0, 10).map((x, k) => tuileLien(x, c, k)))));
+}
+
+/* édition : chemin de la liste d'une partie, et chemin de son titre modifiable */
+function listeDe(c, onglet, partie) {
+  if (onglet === 'parcours') return `parcours.${partie}`;
+  if (onglet === 'liens') return 'liens.items';
+  const perso = ongletPerso(c, onglet);
+  return perso && perso.type === 'rangees' ? `pages.${onglet}.rangees#${partie}.cartes` : null;
+}
+function titreModifiable(c, onglet, partie) {
+  if (onglet === 'parcours') return `onglets.parcours.sous.${partie}.titre`;
+  const perso = ongletPerso(c, onglet);
+  return perso && perso.type === 'rangees' ? `pages.${onglet}.rangees#${partie}.titre` : null;
 }
 
 /* titre et couleur d'un onglet, intégré ou créé dans l'admin */
@@ -186,10 +200,12 @@ export function rendreVue(racine, c, { onglet, sous }, dossiers) {
   if (onglet === 'liens') { racine.replaceChildren(vueLiens(c, liste)); return; }
   const rangees = liste.map((x, i) => {
     const commun = { titre: x.titre, href: format({ onglet, sous: x.id }), indice: i + 1, couleur: couleurPartie(onglet, x.id, i) };
-    if (onglet === 'parcours' && FRISES.includes(x.id)) return rangeeFrise({ ...commun, items: x.items, partie: x.id });
-    return rangee({ ...commun, nombre: x.items.length, cartes: x.items.map((item, k) => carte(item, { onglet, partie: x.id, c, indice: k })) });
+    const marques = { liste: listeDe(c, onglet, x.id), editTitre: titreModifiable(c, onglet, x.id) };
+    if (onglet === 'parcours' && FRISES.includes(x.id)) return rangeeFrise({ ...commun, ...marques, items: x.items, partie: x.id });
+    return rangee({ ...commun, ...marques, nombre: x.items.length, cartes: x.items.map((item, k) => carte(item, { onglet, partie: x.id, c, indice: k })) });
   });
-  racine.replaceChildren(el('section', { class: `vt v-${onglet}`, style: `--tc:var(${couleurOnglet(c, onglet)})` }, el('h1', {}, titreOnglet(c, onglet)),
+  const rangeesLibres = perso && perso.type === 'rangees' ? `pages.${onglet}.rangees` : null;
+  racine.replaceChildren(el('section', { class: `vt v-${onglet}`, style: `--tc:var(${couleurOnglet(c, onglet)})`, 'data-liste': rangeesLibres }, el('h1', {}, titreOnglet(c, onglet)),
     onglet === 'parcours' ? profil(c) : null,
     rangees.length ? rangees : el('p', { class: 'vide' }, VIDES[onglet] || 'Bientôt disponible.')));
 }

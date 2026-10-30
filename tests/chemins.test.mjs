@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { lireChemin, ecrireChemin } from '../assets/chemins.js';
+import { lireChemin, ecrireChemin, cheminIndex } from '../assets/chemins.js';
 
 const C = () => ({ accueil: { salutation: 'Salut', reperes: [{ id: 'r1', valeur: '2022' }, { id: 'r2', valeur: '6 ans' }] }, pages: { t1: { rangees: [{ id: 'rg', cartes: [{ id: 'c1', titre: 'A' }] }] } } });
 
@@ -23,4 +23,11 @@ test('ecrireChemin : modifie en place, crée les objets manquants, refuse un id 
   assert.equal(ecrireChemin(c, 'accueil.reperes#zz.valeur', 'x'), false);
   assert.equal(ecrireChemin(c, '__proto__.pollue', true), false);
   assert.equal(({}).pollue, undefined);
+});
+
+test('cheminIndex : ids remplacés par leur position', () => {
+  const c = C();
+  assert.equal(cheminIndex(c, 'accueil.reperes#r2.valeur'), 'accueil.reperes.1.valeur');
+  assert.equal(cheminIndex(c, 'pages.t1.rangees#rg.cartes#c1'), 'pages.t1.rangees.0.cartes.0');
+  assert.equal(cheminIndex(c, 'accueil.reperes#zz'), null);
 });

@@ -18,7 +18,15 @@ export function monterBarreEdition({ onPublier, onAnnuler, onQuitter }) {
   document.body.append(barre);
   return {
     compter(n) { compte.textContent = `${n} modification${n > 1 ? 's' : ''}`; },
-    dire(t) { statut.textContent = t; },
+    /* message, avec un bouton d'action facultatif (ex. « Rétablir ») qui disparaît au bout de 8 s */
+    dire(t, action = null) {
+      statut.replaceChildren(t);
+      if (!action) return;
+      const b = el('button', { type: 'button', class: 'btn' }, action.libelle);
+      b.addEventListener('click', () => { b.remove(); action.action(); });
+      statut.append(' ', b);
+      setTimeout(() => b.remove(), 8000);
+    },
     occupe(o) { publier.disabled = o; },
     /* conflit : la version en ligne a changé depuis l'ouverture du brouillon */
     conflit({ onRecharger, onEcraser }) {

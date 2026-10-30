@@ -212,9 +212,9 @@ export function parties(c, onglet, dossiersPortfolio = []) {
   }
   const perso = ongletPerso(c, onglet);
   if (perso && perso.type === 'rangees') {
+    /* rangées vides gardées : on y ajoute des cartes en édition ; le site les masque aux visiteurs */
     return visibles(((c.pages[onglet] || {}).rangees) || [])
-      .map((r) => ({ id: r.id, titre: r.titre, items: visibles(r.cartes) }))
-      .filter((p) => p.items.length);
+      .map((r) => ({ id: r.id, titre: r.titre, items: visibles(r.cartes) }));
   }
   if (perso && perso.type === 'drive') {
     /* dossiersPortfolio : réponse ?a=galerie { dossiers, fichiers } ; les fichiers de la racine forment la première rangée */

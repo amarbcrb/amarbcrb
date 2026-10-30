@@ -17,7 +17,7 @@ export function corpsContact(c) {
       el('button', { class: 'cp', type: 'button', 'data-copier': k.email }, 'Copier')),
     lienSur(k.linkedin) && el('li', {}, el('a', { class: 'row', href: k.linkedin, target: '_blank', rel: 'noopener' },
       el('span', { class: 't' }, el('b', {}, 'LinkedIn'), el('small', {}, k.linkedin.replace(/^https?:\/\/(www\.)?/, ''))), el('i', { html: CHEVRON }))),
-    ...visibles(k.autres).filter((x) => lienSur(x.url)).map((x) => el('li', {}, el('a', { class: 'row', href: x.url, target: '_blank', rel: 'noopener' },
+    ...visibles(k.autres).filter((x) => lienSur(x.url)).map((x) => el('li', { 'data-element': `contact.autres#${x.id}` }, el('a', { class: 'row', href: x.url, target: '_blank', rel: 'noopener' },
       el('span', { class: 't' }, el('b', {}, x.label), el('small', {}, domaine(x.url))), el('i', { html: CHEVRON })))),
   ].filter(Boolean);
   const ouvert = visibles(k.ouvertA);
@@ -26,10 +26,10 @@ export function corpsContact(c) {
   return el('div', { class: 'ct' },
     el('div', { class: 'ct-tete' }, photo ? el('img', { class: 'portrait', src: photo, alt: 'Portrait de ' + c.site.nom, width: 72, height: 72 }) : null,
       el('span', {}, el('b', {}, c.site.nom), el('small', {}, c.site.surtitre))),
-    lignes.length ? el('ul', { class: 'box rows' }, lignes) : null,
+    el('ul', { class: 'box rows', 'data-element': 'contact', 'data-liste': 'contact.autres' }, lignes),
     cv ? el('a', { class: 'btn pri ct-cv', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV') : null,
     ouvert.length ? el('h3', { class: 'ct-titre' }, 'Ouvert à') : null,
-    ouvert.length ? el('ul', { class: 'box rows' }, ouvert.map((x) => el('li', { class: 'row' }, el('span', { class: 't' }, el('b', {}, x.titre), x.detail ? el('small', {}, x.detail) : null)))) : null);
+    el('ul', { class: 'box rows', 'data-liste': 'contact.ouvertA' }, ouvert.map((x) => el('li', { class: 'row', 'data-element': `contact.ouvertA#${x.id}` }, el('span', { class: 't' }, el('b', {}, x.titre), x.detail ? el('small', {}, x.detail) : null)))));
 }
 
 /* pictogramme de la nature d'un lien */
@@ -61,7 +61,7 @@ const boutonCertificat = (x) => (lienSur(x.url) ? el('a', { class: 'btn', href: 
 
 /* carte « Ce que je fais » de l'Accueil : image (ou dégradé), titre, texte toujours visible */
 export function carteDomaine(x, indice = 0) {
-  return el('article', { class: 'carte carte-domaine', style: `--k:${indice}` },
+  return el('article', { class: 'carte carte-domaine', style: `--k:${indice}`, 'data-element': `accueil.domaines#${x.id}` },
     visuel(x.image, x.titre), el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
 }
 
@@ -73,7 +73,7 @@ export function tuileLien(x, c, indice = 0) {
   const type = typeLien(x, c);
   const [a, b] = teinte(x.titre);
   const repli = () => el('span', { class: 'tuile-repli', style: `--a:var(${a});--b:var(${b})`, html: icone(type) });
-  return el(lienSur(x.url) ? 'a' : 'div', { class: 'tuile', href: x.url, target: '_blank', rel: 'noopener noreferrer', style: `--k:${indice}`, 'data-type': type },
+  return el(lienSur(x.url) ? 'a' : 'div', { class: 'tuile', href: x.url, target: '_blank', rel: 'noopener noreferrer', style: `--k:${indice}`, 'data-type': type, 'data-element': `liens.items#${x.id}` },
     visuelMedia(mediaLien(x), { classe: 'tuile-visuel', repli }),
     el('b', {}, x.titre), el('small', {}, domaine(x.url)));
 }
@@ -88,8 +88,23 @@ export function typeDominant(items, c) {
 /* titre de la fiche d'un élément */
 export const titreFiche = (x) => x.titre || x.domaine || '';
 
+/* édition : chemin de l'élément affiché par une carte (« parcours.certifications#k1 ») */
+function cleCarte(x, { onglet, partie, c }) {
+  if (onglet === 'parcours') return `parcours.${partie}#${x.id}`;
+  if (onglet === 'liens') return `liens.items#${x.id}`;
+  const perso = c ? ongletPerso(c, onglet) : null;
+  return perso && perso.type === 'rangees' ? `pages.${onglet}.rangees#${partie}.cartes#${x.id}` : null;
+}
+
 /* carte d'une rangée ou d'une grille, selon la partie */
-export function carte(x, { onglet, partie, c, indice = 0 }) {
+export function carte(x, options) {
+  const e = carteBrute(x, options);
+  const cle = cleCarte(x, options);
+  if (cle) e.setAttribute('data-element', cle);
+  return e;
+}
+
+function carteBrute(x, { onglet, partie, c, indice = 0 }) {
   const style = `--k:${Math.min(indice, 12)}`;
   const fiche = format({ onglet, sous: partie, element: x.id });
   if (onglet === 'liens') {

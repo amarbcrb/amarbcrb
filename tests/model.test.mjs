@@ -344,7 +344,8 @@ test('pages des onglets libres : rangées et cartes normalisées ; parties et fi
   const rg = c.pages.tab1.rangees[0];
   assert.deepEqual({ ...rg.cartes[0] }, { id: 'ct1', titre: 'Régulus', texte: '', media: null, lien: '', bouton: '', visible: true });
   assert.ok(c.pages.tab1.rangees[1].id);
-  assert.deepEqual(parties(c, 'tab1').map((p) => [p.id, p.titre, p.items.map((x) => x.titre)]), [['rg1', 'Occultations', ['Régulus']]]);
+  /* une rangée vide est gardée (on y ajoute des cartes en édition) ; le site la masque aux visiteurs */
+  assert.deepEqual(parties(c, 'tab1').map((p) => [p.titre, p.items.map((x) => x.titre)]), [['Occultations', ['Régulus']], ['Vide', []]]);
   assert.equal(aFiche('tab1', 'rg1', c), true);
   assert.equal(aFiche('parcours', 'langues', c), false);
 });

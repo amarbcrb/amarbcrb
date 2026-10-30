@@ -37,3 +37,20 @@ export function ecrireChemin(contenu, chemin, valeur) {
   o[fin.cle] = valeur;
   return true;
 }
+
+/* « parcours.formation#f2.fin » → « parcours.formation.1.fin » (chemins des erreurs de valider) ; null si un id manque */
+export function cheminIndex(contenu, chemin) {
+  let o = contenu;
+  const sortie = [];
+  for (const { cle, id } of morceaux(chemin)) {
+    o = o && o[cle];
+    sortie.push(cle);
+    if (id !== undefined) {
+      const i = Array.isArray(o) ? o.findIndex((x) => x && x.id === id) : -1;
+      if (i < 0) return null;
+      o = o[i];
+      sortie.push(String(i));
+    }
+  }
+  return sortie.join('.');
+}

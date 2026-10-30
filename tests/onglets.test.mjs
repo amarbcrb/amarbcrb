@@ -69,3 +69,14 @@ test('recherche : trouve une carte d\'onglet libre et ouvre sa fiche', async () 
   await p.waitForSelector('#fiche', { state: 'visible' });
   assert.equal(await p.innerText('#ficheTitre'), 'Occultation de Régulus');
 });
+
+test('rangée vide d\'un onglet libre : masquée aux visiteurs, visible en édition avec « + Ajouter une carte »', async () => {
+  reinit((c) => { ASTRO(c); c.pages.tabastro.rangees.push({ id: 'rg2', titre: 'À venir', visible: true, cartes: [] }); });
+  let p = await env.page({ chemin: '/#tabastro' });
+  assert.equal(await p.isVisible('#vue .rangee:has(h2:text-is("À venir"))'), false);
+  p = await env.page({ chemin: '/#tabastro', stockage: { 'ab-jeton': JSON.stringify({ jeton: 'jeton-' + (Date.now() + 864e5), expire: Date.now() + 864e5 }) } });
+  await p.click('#modifier');
+  await p.waitForSelector('body.edition');
+  assert.equal(await p.isVisible('#vue .rangee:has(h2:text-is("À venir")) button.ajout'), true);
+  assert.equal(await p.isVisible('#vue button.ajout[data-liste="pages.tabastro.rangees"]'), true);
+});
