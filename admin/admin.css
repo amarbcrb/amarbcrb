@@ -79,4 +79,4 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
 .groupe .acts{margin-top:0}
 .champ-titre{font-size:14px;font-weight:600;color:var(--tx2)}
 .champ .acts{margin-top:4px}
-.apercu-media:not([src]){display:none}
+img.apercu-media:not([src]){display:none}

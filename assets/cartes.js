@@ -1,5 +1,5 @@
 /* Cartes des rangées et contenu des fiches (feuille qui monte du bas). */
-import { lienSur, periode, duree, typeLien, TYPES_LIEN, drapeauLangue, typeMedia, idYoutube } from './model.js';
+import { lienSur, periode, duree, typeLien, TYPES_LIEN, drapeauLangue, typeMedia, idYoutube, ongletPerso } from './model.js';
 import { visuel as visuelMedia, urlMedia, lecteurYoutube } from './media.js';
 import { drapeauSvg } from './drapeaux.js';
 import { format } from './router.js';
@@ -17,7 +17,7 @@ export function corpsContact(c) {
       el('button', { class: 'cp', type: 'button', 'data-copier': k.email }, 'Copier')),
     lienSur(k.linkedin) && el('li', {}, el('a', { class: 'row', href: k.linkedin, target: '_blank', rel: 'noopener' },
       el('span', { class: 't' }, el('b', {}, 'LinkedIn'), el('small', {}, k.linkedin.replace(/^https?:\/\/(www\.)?/, ''))), el('i', { html: CHEVRON }))),
-    ...visibles(k.autres).filter((x) => lienSur(x.url)).map((x) => el('li', {}, el('a', { class: 'row', href: x.url, target: '_blank', rel: 'noopener' },
+    ...visibles(k.autres).filter((x) => lienSur(x.url)).map((x) => el('li', { 'data-element': `contact.autres#${x.id}` }, el('a', { class: 'row', href: x.url, target: '_blank', rel: 'noopener' },
       el('span', { class: 't' }, el('b', {}, x.label), el('small', {}, domaine(x.url))), el('i', { html: CHEVRON })))),
   ].filter(Boolean);
   const ouvert = visibles(k.ouvertA);
@@ -26,10 +26,10 @@ export function corpsContact(c) {
   return el('div', { class: 'ct' },
     el('div', { class: 'ct-tete' }, photo ? el('img', { class: 'portrait', src: photo, alt: 'Portrait de ' + c.site.nom, width: 72, height: 72 }) : null,
       el('span', {}, el('b', {}, c.site.nom), el('small', {}, c.site.surtitre))),
-    lignes.length ? el('ul', { class: 'box rows' }, lignes) : null,
+    el('ul', { class: 'box rows', 'data-element': 'contact', 'data-liste': 'contact.autres' }, lignes),
     cv ? el('a', { class: 'btn pri ct-cv', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV') : null,
     ouvert.length ? el('h3', { class: 'ct-titre' }, 'Ouvert à') : null,
-    ouvert.length ? el('ul', { class: 'box rows' }, ouvert.map((x) => el('li', { class: 'row' }, el('span', { class: 't' }, el('b', {}, x.titre), x.detail ? el('small', {}, x.detail) : null)))) : null);
+    el('ul', { class: 'box rows', 'data-liste': 'contact.ouvertA' }, ouvert.map((x) => el('li', { class: 'row', 'data-element': `contact.ouvertA#${x.id}` }, el('span', { class: 't' }, el('b', {}, x.titre), x.detail ? el('small', {}, x.detail) : null)))));
 }
 
 /* pictogramme de la nature d'un lien */
@@ -61,7 +61,7 @@ const boutonCertificat = (x) => (lienSur(x.url) ? el('a', { class: 'btn', href: 
 
 /* carte « Ce que je fais » de l'Accueil : image (ou dégradé), titre, texte toujours visible */
 export function carteDomaine(x, indice = 0) {
-  return el('article', { class: 'carte carte-domaine', style: `--k:${indice}` },
+  return el('article', { class: 'carte carte-domaine', style: `--k:${indice}`, 'data-element': `accueil.domaines#${x.id}` },
     visuel(x.image, x.titre), el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
 }
 
@@ -73,7 +73,7 @@ export function tuileLien(x, c, indice = 0) {
   const type = typeLien(x, c);
   const [a, b] = teinte(x.titre);
   const repli = () => el('span', { class: 'tuile-repli', style: `--a:var(${a});--b:var(${b})`, html: icone(type) });
-  return el(lienSur(x.url) ? 'a' : 'div', { class: 'tuile', href: x.url, target: '_blank', rel: 'noopener noreferrer', style: `--k:${indice}`, 'data-type': type },
+  return el(lienSur(x.url) ? 'a' : 'div', { class: 'tuile', href: x.url, target: '_blank', rel: 'noopener noreferrer', style: `--k:${indice}`, 'data-type': type, 'data-element': `liens.items#${x.id}` },
     visuelMedia(mediaLien(x), { classe: 'tuile-visuel', repli }),
     el('b', {}, x.titre), el('small', {}, domaine(x.url)));
 }
@@ -88,8 +88,23 @@ export function typeDominant(items, c) {
 /* titre de la fiche d'un élément */
 export const titreFiche = (x) => x.titre || x.domaine || '';
 
+/* édition : chemin de l'élément affiché par une carte (« parcours.certifications#k1 ») */
+function cleCarte(x, { onglet, partie, c }) {
+  if (onglet === 'parcours') return `parcours.${partie}#${x.id}`;
+  if (onglet === 'liens') return `liens.items#${x.id}`;
+  const perso = c ? ongletPerso(c, onglet) : null;
+  return perso && perso.type === 'rangees' ? `pages.${onglet}.rangees#${partie}.cartes#${x.id}` : null;
+}
+
 /* carte d'une rangée ou d'une grille, selon la partie */
-export function carte(x, { onglet, partie, c, indice = 0 }) {
+export function carte(x, options) {
+  const e = carteBrute(x, options);
+  const cle = cleCarte(x, options);
+  if (cle) e.setAttribute('data-element', cle);
+  return e;
+}
+
+function carteBrute(x, { onglet, partie, c, indice = 0 }) {
   const style = `--k:${Math.min(indice, 12)}`;
   const fiche = format({ onglet, sous: partie, element: x.id });
   if (onglet === 'liens') {
@@ -104,12 +119,18 @@ export function carte(x, { onglet, partie, c, indice = 0 }) {
       el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.description ? el('p', {}, x.description) : null, site ? el('small', {}, site) : null,
         el('span', { class: 'btn' }, x.bouton || 'Ouvrir')));
   }
-  if (onglet === 'portfolio') {
+  const perso = c ? ongletPerso(c, onglet) : null;
+  if (perso && perso.type === 'rangees') {
+    /* carte d'un onglet libre : média, titre et texte visibles ; toucher ouvre sa fiche */
+    return el('a', { class: 'carte carte-libre', href: fiche, style }, visuel(x.media, x.titre),
+      el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
+  }
+  if (onglet === 'portfolio' || (perso && perso.type === 'drive')) {
     if (String(x.type).startsWith('image/')) {
       return el('button', { class: 'vignette', type: 'button', 'data-dossier': partie, 'data-fichier': x.id, 'aria-label': 'Agrandir ' + x.nom, style },
         el('img', { src: x.apercu, alt: sansExtension(x.nom), loading: 'lazy' }));
     }
-    return el(lienSur(x.lien) ? 'a' : 'div', { class: 'vignette doc', href: x.lien, target: '_blank', rel: 'noopener', style },
+    return el(lienSur(x.lien) ? 'a' : 'div', { class: 'vignette doc', href: x.lien, target: '_blank', rel: 'noopener', style, 'data-fichier': x.id },
       el('i', { html: FICHIER }), el('b', {}, x.nom), el('small', {}, 'Ouvrir dans Drive'));
   }
   if (DATEES.includes(partie)) {
@@ -141,11 +162,11 @@ export function carte(x, { onglet, partie, c, indice = 0 }) {
 }
 
 /* image de fond (floutée) de la fiche d'un élément : seulement une vraie image (pas une vidéo) */
-export const fondFiche = (x) => (typeMedia(x.image) === 'image' ? urlMedia(x.image) : null);
+export const fondFiche = (x) => { const m = x.image || x.media; return typeMedia(m) === 'image' ? urlMedia(m) : null; };
 
 /* contenu complet de la fiche d'un élément de Parcours, façon page détail de Nuvio :
    bannière, description, puis « Détails » en lignes libellé / valeur */
-export function corpsFiche(x, partie) {
+export function corpsFiche(x, partie, perso = null) {
   const paragraphes = (t) => String(t || '').split(/\n\s*\n/).filter((p) => p.trim()).map((p) => el('p', {}, p.trim()));
   /* une vidéo YouTube se lit dans la fiche, avec le son */
   const banniere = (media, texte) => el('div', { class: 'fiche-banniere' }, (typeMedia(media) === 'youtube' && lecteurYoutube(media)) || visuel(media, texte));
@@ -153,6 +174,11 @@ export function corpsFiche(x, partie) {
     const l = lignes.filter(([, v]) => v);
     return l.length ? [el('h3', { class: 'fiche-sous-titre' }, 'Détails'), el('dl', { class: 'details' }, l.map(([k, v]) => el('div', {}, el('dt', {}, k), el('dd', {}, v))))] : [];
   };
+  if (perso && perso.type === 'rangees') {
+    const externe = lienSur(x.lien);
+    return el('div', { class: 'fiche-contenu' }, banniere(x.media, x.titre), paragraphes(x.texte),
+      x.lien ? el('a', { class: 'btn pri', href: x.lien, target: externe ? '_blank' : null, rel: externe ? 'noopener' : null }, x.bouton || 'Ouvrir') : null);
+  }
   if (DATEES.includes(partie)) {
     return el('div', { class: 'fiche-contenu' }, banniere(x.image, x.lieu || x.titre), paragraphes(x.description),
       details([['Lieu', x.lieu], ['Période', periode(x)], ['Durée', duree(x)], ['Statut', x.enCours ? 'En cours' : (x.debut || x.fin ? 'Terminé' : '')]]));

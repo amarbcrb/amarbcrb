@@ -557,3 +557,41 @@ test('liens d\'un dossier public : visibles dans la liste ; galerie protégée e
   assert.deepEqual(gal.fichiers, []);
   assert.deepEqual(g.post({ a: 'ouvrirDossier', id: astro.getId(), motDePasse: 'etoiles' }).dossier.fichiers.map((f) => f.nom), ['ciel.jpg']);
 });
+
+test('portfolio : la liste donne l\'id de la racine (pour y créer un dossier depuis le site)', () => {
+  const g = installe();
+  assert.equal(g.get({ a: 'portfolio' }).racine, g.props.get('ID_PORTFOLIO'));
+});
+
+test('ouvrirDossier avec la clé (sans mot de passe) : rouvre le dossier ; clé périmée par un nouveau mot de passe → cle', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const { prive } = portfolioProtege(g, jeton);
+  const { cle } = g.post({ a: 'ouvrirDossier', id: prive.getId(), motDePasse: 'clients2026' });
+  assert.deepEqual(g.post({ a: 'ouvrirDossier', id: prive.getId(), cle }).dossier.fichiers.map((f) => f.nom), ['devis.pdf', 'maquette.png']);
+  g.post({ a: 'protegerDossier', jeton, id: prive.getId(), motDePasse: 'autre-mdp' });
+  assert.equal(g.post({ a: 'ouvrirDossier', id: prive.getId(), cle }).erreur, 'cle');
+});
+
+test('un dossier qui contient le site (Mon Drive, dossier parent) ne peut devenir racine ; le site n\'y est jamais listé, renommé ni supprimé', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const site = g.dossiers.get(g.props.get('ID_SITE'));
+  const parent = g.ctx.DriveApp.createFolder('Mes projets');
+  site._parent = parent;
+  for (const d of [parent, g.ctx.DriveApp.getRootFolder()]) {
+    const lien = `https://drive.google.com/drive/folders/${d.getId()}`;
+    assert.equal(g.post({ a: 'dossierPortfolio', jeton, lienDossier: lien }).erreur, 'entree');
+    assert.equal(g.post({ a: 'dossierGalerie', jeton, lienDossier: lien }).erreur, 'entree');
+  }
+  /* racine déjà enregistrée avant cette règle : le site reste invisible et intouchable */
+  g.props.set('ID_PORTFOLIO', parent.getId());
+  parent.createFolder('1 - Design');
+  const p = g.get({ a: 'portfolio', frais: '1' });
+  assert.deepEqual(p.dossiers.map((d) => d.nom), ['1 - Design']);
+  assert.equal(g.post({ a: 'supprimerDossier', jeton, id: site.getId() }).erreur, 'entree');
+  assert.equal(g.post({ a: 'renommerDossier', jeton, id: site.getId(), nom: 'X' }).erreur, 'entree');
+  assert.equal(site.isTrashed(), false);
+  const autre = site.createFile('notes.txt', 'x', 'text/plain');
+  assert.equal(g.post({ a: 'supprimerFichier', jeton, id: autre.getId() }).erreur, 'entree');
+});

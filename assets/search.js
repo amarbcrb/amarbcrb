@@ -1,5 +1,5 @@
 /* Recherche plein texte côté navigateur, sur les parties visibles du site. */
-import { ongletsVisibles, parties, aFiche, contactVisible, periode } from './model.js';
+import { ongletsVisibles, parties, aFiche, contactVisible, periode, ongletPerso } from './model.js';
 import { format } from './router.js';
 
 export function normaliserTexte(s) {
@@ -32,6 +32,11 @@ export function construireIndex(c, dossiersPortfolio = []) {
       else ajouter(TYPES[p.id], x.titre, joindre(x.lieu, periode(x)), hash, x.description);
     }));
   }
+
+  /* cartes des onglets libres : titre et texte, vers leur fiche */
+  onglets.map((id) => ongletPerso(c, id)).filter((o) => o && o.type === 'rangees').forEach((o) => {
+    parties(c, o.id).forEach((p) => p.items.forEach((x) => ajouter(o.nom, x.titre, x.texte, format({ onglet: o.id, sous: p.id, element: x.id }))));
+  });
 
   if (onglets.includes('liens')) {
     parties(c, 'liens').filter((p) => p.id !== 'tous').forEach((p) => p.items.forEach((x) => ajouter('Lien', x.titre, x.description, format({ onglet: 'liens', sous: p.id }), x.url)));

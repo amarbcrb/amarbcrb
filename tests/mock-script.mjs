@@ -7,24 +7,77 @@ const MAX = { cv: 10 * 1024 * 1024, image: 10 * 1024 * 1024 };
 
 export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' } = {}) {
   const etat = {
-    version: contenu.version || 1, contenu, motDePasse, echecs: 0, medias: {}, corbeille: [], racineId: '',
-    portfolio: { dossiers: [] }, apercus: {}, envoyes: [], appels: { contenu: 0, portfolio: 0, frais: 0, enregistrer: 0 },
+    version: contenu.version || 1, contenu, motDePasse, echecs: 0, medias: {}, fichiersMedias: [], corbeille: [], racineId: '',
+    portfolio: { dossiers: [] }, galeries: {}, proteges: {}, echecsDossiers: {}, liensDossiers: {}, fichiersDrive: {}, apercus: {}, envoyes: [], appels: { contenu: 0, portfolio: 0, frais: 0, enregistrer: 0 },
     reglages: { lent: 0, panne: false, html: false },
   };
   let n = 0;
   const jetonValide = (j) => typeof j === 'string' && /^jeton-\d+$/.test(j) && Number(j.slice(6)) > Date.now();
+
+  /* comme Code.gs : un dossier protégé n'expose ni fichiers ni liens dans la liste publique */
+  const publier = (d) => (etat.proteges[d.id] ? { id: d.id, nom: d.nom, protege: true, fichiers: [] } : { ...d, liens: etat.liensDossiers[d.id] || [] });
+  /* dossiers modifiables : racine du portfolio (« racine »), ses sous-dossiers, racines et sous-dossiers des galeries */
+  function dossierDe(id) {
+    if (id === 'racine') return { racine: true, enfants: etat.portfolio.dossiers };
+    const sous = etat.portfolio.dossiers.find((d) => d.id === id);
+    if (sous) return { dossier: sous, parent: etat.portfolio.dossiers };
+    for (const [gid, g] of Object.entries(etat.galeries)) {
+      if (gid === id) return { racine: true, enfants: g.dossiers, galerie: g };
+      const d = g.dossiers.find((x) => x.id === id);
+      if (d) return { dossier: d, parent: g.dossiers };
+    }
+    return null;
+  }
+  function fichierDe(id) {
+    const dossiers = [...etat.portfolio.dossiers, ...Object.values(etat.galeries).flatMap((g) => [...g.dossiers, { fichiers: g.fichiers || [] }])];
+    for (const d of dossiers) { const i = (d.fichiers || []).findIndex((f) => f.id === id); if (i >= 0) return { liste: d.fichiers, i }; }
+    return null;
+  }
 
   function actionGet(q) {
     if (q.get('a') === 'contenu') { etat.appels.contenu++; return { version: etat.version, contenu: { ...etat.contenu, version: etat.version } }; }
     if (q.get('a') === 'portfolio') {
       etat.appels.portfolio++;
       if (q.get('frais') === '1' && jetonValide(q.get('jeton'))) etat.appels.frais++;
-      return { dossiers: etat.portfolio.dossiers };
+      return { racine: 'racine', dossiers: etat.portfolio.dossiers.map(publier) };
+    }
+    if (q.get('a') === 'galerie') {
+      /* comme Code.gs : seulement un dossier déclaré par un onglet « drive » du contenu */
+      const declare = ((etat.contenu.onglets || {}).perso || []).some((o) => o.type === 'drive' && o.dossierId === q.get('id'));
+      const g = etat.galeries[q.get('id')];
+      if (!declare || !g) return { erreur: 'entree' };
+      if (etat.proteges[q.get('id')]) return { protege: true, dossiers: [], fichiers: [] };
+      return { dossiers: g.dossiers.map(publier), fichiers: g.fichiers || [], liens: etat.liensDossiers[q.get('id')] || [] };
     }
     return { erreur: 'entree' };
   }
 
   function actionPost(d) {
+    /* dossiers protégés : sans jeton ; clé = « cle-<dossier>-<mot de passe> » (un nouveau mot de passe l'invalide) */
+    if (d.a === 'ouvrirDossier') {
+      const mdp = etat.proteges[d.id];
+      if (!mdp) return { erreur: 'entree' };
+      const cle = `cle-${d.id}-${mdp}`;
+      if (d.cle !== undefined) { if (d.cle !== cle) return { erreur: 'cle' }; }
+      else {
+        if ((etat.echecsDossiers[d.id] || 0) >= 5) return { erreur: 'bloque' };
+        if (d.motDePasse !== mdp) { etat.echecsDossiers[d.id] = (etat.echecsDossiers[d.id] || 0) + 1; return { erreur: 'mot_de_passe' }; }
+      }
+      const cible = dossierDe(d.id);
+      const dossier = cible.dossier || { id: d.id, nom: 'Galerie', fichiers: (cible.galerie && cible.galerie.fichiers) || [] };
+      const nus = (x) => (x.fichiers || []).map((f) => ({ id: f.id, nom: f.nom, type: f.type }));
+      return { cle, expire: Date.now() + 30 * 864e5,
+        dossier: { id: d.id, nom: dossier.nom, fichiers: nus(dossier), liens: etat.liensDossiers[d.id] || [], dossiers: cible.galerie ? cible.galerie.dossiers.map((x) => ({ id: x.id, nom: x.nom, fichiers: nus(x), liens: [] })) : [] } };
+    }
+    if (d.a === 'fichierProtege') {
+      const tous = [...etat.portfolio.dossiers.map((x) => [x.id, x]), ...Object.entries(etat.galeries).flatMap(([gid, g]) => [[gid, { fichiers: g.fichiers || [] }], ...g.dossiers.map((x) => [gid, x])])];
+      const trouve = tous.find(([, x]) => (x.fichiers || []).some((f) => f.id === d.id));
+      if (!trouve || !etat.proteges[trouve[0]] || d.cle !== `cle-${trouve[0]}-${etat.proteges[trouve[0]]}`) return { erreur: 'cle' };
+      const f = trouve[1].fichiers.find((x) => x.id === d.id);
+      if (f.trop) return { erreur: 'entree' };
+      const octets = f.type.startsWith('image/') ? readFileSync(new URL('../favicon-512x512.png', import.meta.url)) : Buffer.from('%PDF-1.4 faux');
+      return { type: f.type.startsWith('image/') ? 'image/png' : f.type, base64: octets.toString('base64') };
+    }
     if (d.a === 'connexion') {
       if (etat.echecs >= 5) return { erreur: 'bloque' };
       if (d.motDePasse !== etat.motDePasse) { etat.echecs++; return { erreur: 'mot_de_passe' }; }
@@ -62,13 +115,81 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       if (octets.length > (cv ? MAX.cv : MAX.image)) return { erreur: 'entree' };
       const id = 'media' + (++n);
       etat.medias[d.emplacement] = { id, nom: d.nom, type: d.type, octets };
+      etat.fichiersMedias.push({ id, nom: d.nom, type: d.type, octets, date: Date.now() + n });
       etat.envoyes.push(id);
       return { id, url: cv ? `https://drive.google.com/uc?export=download&id=${id}` : `${base}/media/${id}` };
+    }
+    if (d.a === 'listerMedias') {
+      return { medias: etat.fichiersMedias.filter((f) => !etat.corbeille.includes(f.id)).sort((a, b) => b.date - a.date)
+        .map((f) => ({ id: f.id, nom: f.nom, type: f.type, taille: f.octets.length, date: f.date,
+          url: f.type === 'application/pdf' ? `https://drive.google.com/uc?export=download&id=${f.id}` : `${base}/media/${f.id}` })) };
+    }
+    if (d.a === 'supprimerMedia') {
+      if (!etat.fichiersMedias.some((f) => f.id === d.id)) return { erreur: 'entree' };
+      /* comme Code.gs : chemins de toutes les clés « image » / « media » et des médias du site qui l'utilisent */
+      const chemins = [];
+      const parcourir = (v, ch) => {
+        if (Array.isArray(v)) { v.forEach((x, i) => parcourir(x, `${ch}.${i}`)); return; }
+        if (!v || typeof v !== 'object') return;
+        Object.entries(v).forEach(([k, x]) => { if ((k === 'image' || k === 'media') && x && x.id === d.id) chemins.push(`${ch}.${k}`); else parcourir(x, `${ch}.${k}`); });
+      };
+      ['accueil', 'parcours', 'liens', 'pages'].forEach((k) => parcourir(etat.contenu[k], k));
+      Object.entries(etat.contenu.medias || {}).forEach(([k, m]) => { if (m && m.id === d.id) chemins.push(`medias.${k}`); });
+      if (chemins.length) return { erreur: 'utilise', emplacements: chemins };
+      etat.corbeille.push(d.id);
+      return {};
+    }
+    if (d.a === 'envoyerFichier') {
+      const cible = dossierDe(d.dossierId);
+      if (!cible || !d.type || typeof d.base64 !== 'string') return { erreur: 'entree' };
+      const id = 'fichier' + (++n);
+      etat.fichiersDrive[id] = { id, type: d.type, octets: Buffer.from(d.base64, 'base64') };
+      const f = { id, nom: d.nom, type: d.type, apercu: `${base}/media/${id}`, lien: `https://drive.google.com/file/d/${id}/view` };
+      if (cible.dossier) cible.dossier.fichiers.push(f); else if (cible.galerie) (cible.galerie.fichiers = cible.galerie.fichiers || []).push(f); else return { erreur: 'entree' };
+      return f;
+    }
+    if (d.a === 'creerDossier') {
+      const cible = dossierDe(d.parentId);
+      if (!cible || !cible.racine || !String(d.nom || '').trim()) return { erreur: 'entree' };
+      const dossier = { id: 'dossier' + (++n), nom: String(d.nom).trim(), fichiers: [] };
+      cible.enfants.push(dossier);
+      return { id: dossier.id, nom: dossier.nom };
+    }
+    if (d.a === 'renommerDossier' || d.a === 'supprimerDossier') {
+      const cible = dossierDe(d.id);
+      if (!cible || !cible.dossier) return { erreur: 'entree' };
+      if (d.a === 'supprimerDossier') { cible.parent.splice(cible.parent.indexOf(cible.dossier), 1); return {}; }
+      if (!String(d.nom || '').trim()) return { erreur: 'entree' };
+      cible.dossier.nom = String(d.nom).trim();
+      return { id: cible.dossier.id, nom: cible.dossier.nom };
+    }
+    if (d.a === 'supprimerFichier') {
+      const f = fichierDe(d.id);
+      if (!f) return { erreur: 'entree' };
+      f.liste.splice(f.i, 1);
+      return {};
+    }
+    if (d.a === 'protegerDossier') {
+      if (!dossierDe(d.id)) return { erreur: 'entree' };
+      if (!d.motDePasse) { delete etat.proteges[d.id]; return { protege: false }; }
+      if (String(d.motDePasse).length < 4) return { erreur: 'entree' };
+      etat.proteges[d.id] = d.motDePasse;
+      return { protege: true };
+    }
+    if (d.a === 'liensDossier') {
+      if (!dossierDe(d.id) || !Array.isArray(d.liens) || d.liens.some((l) => !/^https?:\/\//i.test(String(l && l.url)))) return { erreur: 'entree' };
+      etat.liensDossiers[d.id] = d.liens.map((l) => ({ titre: String(l.titre || l.url), url: l.url }));
+      return { liens: etat.liensDossiers[d.id] };
     }
     if (d.a === 'apercuLien') {
       if (!/^https?:\/\//.test(String(d.url))) return { erreur: 'entree' };
       if (etat.apercus[d.url] === 'panne') return { erreur: 'interne' };
       return etat.apercus[d.url] || { titre: '', description: '', image: '' };
+    }
+    if (d.a === 'dossierGalerie') {
+      const m = /folders\/([\w-]+)/.exec(String(d.lienDossier || ''));
+      if (!m) return { erreur: 'entree' };
+      return { id: m[1], nom: 'Dossier ' + m[1], sousDossiers: ((etat.galeries[m[1]] || {}).dossiers || []).map((x) => ({ id: x.id, nom: x.nom })) };
     }
     if (d.a === 'dossierPortfolio') {
       if (!d.lienDossier) return { erreur: 'entree' };
@@ -95,7 +216,7 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       if (etat.reglages.lent) setTimeout(fin, etat.reglages.lent); else fin();
     };
     if (url.pathname.startsWith('/media/')) {
-      const m = Object.values(etat.medias).find((x) => x.id === url.pathname.slice(7));
+      const m = [...Object.values(etat.medias), ...etat.fichiersMedias, ...Object.values(etat.fichiersDrive)].find((x) => x.id === url.pathname.slice(7));
       res.writeHead(m ? 200 : 404, { 'Content-Type': m ? m.type : 'text/plain', 'Access-Control-Allow-Origin': '*' });
       res.end(m ? m.octets : '');
       return;

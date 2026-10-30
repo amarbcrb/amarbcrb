@@ -3,7 +3,11 @@ import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { demarrer } from './helpers.mjs';
 
-const PAGES = ['#accueil', '#parcours', '#parcours/certifications', '#parcours/formation/f1', '#liens', '#portfolio/dd', '#contact', 'recherche'];
+const PAGES = ['#accueil', '#parcours', '#parcours/certifications', '#parcours/formation/f1', '#liens', '#portfolio/dd', '#contact', 'recherche',
+  '#tabciel', 'protege', 'edition', 'mediatheque'];
+/* pages vues par le propriétaire connecté (mode Modifier) */
+const PROPRIETAIRE = new Set(['edition', 'mediatheque']);
+const jeton = () => JSON.stringify({ jeton: 'jeton-' + (Date.now() + 864e5), expire: Date.now() + 864e5 });
 const TAILLES = [390, 1366];
 const THEMES = ['dark', 'light'];
 
@@ -12,14 +16,22 @@ before(async () => {
   env = await demarrer();
   env.faux.etat.portfolio.dossiers = [{ id: 'dd', nom: '1 - Design', fichiers: [
     { id: 'd1', nom: 'A.jpg', type: 'image/jpeg', apercu: '/favicon-512x512.png?a', lien: 'https://drive.google.com/file/d/d1/view' },
-    { id: 'd2', nom: 'Rapport.pdf', type: 'application/pdf', apercu: '/favicon-512x512.png?b', lien: 'https://drive.google.com/file/d/d2/view' }] }];
+    { id: 'd2', nom: 'Rapport.pdf', type: 'application/pdf', apercu: '/favicon-512x512.png?b', lien: 'https://drive.google.com/file/d/d2/view' }] },
+    { id: 'dp', nom: '2 - Clients', fichiers: [{ id: 'p1', nom: 'maquette.jpg', type: 'image/jpeg', apercu: '/favicon-512x512.png?p', lien: 'https://drive.google.com/file/d/p1/view' }] }];
+  Object.assign(env.faux.etat, { proteges: { dp: 'clients2026' }, echecsDossiers: {}, liensDossiers: {} });
+  /* un onglet à moi, en rangées libres */
+  const c = env.faux.etat.contenu;
+  c.onglets.perso = [{ id: 'tabciel', nom: 'Ciel', icone: 'globe', couleur: '--c-indigo', type: 'rangees', dossierId: '', visible: true }];
+  c.pages = { tabciel: { rangees: [{ id: 'rg1', titre: 'Photos du ciel', cartes: [{ id: 'ct1', titre: 'La Lune', texte: 'Première photo au télescope.', media: null, lien: '', bouton: '' }] }] } };
 });
 after(async () => { await env.fermer(); });
 
 /* exécuté dans la page : renvoie la liste des défauts mesurés */
 function mesurer() {
   const defauts = [];
+  /* nom accessible : aria-label, texte, étiquette <label for> associée, alt des images, title */
   const nom = (el) => (el.getAttribute('aria-label') || el.innerText || el.textContent || '').trim()
+    || [...(el.labels || [])].map((l) => l.textContent).join(' ').trim()
     || [...el.querySelectorAll('img[alt]')].map((i) => i.alt).join(' ').trim() || (el.getAttribute('title') || '').trim();
   const decrire = (el) => `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}${el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/).join('.') : ''} « ${nom(el).slice(0, 40)} »`;
   const visible = (el) => {
@@ -106,6 +118,25 @@ async function ouvrirPage(p, page) {
     await p.waitForFunction(() => { for (let x = document.getElementById('rechFermer'); x; x = x.parentElement) if (Number(getComputedStyle(x).opacity) < 1) return false; return true; });
     return;
   }
+  if (page === 'protege') {
+    await p.evaluate(() => { location.hash = '#portfolio'; });
+    await p.click('#vue .vignette.verrou');
+    await p.waitForSelector('#ficheCorps input[type="password"]');
+    await p.waitForTimeout(450);
+    return;
+  }
+  if (PROPRIETAIRE.has(page)) {
+    await p.click('#modifier');
+    await p.waitForSelector('body.edition .barre-edition');
+    if (page === 'mediatheque') {
+      await p.evaluate(() => { location.hash = '#tabciel'; });
+      await p.click('.outils-edition[data-pour$="#ct1"] .modifier');
+      await p.click('#ficheCorps button:has-text("Ma médiathèque")');
+      await p.waitForSelector('dialog.mediatheque[open]');
+    }
+    await p.waitForTimeout(450);
+    return;
+  }
   await p.evaluate((h) => { location.hash = h; }, page);
   if (page === '#contact' || page.split('/').length === 3) await p.waitForSelector('#fiche', { state: 'visible' });
   else await p.waitForSelector('#vue .vt');
@@ -116,7 +147,8 @@ for (const largeur of TAILLES) for (const theme of THEMES) {
   test(`revue ${largeur} px, thème ${theme}`, async () => {
     const tous = [];
     for (const page of PAGES) {
-      const p = await env.page({ viewport: { width: largeur, height: largeur > 900 ? 850 : 844 }, stockage: { 'ab-theme': theme } });
+      const stockage = { 'ab-theme': theme, ...(PROPRIETAIRE.has(page) ? { 'ab-jeton': jeton() } : {}) };
+      const p = await env.page({ viewport: { width: largeur, height: largeur > 900 ? 850 : 844 }, stockage });
       await ouvrirPage(p, page);
       (await p.evaluate(mesurer)).forEach((d) => tous.push(`${page} : ${d}`));
       await p.keyboard.press('Shift+Tab');
@@ -222,4 +254,28 @@ test('bouton « Contact » entier, sur téléphone comme sur ordinateur', async 
     assert.ok(droite <= largeur, `${largeur} px : pastille qui dépasse (${droite} px)`);
     await p.close();
   }
+});
+
+test('mode Modifier sur téléphone : outils des dossiers du Portfolio entiers à l\'écran', async () => {
+  for (const largeur of [320, 390]) {
+    const p = await env.page({ chemin: '/#portfolio', viewport: { width: largeur, height: 760 }, stockage: { 'ab-jeton': jeton() } });
+    await p.click('#modifier');
+    await p.waitForSelector('.outils-dossier');
+    const hors = await p.$$eval('.outils-dossier', (xs) => xs.filter((x) => { const r = x.getBoundingClientRect(); return r.left < 0 || r.right > innerWidth; }).length);
+    assert.equal(hors, 0, `${largeur} px : barre d'outils de dossier coupée`);
+    await p.close();
+  }
+});
+
+test('barre d\'édition à 320 px : Publier, Annuler et ✕ entiers et assez grands', async () => {
+  const p = await env.page({ viewport: { width: 320, height: 700 }, stockage: { 'ab-jeton': jeton() } });
+  await p.click('#modifier');
+  await p.waitForSelector('body.edition .barre-edition');
+  const boutons = await p.$$eval('.barre-edition .ligne button', (xs) => xs.map((x) => { const r = x.getBoundingClientRect(); return [x.getAttribute('aria-label') || x.textContent, Math.round(r.left), Math.round(r.right), Math.round(r.width)]; }));
+  const largeur = await p.evaluate(() => document.querySelector('.barre-edition').getBoundingClientRect().right);
+  boutons.forEach(([nom, g, d, l]) => {
+    assert.ok(g >= 0 && d <= largeur, `${nom} hors de la barre (${g}–${d}, barre ${Math.round(largeur)})`);
+    assert.ok(l >= 44, `${nom} : ${l} px de large`);
+  });
+  await p.close();
 });

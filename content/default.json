@@ -70,7 +70,8 @@
   },
   "contact": {
    "visible": true
-  }
+  },
+  "perso": []
  },
  "accueil": {
   "salutation": "Bonjour, je suis Amar",
@@ -723,5 +724,6 @@
     "visible": true
    }
   ]
- }
+ },
+ "pages": {}
 }

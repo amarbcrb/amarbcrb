@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import {
   ONGLETS, SOUS_PARCOURS, normaliser, formaterDate, periode, trierParDate, formationActuelle,
   derniereExperience, ongletsVisibles, parties, aFiche, contactVisible, PARTIES_PARCOURS, nomAffiche, lienSur, valider, nouvelId, echapper,
-  TYPES_LIEN, typeLien, couleurPartie, DRAPEAUX, drapeauLangue, duree, typeMedia, idYoutube,
+  TYPES_LIEN, typeLien, couleurPartie, DRAPEAUX, drapeauLangue, duree, typeMedia, idYoutube, ICONES_ONGLET, ongletPerso, MAX_ONGLETS,
 } from '../assets/model.js';
 
 test('constantes', () => {
@@ -326,4 +326,40 @@ test('idYoutube : youtu.be, watch?v=, shorts, embed ; sinon null', () => {
     'https://youtube.com/shorts/dQw4w9WgXcQ?si=1', 'https://www.youtube.com/embed/dQw4w9WgXcQ']) assert.equal(idYoutube(u), 'dQw4w9WgXcQ', u);
   assert.equal(idYoutube('https://vimeo.com/1'), null);
   assert.equal(idYoutube('https://youtube.com.evil.fr/watch?v=dQw4w9WgXcQ'), null);
+});
+
+const PERSO = (n, extra = {}) => ({ id: 'tab' + n, nom: 'Onglet ' + n, icone: 'etoile', couleur: '--c-purple', type: 'rangees', dossierId: '', visible: true, ...extra });
+
+test('onglets perso : après les onglets intégrés, masqués exclus, 6 au plus', () => {
+  assert.equal(MAX_ONGLETS, 6);
+  assert.deepEqual(ICONES_ONGLET, ['etoile', 'appareil', 'carte', 'livre', 'musique', 'globe', 'pinceau', 'flacon']);
+  const c = normaliser({ onglets: { perso: [PERSO(1), PERSO(2, { visible: false }), PERSO(3), PERSO(4)] } });
+  assert.deepEqual(ongletsVisibles(c), ['accueil', 'parcours', 'portfolio', 'liens', 'tab1', 'tab3']);
+  assert.equal(ongletPerso(c, 'tab3').nom, 'Onglet 3');
+  assert.equal(ongletPerso(c, 'parcours'), null);
+});
+
+test('pages des onglets libres : rangées et cartes normalisées ; parties et fiches', () => {
+  const c = normaliser({ onglets: { perso: [PERSO(1)] }, pages: { tab1: { rangees: [{ id: 'rg1', titre: 'Occultations', cartes: [{ id: 'ct1', titre: 'Régulus' }, { titre: 'Cachée', visible: false }] }, { titre: 'Vide', cartes: [] }] } } });
+  const rg = c.pages.tab1.rangees[0];
+  assert.deepEqual({ ...rg.cartes[0] }, { id: 'ct1', titre: 'Régulus', texte: '', media: null, lien: '', bouton: '', visible: true });
+  assert.ok(c.pages.tab1.rangees[1].id);
+  /* une rangée vide est gardée (on y ajoute des cartes en édition) ; le site la masque aux visiteurs */
+  assert.deepEqual(parties(c, 'tab1').map((p) => [p.titre, p.items.map((x) => x.titre)]), [['Occultations', ['Régulus']], ['Vide', []]]);
+  assert.equal(aFiche('tab1', 'rg1', c), true);
+  assert.equal(aFiche('parcours', 'langues', c), false);
+});
+
+test('galerie Drive : parties depuis la liste du script (fichiers de la racine d\'abord)', () => {
+  const c = normaliser({ onglets: { perso: [PERSO(1, { type: 'drive', dossierId: 'g1', nom: 'Astronomie' })] } });
+  const liste = { dossiers: [{ id: 'd2', nom: '2 - Saturne', fichiers: [{ id: 'f2' }] }, { id: 'd1', nom: '1 - Lune', fichiers: [{ id: 'f1' }] }], fichiers: [{ id: 'f0' }] };
+  assert.deepEqual(parties(c, 'tab1', liste).map((p) => [p.id, p.titre]), [['racine', 'Astronomie'], ['d1', 'Lune'], ['d2', 'Saturne']]);
+  assert.equal(aFiche('tab1', 'd1', c), false);
+});
+
+test('valider : onglet perso (nom, type, dossier) et cartes (titre, lien sûr)', () => {
+  const c = normaliser({ onglets: { perso: [PERSO(1, { nom: ' ' }), PERSO(2, { type: 'autre' }), PERSO(3, { type: 'drive', dossierId: '' })] },
+    pages: { tab1: { rangees: [{ id: 'rg1', titre: 'R', cartes: [{ id: 'c1', titre: '', lien: 'javascript:x' }] }] } } });
+  assert.deepEqual(valider(c).map((e) => e.chemin).sort(), ['onglets.perso.0.nom', 'onglets.perso.1.type', 'onglets.perso.2.dossierId',
+    'pages.tab1.rangees.0.cartes.0.lien', 'pages.tab1.rangees.0.cartes.0.titre'].sort());
 });

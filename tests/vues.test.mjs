@@ -107,7 +107,7 @@ test('lien : image, titre, description, bouton (texte réglé ou « Ouvrir »), 
   assert.equal(await premiere.getAttribute('href'), 'https://www.biostudy.xyz/');
   assert.equal(await premiere.getAttribute('target'), '_blank');
   assert.match(await premiere.getAttribute('rel'), /noopener/);
-  assert.equal(await premiere.locator('img').getAttribute('src'), `${env.site.url}/favicon-512x512.png?a`);
+  assert.equal(await premiere.locator('img:not(.flou)').getAttribute('src'), `${env.site.url}/favicon-512x512.png?a`);
   assert.equal(await premiere.locator('b').innerText(), 'BioStudy');
   assert.match(await premiere.locator('p').innerText(), /Plateforme fondée en 2022/);
   assert.equal(await premiere.locator('.btn').innerText(), 'Visiter BioStudy');
@@ -133,7 +133,7 @@ test('intérêt : image, titre et texte visibles sur la carte, sans fiche à ouv
   reinit((c) => { c.parcours.interets[0].image = { id: 'x', url: '/favicon-512x512.png?astro' }; });
   const p = await env.page({ chemin: '/#parcours' });
   const carte = p.locator('#vue .carte-interet >> nth=0');
-  assert.match(await carte.locator('img').getAttribute('src'), /\?astro$/);
+  assert.match(await carte.locator('img:not(.flou)').getAttribute('src'), /\?astro$/);
   assert.equal(await carte.locator('b').innerText(), 'Astronomie');
   assert.match(await carte.locator('p').innerText(), /club d'astronomie[\s\S]*occultations/);
   assert.ok(await carte.locator('p').isVisible());

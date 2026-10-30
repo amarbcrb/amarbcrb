@@ -13,16 +13,18 @@ function decoder(s) {
 }
 const page = (onglet, sous = null, element = null, contact = false) => ({ onglet, sous, element, contact });
 
-export function parse(hash, c, dossiersPortfolio = []) {
+/* drive : données Drive d'un onglet (portfolio, galerie), ou fonction (onglet) => données */
+export function parse(hash, c, drive = []) {
   let s = String(hash || '').replace(/^#/, '');
   if (s === 'contact') return page('accueil', null, null, contactVisible(c));
   if (ALIAS[s]) s = ALIAS[s];
   const [brutOnglet, brutSous, brutElement] = s.split('/').map(decoder);
   const visibles = ongletsVisibles(c);
   if (!visibles.includes(brutOnglet)) return page(visibles.includes('accueil') ? 'accueil' : visibles[0]);
-  const partie = brutSous ? parties(c, brutOnglet, dossiersPortfolio).find((p) => p.id === brutSous) : null;
+  const donnees = typeof drive === 'function' ? drive(brutOnglet) : drive;
+  const partie = brutSous ? parties(c, brutOnglet, donnees).find((p) => p.id === brutSous) : null;
   if (!partie) return page(brutOnglet);
-  const element = brutElement && aFiche(brutOnglet, partie.id) && partie.items.some((x) => x.id === brutElement) ? brutElement : null;
+  const element = brutElement && aFiche(brutOnglet, partie.id, c) && partie.items.some((x) => x.id === brutElement) ? brutElement : null;
   return page(brutOnglet, partie.id, element);
 }
 

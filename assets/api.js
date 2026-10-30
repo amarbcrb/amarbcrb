@@ -97,11 +97,23 @@ export async function chargerContenu(onMaj) {
   }
 }
 
+/* galerie Drive d'un onglet : { dossiers, fichiers }, null si le script est en panne */
+export async function lireGalerie(id) {
+  try {
+    const r = await lireScript('galerie', { id });
+    return { dossiers: Array.isArray(r.dossiers) ? r.dossiers : [], fichiers: Array.isArray(r.fichiers) ? r.fichiers : [], protege: !!r.protege };
+  } catch {
+    return null;
+  }
+}
+
 export async function lirePortfolio({ frais = false } = {}) {
   const jeton = lireJeton();
   try {
     const r = await lireScript('portfolio', frais && jeton ? { frais: '1', jeton } : {});
-    return Array.isArray(r.dossiers) ? r.dossiers : [];
+    const dossiers = Array.isArray(r.dossiers) ? r.dossiers : [];
+    dossiers.racine = r.racine || ''; /* id Drive du dossier Portfolio : l'édition y crée des dossiers */
+    return dossiers;
   } catch {
     return null;
   }
@@ -112,6 +124,13 @@ export function appeler(action, donnees = {}) {
   if (action !== 'connexion' && corps.jeton === undefined) corps.jeton = lireJeton();
   return requete(cfg.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(corps) }, cfg.delaiEcriture);
 }
+
+/* médiathèque : fichiers déjà envoyés (plus récents d'abord) ; suppression refusée s'ils sont utilisés */
+export async function listerMedias() { return (await appeler('listerMedias')).medias || []; }
+export function supprimerMedia(id) { return appeler('supprimerMedia', { id }); }
+
+/* copie du navigateur après une publication depuis le site : la prochaine visite part de la version publiée */
+export function memoriserContenu(version, contenu) { ecrire(CLE_CONTENU, { version, contenu }); }
 
 export function lireJeton() {
   const j = lire(CLE_JETON);

@@ -71,7 +71,7 @@ function doPost(e) {
     try { d = JSON.parse(e.postData.contents); } catch (_) { throw new ErreurEntree('entree'); }
     if (!d || typeof d !== 'object') throw new ErreurEntree('entree');
     if (d.a === 'connexion') return connexion(d.motDePasse);
-    if (d.a === 'ouvrirDossier') return ouvrirDossier(d.id, d.motDePasse);
+    if (d.a === 'ouvrirDossier') return ouvrirDossier(d.id, d.motDePasse, d.cle);
     if (d.a === 'fichierProtege') return fichierProtege(d.id, d.cle, d.taille);
     if (!verifierJeton(d.jeton)) throw new ErreurEntree('jeton');
     if (d.a === 'enregistrer') return enregistrer(d.versionDeBase, d.contenu);
@@ -345,9 +345,24 @@ function dossierParId(id) {
   try { return DriveApp.getFolderById(String(id)); } catch (_) { throw new ErreurEntree('entree'); }
 }
 
+/* vrai si id est le dossier du site, celui des médias, ou l'un de leurs dossiers parents (Mon Drive compris) */
+function contientLeSite(id) {
+  const vus = {};
+  const pile = interdits().filter(Boolean).map((x) => { try { return DriveApp.getFolderById(x); } catch (_) { return null; } }).filter(Boolean);
+  while (pile.length) {
+    const d = pile.pop();
+    if (d.getId() === id) return true;
+    if (vus[d.getId()]) continue;
+    vus[d.getId()] = true;
+    const it = d.getParents();
+    while (it.hasNext()) pile.push(it.next());
+  }
+  return false;
+}
+
 function racineChoisie(lien) {
   const id = idDepuisLien(lien);
-  if (!id || interdits().indexOf(id) >= 0) throw new ErreurEntree('entree');
+  if (!id || contientLeSite(id)) throw new ErreurEntree('entree');
   return dossierParId(id);
 }
 
@@ -371,7 +386,7 @@ function sousDossiers(racine) {
   const it = racine.getFolders();
   while (it.hasNext()) {
     const d = it.next();
-    if (!d.isTrashed()) liste.push(d);
+    if (!d.isTrashed() && interdits().indexOf(d.getId()) < 0) liste.push(d);
   }
   return liste;
 }
@@ -447,7 +462,7 @@ function dossierGalerie(lien) {
 function listerPortfolio(frais) {
   const id = proprietes().getProperty('ID_PORTFOLIO');
   if (!id) return { dossiers: [] };
-  return enCacheOuLire('portfolio', frais, () => ({ dossiers: lister(DriveApp.getFolderById(id)).dossiers }));
+  return enCacheOuLire('portfolio', frais, () => ({ racine: id, dossiers: lister(DriveApp.getFolderById(id)).dossiers }));
 }
 
 function listerGalerie(id) {
@@ -484,6 +499,7 @@ function creerDossier(parentId, nom) {
 /* sous-dossier direct d'une racine (jamais la racine elle-même) */
 function sousDossierAutorise(id) {
   const d = dossierParId(id);
+  if (interdits().indexOf(d.getId()) >= 0) throw new ErreurEntree('entree');
   const racine = racineDe(d);
   if (!racine || racine === d.getId()) throw new ErreurEntree('entree');
   return d;
@@ -508,7 +524,11 @@ function supprimerFichier(id) {
   if (f.getId() === proprietes().getProperty('ID_CONTENU')) throw new ErreurEntree('entree');
   const it = f.getParents();
   let autorise = false;
-  while (it.hasNext()) if (racineDe(it.next())) autorise = true;
+  while (it.hasNext()) {
+    const parent = it.next();
+    if (interdits().indexOf(parent.getId()) >= 0) throw new ErreurEntree('entree');
+    if (racineDe(parent)) autorise = true;
+  }
   if (!autorise) throw new ErreurEntree('entree');
   f.setTrashed(true);
   viderCachesDossiers();
@@ -583,7 +603,12 @@ function verifierCle(id, cle) {
   return signerCle(id, Number(exp)) === cle;
 }
 
-function ouvrirDossier(id, mdp) {
+/* mot de passe du dossier, ou clé déjà reçue (le visiteur n'a pas à le retaper pendant 30 jours) */
+function ouvrirDossier(id, mdp, cle) {
+  if (cle !== undefined && cle !== null) {
+    if (!verifierCle(String(id), cle)) throw new ErreurEntree('cle');
+    return contenuProtege(dossierParId(id), Number(String(cle).split('.')[0]), cle);
+  }
   const cache = CacheService.getScriptCache();
   const cleEchecs = 'echecs:' + id;
   const echecs = Number(cache.get(cleEchecs) || 0);
@@ -596,10 +621,14 @@ function ouvrirDossier(id, mdp) {
   }
   cache.remove(cleEchecs);
   const dossier = dossierParId(id);
-  const nus = (d) => fichiersBruts(d).map((f) => ({ id: f.getId(), nom: f.getName(), type: f.getMimeType() }));
   const expire = Date.now() + DUREE_JETON_MS;
+  return contenuProtege(dossier, expire, signerCle(dossier.getId(), expire));
+}
+
+function contenuProtege(dossier, expire, cle) {
+  const nus = (d) => fichiersBruts(d).map((f) => ({ id: f.getId(), nom: f.getName(), type: f.getMimeType() }));
   return {
-    cle: signerCle(dossier.getId(), expire), expire: expire,
+    cle: cle, expire: expire,
     dossier: {
       id: dossier.getId(), nom: dossier.getName(), fichiers: nus(dossier), liens: liensDe(dossier.getId()),
       dossiers: sousDossiers(dossier).map((d) => ({ id: d.getId(), nom: d.getName(), fichiers: nus(d), liens: liensDe(d.getId()) })),
