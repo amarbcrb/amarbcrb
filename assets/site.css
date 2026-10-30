@@ -509,7 +509,9 @@ body.edition .ajout-li{display:block;list-style:none;padding:8px 0}
 .edition-form .erreur:empty{display:none}
 .edition-form .acts{display:flex;gap:8px}
 body:not(.edition) .rangee[data-vide]{display:none}
-body.edition .outils-dossier{position:static;margin-left:8px;background:var(--fill)}
+body.edition .rangee-tete:has(.outils-dossier){flex-wrap:wrap}
+body.edition .outils-dossier{position:static;margin-left:8px;background:var(--fill);flex-wrap:wrap;max-width:100%}
+@media (max-width:600px){body.edition .outils-dossier{margin-left:0;flex-basis:100%;justify-content:flex-start;width:max-content}}
 body.edition .outils-dossier .outil{color:var(--tx)}
 body.edition label.ajout{cursor:pointer}
 .vignette.verrou{cursor:pointer}
