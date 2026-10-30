@@ -125,3 +125,16 @@ test('affiche : photo au bord varié → fond flouté gardé ; image d\'un autre
   assert.deepEqual([b.bord, b.flou], [null, true]);
   assert.equal(await p.evaluate(() => [...document.querySelectorAll('.visuel')].at(-1).querySelector('img:not(.flou)').naturalWidth), 300);
 });
+
+test('affiche : la couleur du bord est lue une fois par image (pas de nouveau téléchargement à chaque affichage)', async () => {
+  reinit();
+  const p = await env.page();
+  const corps = Buffer.from((await dessin(p, 300, 300, ['rgb(36, 84, 204)'])).split(',')[1], 'base64');
+  let cors = 0;
+  const serveur = createServer((req, res) => { if (req.headers.origin) cors += 1; res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-store' }); res.end(corps); });
+  await new Promise((ok) => serveur.listen(0, '127.0.0.1', ok));
+  after(() => serveur.close());
+  const url = `http://127.0.0.1:${serveur.address().port}/logo.png`;
+  for (let i = 0; i < 3; i++) { await monter(p, { url }); await p.waitForTimeout(250); }
+  assert.ok(cors <= 1, `${cors} relectures CORS pour la même image`);
+});

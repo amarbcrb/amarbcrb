@@ -63,14 +63,23 @@ function appliquerBords(cadre, sens, couleurs) {
   cadre.style.setProperty('--bord-b', couleurs[1]);
   cadre.querySelectorAll('.flou').forEach((x) => x.remove());
 }
+/* une lecture par image et par sens : couleurs, null (bord varié, illisible), ou promesse en cours (relecture CORS) */
+const lus = new Map();
 function remplirBords(cadre, img, sens) {
-  try { appliquerBords(cadre, sens, couleursBord(img, sens)); return; } catch { /* image d'un autre site : on la relit avec CORS */ }
-  if (!/^https?:/.test(img.src)) return;
-  const copie = new Image();
-  copie.crossOrigin = 'anonymous';
-  copie.decoding = 'async';
-  copie.addEventListener('load', () => { try { appliquerBords(cadre, sens, couleursBord(copie, sens)); } catch { /* sans CORS : le fond flouté reste */ } }, { once: true });
-  copie.src = img.src;
+  const cle = `${sens} ${img.src}`;
+  if (lus.has(cle)) { Promise.resolve(lus.get(cle)).then((couleurs) => appliquerBords(cadre, sens, couleurs)); return; }
+  try { const couleurs = couleursBord(img, sens); lus.set(cle, couleurs); appliquerBords(cadre, sens, couleurs); return; } catch { /* image d'un autre site : on la relit avec CORS */ }
+  if (!/^https?:/.test(img.src)) { lus.set(cle, null); return; }
+  const lecture = new Promise((fin) => {
+    const copie = new Image();
+    copie.crossOrigin = 'anonymous';
+    copie.decoding = 'async';
+    copie.addEventListener('load', () => { try { fin(couleursBord(copie, sens)); } catch { fin(null); } }, { once: true });
+    copie.addEventListener('error', () => fin(null), { once: true });
+    copie.src = img.src;
+  });
+  lus.set(cle, lecture);
+  lecture.then((couleurs) => { lus.set(cle, couleurs); appliquerBords(cadre, sens, couleurs); });
 }
 
 /* lecture des vidéos seulement quand elles sont à l'écran (batterie, données) */
