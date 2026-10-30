@@ -109,7 +109,7 @@ test('lien : image, titre, description, bouton (texte réglé ou « Ouvrir »), 
   assert.match(await premiere.getAttribute('rel'), /noopener/);
   assert.equal(await premiere.locator('img:not(.flou)').getAttribute('src'), `${env.site.url}/favicon-512x512.png?a`);
   assert.equal(await premiere.locator('b').innerText(), 'BioStudy');
-  assert.match(await premiere.locator('p').innerText(), /Plateforme fondée en 2022/);
+  assert.match(await premiere.locator('p').innerText(), /Plateforme lancée en 2022/);
   assert.equal(await premiere.locator('.btn').innerText(), 'Visiter BioStudy');
   assert.equal(await p.locator('#vue a.carte-lien >> nth=1 >> .btn').innerText(), 'Ouvrir');
 });
