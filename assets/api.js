@@ -60,6 +60,17 @@ function lireScript(action, params = {}) {
   return requete(`${cfg.url}?${q}`, { method: 'GET' }, cfg.delai);
 }
 
+/* lecture du contenu : la page l'a peut-être déjà demandée (script en tête de index.html) ; on la réutilise une fois */
+function lireContenuScript() {
+  const tot = globalThis.__contenu;
+  if (!tot) return lireScript('contenu');
+  globalThis.__contenu = null;
+  return tot.then((corps) => {
+    if (!corps || typeof corps !== 'object' || !corps.ok) throw new ErreurApi('reseau');
+    return corps;
+  }).catch(() => lireScript('contenu'));
+}
+
 export async function lireContenuFrais() {
   const r = await lireScript('contenu');
   return { version: r.version, contenu: normaliser(r.contenu) };
@@ -68,7 +79,7 @@ export async function lireContenuFrais() {
 export async function chargerContenu(onMaj) {
   const copie = lire(CLE_CONTENU);
   if (copie && copie.contenu) {
-    lireScript('contenu').then((r) => {
+    lireContenuScript().then((r) => {
       if (r.version === copie.version) return;
       ecrire(CLE_CONTENU, { version: r.version, contenu: r.contenu });
       if (onMaj) onMaj(normaliser(r.contenu));
@@ -76,7 +87,7 @@ export async function chargerContenu(onMaj) {
     return { contenu: normaliser(copie.contenu), source: 'cache' };
   }
   try {
-    const r = await lireScript('contenu');
+    const r = await lireContenuScript();
     ecrire(CLE_CONTENU, { version: r.version, contenu: r.contenu });
     return { contenu: normaliser(r.contenu), source: 'script' };
   } catch {

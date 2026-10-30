@@ -2,6 +2,7 @@
    Le défilement s'arrête quand le doigt, la souris ou le focus est dedans, quand l'onglet est caché,
    et n'existe pas si l'utilisateur a demandé moins d'animations. */
 import { el } from './dom.js';
+import { visuel, urlMedia } from './media.js';
 
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const DELAI = 5000;
@@ -15,7 +16,7 @@ export function carrousel(diapos) {
     class: 'diapo', 'aria-roledescription': 'diapositive', 'aria-label': `${i + 1} sur ${n}`,
     style: `--dc:var(${TEINTES[i % TEINTES.length][0]});--dc2:var(${TEINTES[i % TEINTES.length][1]})`,
   },
-  d.image ? imageDiapo(d.image) : null,
+  urlMedia(d.image) ? visuel(d.image, { classe: 'visuel diapo-visuel', prioritaire: i === 0, repli: () => '' }) : null,
   el('div', { class: 'diapo-texte' }, el('h2', {}, d.titre), d.texte ? el('p', {}, d.texte) : null,
     d.lien ? el('a', { class: 'btn pri', href: d.lien, target: d.externe ? '_blank' : null, rel: d.externe ? 'noopener' : null }, d.bouton || 'Découvrir') : null))));
   const points = el('div', { class: 'points' }, diapos.map((d, i) => el('button', { type: 'button', 'aria-label': `Diapositive ${i + 1} : ${d.titre}` })));
@@ -58,9 +59,3 @@ export function carrousel(diapos) {
   return racine;
 }
 
-/* image de bannière ; si elle ne se charge pas, la diapo garde son fond en dégradé */
-function imageDiapo(src) {
-  const i = el('img', { src, alt: '', loading: 'lazy' });
-  i.addEventListener('error', () => i.remove(), { once: true });
-  return i;
-}

@@ -17,6 +17,13 @@ export async function creerServeurStatique(urlScript) {
       res.end(`export const SCRIPT_URL = ${JSON.stringify(urlScript)};\n`);
       return;
     }
+    /* la page d'accueil annonce l'adresse du script dans <meta name="script-url"> : celle du faux script ici */
+    if (chemin === '/' || chemin === '/index.html') {
+      const html = (await readFile(join(RACINE, 'index.html'), 'utf8')).replace(/<meta name="script-url" content="[^"]*">/, `<meta name="script-url" content="${urlScript}">`);
+      res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' });
+      res.end(html);
+      return;
+    }
     let fichier = normalize(join(RACINE, chemin));
     if (!fichier.startsWith(RACINE)) { res.writeHead(403); res.end(); return; }
     try {

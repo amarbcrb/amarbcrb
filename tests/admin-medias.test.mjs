@@ -130,12 +130,14 @@ test('logo PNG 4000×3000 → envoyé en PNG 2000×1500 (transparence gardée), 
   assert.equal(await site.getAttribute('.brand img', 'src'), url);
 });
 
-test('remplacer une photo : l\'ancienne part à la corbeille seulement à l\'enregistrement', async () => {
+test('remplacer une photo publiée : l\'ancienne part à la corbeille seulement à l\'enregistrement suivant', async () => {
   reinit();
   const p = await ecran('medias');
   await p.setInputFiles('[data-media="photo"]', { name: 'a.png', mimeType: 'image/png', buffer: await image(p, 800, 800) });
   await p.waitForSelector('[data-apercu="photo"][src*="/media/"]');
   const premier = env.faux.etat.medias.photo.id;
+  await enregistrer(p);
+  assert.deepEqual(env.faux.etat.corbeille, []);
   await p.setInputFiles('[data-media="photo"]', { name: 'b.png', mimeType: 'image/png', buffer: await image(p, 800, 800) });
   await p.waitForFunction((id) => !document.querySelector('[data-apercu="photo"]').src.endsWith(id), premier);
   assert.deepEqual(env.faux.etat.corbeille, []);
@@ -215,7 +217,7 @@ test('ajout d\'un lien : type choisi et image envoyée → carte avec mon image 
   assert.deepEqual(await tailleDistante(site, lien.media.url), [1600, 960]);
 });
 
-test('lien existant : changer le type, choisir puis retirer mon image (fichier mis à la corbeille)', async () => {
+test('lien existant : changer le type, choisir puis retirer mon image (gardée dans la médiathèque)', async () => {
   reinit();
   const p = await ecran('liens');
   await p.click('[data-bloc="liens"] li >> nth=0 >> .modifier');
@@ -230,7 +232,7 @@ test('lien existant : changer le type, choisir puis retirer mon image (fichier m
   await p.click('[data-bloc="liens"] button:has-text("Retirer l\'image")');
   await enregistrer(p);
   assert.equal(env.faux.etat.contenu.liens.items[0].media, null);
-  assert.ok(env.faux.etat.corbeille.includes(media.id));
+  assert.ok(!env.faux.etat.corbeille.includes(media.id));
   assert.deepEqual(p.erreurs, []);
 });
 

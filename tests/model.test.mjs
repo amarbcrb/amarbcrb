@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import {
   ONGLETS, SOUS_PARCOURS, normaliser, formaterDate, periode, trierParDate, formationActuelle,
   derniereExperience, ongletsVisibles, parties, aFiche, contactVisible, PARTIES_PARCOURS, nomAffiche, lienSur, valider, nouvelId, echapper,
-  TYPES_LIEN, typeLien, couleurPartie, DRAPEAUX, drapeauLangue, duree,
+  TYPES_LIEN, typeLien, couleurPartie, DRAPEAUX, drapeauLangue, duree, typeMedia, idYoutube,
 } from '../assets/model.js';
 
 test('constantes', () => {
@@ -305,4 +305,25 @@ test('parties(liens) : « Tous les liens » en dernier quand il y a des liens', 
   assert.deepEqual(l.map((p) => [p.id, p.titre, p.items.length]), [['projets', 'Projets', 9], ['tous', 'Tous les liens', 9]]);
   c.liens.items.forEach((x) => { x.visible = false; });
   assert.deepEqual(parties(c, 'liens'), []);
+});
+
+test('typeMedia : vidéo, YouTube, image (GIF compris), type explicite, rien', () => {
+  assert.equal(typeMedia({ url: 'https://x.fr/a.mp4' }), 'video');
+  assert.equal(typeMedia({ url: 'https://x.fr/a.WEBM?t=3' }), 'video');
+  assert.equal(typeMedia({ url: 'https://youtu.be/dQw4w9WgXcQ' }), 'youtube');
+  assert.equal(typeMedia({ url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=10' }), 'youtube');
+  assert.equal(typeMedia({ url: 'https://youtube.com/shorts/dQw4w9WgXcQ' }), 'youtube');
+  assert.equal(typeMedia({ url: 'https://x.fr/anim.gif' }), 'image');
+  assert.equal(typeMedia({ url: 'https://drive.google.com/thumbnail?id=1&sz=w1600' }), 'image');
+  assert.equal(typeMedia({ url: 'https://x.fr/a.mp4', type: 'image' }), 'image');
+  assert.equal(typeMedia('https://x.fr/a.mp4'), 'video');
+  assert.equal(typeMedia(null), null);
+  assert.equal(typeMedia({ url: '' }), null);
+});
+
+test('idYoutube : youtu.be, watch?v=, shorts, embed ; sinon null', () => {
+  for (const u of ['https://youtu.be/dQw4w9WgXcQ', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'https://m.youtube.com/watch?feature=x&v=dQw4w9WgXcQ',
+    'https://youtube.com/shorts/dQw4w9WgXcQ?si=1', 'https://www.youtube.com/embed/dQw4w9WgXcQ']) assert.equal(idYoutube(u), 'dQw4w9WgXcQ', u);
+  assert.equal(idYoutube('https://vimeo.com/1'), null);
+  assert.equal(idYoutube('https://youtube.com.evil.fr/watch?v=dQw4w9WgXcQ'), null);
 });

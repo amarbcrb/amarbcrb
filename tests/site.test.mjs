@@ -92,13 +92,45 @@ test('maintenance avec jeton valide → site visible + bandeau', async () => {
   assert.equal(await p.isVisible('.barre'), true);
 });
 
-test('première visite, script lent → #chargement visible puis contenu', async () => {
+test('première visite, script lent → squelette de cartes tout de suite, puis contenu', async () => {
   reinit();
   env.faux.regler({ lent: 1500 });
   const p = await env.page({ attendre: false });
-  await p.waitForSelector('#chargement', { state: 'visible' });
+  await p.waitForSelector('#chargement.squelette', { state: 'visible', timeout: 1000 });
+  assert.ok(await p.locator('#chargement .sq-carte').count() >= 3);
+  assert.equal(await p.locator('#chargement:has-text("Chargement…")').count(), 0);
   await p.waitForSelector('.nav .nb', { timeout: 5000 });
   assert.equal(await p.isVisible('#chargement'), false);
+});
+
+/* requête du contenu lancée par la page elle-même, avant le code du site, puis réutilisée (un seul appel) */
+async function requetesAuChargement(stockage) {
+  reinit();
+  const appels = env.faux.etat.appels.contenu;
+  const p = await env.page({ chemin: null, stockage });
+  const ordre = [];
+  p.on('request', (r) => { const u = r.url(); if (u.includes('a=contenu')) ordre.push('contenu'); else if (u.endsWith('/assets/api.js')) ordre.push('api'); });
+  await p.goto(env.site.url + '/', { waitUntil: 'networkidle' });
+  return { ordre, appels: env.faux.etat.appels.contenu - appels };
+}
+
+test('requête anticipée du contenu : avant le code, un seul appel (première visite et visite suivante)', async () => {
+  let r = await requetesAuChargement({});
+  assert.deepEqual(r.ordre, ['contenu', 'api']);
+  assert.equal(r.appels, 1);
+  r = await requetesAuChargement({ 'ab-contenu': JSON.stringify({ version: 1, contenu: DEFAUT() }) });
+  assert.deepEqual(r.ordre, ['contenu', 'api']);
+  assert.equal(r.appels, 1);
+});
+
+test('index.html : balise script-url identique à SCRIPT_URL, préconnexion à Google', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const config = readFileSync(new URL('../assets/config.js', import.meta.url), 'utf8');
+  const meta = /<meta name="script-url" content="([^"]*)">/.exec(html);
+  assert.ok(meta, 'balise script-url absente');
+  assert.equal(meta[1], /SCRIPT_URL = "([^"]*)"/.exec(config)[1]);
+  assert.match(html, /<link rel="preconnect" href="https:\/\/script\.google\.com"/);
+  assert.match(html, /<link rel="preconnect" href="https:\/\/script\.googleusercontent\.com"/);
 });
 
 test('pas de bouton EN, en-tête sans grand titre', async () => {
@@ -106,14 +138,18 @@ test('pas de bouton EN, en-tête sans grand titre', async () => {
   const p = await env.page();
   assert.equal(await p.locator('#langBtn').count(), 0);
   assert.equal(await p.locator('[data-en]').count(), 0);
-  /* la salutation de l'Accueil (serif fin) peut aller jusqu'à 52 px ; les autres titres restent à 40 px au plus */
+  /* la salutation de l'Accueil peut aller jusqu'à 52 px ; les autres titres restent à 40 px au plus */
   const tailles = await p.$$eval('h1:not(.salut), h2', (hs) => hs.map((h) => parseFloat(getComputedStyle(h).fontSize)));
   tailles.forEach((t) => assert.ok(t <= 40, `titre de ${t}px`));
   assert.ok(await p.$eval('h1.salut', (h) => parseFloat(getComputedStyle(h).fontSize)) <= 52);
   assert.equal(await p.textContent('.brand .nom'), 'Amar Bouchareb');
-  assert.equal(await p.textContent('.brand .nom i'), 'Amar');
-  assert.match(await p.$eval('.brand .nom', (x) => getComputedStyle(x).fontFamily), /^"Instrument Serif"/);
-  assert.ok(await p.evaluate(() => document.fonts.check('24px "Instrument Serif"')));
+  /* police Inter Tight (sans serif) pour le nom et les titres ; plus aucun serif */
+  assert.equal(await p.locator('.brand .nom i').count(), 0);
+  assert.match(await p.$eval('.brand .nom', (x) => getComputedStyle(x).fontFamily), /^"Inter Tight"/);
+  assert.match(await p.$eval('h1.salut', (x) => getComputedStyle(x).fontFamily), /^"Inter Tight"/);
+  await p.evaluate(() => document.fonts.ready);
+  assert.ok(await p.evaluate(() => document.fonts.check('700 24px "Inter Tight"')));
+  assert.equal(await p.evaluate(() => [...document.styleSheets].flatMap((f) => [...f.cssRules]).some((r) => /Instrument Serif|serif"?\s*[;,)]/.test(r.cssText) && !/sans-serif/.test(r.cssText))), false);
   assert.equal(await p.locator('.brand small').count(), 0);
 });
 

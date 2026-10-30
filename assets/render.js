@@ -4,7 +4,7 @@ import { parties, contactVisible, couleurPartie, periode, ongletsVisibles, lienS
 import { format } from './router.js';
 import { COULEURS } from './nav.js';
 import { el } from './dom.js';
-import { carte, carteDomaine, tuileLien, typeDominant, iconeType } from './cartes.js';
+import { carte, carteDomaine, tuileLien, typeDominant, iconeType, mediaLien } from './cartes.js';
 import { carrousel } from './carrousel.js';
 
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -59,10 +59,9 @@ function vueAccueil(c) {
   const reperes = visibles(a.reperes), domaines = visibles(a.domaines);
   const projet = a.projetPhare && c.liens.items.find((x) => x.id === a.projetPhare && x.visible !== false);
   const onglets = ongletsVisibles(c);
-  const image = (x) => (x && (lienSur(x.url) || /^\/(?!\/)/.test(String(x.url))) ? x.url : null);
   const diapos = [
-    ...domaines.map((x) => ({ titre: x.titre, texte: x.texte, image: image(x.image), lien: x.lien, externe: lienSur(x.lien) })),
-    projet && { titre: projet.titre, texte: projet.description, image: image(projet.media) || (lienSur(projet.image) ? projet.image : null),
+    ...domaines.map((x) => ({ titre: x.titre, texte: x.texte, image: x.image, lien: x.lien, externe: lienSur(x.lien) })),
+    projet && { titre: projet.titre, texte: projet.description, image: mediaLien(projet),
       lien: projet.url, externe: true, bouton: projet.bouton || 'Ouvrir' },
   ].filter(Boolean);
   /* rangées d'images : ce que je fais, projets, certifications, passions */

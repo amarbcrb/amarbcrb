@@ -238,6 +238,24 @@ export function typeLien(item, c = null) {
   return cat && /article/i.test(cat.nom) ? 'article' : 'web';
 }
 
+/* nature d'un média (image, GIF, vidéo, YouTube) : type donné, sinon déduit de l'adresse */
+export function idYoutube(url) {
+  let u;
+  try { u = new URL(url); } catch { return null; }
+  const hote = u.hostname.toLowerCase().replace(/^(www|m)\./, '');
+  const id = hote === 'youtu.be' ? u.pathname.slice(1).split('/')[0]
+    : hote === 'youtube.com' ? (u.searchParams.get('v') || (/^\/(shorts|embed)\/([\w-]+)/.exec(u.pathname) || [])[2]) : null;
+  return id && /^[\w-]{6,20}$/.test(id) ? id : null;
+}
+
+export function typeMedia(m) {
+  const url = typeof m === 'string' ? m : m && m.url;
+  if (!url) return null;
+  if (m && typeof m === 'object' && ['image', 'video', 'youtube'].includes(m.type)) return m.type;
+  if (idYoutube(url)) return 'youtube';
+  return /\.(mp4|webm)(\?|#|$)/i.test(url) ? 'video' : 'image';
+}
+
 /* drapeau d'une langue : choisi dans l'admin, sinon deviné depuis le nom */
 export const DRAPEAUX = { fr: 'France', arabe: 'Ligue arabe', amazigh: 'Amazigh', gb: 'Royaume-Uni', us: 'États-Unis', es: 'Espagne', dz: 'Algérie', de: 'Allemagne', it: 'Italie' };
 const LANGUES = [[/^fran/, 'fr'], [/^arabe/, 'arabe'], [/^(kabyle|tamazight|berb|amazigh)/, 'amazigh'], [/^anglais/, 'gb'], [/^espagnol/, 'es'], [/^allemand/, 'de'], [/^italien/, 'it']];

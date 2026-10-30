@@ -1,5 +1,6 @@
 /* Cartes des rangées et contenu des fiches (feuille qui monte du bas). */
-import { lienSur, periode, duree, typeLien, TYPES_LIEN, drapeauLangue } from './model.js';
+import { lienSur, periode, duree, typeLien, TYPES_LIEN, drapeauLangue, typeMedia, idYoutube } from './model.js';
+import { visuel as visuelMedia, urlMedia, lecteurYoutube } from './media.js';
 import { drapeauSvg } from './drapeaux.js';
 import { format } from './router.js';
 import { el } from './dom.js';
@@ -47,28 +48,21 @@ export const iconeType = icone;
 const FICHIER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>';
 const DATEES = ['formation', 'experience', 'engagement'];
 const sansExtension = (nom) => String(nom).replace(/\.[^.]+$/, '');
-const imageSure = (x) => (x && lienSur(x.url) ? x.url : (x && /^\/(?!\/)/.test(String(x.url)) ? x.url : null));
-/* image qui se remplace par son repli si elle ne se charge pas (lien d'aperçu expiré, fichier Drive supprimé) ;
-   sans repli, elle disparaît simplement */
-const imageOuRepli = (src, repli = null) => {
-  const i = el('img', { src, alt: '', loading: 'lazy' });
-  i.addEventListener('error', () => (repli ? i.replaceWith(repli()) : i.remove()), { once: true });
-  return i;
-};
-/* visuel d'une carte : l'image, sinon une affiche dessinée (dégradé tiré du texte, texte en Instrument Serif) */
+/* média d'un lien : envoyé ou choisi, sinon aperçu automatique, sinon miniature YouTube de l'adresse */
+export const mediaLien = (x) => (urlMedia(x.media) ? x.media : lienSur(x.image) ? { url: x.image } : idYoutube(x.url) ? { url: x.url, type: 'youtube' } : null);
+/* visuel d'une carte : le média (image, GIF, vidéo, YouTube), sinon une affiche dessinée (dégradé tiré du texte) */
 const TEINTES = [['--c-indigo', '--c-blue'], ['--c-purple', '--c-pink'], ['--c-teal', '--c-green'], ['--c-orange', '--c-red'], ['--c-blue', '--c-cyan'], ['--c-pink', '--c-orange']];
 const teinte = (texte) => { let h = 0; for (const ch of String(texte)) h = (h * 31 + ch.codePointAt(0)) >>> 0; return TEINTES[h % TEINTES.length]; };
-function visuel(image, texte) {
+function visuel(media, texte) {
   const [a, b] = teinte(texte);
-  const repli = () => el('span', { class: 'affiche-repli', style: `--a:var(${a});--b:var(${b})` }, el('span', {}, texte));
-  return el('span', { class: 'visuel', 'aria-hidden': 'true' }, image ? imageOuRepli(image, repli) : repli());
+  return visuelMedia(media, { repli: () => el('span', { class: 'affiche-repli', style: `--a:var(${a});--b:var(${b})` }, el('span', {}, texte)) });
 }
 const boutonCertificat = (x) => (lienSur(x.url) ? el('a', { class: 'btn', href: x.url, target: '_blank', rel: 'noopener' }, 'Voir le certificat') : null);
 
 /* carte « Ce que je fais » de l'Accueil : image (ou dégradé), titre, texte toujours visible */
 export function carteDomaine(x, indice = 0) {
   return el('article', { class: 'carte carte-domaine', style: `--k:${indice}` },
-    visuel(imageSure(x.image), x.titre), el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
+    visuel(x.image, x.titre), el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
 }
 
 /* « Culture, PCR, ELISA et 2 autres » */
@@ -77,11 +71,10 @@ const apercuTechniques = (t) => t.slice(0, 3).join(', ') + (t.length > 3 ? ` et 
 /* tuile carrée des liens récents (façon playlists) : image, sinon pictogramme du type sur un dégradé */
 export function tuileLien(x, c, indice = 0) {
   const type = typeLien(x, c);
-  const image = imageSure(x.media) || (lienSur(x.image) ? x.image : null);
   const [a, b] = teinte(x.titre);
   const repli = () => el('span', { class: 'tuile-repli', style: `--a:var(${a});--b:var(${b})`, html: icone(type) });
   return el(lienSur(x.url) ? 'a' : 'div', { class: 'tuile', href: x.url, target: '_blank', rel: 'noopener noreferrer', style: `--k:${indice}`, 'data-type': type },
-    el('span', { class: 'tuile-visuel', 'aria-hidden': 'true' }, image ? imageOuRepli(image, repli) : repli()),
+    visuelMedia(mediaLien(x), { classe: 'tuile-visuel', repli }),
     el('b', {}, x.titre), el('small', {}, domaine(x.url)));
 }
 
@@ -103,11 +96,11 @@ export function carte(x, { onglet, partie, c, indice = 0 }) {
     const site = domaine(x.url), type = typeLien(x, c);
     const degrade = () => el('span', { class: 'degrade', 'aria-hidden': 'true' }, el('i', { html: icone(type) }), site);
     /* image envoyée dans l'admin, sinon aperçu automatique, sinon pictogramme */
-    const image = imageSure(x.media) || (lienSur(x.image) ? x.image : null);
-    const badge = image ? el('span', { class: 'badge-type', html: icone(type) }, TYPES_LIEN[type]) : null;
-    /* image introuvable : le dégradé porte déjà le pictogramme, le badge devient inutile */
+    const media = mediaLien(x);
+    const badge = media ? el('span', { class: 'badge-type', html: icone(type) }, TYPES_LIEN[type]) : null;
+    /* média introuvable : le dégradé porte déjà le pictogramme, le badge devient inutile */
     return el(lienSur(x.url) ? 'a' : 'div', { class: 'carte carte-lien', href: x.url, target: '_blank', rel: 'noopener noreferrer', style, 'data-type': type },
-      image ? imageOuRepli(image, () => { badge.remove(); return degrade(); }) : degrade(), badge,
+      visuelMedia(media, { classe: 'visuel lien-visuel', repli: () => { if (badge) badge.remove(); return degrade(); } }), badge,
       el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.description ? el('p', {}, x.description) : null, site ? el('small', {}, site) : null,
         el('span', { class: 'btn' }, x.bouton || 'Ouvrir')));
   }
@@ -125,11 +118,11 @@ export function carte(x, { onglet, partie, c, indice = 0 }) {
       x.enCours ? el('span', { class: 'en-cours' }, 'En cours') : null);
   }
   if (partie === 'competences') {
-    return el('a', { class: 'carte carte-comp', href: fiche, style }, visuel(imageSure(x.image), x.domaine),
+    return el('a', { class: 'carte carte-comp', href: fiche, style }, visuel(x.image, x.domaine),
       el('b', {}, x.domaine), x.techniques.length ? el('p', {}, apercuTechniques(x.techniques)) : null);
   }
   if (partie === 'certifications') {
-    return el('article', { class: 'carte carte-cert', style }, visuel(imageSure(x.image), String(x.organisme || x.titre).split(' · ')[0]),
+    return el('article', { class: 'carte carte-cert', style }, visuel(x.image, String(x.organisme || x.titre).split(' · ')[0]),
       el('a', { class: 'carte-lien-fiche', href: fiche }, el('b', {}, x.titre)),
       el('small', {}, [x.organisme, x.annee].filter(Boolean).join(' · ')), boutonCertificat(x));
   }
@@ -141,35 +134,35 @@ export function carte(x, { onglet, partie, c, indice = 0 }) {
   }
   if (partie === 'interets') {
     /* tout est lisible sur la carte : pas de fiche à deviner */
-    const image = imageSure(x.image);
-    return el('article', { class: 'carte carte-interet', style }, visuel(image, x.titre),
+    return el('article', { class: 'carte carte-interet', style }, visuel(x.image, x.titre),
       el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
   }
   return el('div', { class: 'carte', style }, el('b', {}, titreFiche(x)));
 }
 
-/* image de fond (floutée) de la fiche d'un élément, s'il en a une */
-export const fondFiche = (x) => imageSure(x.image);
+/* image de fond (floutée) de la fiche d'un élément : seulement une vraie image (pas une vidéo) */
+export const fondFiche = (x) => (typeMedia(x.image) === 'image' ? urlMedia(x.image) : null);
 
 /* contenu complet de la fiche d'un élément de Parcours, façon page détail de Nuvio :
    bannière, description, puis « Détails » en lignes libellé / valeur */
 export function corpsFiche(x, partie) {
   const paragraphes = (t) => String(t || '').split(/\n\s*\n/).filter((p) => p.trim()).map((p) => el('p', {}, p.trim()));
-  const banniere = (image, texte) => el('div', { class: 'fiche-banniere' }, visuel(image, texte));
+  /* une vidéo YouTube se lit dans la fiche, avec le son */
+  const banniere = (media, texte) => el('div', { class: 'fiche-banniere' }, (typeMedia(media) === 'youtube' && lecteurYoutube(media)) || visuel(media, texte));
   const details = (lignes) => {
     const l = lignes.filter(([, v]) => v);
     return l.length ? [el('h3', { class: 'fiche-sous-titre' }, 'Détails'), el('dl', { class: 'details' }, l.map(([k, v]) => el('div', {}, el('dt', {}, k), el('dd', {}, v))))] : [];
   };
   if (DATEES.includes(partie)) {
-    return el('div', { class: 'fiche-contenu' }, banniere(imageSure(x.image), x.lieu || x.titre), paragraphes(x.description),
+    return el('div', { class: 'fiche-contenu' }, banniere(x.image, x.lieu || x.titre), paragraphes(x.description),
       details([['Lieu', x.lieu], ['Période', periode(x)], ['Durée', duree(x)], ['Statut', x.enCours ? 'En cours' : (x.debut || x.fin ? 'Terminé' : '')]]));
   }
   if (partie === 'competences') {
-    return el('div', { class: 'fiche-contenu' }, banniere(imageSure(x.image), x.domaine), paragraphes(x.resume),
+    return el('div', { class: 'fiche-contenu' }, banniere(x.image, x.domaine), paragraphes(x.resume),
       x.techniques.length ? [el('h3', { class: 'fiche-sous-titre' }, 'Techniques'), el('ul', { class: 'techniques' }, x.techniques.map((t) => el('li', {}, t)))] : null);
   }
   if (partie === 'certifications') {
-    return el('div', { class: 'fiche-contenu' }, banniere(imageSure(x.image), String(x.organisme || x.titre).split(' · ')[0]),
+    return el('div', { class: 'fiche-contenu' }, banniere(x.image, String(x.organisme || x.titre).split(' · ')[0]),
       details([['Organisme', x.organisme], ['Année', x.annee], ['Statut', 'Obtenu']]), boutonCertificat(x));
   }
   return el('div', { class: 'fiche-contenu' });

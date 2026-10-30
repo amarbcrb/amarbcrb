@@ -1,7 +1,7 @@
 /* ===== Jetons : style Nuvio (fond noir pur, cartes gris très foncé, accent monochrome, verre givré) ===== */
-@font-face{font-family:"Instrument Serif";font-style:normal;font-weight:400;font-display:swap;src:url(/assets/fonts/instrument-serif-latin.woff2) format("woff2")}
-@font-face{font-family:"Instrument Serif";font-style:italic;font-weight:400;font-display:swap;src:url(/assets/fonts/instrument-serif-italic-latin.woff2) format("woff2")}
-:root{--serif:"Instrument Serif",Georgia,"Times New Roman",serif;--font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+/* Inter Tight (OFL), police variable 600 à 800 : nom, salutation, titres, chiffres */
+@font-face{font-family:"Inter Tight";font-style:normal;font-weight:600 800;font-display:swap;src:url(/assets/fonts/inter-tight-latin.woff2) format("woff2")}
+:root{--titre:"Inter Tight",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 --ease:cubic-bezier(.2,0,0,1);--spring:cubic-bezier(.34,1.45,.64,1);--navh:64px;--gx:20px;--top:72px;--max:1120px;
 --bg:#000;--sf:#141414;--sf2:#1c1c1e;--fill:rgba(255,255,255,.06);--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
 --tx:#fff;--tx2:#969ca3;--tx3:#8b9198;--sep:rgba(255,255,255,.08);--hair:rgba(255,255,255,.08);--shadow:none;
@@ -51,7 +51,7 @@ box-shadow:inset 0 0 0 .75px var(--glass-line),0 10px 30px var(--lg-sh)}
 .hin{margin:auto;padding:12px var(--gx);display:flex;align-items:center;gap:10px;animation:rise .6s var(--ease)}
 .brand{flex:1;min-width:0;min-height:44px;display:flex;align-items:center;gap:10px;pointer-events:auto}
 .brand img{width:34px;height:34px;border-radius:50%;object-fit:cover}
-.brand .nom{min-width:0;font-family:var(--serif);font-size:25px;font-weight:400;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand .nom{min-width:0;font-family:var(--titre);font-size:20px;font-weight:700;letter-spacing:-.015em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:359px){.hin{padding-left:16px;padding-right:16px}.brand{gap:8px}.brand .nom{font-size:22px}.brand img{width:30px;height:30px}}
 .tools{pointer-events:auto;height:52px;padding:0 4px;border-radius:999px;display:flex;align-items:center;gap:2px}
 .tb{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;position:relative;z-index:1;font-size:12.5px;font-weight:700;letter-spacing:.02em;transition:transform .35s var(--spring),background .3s}
@@ -172,8 +172,15 @@ footer b{color:var(--tx2);font-weight:600}
 .nav-search:active{transform:scale(.9)}
 .nav-search svg{width:24px;height:24px;position:relative;z-index:1}
 /* ===== Coquille : chargement, maintenance, bandeau admin, vue ===== */
-#chargement{position:fixed;inset:0;z-index:40;display:grid;place-items:center;color:var(--tx2);font-size:15px;opacity:0;animation:fade .3s var(--ease) .3s forwards}
-#chargement span{display:inline-block;width:22px;height:22px;margin-right:10px;vertical-align:-5px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--tx);animation:tourne .8s linear infinite}
+/* squelette : formes grises qui annoncent la page pendant que le contenu arrive */
+#chargement{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;gap:12px;padding:calc(env(safe-area-inset-top) + 18px) 20px 0;max-width:var(--max);margin-inline:auto;background:var(--bg);overflow:hidden}
+#chargement>*,#chargement span{display:block;border-radius:14px;background:var(--sk,rgba(127,127,127,.14));background-image:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.07) 50%,transparent 70%);background-size:220% 100%;animation:lueur 1.4s linear infinite}
+#chargement .sq-tete,#chargement .sq-rangee{background:none;animation:none;display:flex;gap:10px;align-items:center}
+.sq-rond{width:34px;height:34px;border-radius:50%!important}.sq-barre{width:150px;height:18px}
+.sq-banniere{height:min(52vh,420px);border-radius:28px!important;margin-top:10px}
+.sq-titre{width:70%;height:34px;margin-top:8px}.sq-ligne{height:14px;width:92%}.sq-ligne.courte{width:60%}
+.sq-carte{flex:0 0 auto;width:min(40vw,170px);aspect-ratio:3/4;border-radius:18px!important}
+@keyframes lueur{to{background-position:-120% 0}}
 @keyframes tourne{to{transform:rotate(1turn)}}
 #maintenance{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:24px;background:var(--bg);text-align:center}
 #maintenance img{width:72px;height:72px;margin:0 auto 22px;border-radius:50%;object-fit:cover}
@@ -184,7 +191,7 @@ footer b{color:var(--tx2);font-weight:600}
 #bandeauAdmin a{text-decoration:underline;margin-left:6px}
 #vue{outline:none}
 .vt{padding-top:20px}
-.vt h1{font-size:clamp(28px,6vw,36px);font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.vt h1{font-family:var(--titre);font-size:clamp(28px,6vw,36px);font-weight:800;letter-spacing:-.02em;line-height:1.1}
 /* ===== Vues v2 : rangées façon Nuvio, Voir tout, cartes ===== */
 .vt>h1{margin-bottom:4px}
 .vide{padding:28px 0;color:var(--tx3);font-size:16px}
@@ -194,25 +201,26 @@ footer b{color:var(--tx2);font-weight:600}
 .carrousel-piste::-webkit-scrollbar{display:none}
 .diapo{position:relative;flex:0 0 100%;scroll-snap-align:start;min-height:min(60vh,500px);display:flex;align-items:flex-end;overflow:hidden;color:#fff;
   background:radial-gradient(120% 90% at 15% 10%,color-mix(in srgb,var(--dc) 75%,#000),transparent 60%),radial-gradient(90% 80% at 90% 85%,color-mix(in srgb,var(--dc2) 65%,#000),transparent 60%),#060606}
-.diapo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:lent 18s ease-in-out infinite alternate}
+.diapo-visuel{position:absolute!important;inset:0;margin:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important}
+.diapo-visuel>img:not(.flou),.diapo-visuel>video{animation:lent 18s ease-in-out infinite alternate}
 @keyframes lent{to{transform:scale(1.08)}}
 .diapo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 30%,rgba(0,0,0,.82));pointer-events:none}
 .diapo-texte{position:relative;z-index:1;padding:0 22px 58px;max-width:640px}
-.diapo h2{font-family:var(--serif);font-weight:400;font-size:clamp(38px,10vw,58px);line-height:1;letter-spacing:-.01em;max-width:none}
+.diapo h2{font-family:var(--titre);font-weight:800;font-size:clamp(32px,8.5vw,52px);line-height:1.02;letter-spacing:-.03em;max-width:none}
 .diapo p{margin-top:10px;font-size:16px;line-height:1.5;color:rgba(255,255,255,.86);max-width:46ch}
 .diapo .btn{margin-top:18px;min-height:46px;padding:0 22px;font-size:15px;background:#fff;color:#000;border:0}
 .points{position:absolute;left:0;right:0;bottom:6px;z-index:2;display:flex;justify-content:center}
 .points button{width:44px;height:44px;display:grid;place-items:center}
 .points button::before{content:"";width:7px;height:7px;border-radius:4px;background:rgba(255,255,255,.45);transition:width .35s var(--spring),background .2s}
 .points button[aria-current="true"]::before{width:22px;background:#fff}
-.accueil .salut{margin-top:6px;font-family:var(--serif);font-weight:400;font-size:clamp(40px,10.5vw,52px);letter-spacing:-.01em;line-height:1;max-width:none;text-wrap:balance}
+.accueil .salut{margin-top:6px;font-family:var(--titre);font-weight:800;font-size:clamp(34px,9vw,48px);letter-spacing:-.035em;line-height:1.04;max-width:none;text-wrap:balance}
 .accueil .intro{margin-top:16px;max-width:620px;font-size:clamp(17px,4.4vw,19px);line-height:1.55;color:var(--tx2)}
 .reperes{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:26px;max-width:620px}
 .reperes li{display:flex;flex-direction:column;gap:4px;min-width:0;padding:14px 14px 16px;border-radius:20px;background:var(--card);border:.75px solid var(--line)}
-.reperes b{font-family:var(--serif);font-weight:400;font-size:clamp(26px,7vw,34px);line-height:1;letter-spacing:-.01em}
+.reperes b{font-family:var(--titre);font-weight:800;font-size:clamp(24px,6.5vw,32px);line-height:1;letter-spacing:-.03em}
 .reperes span{font-size:13px;line-height:1.35;color:var(--tx2)}
 /* téléphone : une ligne par repère, chiffre à gauche, libellé à droite */
-@media(max-width:559px){.reperes{grid-template-columns:1fr;gap:8px}.reperes li{flex-direction:row;align-items:baseline;gap:14px;padding:12px 16px}.reperes b{flex:none;min-width:5.2ch;white-space:nowrap;font-size:28px}.reperes span{font-size:14px}}
+@media(max-width:559px){.reperes{grid-template-columns:1fr;gap:8px}.reperes li{flex-direction:row;align-items:baseline;gap:14px;padding:12px 16px}.reperes b{flex:none;min-width:5.6ch;white-space:nowrap;font-size:26px}.reperes span{font-size:14px}}
 .accueil>.rangee{margin-top:34px}
 .accueil>.acts{margin-top:34px}
 /* rangée */
@@ -270,7 +278,7 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 .recents-tete .tout{min-height:44px;display:inline-flex;align-items:center;font-size:15px;font-weight:600}
 .tuile{flex:0 0 auto;width:min(40vw,160px);display:flex;flex-direction:column;gap:2px;min-width:0}
 .tuile-visuel{position:relative;display:block;aspect-ratio:1;border-radius:20px;overflow:hidden;background:#111;margin-bottom:6px;box-shadow:inset 0 0 0 .75px var(--line)}
-.tuile-visuel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
 .tuile-repli{position:absolute;inset:0;display:grid;place-items:center;color:#fff;
   background:radial-gradient(110% 80% at 20% 0%,color-mix(in srgb,var(--a) 70%,#000),transparent 65%),radial-gradient(90% 90% at 100% 100%,color-mix(in srgb,var(--b) 60%,#000),transparent 60%),#0a0a0a}
 .tuile-repli .type-icone{width:44px;height:44px;stroke-width:1.5}
@@ -279,12 +287,17 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 /* ===== Affiches façon Nuvio : visuel arrondi, texte dessous, pas de boîte autour ===== */
 .carte-cert,.carte-comp,.carte-interet,.carte-domaine{padding:0;gap:4px;background:none;border:0;box-shadow:none;overflow:visible;border-radius:0}
 .visuel{position:relative;display:block;overflow:hidden;border-radius:18px;background:#111;margin-bottom:8px;box-shadow:inset 0 0 0 .75px var(--line)}
-.visuel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
+/* visuel (assets/media.js) : image, GIF, vidéo ou miniature YouTube ; cadrage auto (contain sur fond flouté) */
+.visuel img,.visuel video,.tuile-visuel img,.tuile-visuel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
+[data-cadrage="contain"]>img:not(.flou),[data-cadrage="contain"]>video{object-fit:contain}
+.flou{position:absolute;inset:-12%!important;width:124%!important;height:124%!important;object-fit:cover;filter:blur(22px) saturate(1.25);opacity:.75;transform:none!important}
+.lecture{position:absolute;left:50%;top:50%;translate:-50% -50%;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.25)}
+.lecture svg{width:24px;height:24px;fill:#fff;stroke:none;margin-left:3px}
 .affiche-repli{position:absolute;inset:0;display:flex;align-items:flex-end;padding:14px 14px 16px;color:#fff;
   background:radial-gradient(110% 80% at 20% 0%,color-mix(in srgb,var(--a) 70%,#000),transparent 65%),radial-gradient(90% 90% at 100% 100%,color-mix(in srgb,var(--b) 60%,#000),transparent 60%),#0a0a0a}
-.affiche-repli span{font-family:var(--serif);font-size:clamp(24px,6.4vw,30px);line-height:1;overflow-wrap:break-word;hyphens:auto}
-@media(hover:hover){.carte:hover .visuel img{transform:scale(1.05)}}
-.carte-cert{width:min(40vw,168px)}.carte-cert .visuel{aspect-ratio:2/3}
+.affiche-repli span{font-family:var(--titre);font-weight:800;font-size:clamp(20px,5.4vw,26px);letter-spacing:-.025em;line-height:1.05;overflow-wrap:break-word;hyphens:auto}
+@media(hover:hover){.carte:hover .visuel>img:not(.flou),.carte:hover .visuel>video{transform:scale(1.05)}}
+.carte-cert{width:min(44vw,188px)}.carte-cert .visuel{aspect-ratio:3/4}
 .carte-comp,.carte-interet,.carte-domaine{width:min(74vw,290px)}
 .carte-comp .visuel,.carte-interet .visuel,.carte-domaine .visuel{aspect-ratio:16/10}
 .carte-cert b,.carte-comp>b,.carte-interet b,.carte-domaine b{font-size:16px;font-weight:600;line-height:1.3}
@@ -304,7 +317,8 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 .badge-type{position:absolute;top:10px;left:10px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:5px 10px 5px 8px;border-radius:999px;font-size:12px;font-weight:600;color:#fff;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .badge-type .type-icone{width:15px;height:15px;stroke-width:2}
 .carte-lien{width:min(78vw,300px);padding:0}
-.carte-lien img,.carte-lien .degrade{width:100%;aspect-ratio:16/9;object-fit:cover}.carte-lien img{background:var(--fill)}
+.carte-lien .degrade,.lien-visuel{width:100%;aspect-ratio:16/9}
+.lien-visuel{margin:0;border-radius:0;box-shadow:none;background:var(--fill)}
 .carte-corps{display:flex;flex-direction:column;gap:4px;padding:14px 16px 16px;flex:1}
 .carte-corps p{font-size:14px;color:var(--tx2);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .carte-corps small{color:var(--tx3);font-size:12.5px}
@@ -431,5 +445,5 @@ a.etape .en-cours{align-self:flex-start;margin-top:4px;padding:3px 10px;border-r
 .vt-voir .frise{margin-top:18px}
 @supports(animation-timeline:view()){li.etape{animation:revele linear both;animation-timeline:view();animation-range:entry 0% entry 70%}}
 @keyframes revele{from{opacity:0;translate:-14px 0}}
-@media(prefers-reduced-motion:reduce){*,::before,::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}.barre,li.etape,.point.actif,.diapo img{animation:none}}
+@media(prefers-reduced-motion:reduce){*,::before,::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}.barre,li.etape,.point.actif,.diapo-visuel>img,.diapo-visuel>video,#chargement *{animation:none}}
 @media(min-width:1024px) and (min-height:600px){:root{--top:84px;--gx:32px}.hin{padding:16px 32px}.tools{height:56px}.tb{width:48px;height:48px}}
