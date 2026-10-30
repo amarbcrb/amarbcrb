@@ -12,7 +12,8 @@ export function creerGas({ motDePasse = 'secret', pages = {} } = {}) {
   const cache = new Map();
   const fichiers = new Map();
   const dossiers = new Map();
-  const appels = { fetch: [], folderReads: 0 };
+  const appels = { fetch: [], folderReads: 0, lecturesFichier: 0 };
+  let horloge = Date.UTC(2026, 0, 1);
 
   function blob(bytes, type, nom) {
     const buf = octets(bytes);
@@ -20,14 +21,17 @@ export function creerGas({ motDePasse = 'secret', pages = {} } = {}) {
   }
   function fichier(nom, contenu, type, parent) {
     const f = {
-      _id: id('file'), _nom: nom, _buf: octets(contenu), _type: type, _parent: parent, _corbeille: false, _partage: null,
+      _id: id('file'), _nom: nom, _buf: octets(contenu), _type: type, _parent: parent, _corbeille: false, _partage: null, _cree: new Date(horloge += 1000),
       getId() { return this._id; }, getName() { return this._nom; }, getMimeType() { return this._type; },
+      setName(x) { this._nom = x; return this; }, getDateCreated() { return this._cree; },
+      getParents() { return iter(this._parent ? [this._parent] : []); },
       getUrl() { return `https://drive.google.com/file/d/${this._id}/view`; },
       getSize() { return this._buf.length; },
-      getBlob() { return blob(this._buf, this._type, this._nom); },
+      getBlob() { appels.lecturesFichier++; return blob(this._buf, this._type, this._nom); },
       setContent(s) { this._buf = octets(s); return this; },
       setTrashed(v) { this._corbeille = v; return this; }, isTrashed() { return this._corbeille; },
-      setSharing(a, p) { this._partage = [a, p]; return this; },
+      setSharing(a, p) { this._partage = [a, p]; return this; }, getSharingAccess() { return this._partage ? this._partage[0] : 'PRIVATE'; },
+      getThumbnail() { return /^image\//.test(this._type) ? blob(Buffer.from('mini:' + this._nom), 'image/png', 'mini.png') : null; },
     };
     fichiers.set(f._id, f);
     return f;
@@ -37,14 +41,15 @@ export function creerGas({ motDePasse = 'secret', pages = {} } = {}) {
     const d = {
       _id: id('folder'), _nom: nom, _parent: parent, _partage: null, _corbeille: false,
       setTrashed(v) { this._corbeille = v; return this; }, isTrashed() { return this._corbeille; },
-      getId() { return this._id; }, getName() { return this._nom; },
+      getId() { return this._id; }, getName() { return this._nom; }, setName(x) { this._nom = x; return this; },
+      getParents() { return iter(this._parent ? [this._parent] : []); },
       getUrl() { return `https://drive.google.com/drive/folders/${this._id}`; },
       createFolder(x) { return dossier(x, this); },
       createFile(a, b, c) { return typeof a === 'string' ? fichier(a, b, c || 'text/plain', this) : fichier(a.getName(), a._buf, a.getContentType(), this); },
       getFolders() { appels.folderReads++; return iter([...dossiers.values()].filter((x) => x._parent === this)); },
       /* comme le vrai DriveApp, les itérateurs renvoient aussi les éléments à la corbeille */
       getFiles() { return iter([...fichiers.values()].filter((x) => x._parent === this)); },
-      setSharing(a, p) { this._partage = [a, p]; return this; },
+      setSharing(a, p) { this._partage = [a, p]; return this; }, getSharingAccess() { return this._partage ? this._partage[0] : 'PRIVATE'; },
     };
     dossiers.set(d._id, d);
     return d;
@@ -61,7 +66,8 @@ export function creerGas({ motDePasse = 'secret', pages = {} } = {}) {
     }) },
     CacheService: { getScriptCache: () => ({
       get: (k) => (cache.has(k) ? cache.get(k) : null),
-      put: (k, v) => { cache.set(k, String(v)); },
+      /* comme le vrai CacheService : 100 Ko au plus par valeur */
+      put: (k, v) => { if (String(v).length > 100 * 1024) throw new Error('Argument too large: value'); cache.set(k, String(v)); },
       remove: (k) => { cache.delete(k); },
     }) },
     LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
@@ -82,8 +88,8 @@ export function creerGas({ motDePasse = 'secret', pages = {} } = {}) {
     },
     MimeType: { PLAIN_TEXT: 'text/plain' },
     DriveApp: {
-      Access: { ANYONE_WITH_LINK: 'ANYONE_WITH_LINK' },
-      Permission: { VIEW: 'VIEW' },
+      Access: { ANYONE_WITH_LINK: 'ANYONE_WITH_LINK', PRIVATE: 'PRIVATE' },
+      Permission: { VIEW: 'VIEW', NONE: 'NONE' },
       getRootFolder: () => racine,
       createFolder: (x) => racine.createFolder(x),
       getFileById: (x) => { const f = fichiers.get(x); if (!f) throw new Error('No item with the given ID'); return f; },

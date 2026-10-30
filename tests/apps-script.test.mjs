@@ -98,7 +98,7 @@ test('enregistrer : contenu absent → entree', () => {
 
 const PNG = Buffer.from('89504e470d0a1a0a', 'hex').toString('base64');
 
-test('envoyerMedia ne supprime rien ; enregistrer met à la corbeille les médias non référencés', () => {
+test('envoyerMedia ne supprime rien ; enregistrer met à la corbeille le logo, la photo, le favicon ou le CV remplacé', () => {
   const g = installe();
   const jeton = connecte(g);
   const a = g.post({ a: 'envoyerMedia', jeton, emplacement: 'photo', nom: 'a.png', type: 'image/png', base64: PNG });
@@ -113,8 +113,8 @@ test('envoyerMedia ne supprime rien ; enregistrer met à la corbeille les média
   assert.deepEqual(g.fichiers.get(b.id)._partage, ['ANYONE_WITH_LINK', 'VIEW']);
   c.medias.photo = { id: b.id, url: b.url };
   assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 2, contenu: c }).version, 3);
-  assert.equal(g.fichiers.get(a.id).isTrashed(), true);
-  assert.equal(g.fichiers.get(orphelin.id).isTrashed(), true);
+  assert.equal(g.fichiers.get(a.id).isTrashed(), true, 'ancienne photo remplacée → corbeille');
+  assert.equal(g.fichiers.get(orphelin.id).isTrashed(), false, 'un envoi jamais utilisé reste dans la médiathèque');
   assert.equal(g.fichiers.get(b.id).isTrashed(), false);
 });
 
@@ -175,7 +175,7 @@ test('dossierPortfolio : partage le dossier et renvoie les sous-dossiers', () =>
   const r = g.post({ a: 'dossierPortfolio', jeton: connecte(g), lienDossier: `https://drive.google.com/drive/folders/${racine.getId()}?usp=sharing` });
   assert.equal(r.id, racine.getId());
   assert.deepEqual(r.sousDossiers.map((d) => d.nom).sort(), ['1 - Design', '2 - Posters']);
-  assert.deepEqual(racine._partage, ['ANYONE_WITH_LINK', 'VIEW']);
+  assert.equal(racine.getSharingAccess(), 'PRIVATE', 'racine non publique : seuls les fichiers le sont');
   assert.equal(g.props.get('ID_PORTFOLIO'), racine.getId());
 });
 
@@ -214,10 +214,10 @@ test('installer relancé : change seulement le mot de passe', () => {
   assert.equal([...g.fichiers.values()].filter((f) => f.getName() === 'contenu.json').length, 1);
 });
 
-test('installer : le dossier Portfolio par défaut est partagé en lecture publique', () => {
+test('installer : le dossier Portfolio n\'est pas public lui-même (ses fichiers le sont un par un à la lecture)', () => {
   const g = installe();
   const racine = [...g.dossiers.values()].find((d) => d.getName() === 'Portfolio');
-  assert.deepEqual(racine._partage, ['ANYONE_WITH_LINK', 'VIEW']);
+  assert.notDeepEqual(racine._partage, ['ANYONE_WITH_LINK', 'VIEW']);
   assert.equal(g.props.get('ID_PORTFOLIO'), racine.getId());
 });
 
@@ -250,7 +250,7 @@ test('envoyerMedia image → thumbnail w1600', () => {
   assert.equal(g.post({ a: 'envoyerMedia', jeton: connecte(g), emplacement: 'image', nom: 'x.pdf', type: 'application/pdf', base64: PNG }).erreur, 'entree');
 });
 
-test('enregistrer garde l\'image d\'un intérêt et met à la corbeille l\'image retirée', () => {
+test('enregistrer garde l\'image d\'un intérêt, même retirée (médiathèque)', () => {
   const g = installe();
   const jeton = connecte(g);
   const a = g.post({ a: 'envoyerMedia', jeton, emplacement: 'image', nom: 'a.jpg', type: 'image/jpeg', base64: PNG });
@@ -264,10 +264,10 @@ test('enregistrer garde l\'image d\'un intérêt et met à la corbeille l\'image
   c.parcours.interets[1].image = null;
   assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 2, contenu: c }).version, 3);
   assert.equal(g.fichiers.get(a.id).isTrashed(), false);
-  assert.equal(g.fichiers.get(b.id).isTrashed(), true);
+  assert.equal(g.fichiers.get(b.id).isTrashed(), false, 'image retirée d\'une carte : gardée dans la médiathèque');
 });
 
-test('enregistrer garde l\'image choisie d\'un lien et met à la corbeille celle qu\'on retire', () => {
+test('enregistrer garde l\'image choisie d\'un lien, même retirée (médiathèque)', () => {
   const g = installe();
   const jeton = connecte(g);
   const a = g.post({ a: 'envoyerMedia', jeton, emplacement: 'image', nom: 'a.jpg', type: 'image/jpeg', base64: PNG });
@@ -277,7 +277,7 @@ test('enregistrer garde l\'image choisie d\'un lien et met à la corbeille celle
   assert.equal(g.fichiers.get(a.id).isTrashed(), false);
   c.liens.items[0].media = null;
   assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 2, contenu: c }).version, 3);
-  assert.equal(g.fichiers.get(a.id).isTrashed(), true);
+  assert.equal(g.fichiers.get(a.id).isTrashed(), false, 'image retirée d\'une carte : gardée dans la médiathèque');
 });
 
 test('enregistrer garde les images des domaines de l\'Accueil', () => {
@@ -290,7 +290,7 @@ test('enregistrer garde les images des domaines de l\'Accueil', () => {
   assert.equal(g.fichiers.get(a.id).isTrashed(), false);
   c.accueil.domaines[0].image = null;
   assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 2, contenu: c }).version, 3);
-  assert.equal(g.fichiers.get(a.id).isTrashed(), true);
+  assert.equal(g.fichiers.get(a.id).isTrashed(), false, 'image retirée d\'une carte : gardée dans la médiathèque');
 });
 
 test('enregistrer garde les images des certifications et des compétences', () => {
@@ -306,5 +306,254 @@ test('enregistrer garde les images des certifications et des compétences', () =
   assert.equal(g.fichiers.get(b.id).isTrashed(), false);
   c.parcours.competences[0].image = null;
   assert.equal(g.post({ a: 'enregistrer', jeton, versionDeBase: 2, contenu: c }).version, 3);
-  assert.equal(g.fichiers.get(b.id).isTrashed(), true);
+  assert.equal(g.fichiers.get(b.id).isTrashed(), false, 'image retirée d\'une carte : gardée dans la médiathèque');
+});
+
+/* ===================== v4 : médiathèque, portfolio en place, galeries Drive, cache du contenu ===================== */
+const PNG2 = PNG;
+function avecPortfolio(g) {
+  const racine = g.dossiers.get(g.props.get('ID_PORTFOLIO'));
+  const design = racine.createFolder('1 - Design');
+  design.createFile('a.jpg', 'x', 'image/jpeg');
+  return { racine, design };
+}
+function contenuAvec(g, jeton, modif) {
+  const c = g.get({ a: 'contenu' }).contenu;
+  modif(c);
+  return g.post({ a: 'enregistrer', jeton, versionDeBase: c.version, contenu: c });
+}
+
+test('contenu : servi depuis le cache Google au second appel, cache mis à jour à l\'enregistrement', () => {
+  const g = installe();
+  g.get({ a: 'contenu' });
+  const lectures = g.appels.lecturesFichier;
+  assert.equal(g.get({ a: 'contenu' }).version, 1);
+  assert.equal(g.appels.lecturesFichier, lectures, 'pas de lecture Drive');
+  const jeton = connecte(g);
+  contenuAvec(g, jeton, (c) => { c.accueil.salutation = 'Salut'; });
+  const apres = g.appels.lecturesFichier;
+  const r = g.get({ a: 'contenu' });
+  assert.equal(r.version, 2);
+  assert.equal(r.contenu.accueil.salutation, 'Salut');
+  assert.equal(g.appels.lecturesFichier, apres, 'le nouveau contenu est déjà en cache');
+});
+
+test('contenu de plus de 100 Ko : pas de cache, lecture Drive, aucune erreur', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  assert.equal(contenuAvec(g, jeton, (c) => { c.parcours.profil.texte = 'x'.repeat(120 * 1024); }).version, 2);
+  assert.equal(g.get({ a: 'contenu' }).contenu.parcours.profil.texte.length, 120 * 1024);
+});
+
+test('listerMedias : jeton requis ; fichiers de Médias, plus récents d\'abord, sans la corbeille', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  assert.equal(g.post({ a: 'listerMedias', jeton: 'faux' }).erreur, 'jeton');
+  const a = g.post({ a: 'envoyerMedia', jeton, emplacement: 'image', nom: 'a.jpg', type: 'image/jpeg', base64: PNG2 });
+  const b = g.post({ a: 'envoyerMedia', jeton, emplacement: 'cv', nom: 'cv.pdf', type: 'application/pdf', base64: PNG2 });
+  const c = g.post({ a: 'envoyerMedia', jeton, emplacement: 'image', nom: 'c.jpg', type: 'image/jpeg', base64: PNG2 });
+  g.fichiers.get(c.id).setTrashed(true);
+  const r = g.post({ a: 'listerMedias', jeton });
+  assert.deepEqual(r.medias.map((m) => m.id), [b.id, a.id]);
+  assert.match(r.medias[1].url, /thumbnail\?id=.+&sz=w1600$/);
+  assert.match(r.medias[0].url, /uc\?export=download&id=/);
+  assert.equal(r.medias[1].nom, 'a.jpg');
+  assert.equal(r.medias[1].type, 'image/jpeg');
+  assert.ok(r.medias[1].taille > 0);
+});
+
+test('supprimerMedia : refusé s\'il est utilisé (dit où), sinon à la corbeille ; hors Médias → entree', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const a = g.post({ a: 'envoyerMedia', jeton, emplacement: 'image', nom: 'a.jpg', type: 'image/jpeg', base64: PNG2 });
+  contenuAvec(g, jeton, (c) => { c.parcours.interets[0].image = { id: a.id, url: a.url }; c.accueil.domaines[1].image = { id: a.id, url: a.url }; });
+  const r = g.post({ a: 'supprimerMedia', jeton, id: a.id });
+  assert.equal(r.erreur, 'utilise');
+  assert.deepEqual([...r.emplacements].sort(), ['accueil.domaines.1.image', 'parcours.interets.0.image']);
+  assert.equal(g.fichiers.get(a.id).isTrashed(), false);
+  contenuAvec(g, jeton, (c) => { c.parcours.interets[0].image = null; c.accueil.domaines[1].image = null; });
+  assert.equal(g.post({ a: 'supprimerMedia', jeton, id: a.id }).ok, true);
+  assert.equal(g.fichiers.get(a.id).isTrashed(), true);
+  assert.equal(g.post({ a: 'supprimerMedia', jeton, id: g.props.get('ID_CONTENU') }).erreur, 'entree');
+});
+
+test('envoyerFichier : dans un dossier du portfolio → créé, partagé, cache portfolio vidé ; ailleurs → entree', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const { design } = avecPortfolio(g);
+  g.get({ a: 'portfolio' });
+  const r = g.post({ a: 'envoyerFichier', jeton, dossierId: design.getId(), nom: 'affiche.png', type: 'image/png', base64: PNG2 });
+  assert.equal(r.ok, true);
+  const f = g.fichiers.get(r.id);
+  assert.equal(f._parent, design);
+  assert.deepEqual(f._partage, ['ANYONE_WITH_LINK', 'VIEW']);
+  assert.ok(g.get({ a: 'portfolio' }).dossiers.find((d) => d.id === design.getId()).fichiers.some((x) => x.nom === 'affiche.png'));
+  const site = g.dossiers.get(g.props.get('ID_SITE'));
+  assert.equal(g.post({ a: 'envoyerFichier', jeton, dossierId: site.getId(), nom: 'x.png', type: 'image/png', base64: PNG2 }).erreur, 'entree');
+  assert.equal(g.post({ a: 'envoyerFichier', jeton, dossierId: design.getId(), nom: 'x.png', type: 'image/png', base64: Buffer.alloc(26 * 1024 * 1024).toString('base64') }).erreur, 'entree');
+});
+
+test('creerDossier / renommerDossier / supprimerDossier : seulement sous la racine du portfolio', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const { racine, design } = avecPortfolio(g);
+  const r = g.post({ a: 'creerDossier', jeton, parentId: racine.getId(), nom: '3 - Vidéos' });
+  assert.equal(r.nom, '3 - Vidéos');
+  assert.equal(g.dossiers.get(r.id)._parent, racine);
+  assert.equal(g.post({ a: 'creerDossier', jeton, parentId: racine.getId(), nom: '  ' }).erreur, 'entree');
+  assert.equal(g.post({ a: 'creerDossier', jeton, parentId: design.getId(), nom: 'Sous-sous' }).erreur, 'entree');
+  assert.equal(g.post({ a: 'renommerDossier', jeton, id: r.id, nom: '3 - Montages' }).ok, true);
+  assert.equal(g.dossiers.get(r.id).getName(), '3 - Montages');
+  assert.equal(g.post({ a: 'renommerDossier', jeton, id: racine.getId(), nom: 'X' }).erreur, 'entree');
+  assert.equal(g.post({ a: 'supprimerDossier', jeton, id: r.id }).ok, true);
+  assert.equal(g.dossiers.get(r.id).isTrashed(), true);
+  assert.equal(g.post({ a: 'supprimerDossier', jeton, id: g.props.get('ID_MEDIAS') }).erreur, 'entree');
+});
+
+test('supprimerFichier : un fichier du portfolio → corbeille ; contenu.json ou un média → entree', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const { design } = avecPortfolio(g);
+  const f = [...g.fichiers.values()].find((x) => x._parent === design);
+  assert.equal(g.post({ a: 'supprimerFichier', jeton, id: f.getId() }).ok, true);
+  assert.equal(f.isTrashed(), true);
+  assert.equal(g.post({ a: 'supprimerFichier', jeton, id: g.props.get('ID_CONTENU') }).erreur, 'entree');
+  const m = g.post({ a: 'envoyerMedia', jeton, emplacement: 'image', nom: 'a.jpg', type: 'image/jpeg', base64: PNG2 });
+  assert.equal(g.post({ a: 'supprimerFichier', jeton, id: m.id }).erreur, 'entree');
+});
+
+test('galeries Drive : dossierGalerie partage le dossier ; galerie lisible seulement si un onglet la déclare ; on peut y envoyer', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const astro = g.ctx.DriveApp.createFolder('Astronomie');
+  const lune = astro.createFolder('Lune');
+  lune.createFile('l.jpg', 'x', 'image/jpeg');
+  astro.createFile('ciel.jpg', 'x', 'image/jpeg');
+  const r = g.post({ a: 'dossierGalerie', jeton, lienDossier: `https://drive.google.com/drive/folders/${astro.getId()}` });
+  assert.equal(r.id, astro.getId());
+  assert.equal(r.nom, 'Astronomie');
+  assert.equal(astro.getSharingAccess(), 'PRIVATE');
+  assert.notEqual(g.props.get('ID_PORTFOLIO'), astro.getId());
+  assert.equal(g.get({ a: 'galerie', id: astro.getId() }).erreur, 'entree', 'pas encore déclarée dans le contenu');
+  assert.equal(g.post({ a: 'envoyerFichier', jeton, dossierId: lune.getId(), nom: 'x.png', type: 'image/png', base64: PNG2 }).erreur, 'entree');
+  contenuAvec(g, jeton, (c) => { c.onglets.perso = [{ id: 'astro', nom: 'Astronomie', type: 'drive', dossierId: astro.getId(), visible: true }]; });
+  const gal = g.get({ a: 'galerie', id: astro.getId() });
+  assert.deepEqual(gal.dossiers.map((d) => [d.nom, d.fichiers.map((x) => x.nom)]), [['Lune', ['l.jpg']]]);
+  assert.deepEqual(gal.fichiers.map((x) => x.nom), ['ciel.jpg']);
+  assert.equal(g.post({ a: 'envoyerFichier', jeton, dossierId: lune.getId(), nom: 'x.png', type: 'image/png', base64: PNG2 }).ok, true);
+  assert.equal(g.post({ a: 'creerDossier', jeton, parentId: astro.getId(), nom: 'Saturne' }).ok, true);
+  assert.equal(g.get({ a: 'galerie', id: g.props.get('ID_MEDIAS') }).erreur, 'entree');
+});
+
+test('le dossier du site et Médias ne peuvent devenir ni portfolio ni galerie ; contenu.json jamais supprimable', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  for (const cle of ['ID_SITE', 'ID_MEDIAS']) {
+    const lien = `https://drive.google.com/drive/folders/${g.props.get(cle)}`;
+    assert.equal(g.post({ a: 'dossierPortfolio', jeton, lienDossier: lien }).erreur, 'entree');
+    assert.equal(g.post({ a: 'dossierGalerie', jeton, lienDossier: lien }).erreur, 'entree');
+  }
+  contenuAvec(g, jeton, (c) => { c.onglets.perso = [{ id: 'x', nom: 'X', type: 'drive', dossierId: g.props.get('ID_SITE'), visible: true }]; });
+  assert.equal(g.post({ a: 'supprimerFichier', jeton, id: g.props.get('ID_CONTENU') }).erreur, 'entree');
+  assert.equal(g.fichiers.get(g.props.get('ID_CONTENU')).isTrashed(), false);
+  assert.equal(g.get({ a: 'galerie', id: g.props.get('ID_SITE') }).erreur, 'entree');
+});
+
+/* ===================== dossiers protégés par mot de passe ===================== */
+function portfolioProtege(g, jeton) {
+  const { racine, design } = avecPortfolio(g);
+  const prive = racine.createFolder('2 - Clients');
+  const img = prive.createFile('maquette.png', 'img', 'image/png');
+  const pdf = prive.createFile('devis.pdf', 'pdf', 'application/pdf');
+  assert.equal(g.post({ a: 'protegerDossier', jeton, id: prive.getId(), motDePasse: 'clients2026' }).ok, true);
+  return { racine, design, prive, img, pdf };
+}
+
+test('portfolio public : chaque fichier est partagé un par un à la lecture, la racine est rendue privée', () => {
+  const g = installe();
+  const { racine, design } = avecPortfolio(g);
+  racine.setSharing('ANYONE_WITH_LINK', 'VIEW');
+  g.get({ a: 'portfolio' });
+  assert.equal(racine.getSharingAccess(), 'PRIVATE');
+  [...g.fichiers.values()].filter((f) => f._parent === design).forEach((f) => assert.deepEqual(f._partage, ['ANYONE_WITH_LINK', 'VIEW']));
+});
+
+test('protegerDossier : jeton requis, mot de passe de 4 caractères au moins ; fichiers rendus privés ; liste sans fichiers', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const { racine, prive, img, pdf } = portfolioProtege(g, jeton);
+  assert.equal(g.post({ a: 'protegerDossier', jeton: 'faux', id: prive.getId(), motDePasse: 'abcd' }).erreur, 'jeton');
+  assert.equal(g.post({ a: 'protegerDossier', jeton, id: prive.getId(), motDePasse: 'abc' }).erreur, 'entree');
+  assert.equal(g.post({ a: 'protegerDossier', jeton, id: g.props.get('ID_MEDIAS'), motDePasse: 'abcd' }).erreur, 'entree');
+  assert.equal(img.getSharingAccess(), 'PRIVATE');
+  assert.equal(pdf.getSharingAccess(), 'PRIVATE');
+  assert.ok(!JSON.stringify([...g.props.values()]).includes('clients2026'), 'mot de passe jamais gardé en clair');
+  const liste = g.get({ a: 'portfolio' });
+  const d = liste.dossiers.find((x) => x.id === prive.getId());
+  assert.equal(d.protege, true);
+  assert.deepEqual(d.fichiers, []);
+  assert.equal(img.getSharingAccess(), 'PRIVATE', 'la lecture publique ne repartage pas un dossier protégé');
+  assert.ok(!JSON.stringify(g.get({ a: 'contenu' })).includes(prive.getId() + '"'), 'rien dans le contenu public');
+  void racine;
+});
+
+test('ouvrirDossier : bon mot de passe → clé 30 jours, fichiers et liens ; mauvais → mot_de_passe, bloqué après 5 échecs', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const { prive } = portfolioProtege(g, jeton);
+  assert.equal(g.post({ a: 'liensDossier', jeton, id: prive.getId(), liens: [{ titre: 'Maquette Figma', url: 'https://figma.com/x' }, { titre: 'Mauvais', url: 'javascript:alert(1)' }] }).erreur, 'entree');
+  assert.equal(g.post({ a: 'liensDossier', jeton, id: prive.getId(), liens: [{ titre: 'Maquette Figma', url: 'https://figma.com/x' }] }).ok, true);
+  const r = g.post({ a: 'ouvrirDossier', id: prive.getId(), motDePasse: 'clients2026' });
+  assert.equal(r.ok, true);
+  assert.ok(r.expire > Date.now() + 29 * 864e5);
+  assert.deepEqual(r.dossier.fichiers.map((f) => [f.nom, f.type]), [['devis.pdf', 'application/pdf'], ['maquette.png', 'image/png']]);
+  assert.ok(r.dossier.fichiers.every((f) => !f.lien && !f.apercu), 'aucune adresse Drive publique');
+  assert.deepEqual(r.dossier.liens, [{ titre: 'Maquette Figma', url: 'https://figma.com/x' }]);
+  for (let i = 0; i < 5; i++) assert.equal(g.post({ a: 'ouvrirDossier', id: prive.getId(), motDePasse: 'faux' }).erreur, 'mot_de_passe');
+  assert.equal(g.post({ a: 'ouvrirDossier', id: prive.getId(), motDePasse: 'clients2026' }).erreur, 'bloque');
+});
+
+test('fichierProtege : contenu ou miniature en base64 avec la clé ; clé d\'un autre dossier ou périmée → refusé', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const { prive, img, pdf, design } = portfolioProtege(g, jeton);
+  const { cle } = g.post({ a: 'ouvrirDossier', id: prive.getId(), motDePasse: 'clients2026' });
+  const r = g.post({ a: 'fichierProtege', id: img.getId(), cle });
+  assert.equal(r.type, 'image/png');
+  assert.equal(Buffer.from(r.base64, 'base64').toString(), 'img');
+  assert.equal(Buffer.from(g.post({ a: 'fichierProtege', id: img.getId(), cle, taille: 'apercu' }).base64, 'base64').toString(), 'mini:maquette.png');
+  assert.equal(g.post({ a: 'fichierProtege', id: pdf.getId(), cle }).type, 'application/pdf');
+  const autre = [...g.fichiers.values()].find((f) => f._parent === design);
+  assert.equal(g.post({ a: 'fichierProtege', id: autre.getId(), cle }).erreur, 'cle');
+  assert.equal(g.post({ a: 'fichierProtege', id: img.getId(), cle: 'x.y' }).erreur, 'cle');
+  /* nouveau mot de passe : les anciennes clés ne marchent plus */
+  g.post({ a: 'protegerDossier', jeton, id: prive.getId(), motDePasse: 'nouveau-mdp' });
+  assert.equal(g.post({ a: 'fichierProtege', id: img.getId(), cle }).erreur, 'cle');
+});
+
+test('protegerDossier sans mot de passe : protection retirée, fichiers de nouveau publics à la lecture', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const { prive, img } = portfolioProtege(g, jeton);
+  assert.equal(g.post({ a: 'protegerDossier', jeton, id: prive.getId(), motDePasse: '' }).ok, true);
+  const d = g.get({ a: 'portfolio' }).dossiers.find((x) => x.id === prive.getId());
+  assert.equal(d.protege, undefined);
+  assert.deepEqual(d.fichiers.map((f) => f.nom), ['devis.pdf', 'maquette.png']);
+  assert.deepEqual(img._partage, ['ANYONE_WITH_LINK', 'VIEW']);
+});
+
+test('liens d\'un dossier public : visibles dans la liste ; galerie protégée entière', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const { design } = avecPortfolio(g);
+  g.post({ a: 'liensDossier', jeton, id: design.getId(), liens: [{ titre: 'Behance', url: 'https://behance.net/amar' }] });
+  assert.deepEqual(g.get({ a: 'portfolio' }).dossiers.find((x) => x.id === design.getId()).liens, [{ titre: 'Behance', url: 'https://behance.net/amar' }]);
+  const astro = g.ctx.DriveApp.createFolder('Astronomie');
+  astro.createFile('ciel.jpg', 'x', 'image/jpeg');
+  contenuAvec(g, jeton, (c) => { c.onglets.perso = [{ id: 'astro', nom: 'Astronomie', type: 'drive', dossierId: astro.getId(), visible: true }]; });
+  assert.equal(g.post({ a: 'protegerDossier', jeton, id: astro.getId(), motDePasse: 'etoiles' }).ok, true);
+  const gal = g.get({ a: 'galerie', id: astro.getId() });
+  assert.equal(gal.protege, true);
+  assert.deepEqual(gal.fichiers, []);
+  assert.deepEqual(g.post({ a: 'ouvrirDossier', id: astro.getId(), motDePasse: 'etoiles' }).dossier.fichiers.map((f) => f.nom), ['ciel.jpg']);
 });

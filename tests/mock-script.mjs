@@ -38,8 +38,10 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       if (!d.contenu || typeof d.contenu !== 'object') return { erreur: 'entree' };
       if (Number(d.versionDeBase) !== etat.version) return { erreur: 'conflit', version: etat.version };
       etat.version += 1;
+      const ancien = etat.contenu;
       etat.contenu = { ...d.contenu, version: etat.version, updatedAt: new Date().toISOString() };
-      /* comme Code.gs : les médias envoyés que le contenu n'utilise plus partent à la corbeille */
+      /* comme Code.gs : seuls le logo, la photo, le favicon ou le CV remplacés partent à la corbeille ;
+         les images des cartes restent dans la médiathèque */
       const trouves = [];
       const parcourir = (v) => {
         if (Array.isArray(v)) { v.forEach(parcourir); return; }
@@ -48,7 +50,8 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       };
       [etat.contenu.parcours, etat.contenu.accueil, etat.contenu.liens].forEach(parcourir);
       const utilises = new Set([...Object.values(etat.contenu.medias || {}), ...trouves].filter((m) => m && m.id).map((m) => m.id));
-      etat.envoyes.filter((id) => !utilises.has(id) && !etat.corbeille.includes(id)).forEach((id) => etat.corbeille.push(id));
+      ['photo', 'logo', 'favicon', 'cv'].map((k) => ((ancien && ancien.medias) || {})[k]).filter((m) => m && m.id && !utilises.has(m.id) && !etat.corbeille.includes(m.id))
+        .forEach((m) => etat.corbeille.push(m.id));
       return { version: etat.version };
     }
     if (d.a === 'envoyerMedia') {

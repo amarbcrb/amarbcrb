@@ -32,11 +32,21 @@ Pour changer de mot de passe plus tard, refais l'étape 2 : ton contenu reste, e
 
 Si tu modifies `Code.gs` plus tard, fais **Déployer** › **Gérer les déploiements** › crayon › Version : **Nouvelle version** › **Déployer**. L'URL ne change pas.
 
+## Mettre à jour le script (quand je t'envoie un nouveau `Code.gs`)
+
+1. Ouvre ton projet sur https://script.google.com.
+2. Dans `Code.gs`, sélectionne tout le texte, efface-le et colle le nouveau fichier en entier. Laisse `const MOT_DE_PASSE_INITIAL = '';` vide.
+3. Enregistre (icône disquette).
+4. **Déployer** › **Gérer les déploiements** › crayon ✏️ › Version : **Nouvelle version** › **Déployer**.
+
+L'URL reste la même, ton contenu, ton mot de passe et tes médias ne changent pas. Ne relance pas `installer`.
+
 ## 4. Portfolio
 
 1. Dans **Site amarbcrb › Portfolio**, crée un sous-dossier par catégorie (par exemple « Design », « Posters », « Diaporamas ») et dépose-y tes fichiers.
 2. Pour choisir l'ordre, commence le nom par un numéro : « 1 - Posters », « 2 - Design ». Le numéro n'est pas affiché sur le site.
 3. Tu peux aussi utiliser un autre dossier Drive : colle son lien dans l'admin, écran **Portfolio**.
+4. Le dossier Portfolio lui-même reste privé : le script rend public chaque fichier, un par un, quand il lit le dossier. Un dossier protégé par mot de passe garde ses fichiers privés ; le site les affiche seulement après le bon mot de passe.
 
 Le site relit Drive au plus tard 5 minutes après un ajout. Le bouton **Relire Drive** de l'admin force la mise à jour tout de suite.
 
