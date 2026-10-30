@@ -35,7 +35,7 @@ function themeMemorise() { try { return localStorage.getItem('ab-theme'); } catc
 appliquerTheme(root.dataset.theme || 'dark');
 $('themeBtn').addEventListener('animationend', () => $('themeBtn').classList.remove('tourne'));
 $('themeBtn').addEventListener('click', () => {
-  $('themeBtn').classList.add('tourne');
+  if (!RM) $('themeBtn').classList.add('tourne');
   const t = root.dataset.theme === 'dark' ? 'light' : 'dark';
   try { localStorage.setItem('ab-theme', t); } catch { /* navigation privée */ }
   appliquerTheme(t);
@@ -195,8 +195,9 @@ function dessinerPage(base, anim) {
   if (document.startViewTransition) {
     const racine = document.documentElement;
     racine.dataset.sens = sens > 0 ? 'avant' : 'arriere';
+    const n = (etat.transitions = (etat.transitions || 0) + 1);
     const t = document.startViewTransition(dessiner);
-    t.finished.finally(() => { if (etat.cleBase === k) delete racine.dataset.sens; });
+    t.finished.finally(() => { if (etat.transitions === n) delete racine.dataset.sens; });
     return;
   }
   dessiner();

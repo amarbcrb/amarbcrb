@@ -32,7 +32,7 @@ export function rangee({ titre, nombre, href = null, cartes, indice = 0, couleur
     b.addEventListener('click', () => piste.scrollBy({ left: (sens === 'avant' ? 1 : -1) * piste.clientWidth * 0.9, behavior: 'smooth' }));
     return b;
   };
-  return el('section', { ...attrs, class: ['rangee', attrs.class].filter(Boolean).join(' '), style: `--i:${indice};--pc:var(${couleur})`, 'data-liste': liste, 'data-vide': cartes.length || !String(liste).startsWith('pages.') ? null : '' }, teteRangee(titre, nombre, href, editTitre),
+  return el('section', { ...attrs, class: ['rangee', attrs.class].filter(Boolean).join(' '), style: `--i:${indice};--pc:var(${couleur})`, 'data-liste': liste, 'data-vide': cartes.length || !(String(liste).startsWith('pages.') || attrs['data-vide'] === '') ? null : '' }, teteRangee(titre, nombre, href, editTitre),
     el('div', { class: 'piste-cadre' }, fleche('arriere', `Précédent : ${titre}`), piste, fleche('avant', `Suivant : ${titre}`)));
 }
 
@@ -72,7 +72,8 @@ function vueAccueil(c) {
   const parLiens = onglets.includes('liens') ? parties(c, 'liens') : [];
   /* partages « À lire » : à part, les 3 plus récents */
   const liens = parLiens.filter((p) => p.id !== 'tous' && p.id !== 'alire').flatMap((p) => p.items.map((x) => [x, p.id]));
-  const alire = ((parLiens.find((p) => p.id === 'alire') || {}).items || []).slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  /* parties() les range déjà du plus récent au plus ancien */
+  const alire = (parLiens.find((p) => p.id === 'alire') || {}).items || [];
   const rangees = [
     domaines.length && rangee({ titre: 'Ce que je fais', nombre: null, cartes: domaines.map((x, i) => carteDomaine(x, i)), couleur: '--c-teal', liste: 'accueil.domaines' }),
     liens.length && rangee({ titre: 'Projets', nombre: liens.length, href: '#liens', couleur: '--c-pink',
@@ -93,7 +94,7 @@ function vueAccueil(c) {
     cv && el('a', { class: parcoursVisible || contact ? 'btn' : 'btn pri', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV'),
   ].filter(Boolean);
   return el('section', { class: 'vt accueil' },
-    el('h1', { class: 'salut', 'data-edit': 'accueil.salutation' }, a.salutation || c.site.nom),
+    el('h1', { class: 'salut', 'data-edit': 'accueil.salutation', 'data-repli': a.salutation ? null : c.site.nom }, a.salutation || c.site.nom),
     a.intro ? el('p', { class: 'intro', 'data-edit': 'accueil.intro', 'data-multiligne': '' }, a.intro) : null,
     actions.length ? el('div', { class: 'acts' }, actions) : null,
     diapos.length ? carrousel(diapos) : null,
@@ -240,7 +241,9 @@ export function rendreVue(racine, c, { onglet, sous }, dossiers) {
       /* dossier Drive : id (édition), cadenas s'il est protégé, liens du dossier après ses fichiers */
       const cartes = x.protege ? [carteVerrou(x)] : [...x.items.map((item, k) => carte(item, { onglet, partie: x.id, c, indice: k })), ...(x.liens || []).map(carteLienDossier)];
       return rangee({ ...commun, nombre: x.protege ? '🔒' : x.items.length, cartes,
-        attrs: { 'data-dossier': x.id === 'racine' ? racineDrive : x.id, class: x.protege ? 'protege' : null } });
+        /* racine d'une galerie vide : rangée gardée pour y envoyer le premier fichier, masquée aux visiteurs */
+        attrs: { 'data-dossier': x.id === 'racine' ? racineDrive : x.id, 'data-nom': x.nom || null, class: x.protege ? 'protege' : null,
+          'data-vide': x.id === 'racine' && !x.items.length && !(x.liens || []).length ? '' : null } });
     }
     if (onglet === 'parcours' && FRISES.includes(x.id)) return rangeeFrise({ ...commun, ...marques, items: x.items, partie: x.id });
     return rangee({ ...commun, ...marques, nombre: x.items.length, cartes: x.items.map((item, k) => carte(item, { onglet, partie: x.id, c, indice: k })) });

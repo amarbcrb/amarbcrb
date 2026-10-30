@@ -28,7 +28,11 @@ async function blob(idFichier, cle, taille) {
 export async function ouvrirProtege(id, titre) {
   const cle = cleStockee(id);
   if (cle) {
-    try { montrer(id, titre, await appeler('ouvrirDossier', { id, cle })); return; } catch (err) { if (err.code === 'cle') oublierCle(id); }
+    try { montrer(id, titre, await appeler('ouvrirDossier', { id, cle })); return; } catch (err) {
+      /* clé refusée : oubliée ; autre échec (réseau) : la clé reste, on le dit */
+      if (err.code === 'cle') oublierCle(id);
+      else { demander(id, titre, MESSAGES[err.code] || MESSAGES.reseau); return; }
+    }
   }
   demander(id, titre);
 }

@@ -39,7 +39,7 @@ export function construireIndex(c, dossiersPortfolio = []) {
   });
 
   if (onglets.includes('liens')) {
-    parties(c, 'liens').filter((p) => p.id !== 'tous').forEach((p) => p.items.forEach((x) => ajouter('Lien', x.titre, x.description, format({ onglet: 'liens', sous: p.id }), x.url)));
+    parties(c, 'liens').filter((p) => p.id !== 'tous').forEach((p) => p.items.forEach((x) => ajouter('Lien', x.titre, x.description || x.avis, format({ onglet: 'liens', sous: p.id }), x.url, x.avis)));
   }
 
   if (onglets.includes('portfolio')) {
