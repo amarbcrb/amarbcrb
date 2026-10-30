@@ -35,6 +35,16 @@ export function outilsListes(ctx) {
     if (!schema) return;
     const cible = element || (objet ? ctx.contenu().contact : (tableau(l) || []).find((x) => x.id === id));
     if (!cible) return;
+    /* élément existant : ses valeurs d'avant, rétablies si la feuille est fermée sans validation réussie */
+    const avant = nouveau ? null : JSON.parse(JSON.stringify(cible));
+    const chemin = objet ? 'contact' : `${liste || l}#${cible.id}`;
+    let valide = false;
+    const retablir = () => {
+      if (!avant || valide) return;
+      Object.keys(cible).forEach((k) => { delete cible[k]; });
+      Object.assign(cible, JSON.parse(JSON.stringify(avant)));
+      ctx.noter(chemin);
+    };
     const form = formulaire({
       schema, valeurs: cible, c: ctx.contenu(), nouveau,
       onValider: (v) => {
@@ -43,10 +53,10 @@ export function outilsListes(ctx) {
           if (liste === 'liens.items') t.unshift(cible); else t.push(cible);
         }
         schema.champs.forEach((d) => { if (d.type === 'fin') { cible.fin = v.fin ?? null; cible.enCours = !!v.enCours; } else if (d.cle in v) cible[d.cle] = v[d.cle]; });
-        const chemin = objet ? 'contact' : `${liste || l}#${cible.id}`;
         ctx.noter(chemin);
         const m = erreursDe(objet ? 'contact' : cheminIndex(ctx.contenu(), chemin));
         if (Object.keys(m).length) return m;
+        valide = true;
         fermerFiche({ silencieux: true });
         ctx.rendre();
         return {};
@@ -55,12 +65,13 @@ export function outilsListes(ctx) {
         /* un nouvel élément refusé puis abandonné ne reste pas dans le brouillon */
         const t = nouveau ? tableau(liste) : null;
         if (t && t.includes(cible)) { t.splice(t.indexOf(cible), 1); ctx.noter(`${liste}#${cible.id}`); }
+        retablir();
         fermerFiche({ silencieux: true });
         ctx.rendre();
       },
     });
     /* fermée par Échap ou le fond : la page est redessinée (un nouvel élément refusé y apparaît, à corriger) */
-    ouvrirFiche({ titre: nouveau ? `Ajouter ${schema.libelle}` : `Modifier ${objet ? schema.libelle : nomDe(cible)}`, corps: form, onFerme: () => ctx.rendre() });
+    ouvrirFiche({ titre: nouveau ? `Ajouter ${schema.libelle}` : `Modifier ${objet ? schema.libelle : nomDe(cible)}`, corps: form, onFerme: () => { retablir(); ctx.rendre(); } });
   }
 
   function ajouter(liste) {

@@ -128,3 +128,23 @@ test('Accueil : repère ajouté et domaine modifié (lien « Découvrir ») → 
   assert.match(await v.innerText('#vue .reperes li >> nth=3'), /18\s+certificats Coursera/);
   assert.equal(await v.getAttribute('#vue .carrousel .diapo >> nth=1 >> a.btn', 'href'), '#portfolio');
 });
+
+test('feuille d\'un élément existant : refusée puis Annuler (ou Échap) → anciennes valeurs rétablies, rien à publier', async () => {
+  for (const sortie of ['Annuler', 'Escape']) {
+    reinit();
+    const f1 = DEFAUT().parcours.formation[0];
+    const p = await editer('/#parcours');
+    await p.click(outil(`parcours.formation#${f1.id}`, 'Modifier'));
+    await p.fill('#ficheCorps [name="titre"]', 'CHANGÉ');
+    await p.fill('#ficheCorps [name="debut"]', 'pas une date');
+    await valider(p);
+    await p.waitForSelector('#ficheCorps [data-erreur="debut"]:not(:empty)');
+    if (sortie === 'Annuler') await p.click('#ficheCorps .annuler'); else await p.keyboard.press('Escape');
+    await fermee(p);
+    const brouillon = JSON.parse(await p.evaluate(() => localStorage.getItem('ab-brouillon')) || 'null');
+    const x = brouillon ? brouillon.contenu.parcours.formation.find((y) => y.id === f1.id) : f1;
+    assert.deepEqual([x.titre, x.debut], [f1.titre, f1.debut], sortie);
+    assert.ok(!(await p.innerText('#vue')).includes('CHANGÉ'), sortie);
+    await p.close();
+  }
+});

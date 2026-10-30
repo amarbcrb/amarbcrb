@@ -345,9 +345,24 @@ function dossierParId(id) {
   try { return DriveApp.getFolderById(String(id)); } catch (_) { throw new ErreurEntree('entree'); }
 }
 
+/* vrai si id est le dossier du site, celui des médias, ou l'un de leurs dossiers parents (Mon Drive compris) */
+function contientLeSite(id) {
+  const vus = {};
+  const pile = interdits().filter(Boolean).map((x) => { try { return DriveApp.getFolderById(x); } catch (_) { return null; } }).filter(Boolean);
+  while (pile.length) {
+    const d = pile.pop();
+    if (d.getId() === id) return true;
+    if (vus[d.getId()]) continue;
+    vus[d.getId()] = true;
+    const it = d.getParents();
+    while (it.hasNext()) pile.push(it.next());
+  }
+  return false;
+}
+
 function racineChoisie(lien) {
   const id = idDepuisLien(lien);
-  if (!id || interdits().indexOf(id) >= 0) throw new ErreurEntree('entree');
+  if (!id || contientLeSite(id)) throw new ErreurEntree('entree');
   return dossierParId(id);
 }
 
@@ -371,7 +386,7 @@ function sousDossiers(racine) {
   const it = racine.getFolders();
   while (it.hasNext()) {
     const d = it.next();
-    if (!d.isTrashed()) liste.push(d);
+    if (!d.isTrashed() && interdits().indexOf(d.getId()) < 0) liste.push(d);
   }
   return liste;
 }
@@ -484,6 +499,7 @@ function creerDossier(parentId, nom) {
 /* sous-dossier direct d'une racine (jamais la racine elle-même) */
 function sousDossierAutorise(id) {
   const d = dossierParId(id);
+  if (interdits().indexOf(d.getId()) >= 0) throw new ErreurEntree('entree');
   const racine = racineDe(d);
   if (!racine || racine === d.getId()) throw new ErreurEntree('entree');
   return d;
@@ -508,7 +524,11 @@ function supprimerFichier(id) {
   if (f.getId() === proprietes().getProperty('ID_CONTENU')) throw new ErreurEntree('entree');
   const it = f.getParents();
   let autorise = false;
-  while (it.hasNext()) if (racineDe(it.next())) autorise = true;
+  while (it.hasNext()) {
+    const parent = it.next();
+    if (interdits().indexOf(parent.getId()) >= 0) throw new ErreurEntree('entree');
+    if (racineDe(parent)) autorise = true;
+  }
   if (!autorise) throw new ErreurEntree('entree');
   f.setTrashed(true);
   viderCachesDossiers();

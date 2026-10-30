@@ -183,7 +183,7 @@ function titreModifiable(c, onglet, partie) {
 
 /* dossier protégé par mot de passe : carte cadenas (les visiteurs l'ouvrent avec le mot de passe) */
 const VERROU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
-const carteVerrou = (p) => el('button', { type: 'button', class: 'vignette doc verrou', 'data-protege': p.id, 'aria-label': `Ouvrir le dossier protégé ${p.titre}` },
+const carteVerrou = (p) => el('button', { type: 'button', class: 'vignette doc verrou', 'data-protege': p.id, 'data-titre': p.titre, 'aria-label': `Ouvrir le dossier protégé ${p.titre}` },
   el('i', { html: VERROU }), el('b', {}, 'Dossier protégé'), el('small', {}, 'Mot de passe requis'));
 /* lien ajouté à un dossier Drive */
 const carteLienDossier = (l) => el('a', { class: 'vignette doc lien-dossier', href: l.url, target: '_blank', rel: 'noopener noreferrer' },
@@ -204,9 +204,11 @@ export function rendreVue(racine, c, { onglet, sous }, dossiers) {
     return;
   }
   if (drive && dossiers && dossiers.protege) {
-    /* galerie Drive entièrement protégée : un seul cadenas */
-    racine.replaceChildren(el('section', { class: `vt v-${onglet}`, style: `--tc:var(${couleurOnglet(c, onglet)})` }, el('h1', {}, titreOnglet(c, onglet)),
-      el('div', { class: 'rangee protege' }, el('div', { class: 'piste' }, carteVerrou({ id: perso.dossierId, titre: perso.nom })))));
+    /* galerie Drive entièrement protégée : un seul cadenas (rangée marquée pour les outils du mode Modifier : liens, protection) */
+    const verrou = rangee({ titre: 'Dossier protégé', href: format({ onglet }), indice: 1, couleur: couleurPartie(onglet, 'racine', 0), nombre: '🔒',
+      cartes: [carteVerrou({ id: perso.dossierId, titre: perso.nom })], attrs: { 'data-dossier': perso.dossierId, class: 'protege' } });
+    racine.replaceChildren(el('section', { class: `vt v-${onglet}`, style: `--tc:var(${couleurOnglet(c, onglet)})`, 'data-drive-racine': perso.dossierId, 'data-drive-onglet': onglet },
+      el('h1', {}, titreOnglet(c, onglet)), verrou));
     return;
   }
   const liste = parties(c, onglet, dossiers || (perso ? { dossiers: [], fichiers: [] } : []));

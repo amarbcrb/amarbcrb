@@ -89,3 +89,53 @@ test('5 échecs → message « Trop d\'essais »', async () => {
   await mdp(p, 'clients2026');
   await p.waitForSelector('#ficheCorps [role="status"]:has-text("Trop d\'essais")');
 });
+
+test('fichier autre qu\'image ou PDF (HTML, SVG) → téléchargé, jamais ouvert comme page du site', async () => {
+  reinit();
+  env.faux.etat.portfolio.dossiers[1].fichiers.push({ id: 'p3', nom: 'page.html', type: 'text/html', apercu: '', lien: '' });
+  const p = await env.page({ chemin: '/#portfolio' });
+  await p.evaluate(() => {
+    window.__ouvert = []; window.__telecharge = [];
+    window.open = (u) => { window.__ouvert.push(u); return null; };
+    HTMLAnchorElement.prototype.click = function () { window.__telecharge.push([this.download, this.href]); };
+  });
+  await ouvrirVerrou(p);
+  await mdp(p, 'clients2026');
+  await p.click('#ficheCorps button:has-text("page.html")');
+  await p.waitForFunction(() => window.__telecharge.length > 0);
+  assert.deepEqual(await p.evaluate(() => window.__ouvert), []);
+  const [nom, href] = await p.evaluate(() => window.__telecharge[0]);
+  assert.equal(nom, 'page.html');
+  assert.match(href, /^blob:/);
+});
+
+test('fichier trop lourd pour être lu → message, pas un toucher sans effet', async () => {
+  reinit();
+  env.faux.etat.portfolio.dossiers[1].fichiers.push({ id: 'p4', nom: 'film.pdf', type: 'application/pdf', apercu: '', lien: '', trop: true });
+  const p = await env.page({ chemin: '/#portfolio' });
+  await ouvrirVerrou(p);
+  await mdp(p, 'clients2026');
+  await p.click('#ficheCorps button:has-text("film.pdf")');
+  await p.waitForSelector('#ficheCorps [role="status"]:has-text("10 Mo")');
+});
+
+test('galerie Drive entièrement protégée : le cadenas ouvre le mot de passe ; en mode Modifier, la protection se retire', async () => {
+  reinit();
+  const c = env.faux.etat.contenu;
+  c.onglets.perso = [{ id: 'tabg', nom: 'Clients', icone: 'etoile', couleur: '--c-purple', type: 'drive', dossierId: 'gal', visible: true }];
+  env.faux.etat.galeries.gal = { dossiers: [], fichiers: [img('g1', 'plan.jpg')] };
+  env.faux.etat.proteges.gal = 'galerie2026';
+  const p = await env.page({ chemin: '/#tabg' });
+  await ouvrirVerrou(p);
+  await p.waitForSelector('#ficheCorps input[type="password"]');
+  assert.deepEqual(p.erreurs, []);
+  await mdp(p, 'galerie2026');
+  await p.waitForSelector('#ficheCorps .protege-contenu img[src^="blob:"]');
+  const jeton = JSON.stringify({ jeton: 'jeton-' + (Date.now() + 864e5), expire: Date.now() + 864e5 });
+  const q = await env.page({ chemin: '/#tabg', stockage: { 'ab-jeton': jeton } });
+  await q.click('#modifier');
+  q.once('dialog', (d) => d.accept(''));
+  await q.click('.outils-dossier[data-pour="gal"] .proteger');
+  await q.waitForFunction(() => !document.querySelector('#vue .vignette.verrou'));
+  assert.equal(env.faux.etat.proteges.gal, undefined);
+});

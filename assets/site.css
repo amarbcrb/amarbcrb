@@ -480,8 +480,10 @@ body.edition [data-edit]{outline:1.5px dashed color-mix(in srgb,var(--tx) 40%,tr
 body.edition [data-edit]:focus{outline:2px solid var(--acc)}
 .barre-edition{position:fixed;z-index:32;left:50%;translate:-50% 0;bottom:calc(env(safe-area-inset-bottom) + var(--navh) + 24px);width:min(560px,calc(100vw - 24px));padding:8px;border-radius:24px}
 .barre-edition .ligne{display:flex;align-items:center;gap:8px}
-.barre-edition .compte{flex:1;font-size:14px;font-weight:600;padding-left:4px}
-.barre-edition .btn{min-height:44px;padding:0 16px;font-size:14px}
+.barre-edition .compte{flex:1;min-width:0;font-size:14px;font-weight:600;padding-left:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.barre-edition .btn{min-height:44px;padding:0 16px;font-size:14px;flex-shrink:0}
+.barre-edition .ligne > .tb{flex-shrink:0}
+@media (max-width:360px){.barre-edition .btn{padding:0 12px}.barre-edition .ligne{gap:6px}}
 .barre-edition .statut{font-size:13.5px;color:var(--tx2);padding:0 8px}
 .barre-edition .statut:empty{display:none}
 .conflit-edition{padding:8px;font-size:14px}

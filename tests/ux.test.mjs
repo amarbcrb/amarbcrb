@@ -266,3 +266,16 @@ test('mode Modifier sur téléphone : outils des dossiers du Portfolio entiers �
     await p.close();
   }
 });
+
+test('barre d\'édition à 320 px : Publier, Annuler et ✕ entiers et assez grands', async () => {
+  const p = await env.page({ viewport: { width: 320, height: 700 }, stockage: { 'ab-jeton': jeton() } });
+  await p.click('#modifier');
+  await p.waitForSelector('body.edition .barre-edition');
+  const boutons = await p.$$eval('.barre-edition .ligne button', (xs) => xs.map((x) => { const r = x.getBoundingClientRect(); return [x.getAttribute('aria-label') || x.textContent, Math.round(r.left), Math.round(r.right), Math.round(r.width)]; }));
+  const largeur = await p.evaluate(() => document.querySelector('.barre-edition').getBoundingClientRect().right);
+  boutons.forEach(([nom, g, d, l]) => {
+    assert.ok(g >= 0 && d <= largeur, `${nom} hors de la barre (${g}–${d}, barre ${Math.round(largeur)})`);
+    assert.ok(l >= 44, `${nom} : ${l} px de large`);
+  });
+  await p.close();
+});

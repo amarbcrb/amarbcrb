@@ -74,6 +74,7 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       const trouve = tous.find(([, x]) => (x.fichiers || []).some((f) => f.id === d.id));
       if (!trouve || !etat.proteges[trouve[0]] || d.cle !== `cle-${trouve[0]}-${etat.proteges[trouve[0]]}`) return { erreur: 'cle' };
       const f = trouve[1].fichiers.find((x) => x.id === d.id);
+      if (f.trop) return { erreur: 'entree' };
       const octets = f.type.startsWith('image/') ? readFileSync(new URL('../favicon-512x512.png', import.meta.url)) : Buffer.from('%PDF-1.4 faux');
       return { type: f.type.startsWith('image/') ? 'image/png' : f.type, base64: octets.toString('base64') };
     }

@@ -293,7 +293,7 @@ document.addEventListener('click', (e) => {
 document.addEventListener('click', async (e) => {
   const v = e.target.closest('[data-protege]');
   if (!v || document.body.classList.contains('edition')) return;
-  const titre = (v.closest('.rangee') && v.closest('.rangee').querySelector('h2').textContent) || '';
+  const titre = v.dataset.titre || '';
   (await import('./protege.js')).ouvrirProtege(v.dataset.protege, titre);
 });
 
