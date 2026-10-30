@@ -127,6 +127,9 @@ export function appeler(action, donnees = {}) {
 export async function listerMedias() { return (await appeler('listerMedias')).medias || []; }
 export function supprimerMedia(id) { return appeler('supprimerMedia', { id }); }
 
+/* copie du navigateur après une publication depuis le site : la prochaine visite part de la version publiée */
+export function memoriserContenu(version, contenu) { ecrire(CLE_CONTENU, { version, contenu }); }
+
 export function lireJeton() {
   const j = lire(CLE_JETON);
   if (!j || typeof j.jeton !== 'string' || !(j.expire > Date.now())) return null;

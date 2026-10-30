@@ -80,8 +80,8 @@ function vueAccueil(c) {
   const contact = contactVisible(c);
   return el('section', { class: 'vt accueil' },
     diapos.length ? carrousel(diapos) : null,
-    el('h1', { class: 'salut' }, a.salutation || c.site.nom),
-    a.intro ? el('p', { class: 'intro' }, a.intro) : null,
+    el('h1', { class: 'salut', 'data-edit': 'accueil.salutation' }, a.salutation || c.site.nom),
+    a.intro ? el('p', { class: 'intro', 'data-edit': 'accueil.intro', 'data-multiligne': '' }, a.intro) : null,
     reperes.length ? el('ul', { class: 'reperes' }, reperes.map((x) => el('li', {}, compteur(x.valeur), el('span', {}, x.libelle)))) : null,
     (cv || contact) ? el('div', { class: 'acts' },
       contact ? el('a', { class: 'btn pri', href: '#contact' }, 'Me contacter') : null,

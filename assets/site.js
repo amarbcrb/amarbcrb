@@ -1,5 +1,6 @@
 /* Démarrage du site : thème, contenu, maintenance, en-tête, barre d'onglets et vues. */
-import { chargerContenu, lireJeton, lirePortfolio, lireGalerie } from './api.js';
+import { chargerContenu, lireJeton, lirePortfolio, lireGalerie, appeler, ecrireJeton, memoriserContenu } from './api.js';
+import { el } from './dom.js';
 import { ongletsVisibles, contactVisible, parties, couleurPartie, ongletPerso } from './model.js';
 import { parse, format } from './router.js';
 import { monterBarre } from './nav.js';
@@ -13,7 +14,8 @@ const root = document.documentElement;
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* drive[onglet] : données Drive du Portfolio ou d'une galerie ; undefined tant qu'elles ne sont pas lues, null si le script est en panne */
 /* base : page affichée sous une éventuelle fiche ; empilee : la fiche a sa propre entrée d'historique */
-const etat = { positions: {}, contenu: null, drive: {}, chargements: {}, barre: null, cleBarre: null, vue: null, base: null, cleBase: null, empilee: false, index: null };
+/* publie : contenu en ligne ; edition : mode édition ouvert (module chargé à la demande) */
+const etat = { publie: null, edition: null, positions: {}, contenu: null, drive: {}, chargements: {}, barre: null, cleBarre: null, vue: null, base: null, cleBase: null, empilee: false, index: null };
 const estDrive = (onglet) => onglet === 'portfolio' || (ongletPerso(etat.contenu, onglet) || {}).type === 'drive';
 /* données Drive lues (ou vides) d'un onglet, pour le routeur et les rangées */
 const donneesDrive = (onglet) => etat.drive[onglet] || (onglet === 'portfolio' ? [] : { dossiers: [], fichiers: [] });
@@ -300,16 +302,79 @@ document.addEventListener('click', async (e) => {
   try { await navigator.clipboard.writeText(b.dataset.copier); toast('E-mail copié'); } catch { location.href = 'mailto:' + b.dataset.copier; }
 });
 
+/* ---------- Édition sur le site (propriétaire) ----------
+   Appui long (1 s) sur le nom : connexion. Connecté : pastille « Modifier ». Le code d'édition n'est chargé qu'à ce moment. */
+const majPastille = () => { $('modifier').hidden = !lireJeton() || !!etat.edition; };
+const siteEdition = {
+  publie: () => ({ contenu: etat.publie, version: etat.publie.version }),
+  afficher(c) { etat.contenu = c; etat.index = null; etat.cleBase = null; if (appliquer(c)) afficher(false); },
+  apresPublication(c) { etat.publie = c; memoriserContenu(c.version, c); },
+  quitter() { etat.edition = null; siteEdition.afficher(etat.publie); majPastille(); },
+  reconnexion() { majPastille(); },
+};
+async function ouvrirEdition() {
+  if (etat.edition || !etat.publie) return;
+  const m = await import('./edition/index.js');
+  etat.edition = m.activer(siteEdition);
+  majPastille();
+}
+$('modifier').addEventListener('click', ouvrirEdition);
+
+const ERREURS_CONNEXION = { mot_de_passe: 'Mot de passe incorrect.', bloque: 'Trop d\'essais. Réessaie dans 15 minutes.', reseau: 'Connexion impossible. Vérifie ta connexion internet.' };
+function ouvrirConnexion() {
+  if (lireJeton()) { ouvrirEdition(); return; }
+  const champ = el('input', { type: 'password', id: 'mdpSite', autocomplete: 'current-password', required: true });
+  const statut = el('p', { class: 'aide', role: 'status' });
+  const bouton = el('button', { type: 'submit', class: 'btn pri' }, 'Se connecter');
+  const form = el('form', { class: 'connexion-site' }, el('label', { for: 'mdpSite' }, 'Mot de passe'), champ, bouton, statut);
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    bouton.disabled = true;
+    statut.textContent = '';
+    try {
+      const r = await appeler('connexion', { motDePasse: champ.value });
+      ecrireJeton(r.jeton, r.expire);
+      fermerFiche({ silencieux: true });
+      majPastille();
+      toast('Connecté. Touche « Modifier » pour éditer le site.');
+    } catch (err) {
+      statut.textContent = ERREURS_CONNEXION[err.code] || 'Erreur, réessaie.';
+    } finally {
+      bouton.disabled = false;
+    }
+  });
+  ouvrirFiche({ titre: 'Connexion', corps: form });
+  champ.focus();
+}
+
+/* appui long sur le nom (souris, doigt, ou Entrée maintenue) ; un toucher court garde le lien vers l'Accueil */
+(() => {
+  const nom = document.querySelector('.brand');
+  let minuteur = 0, long = false;
+  const debut = () => { long = false; clearTimeout(minuteur); minuteur = setTimeout(() => { long = true; ouvrirConnexion(); }, 1000); };
+  const fin = () => clearTimeout(minuteur);
+  nom.addEventListener('pointerdown', debut);
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach((t) => nom.addEventListener(t, fin));
+  nom.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.repeat) debut(); });
+  nom.addEventListener('keyup', (e) => { if (e.key === 'Enter') fin(); });
+  nom.addEventListener('click', (e) => { if (long) { e.preventDefault(); long = false; } });
+  nom.addEventListener('contextmenu', (e) => e.preventDefault());
+})();
+
 /* ---------- Démarrage ---------- */
 async function demarrer() {
   const { contenu } = await chargerContenu((frais) => {
+    etat.publie = frais;
+    if (etat.edition) return; /* en édition, le brouillon reste affiché */
     etat.contenu = frais;
     etat.index = null;
     etat.cleBase = null;
     if (appliquer(frais)) afficher(false);
   });
   $('chargement').hidden = true;
+  etat.publie = contenu;
   etat.contenu = contenu;
   if (appliquer(contenu)) afficher(false);
+  majPastille();
 }
 demarrer();
