@@ -6,7 +6,7 @@ import { ECRANS } from './ecrans.js';
 const $ = (id) => document.getElementById(id);
 const CLE_BROUILLON = 'ab-brouillon';
 /* rev augmente à chaque modification : un enregistrement ne vaut que pour la révision envoyée */
-const etat = { contenu: null, versionDeBase: 0, sale: false, rev: 0, ecran: 'accueil' };
+const etat = { contenu: null, versionDeBase: 0, sale: false, rev: 0, ecran: 'medias' };
 
 const MESSAGES = {
   mot_de_passe: 'Mot de passe incorrect.',

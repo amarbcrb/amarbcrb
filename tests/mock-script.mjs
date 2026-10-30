@@ -185,6 +185,11 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       if (etat.apercus[d.url] === 'panne') return { erreur: 'interne' };
       return etat.apercus[d.url] || { titre: '', description: '', image: '' };
     }
+    if (d.a === 'dossierGalerie') {
+      const m = /folders\/([\w-]+)/.exec(String(d.lienDossier || ''));
+      if (!m) return { erreur: 'entree' };
+      return { id: m[1], nom: 'Dossier ' + m[1], sousDossiers: ((etat.galeries[m[1]] || {}).dossiers || []).map((x) => ({ id: x.id, nom: x.nom })) };
+    }
     if (d.a === 'dossierPortfolio') {
       if (!d.lienDossier) return { erreur: 'entree' };
       etat.racineId = 'racine';

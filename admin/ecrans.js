@@ -1,5 +1,6 @@
-/* Écrans de l'admin : formulaires qui lisent et modifient etat.contenu par chemin (« accueil.positionnement »). */
-import { SOUS_PARCOURS, nouvelId, periode, lienSur, nomAffiche, TYPES_LIEN, DRAPEAUX } from '../assets/model.js';
+/* Écrans de l'admin (allégé) : Médias, Visibilité et maintenance, Onglets. Le reste se modifie sur le site (appui long sur le nom).
+   Formulaires qui lisent et modifient etat.contenu par chemin (« site.nom »). */
+import { SOUS_PARCOURS, nouvelId, periode, nomAffiche, ICONES_ONGLET, MAX_ONGLETS, ongletsVisibles } from '../assets/model.js';
 import { appeler, lirePortfolio } from '../assets/api.js';
 import { reduireImage, enBase64 } from './images.js';
 import { el } from '../assets/dom.js';
@@ -70,7 +71,7 @@ const ICONES = {
 const ouverts = new Map(); /* chemin de liste → index de l'élément en cours de modification */
 
 /* éditeur de liste : résumé, Visible, Modifier (panneau), Supprimer, ↑ ↓ et glisser-déposer */
-export function editeurListe(etat, modifier, rafraichir, chemin, { libelleElement, champs: defs, resume, nouveau = {}, prefixe = 'x', refuserSuppression = () => null }) {
+export function editeurListe(etat, modifier, rafraichir, chemin, { libelleElement, champs: defs, resume, nouveau = {}, prefixe = 'x', refuserSuppression = () => null, refuserAjout = () => null }) {
   const f = champs(etat, modifier);
   const liste = () => lire(etat.contenu, chemin) || [];
   const deplacer = (de, vers) => {
@@ -84,9 +85,10 @@ export function editeurListe(etat, modifier, rafraichir, chemin, { libelleElemen
   const panneau = (i) => {
     const base = `${chemin}.${i}`;
     return el('div', { class: 'edition' }, defs.map((d) => {
+      if (d.type === 'rendu') return d.rendre(base, f);
       if (d.type === 'puces') return f.listePuces(`${base}.${d.cle}`, d.libelle);
       if (d.type === 'select') return f.champSelect(`${base}.${d.cle}`, d.libelle, d.options());
-      if (d.type === 'image') return champImage(etat, modifier, `${base}.${d.cle}`, d.libelle);
+      if (d.type === 'image') return champMedia({ valeur: lire(etat.contenu, `${base}.${d.cle}`), libelle: d.libelle, cle: 'image-' + base, onChange: (v) => modifier(`${base}.${d.cle}`, v) });
       if (d.type === 'fin') {
         const bloc = f.champTexte(`${base}.fin`, d.libelle, { placeholder: 'AAAA-MM' });
         const saisie = bloc.querySelector('input');
@@ -137,6 +139,8 @@ export function editeurListe(etat, modifier, rafraichir, chemin, { libelleElemen
   });
   const ajouter = el('button', { type: 'button', class: 'btn ajouter' }, `Ajouter ${libelleElement}`);
   ajouter.addEventListener('click', () => {
+    const refus = refuserAjout();
+    if (refus) { alert(refus); return; }
     const l = liste();
     modifier(chemin, [...l, { id: nouvelId(prefixe), ...JSON.parse(JSON.stringify(nouveau)), visible: true }]);
     ouverts.set(chemin, l.length);
@@ -150,91 +154,8 @@ const ERREURS = { reseau: 'Pas de réseau. Réessaie.', jeton: 'Session expirée
 const messageErreur = (err) => ERREURS[err && err.code] || ERREURS.interne;
 const bouton = (id, texte, cls = 'btn') => el('button', { type: 'button', id, class: cls }, texte);
 
-/* ---------- Liens : ajout par URL, liste, catégories ---------- */
-const optionsType = () => [{ valeur: '', libelle: 'Automatique' }, ...Object.entries(TYPES_LIEN).map(([valeur, libelle]) => ({ valeur, libelle }))];
-function ecranLiens(racine, etat, modifier, rafraichir) {
-  const c = etat.contenu;
-  const options = () => c.liens.categories.map((x) => ({ valeur: x.id, libelle: x.nom }));
-  const saisie = (id, libelle, attrs = {}) => el('div', { class: 'champ' }, el('label', { for: id }, libelle), el(attrs.multiligne ? 'textarea' : 'input', { id, type: attrs.multiligne ? null : 'text', placeholder: attrs.placeholder || '' }));
-  const ajout = el('section', { class: 'box groupe' }, el('h2', {}, 'Ajouter un lien'),
-    el('p', { class: 'aide' }, 'Colle l\'adresse : le titre, la description et l\'image se remplissent seuls. Tu peux les corriger avant d\'ajouter.'),
-    saisie('ajoutUrl', 'Adresse', { placeholder: 'https://…' }),
-    el('div', { class: 'champ' }, el('label', { for: 'ajoutCat' }, 'Catégorie'), el('select', { id: 'ajoutCat' }, options().map((o) => el('option', { value: o.valeur }, o.libelle)))),
-    bouton('ajoutApercu', 'Récupérer l\'aperçu'),
-    saisie('ajoutTitre', 'Titre'), saisie('ajoutDesc', 'Description', { multiligne: true }), saisie('ajoutImage', 'Image de l\'aperçu (adresse)', { placeholder: 'https://…' }),
-    el('div', { class: 'champ' }, el('label', { for: 'ajoutType' }, 'Type'), el('select', { id: 'ajoutType' }, optionsType().map((o) => el('option', { value: o.valeur }, o.libelle)))),
-    el('div', { class: 'champ' }, el('span', { class: 'champ-titre' }, 'Mon image (remplace l\'aperçu, facultatif)'), el('img', { id: 'ajoutApercuImage', class: 'apercu-media', alt: '' }),
-      el('div', { class: 'acts' }, el('label', { class: 'btn', for: 'ajoutFichier' }, 'Choisir mon image')),
-      el('input', { type: 'file', accept: 'image/*', id: 'ajoutFichier' }), el('small', { id: 'ajoutFichierMessage', class: 'aide', role: 'status' })),
-    bouton('ajoutValider', 'Ajouter le lien', 'btn pri'), el('p', { id: 'ajoutMessage', class: 'aide', role: 'status' }));
-  const q = (id) => ajout.querySelector('#' + id);
-  const message = (t) => { q('ajoutMessage').textContent = t; };
-  let media = null;
-  q('ajoutFichier').addEventListener('change', async () => {
-    const f = q('ajoutFichier').files[0];
-    if (!f) return;
-    const dire = (t) => { q('ajoutFichierMessage').textContent = t; };
-    if (!f.type.startsWith('image/')) { dire('Choisis une image.'); return; }
-    try {
-      dire('Envoi de l\'image…');
-      const envoi = await reduireImage(f, 1600, 'image/jpeg');
-      const r = await appeler('envoyerMedia', { emplacement: 'image', nom: f.name, type: envoi.type, base64: envoi.base64 });
-      media = { id: r.id, url: r.url };
-      q('ajoutApercuImage').src = r.url;
-      dire('Image prête.');
-    } catch (err) {
-      dire(messageErreur(err));
-    } finally {
-      q('ajoutFichier').value = '';
-    }
-  });
-  async function apercu() {
-    const url = q('ajoutUrl').value.trim();
-    if (!lienSur(url)) { message('Adresse web invalide (https://…).'); return; }
-    message('Lecture de la page…');
-    /* un champ modifié pendant la lecture garde ce qui a été saisi */
-    const avant = ['ajoutTitre', 'ajoutDesc', 'ajoutImage'].map((id) => q(id).value);
-    const remplir = (id, i, v) => { if (q(id).value === avant[i]) q(id).value = v || ''; };
-    try {
-      const r = await appeler('apercuLien', { url });
-      remplir('ajoutTitre', 0, r.titre);
-      remplir('ajoutDesc', 1, r.description);
-      remplir('ajoutImage', 2, r.image);
-      message(r.titre ? 'Aperçu récupéré.' : 'Aperçu indisponible : remplis les champs.');
-    } catch (err) {
-      message(err.code === 'jeton' ? messageErreur(err) : 'Aperçu indisponible : remplis les champs.');
-    }
-  }
-  q('ajoutApercu').addEventListener('click', apercu);
-  q('ajoutUrl').addEventListener('change', () => { if (lienSur(q('ajoutUrl').value.trim()) && !q('ajoutTitre').value) apercu(); });
-  q('ajoutValider').addEventListener('click', () => {
-    const url = q('ajoutUrl').value.trim(), titre = q('ajoutTitre').value.trim();
-    if (!lienSur(url)) { message('Adresse web invalide (https://…).'); return; }
-    if (!titre) { message('Titre obligatoire.'); return; }
-    if (!q('ajoutCat').value) { message('Crée d\'abord une catégorie.'); return; }
-    const image = q('ajoutImage').value.trim();
-    modifier('liens.items', [...c.liens.items, { id: nouvelId('u'), url, titre, description: q('ajoutDesc').value.trim(), image: lienSur(image) ? image : '',
-      categorie: q('ajoutCat').value, date: new Date().toISOString().slice(0, 10), bouton: '', type: q('ajoutType').value, media, visible: true }]);
-    rafraichir();
-    racine.querySelector('#ajoutMessage').textContent = 'Lien ajouté. Pense à enregistrer.';
-  });
-  const liens = groupe('Liens', 'Les plus récents s\'affichent en premier sur le site.', editeurListe(etat, modifier, rafraichir, 'liens.items', {
-    libelleElement: 'un lien', prefixe: 'u', resume: (x) => x.titre, nouveau: { url: '', titre: '', description: '', image: '', categorie: (c.liens.categories[0] || {}).id || '', date: new Date().toISOString().slice(0, 10), bouton: '', type: '', media: null },
-    champs: [{ cle: 'url', libelle: 'Adresse' }, { cle: 'titre', libelle: 'Titre' }, { cle: 'description', libelle: 'Description', type: 'multiligne' },
-      { cle: 'type', libelle: 'Type', type: 'select', options: optionsType },
-      { cle: 'media', libelle: 'Mon image (remplace l\'aperçu)', type: 'image' },
-      { cle: 'image', libelle: 'Image de l\'aperçu (adresse)' }, { cle: 'bouton', libelle: 'Texte du bouton (facultatif, « Ouvrir » par défaut)' },
-      { cle: 'categorie', libelle: 'Catégorie', type: 'select', options }, { cle: 'date', libelle: 'Date (AAAA-MM-JJ)' }] }));
-  liens.dataset.bloc = 'liens';
-  const cats = groupe('Catégories', 'Chaque catégorie avec au moins un lien visible devient un sous-onglet.', editeurListe(etat, modifier, rafraichir, 'liens.categories', {
-    libelleElement: 'une catégorie', prefixe: 'cat', resume: (x) => x.nom, nouveau: { nom: '' }, champs: [{ cle: 'nom', libelle: 'Nom' }],
-    refuserSuppression: (cat) => (c.liens.items.some((x) => x.categorie === cat.id) ? `La catégorie « ${cat.nom} » contient encore des liens : déplace-les ou supprime-les d'abord.` : null) }));
-  cats.dataset.bloc = 'categories';
-  racine.replaceChildren(el('h1', {}, 'Liens'), ajout, liens, cats);
-}
-
 /* ---------- Portfolio : dossier Drive et sous-dossiers ---------- */
-function ecranPortfolio(racine, etat, modifier) {
+function groupesPortfolio(etat, modifier) {
   const f = champs(etat, modifier);
   const liste = el('div', { id: 'dossiersListe', class: 'dossiers' }, el('p', { class: 'aide' }, 'Lecture de Drive…'));
   const message = el('p', { id: 'portfolioMessage', class: 'aide', role: 'status' });
@@ -263,16 +184,11 @@ function ecranPortfolio(racine, etat, modifier) {
     dessiner(d);
     message.textContent = d ? `Drive relu : ${d.length} dossier${d.length > 1 ? 's' : ''}.` : 'Drive indisponible pour le moment.';
   });
-  racine.replaceChildren(el('h1', {}, 'Portfolio'),
-    groupe('Dossier Drive', 'Colle le lien du dossier qui contient tes sous-dossiers (Design, Posters…). Il sera partagé en lecture publique.',
-      el('div', { class: 'champ' }, el('label', { for: 'dossierLien' }, 'Lien du dossier'), lien), el('div', { class: 'acts' }, valider, relire), message),
-    groupe('Sous-dossiers', 'Chaque sous-dossier visible devient un sous-onglet du Portfolio.', liste));
   lirePortfolio().then(dessiner);
-}
-
-/* ---------- Média d'un élément (image, GIF, vidéo, YouTube) : envoyer, médiathèque ou lien ---------- */
-function champImage(etat, modifier, chemin, libelle) {
-  return champMedia({ valeur: lire(etat.contenu, chemin), libelle, cle: 'image-' + chemin.replace(/\.image$/, ''), onChange: (v) => modifier(chemin, v) });
+  return [
+    groupe('Dossier Drive du Portfolio', 'Colle le lien du dossier qui contient tes sous-dossiers (Design, Posters…). Ses fichiers sont partagés en lecture un par un.',
+      el('div', { class: 'champ' }, el('label', { for: 'dossierLien' }, 'Lien du dossier'), lien), el('div', { class: 'acts' }, valider, relire), message),
+    groupe('Dossiers du Portfolio', 'Chaque dossier visible devient une rangée du Portfolio. Fichiers, liens et mots de passe : sur le site, en mode Modifier.', liste)];
 }
 
 /* ---------- Médias : le nouveau fichier remplace l'ancien ---------- */
@@ -285,7 +201,10 @@ const MEDIAS = [
 const CV_MAX = 10 * 1024 * 1024;
 
 function ecranMedias(racine, etat, modifier) {
-  racine.replaceChildren(el('h1', {}, 'Médias'), ...MEDIAS.map((m) => {
+  const f = champs(etat, modifier);
+  const identite = groupe('Identité', 'Ton nom, en haut de chaque page, et la ligne affichée dessous dans la fiche Contact.',
+    f.champTexte('site.nom', 'Nom'), f.champTexte('site.surtitre', 'Sous le nom, dans la fiche Contact', { placeholder: 'Microbiologie · Lyon 1' }));
+  racine.replaceChildren(el('h1', {}, 'Médias'), identite, ...MEDIAS.map((m) => {
     const actuel = etat.contenu.medias[m.id];
     const apercu = m.id === 'cv'
       ? el('a', { 'data-apercu': 'cv', href: actuel && actuel.url, target: '_blank', rel: 'noopener', class: 'lnk' }, actuel ? (actuel.nom || 'CV actuel') : 'Aucun CV')
@@ -323,75 +242,60 @@ function ecranMedias(racine, etat, modifier) {
 }
 
 const TITRES_ONGLETS = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Liens', contact: 'Fiche Contact' };
+const ICONES_LIBELLES = { etoile: 'Étoile', appareil: 'Appareil photo', carte: 'Carte', livre: 'Livre', musique: 'Musique', globe: 'Globe', pinceau: 'Pinceau', flacon: 'Flacon' };
+const COULEURS_ONGLET = { '--c-blue': 'Bleu', '--c-indigo': 'Indigo', '--c-purple': 'Violet', '--c-pink': 'Rose', '--c-red': 'Rouge', '--c-orange': 'Orange',
+  '--c-yellow': 'Jaune', '--c-green': 'Vert', '--c-teal': 'Turquoise', '--c-cyan': 'Cyan' };
+const options = (o) => () => Object.entries(o).map(([valeur, libelle]) => ({ valeur, libelle }));
+
+/* ---------- Onglets : rangées libres (cartes ajoutées sur le site) ou galerie d'un dossier Drive ---------- */
+function ecranOnglets(racine, etat, modifier, rafraichir) {
+  /* lien du dossier Drive d'une galerie : le script le partage et renvoie son identifiant */
+  const galerie = (base) => {
+    const lien = el('input', { type: 'url', class: 'lien-galerie', placeholder: 'https://drive.google.com/drive/folders/…', 'aria-label': 'Lien du dossier Drive' });
+    const message = el('small', { class: 'aide', role: 'status' }, lire(etat.contenu, `${base}.dossierId`) ? 'Dossier Drive déjà choisi.' : '');
+    const valider = el('button', { type: 'button', class: 'btn pri' }, 'Utiliser ce dossier');
+    valider.addEventListener('click', async () => {
+      message.textContent = 'Connexion au dossier…';
+      try {
+        const r = await appeler('dossierGalerie', { lienDossier: lien.value.trim() });
+        modifier(`${base}.dossierId`, r.id);
+        message.textContent = `Dossier choisi : ${r.nom || r.id}. Pense à enregistrer.`;
+      } catch (err) { message.textContent = err.code === 'entree' ? 'Lien de dossier Drive non reconnu.' : messageErreur(err); }
+    });
+    const bloc = el('div', { class: 'champ galerie', hidden: lire(etat.contenu, `${base}.type`) !== 'drive' },
+      el('span', { class: 'champ-titre' }, 'Dossier Drive de la galerie'), lien, el('div', { class: 'acts' }, valider), message);
+    return bloc;
+  };
+  const type = (base, f) => {
+    const champ = f.champSelect(`${base}.type`, 'Contenu', [{ valeur: 'rangees', libelle: 'Rangées libres (cartes ajoutées sur le site)' }, { valeur: 'drive', libelle: 'Galerie Drive (images et fichiers d\'un dossier)' }]);
+    champ.querySelector('select').addEventListener('change', (e) => {
+      const g = champ.parentElement && champ.parentElement.querySelector('.galerie');
+      if (g) g.hidden = e.target.value !== 'drive';
+    });
+    return champ;
+  };
+  const liste = groupe('Mes onglets', `Chaque onglet visible s'ajoute à la barre du site, après les onglets de base (${MAX_ONGLETS} au plus en tout). Son contenu se remplit sur le site, en mode Modifier.`,
+    editeurListe(etat, modifier, rafraichir, 'onglets.perso', {
+      libelleElement: 'un onglet', prefixe: 'tab', resume: (x) => x.nom, nouveau: { nom: '', icone: 'etoile', couleur: '--c-purple', type: 'rangees', dossierId: '' },
+      champs: [{ cle: 'nom', libelle: 'Nom' }, { cle: 'icone', libelle: 'Icône', type: 'select', options: () => ICONES_ONGLET.map((v) => ({ valeur: v, libelle: ICONES_LIBELLES[v] || v })) },
+        { cle: 'couleur', libelle: 'Couleur', type: 'select', options: options(COULEURS_ONGLET) },
+        { type: 'rendu', rendre: type }, { type: 'rendu', rendre: galerie }],
+      refuserAjout: () => (ongletsVisibles(etat.contenu).length >= MAX_ONGLETS
+        ? `La barre affiche ${MAX_ONGLETS} onglets au plus : masque ou supprime un onglet avant d'en créer un autre.` : null) }));
+  liste.dataset.bloc = 'onglets';
+  racine.replaceChildren(el('h1', {}, 'Onglets'), liste);
+}
 
 export const ECRANS = [
-  { id: 'accueil', titre: 'Accueil', rendre(racine, etat, modifier, rafraichir) {
-    const f = champs(etat, modifier);
-    const c = etat.contenu;
-    const bloc = (nom, g) => { g.dataset.bloc = nom; return g; };
-    const projets = [{ valeur: '', libelle: 'Aucun' }, ...c.liens.items.map((x) => ({ valeur: x.id, libelle: x.titre }))];
-    racine.replaceChildren(el('h1', {}, 'Accueil'),
-      groupe('En-tête', 'Ton nom, en haut de chaque page.', f.champTexte('site.nom', 'Nom'),
-        f.champTexte('site.surtitre', 'Sous le nom, dans la fiche Contact', { placeholder: 'Microbiologie · Lyon 1' })),
-      groupe('Présentation', 'Ce que le visiteur lit en premier.',
-        f.champTexte('accueil.salutation', 'Salutation', { placeholder: 'Bonjour, je suis Amar' }),
-        f.champTexte('accueil.intro', 'Présentation', { multiligne: true })),
-      bloc('reperes', groupe('Repères', 'Trois chiffres ou faits marquants, affichés sous la présentation.', editeurListe(etat, modifier, rafraichir, 'accueil.reperes', {
-        libelleElement: 'un repère', prefixe: 'r', resume: (x) => `${x.valeur} ${x.libelle}`.trim(), nouveau: { valeur: '', libelle: '' },
-        champs: [{ cle: 'valeur', libelle: 'Valeur (ex. 2022, 6 ans)' }, { cle: 'libelle', libelle: 'Libellé' }] }))),
-      bloc('domaines', groupe('Ce que je fais', 'Chaque domaine devient une bannière du carrousel et une carte de la rangée « Ce que je fais ».', editeurListe(etat, modifier, rafraichir, 'accueil.domaines', {
-        libelleElement: 'un domaine', prefixe: 'd', resume: (x) => x.titre, nouveau: { titre: '', texte: '', image: null, lien: '' },
-        champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'texte', libelle: 'Texte', type: 'multiligne' }, { cle: 'image', libelle: 'Image', type: 'image' },
-          { cle: 'lien', libelle: 'Lien du bouton « Découvrir » (#portfolio, #liens… ou https://…)' }] }))),
-      groupe('Projet phare', 'Un de tes liens, en dernière bannière du carrousel.', f.champSelect('accueil.projetPhare', 'Lien mis en avant', projets)));
-  } },
-  { id: 'parcours', titre: 'Parcours', rendre(racine, etat, modifier, rafraichir) {
-    const f = champs(etat, modifier);
-    const liste = (chemin, options) => editeurListe(etat, modifier, rafraichir, chemin, options);
-    const DATES = [{ cle: 'titre', libelle: 'Titre' }, { cle: 'lieu', libelle: 'Lieu' }, { cle: 'debut', libelle: 'Début', type: 'date' },
-      { cle: 'fin', libelle: 'Fin', type: 'fin' }, { cle: 'description', libelle: 'Description', type: 'multiligne' }];
-    const NOUVEAU_DATE = { titre: '', lieu: '', debut: '', fin: null, enCours: false, description: '' };
-    const BLOCS = {
-      profil: () => [f.champTexte('parcours.profil.titre', 'Titre'), f.champTexte('parcours.profil.texte', 'Texte', { multiligne: true, aide: 'Laisse une ligne vide entre deux paragraphes.' })],
-      formation: () => liste('parcours.formation', { libelleElement: 'une formation', champs: DATES, resume: (x) => x.titre, nouveau: NOUVEAU_DATE, prefixe: 'f' }),
-      experience: () => liste('parcours.experience', { libelleElement: 'une expérience', champs: DATES, resume: (x) => x.titre, nouveau: NOUVEAU_DATE, prefixe: 'e' }),
-      engagement: () => liste('parcours.engagement', { libelleElement: 'un engagement', champs: DATES, resume: (x) => x.titre, nouveau: NOUVEAU_DATE, prefixe: 'g' }),
-      competences: () => liste('parcours.competences', { libelleElement: 'une compétence', prefixe: 'c', nouveau: { domaine: '', resume: '', techniques: [], image: null }, resume: (x) => x.domaine,
-        champs: [{ cle: 'domaine', libelle: 'Domaine' }, { cle: 'resume', libelle: 'Résumé', type: 'multiligne' }, { cle: 'techniques', libelle: 'Techniques', type: 'puces' },
-          { cle: 'image', libelle: 'Image', type: 'image' }] }),
-      langues: () => liste('parcours.langues', { libelleElement: 'une langue', prefixe: 'l', nouveau: { langue: '', niveau: '', drapeau: '' }, resume: (x) => x.langue,
-        champs: [{ cle: 'langue', libelle: 'Langue' }, { cle: 'niveau', libelle: 'Niveau' },
-          { cle: 'drapeau', libelle: 'Drapeau', type: 'select', options: () => [{ valeur: '', libelle: 'Automatique (selon la langue)' }, ...Object.entries(DRAPEAUX).map(([valeur, libelle]) => ({ valeur, libelle }))] }] }),
-      certifications: () => liste('parcours.certifications', { libelleElement: 'une certification', prefixe: 'k', nouveau: { titre: '', organisme: '', annee: '', url: '', image: null }, resume: (x) => x.titre,
-        champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'organisme', libelle: 'Organisme' }, { cle: 'annee', libelle: 'Année' },
-          { cle: 'url', libelle: 'Lien du certificat (https://…)' }, { cle: 'image', libelle: 'Affiche', type: 'image' }] }),
-      interets: () => liste('parcours.interets', { libelleElement: 'un intérêt', prefixe: 'i', nouveau: { titre: '', texte: '', image: null }, resume: (x) => x.titre,
-        champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'texte', libelle: 'Texte', type: 'multiligne' }, { cle: 'image', libelle: 'Image', type: 'image' }] }),
-    };
-    racine.replaceChildren(el('h1', {}, 'Parcours'), ...SOUS_PARCOURS.map((id) => {
-      const g = groupe(etat.contenu.onglets.parcours.sous[id].titre, '', f.interrupteur(`onglets.parcours.sous.${id}.visible`, 'Afficher sur le site'), BLOCS[id]());
-      g.dataset.bloc = id;
-      return g;
-    }));
-  } },
-  { id: 'liens', titre: 'Liens', rendre: ecranLiens },
-  { id: 'portfolio', titre: 'Portfolio', rendre: ecranPortfolio },
   { id: 'medias', titre: 'Médias', rendre: ecranMedias },
-  { id: 'contact', titre: 'Contact', rendre(racine, etat, modifier, rafraichir) {
-    const f = champs(etat, modifier);
-    racine.replaceChildren(el('h1', {}, 'Contact'),
-      groupe('Coordonnées', '', f.champTexte('contact.email', 'E-mail', { type: 'email' }), f.champTexte('contact.linkedin', 'LinkedIn', { type: 'url', placeholder: 'https://www.linkedin.com/in/…' })),
-      groupe('Autres liens', '', editeurListe(etat, modifier, rafraichir, 'contact.autres', { libelleElement: 'un lien', prefixe: 'a', nouveau: { label: '', url: '' }, resume: (x) => x.label,
-        champs: [{ cle: 'label', libelle: 'Nom' }, { cle: 'url', libelle: 'Adresse (https://…)' }] })),
-      groupe('Ouvert à', '', editeurListe(etat, modifier, rafraichir, 'contact.ouvertA', { libelleElement: 'une ligne', prefixe: 'o', nouveau: { titre: '', detail: '' }, resume: (x) => x.titre,
-        champs: [{ cle: 'titre', libelle: 'Titre' }, { cle: 'detail', libelle: 'Détail' }] })));
-  } },
   { id: 'visibilite', titre: 'Visibilité et maintenance', rendre(racine, etat, modifier) {
     const f = champs(etat, modifier);
     racine.replaceChildren(el('h1', {}, 'Visibilité et maintenance'),
       groupe('Maintenance', 'Les visiteurs ne voient que ce message. Toi, connecté ici, tu vois le site avec un bandeau.',
         f.interrupteur('site.maintenance.active', 'Site en maintenance'), f.champTexte('site.maintenance.message', 'Message', { multiligne: true })),
-      groupe('Onglets', 'Un onglet masqué disparaît de la barre du site. Fiche Contact masquée : la photo de l\'en-tête n\'ouvre plus rien.', ...Object.keys(TITRES_ONGLETS).map((id) => f.interrupteur(`onglets.${id}.visible`, TITRES_ONGLETS[id]))),
-      groupe('Parties de Parcours', '', ...SOUS_PARCOURS.map((id) => f.interrupteur(`onglets.parcours.sous.${id}.visible`, etat.contenu.onglets.parcours.sous[id].titre))));
+      groupe('Onglets', 'Un onglet masqué disparaît de la barre du site. Fiche Contact masquée : le bouton Contact disparaît. Tes onglets à toi se masquent dans l\'écran Onglets.', ...Object.keys(TITRES_ONGLETS).map((id) => f.interrupteur(`onglets.${id}.visible`, TITRES_ONGLETS[id]))),
+      groupe('Rubriques de Parcours', '', ...SOUS_PARCOURS.map((id) => f.interrupteur(`onglets.parcours.sous.${id}.visible`, etat.contenu.onglets.parcours.sous[id].titre))),
+      ...groupesPortfolio(etat, modifier));
   } },
+  { id: 'onglets', titre: 'Onglets', rendre: ecranOnglets },
 ];
