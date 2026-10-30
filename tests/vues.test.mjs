@@ -235,7 +235,7 @@ test('echappe le HTML', async () => {
   });
   const p = await env.page({ chemin: '/#parcours/interets' });
   assert.match(await p.innerText('#vue'), /<img src=x onerror="window\.pwn=1">/);
-  assert.equal(await p.locator('#vue img[src="x"], #vue img[onerror]').count(), 0);
+  assert.equal(await p.locator('#vue img').count(), 0);
   await p.goto(env.site.url + '/#liens');
   await p.waitForSelector('#vue .carte-lien');
   assert.equal(await p.locator('#vue [href^="javascript"]').count(), 0);

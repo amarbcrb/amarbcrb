@@ -6,7 +6,6 @@ import { COULEURS } from './nav.js';
 import { el } from './dom.js';
 import { carte, carteDomaine, tuileLien, typeDominant, iconeType, mediaLien } from './cartes.js';
 import { carrousel } from './carrousel.js';
-import { avecImage } from './images-integrees.js';
 
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -59,7 +58,7 @@ function rangeeFrise({ titre, href, items, partie, indice, couleur, editTitre = 
 function vueAccueil(c) {
   const a = c.accueil;
   const visibles = (l) => l.filter((x) => x.visible !== false);
-  const reperes = visibles(a.reperes), domaines = visibles(a.domaines).map((x) => avecImage('accueil.domaines', x));
+  const reperes = visibles(a.reperes), domaines = visibles(a.domaines);
   const projet = a.projetPhare && c.liens.items.find((x) => x.id === a.projetPhare && x.visible !== false);
   const onglets = ongletsVisibles(c);
   const diapos = [
@@ -94,13 +93,60 @@ function vueAccueil(c) {
     contact && el('a', { class: parcoursVisible ? 'btn' : 'btn pri', href: '#contact' }, 'Me contacter'),
     cv && el('a', { class: parcoursVisible || contact ? 'btn' : 'btn pri', href: cv, download: c.medias.cv.nom || 'CV.pdf', target: '_blank', rel: 'noopener' }, 'Télécharger mon CV'),
   ].filter(Boolean);
+  const photo = c.medias.photo && c.medias.photo.url;
+  const roles = [...domaines.map((x) => x.titre), projet && projet.titre].filter(Boolean);
+  const techniques = [...new Set(visibles(c.parcours.competences || []).flatMap((x) => x.techniques || []))].slice(0, 18);
   return el('section', { class: 'vt accueil' },
+    photo || c.site.surtitre ? el('div', { class: 'hero-tete' },
+      photo ? el('img', { class: 'avatar', src: photo, alt: '', width: 56, height: 56 }) : null,
+      c.site.surtitre ? el('span', { class: 'statut' }, el('i', { 'aria-hidden': 'true' }), el('span', {}, c.site.surtitre)) : null) : null,
     el('h1', { class: 'salut', 'data-edit': 'accueil.salutation', 'data-repli': a.salutation ? null : c.site.nom }, a.salutation || c.site.nom),
+    roles.length > 1 ? defileRoles(roles) : null,
     a.intro ? el('p', { class: 'intro', 'data-edit': 'accueil.intro', 'data-multiligne': '' }, a.intro) : null,
     actions.length ? el('div', { class: 'acts' }, actions) : null,
+    techniques.length > 3 ? bandeTechniques(techniques, onglets.includes('parcours')) : null,
     diapos.length ? carrousel(diapos) : null,
-    reperes.length ? el('ul', { class: 'reperes', 'data-liste': 'accueil.reperes' }, reperes.map((x) => el('li', { 'data-element': `accueil.reperes#${x.id}` }, compteur(x.valeur), el('span', {}, x.libelle)))) : null,
-    rangees);
+    reperes.length ? revele(el('ul', { class: 'reperes', 'data-liste': 'accueil.reperes' }, reperes.map((x, k) => el('li', { 'data-element': `accueil.reperes#${x.id}`, style: `--pc:var(${TEINTES[k % TEINTES.length]})` }, compteur(x.valeur), el('span', {}, x.libelle))))) : null,
+    rangees.map(revele));
+}
+
+const TEINTES = ['--c-blue', '--c-teal', '--c-orange', '--c-pink', '--c-purple'];
+
+/* ce que je fais, un mot à la fois (mouvement réduit : tous les mots à la suite) */
+function defileRoles(mots) {
+  if (RM) return el('p', { class: 'roles' }, mots.join(' · '));
+  const spans = mots.map((m, k) => el('span', { class: k ? null : 'on', style: `--pc:var(${TEINTES[k % TEINTES.length]})` }, m));
+  const p = el('p', { class: 'roles', 'aria-label': mots.join(', ') }, el('span', { class: 'roles-mots', 'aria-hidden': 'true' }, spans));
+  let k = 0, monte = false;
+  /* s'arrête quand la page quitte l'écran (avant d'y être insérée, on attend) */
+  const minuteur = setInterval(() => {
+    if (!p.isConnected) { if (monte) clearInterval(minuteur); return; }
+    monte = true;
+    const avant = spans[k % spans.length];
+    k += 1;
+    spans.forEach((s) => s.classList.remove('part'));
+    avant.classList.replace('on', 'part');
+    spans[k % spans.length].classList.add('on');
+  }, 2200);
+  return p;
+}
+
+/* bande de techniques qui défile en continu (la 2e copie, décorative, est cachée aux lecteurs d'écran) */
+function bandeTechniques(mots, versParcours) {
+  const puce = (m, k, cache) => el('li', { style: `--pc:var(${TEINTES[k % TEINTES.length]})`, 'aria-hidden': cache ? 'true' : null }, m);
+  const bande = el('div', { class: 'defile' }, el('ul', { 'aria-label': 'Techniques maîtrisées' }, [...mots.map((m, k) => puce(m, k)), ...mots.map((m, k) => puce(m, k, true))]));
+  return versParcours ? el('a', { class: 'defile', href: format({ onglet: 'parcours', sous: 'competences' }), 'aria-label': 'Mes compétences' }, bande.firstChild) : bande;
+}
+
+/* les blocs apparaissent en glissant vers le haut quand ils entrent à l'écran */
+const temoin = !RM && 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => {
+  if (e.isIntersecting) { e.target.classList.add('vu'); temoin.unobserve(e.target); }
+}), { rootMargin: '0px 0px -8% 0px' }) : null;
+function revele(n) {
+  if (!temoin || !n) return n;
+  n.classList.add('revele');
+  temoin.observe(n);
+  return n;
 }
 
 /* chiffre d'un repère : compte de 0 à sa valeur quand il apparaît (« 6 ans », « 18 ») ; texte final dès le départ */
