@@ -17,7 +17,7 @@ const certifs = (n) => Array.from({ length: n }, (_, i) => ({ id: 'k' + (i + 1),
 test('parcours : profil puis rangées dans l\'ordre', async () => {
   reinit();
   const p = await env.page({ chemin: '/#parcours' });
-  assert.match(await p.innerText('#vue .profil h2'), /Une formation de microbiologiste/);
+  assert.match(await p.innerText('#vue .profil h2'), /Ce que j'étudie/);
   assert.deepEqual(await titres(p, '#vue .rangee .rangee-tete h2'), ['Formation', 'Expérience', 'Compétences', 'Certifications', 'Langues', 'Engagement', 'Intérêts']);
   assert.equal(await p.getAttribute('#vue .rangee >> nth=3 >> a.voir', 'aria-label'), 'Voir tout : Certifications');
   assert.equal(await p.locator('.sous-onglets').count(), 0);
