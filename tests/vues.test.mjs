@@ -201,7 +201,7 @@ test('accueil : carrousel (domaines puis projet phare), salutation, compteurs, r
   assert.equal(await p.getAttribute('#vue .accueil .acts a:has-text("Me contacter")', 'href'), '#contact');
 });
 
-test('accueil : carrousel qui défile seul (sauf mouvement réduit), compteurs qui comptent', async () => {
+test('accueil : carrousel qui défile seul (sauf mouvement réduit), repères affichés tels quels', async () => {
   reinit();
   let p = await env.page({ mouvementReduit: false });
   /* une diapo toutes les 5 s ; marge large car, sous la charge de toute la suite, le défilement peut prendre plusieurs secondes de plus */
