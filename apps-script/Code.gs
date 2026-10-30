@@ -447,7 +447,7 @@ function dossierGalerie(lien) {
 function listerPortfolio(frais) {
   const id = proprietes().getProperty('ID_PORTFOLIO');
   if (!id) return { dossiers: [] };
-  return enCacheOuLire('portfolio', frais, () => ({ dossiers: lister(DriveApp.getFolderById(id)).dossiers }));
+  return enCacheOuLire('portfolio', frais, () => ({ racine: id, dossiers: lister(DriveApp.getFolderById(id)).dossiers }));
 }
 
 function listerGalerie(id) {

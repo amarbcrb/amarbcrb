@@ -78,7 +78,9 @@ test('sans URL de script : secours', async () => {
 
 test('lirePortfolio : dossiers, null en cas de panne, frais avec jeton', async () => {
   faux.etat.portfolio.dossiers = [{ id: 'd1', nom: 'Design', fichiers: [] }];
-  assert.deepEqual(await lirePortfolio(), [{ id: 'd1', nom: 'Design', fichiers: [] }]);
+  const lu = await lirePortfolio();
+  assert.deepEqual(lu.map((d) => [d.id, d.nom, d.fichiers]), [['d1', 'Design', []]]);
+  assert.equal(lu.racine, 'racine', 'id du dossier Portfolio, pour y créer des dossiers depuis le site');
   ecrireJeton('jeton-' + (Date.now() + 1e6), Date.now() + 1e6);
   const avant = faux.etat.appels.frais;
   await lirePortfolio({ frais: true });

@@ -153,10 +153,10 @@ $('recherche').addEventListener('click', (e) => {
 addEventListener('keydown', (e) => { if (e.key === 'Escape' && rech.ouvert) fermerRecherche(); });
 
 /* Portfolio et galeries : lus dans Drive à la première ouverture de leur onglet (ou de la recherche pour le portfolio) */
-function chargerDrive(onglet) {
+function chargerDrive(onglet, frais = false) {
   if (!etat.chargements[onglet]) {
     const perso = ongletPerso(etat.contenu, onglet);
-    etat.chargements[onglet] = (onglet === 'portfolio' ? lirePortfolio() : lireGalerie(perso.dossierId)).then((d) => {
+    etat.chargements[onglet] = (onglet === 'portfolio' ? lirePortfolio({ frais }) : lireGalerie(perso.dossierId)).then((d) => {
       etat.drive[onglet] = d;
       if (etat.vue && etat.vue.onglet === onglet) { etat.cleBase = null; afficher(false); }
       return d;
@@ -311,6 +311,14 @@ const siteEdition = {
   apresPublication(c) { etat.publie = c; memoriserContenu(c.version, c); },
   quitter() { etat.edition = null; siteEdition.afficher(etat.publie); majPastille(); },
   reconnexion() { majPastille(); },
+  /* après une opération Drive (envoi, dossier, protection) : relit le dossier et redessine */
+  async rechargerDrive(onglet) {
+    delete etat.chargements[onglet];
+    delete etat.drive[onglet];
+    await chargerDrive(onglet, true);
+    etat.cleBase = null;
+    afficher(false);
+  },
 };
 async function ouvrirEdition() {
   if (etat.edition || !etat.publie) return;

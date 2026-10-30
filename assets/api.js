@@ -111,7 +111,9 @@ export async function lirePortfolio({ frais = false } = {}) {
   const jeton = lireJeton();
   try {
     const r = await lireScript('portfolio', frais && jeton ? { frais: '1', jeton } : {});
-    return Array.isArray(r.dossiers) ? r.dossiers : [];
+    const dossiers = Array.isArray(r.dossiers) ? r.dossiers : [];
+    dossiers.racine = r.racine || ''; /* id Drive du dossier Portfolio : l'édition y crée des dossiers */
+    return dossiers;
   } catch {
     return null;
   }

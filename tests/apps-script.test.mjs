@@ -557,3 +557,8 @@ test('liens d\'un dossier public : visibles dans la liste ; galerie protégée e
   assert.deepEqual(gal.fichiers, []);
   assert.deepEqual(g.post({ a: 'ouvrirDossier', id: astro.getId(), motDePasse: 'etoiles' }).dossier.fichiers.map((f) => f.nom), ['ciel.jpg']);
 });
+
+test('portfolio : la liste donne l\'id de la racine (pour y créer un dossier depuis le site)', () => {
+  const g = installe();
+  assert.equal(g.get({ a: 'portfolio' }).racine, g.props.get('ID_PORTFOLIO'));
+});

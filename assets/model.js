@@ -228,7 +228,7 @@ export function parties(c, onglet, dossiersPortfolio = []) {
     return [...dossiersPortfolio]
       .filter((d) => !reglages[d.id] || reglages[d.id].visible !== false)
       .sort((a, b) => String(a.nom).localeCompare(String(b.nom), 'fr', { numeric: true }))
-      .map((d) => ({ id: d.id, titre: (reglages[d.id] && reglages[d.id].nom) || nomAffiche(d.nom), items: d.fichiers || [] }));
+      .map((d) => ({ id: d.id, titre: (reglages[d.id] && reglages[d.id].nom) || nomAffiche(d.nom), items: d.fichiers || [], protege: !!d.protege, liens: d.liens || [] }));
   }
   return [];
 }

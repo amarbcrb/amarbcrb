@@ -8,24 +8,46 @@ const MAX = { cv: 10 * 1024 * 1024, image: 10 * 1024 * 1024 };
 export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' } = {}) {
   const etat = {
     version: contenu.version || 1, contenu, motDePasse, echecs: 0, medias: {}, fichiersMedias: [], corbeille: [], racineId: '',
-    portfolio: { dossiers: [] }, galeries: {}, apercus: {}, envoyes: [], appels: { contenu: 0, portfolio: 0, frais: 0, enregistrer: 0 },
+    portfolio: { dossiers: [] }, galeries: {}, proteges: {}, liensDossiers: {}, fichiersDrive: {}, apercus: {}, envoyes: [], appels: { contenu: 0, portfolio: 0, frais: 0, enregistrer: 0 },
     reglages: { lent: 0, panne: false, html: false },
   };
   let n = 0;
   const jetonValide = (j) => typeof j === 'string' && /^jeton-\d+$/.test(j) && Number(j.slice(6)) > Date.now();
+
+  /* comme Code.gs : un dossier protégé n'expose ni fichiers ni liens dans la liste publique */
+  const publier = (d) => (etat.proteges[d.id] ? { id: d.id, nom: d.nom, protege: true, fichiers: [] } : { ...d, liens: etat.liensDossiers[d.id] || [] });
+  /* dossiers modifiables : racine du portfolio (« racine »), ses sous-dossiers, racines et sous-dossiers des galeries */
+  function dossierDe(id) {
+    if (id === 'racine') return { racine: true, enfants: etat.portfolio.dossiers };
+    const sous = etat.portfolio.dossiers.find((d) => d.id === id);
+    if (sous) return { dossier: sous, parent: etat.portfolio.dossiers };
+    for (const [gid, g] of Object.entries(etat.galeries)) {
+      if (gid === id) return { racine: true, enfants: g.dossiers, galerie: g };
+      const d = g.dossiers.find((x) => x.id === id);
+      if (d) return { dossier: d, parent: g.dossiers };
+    }
+    return null;
+  }
+  function fichierDe(id) {
+    const dossiers = [...etat.portfolio.dossiers, ...Object.values(etat.galeries).flatMap((g) => [...g.dossiers, { fichiers: g.fichiers || [] }])];
+    for (const d of dossiers) { const i = (d.fichiers || []).findIndex((f) => f.id === id); if (i >= 0) return { liste: d.fichiers, i }; }
+    return null;
+  }
 
   function actionGet(q) {
     if (q.get('a') === 'contenu') { etat.appels.contenu++; return { version: etat.version, contenu: { ...etat.contenu, version: etat.version } }; }
     if (q.get('a') === 'portfolio') {
       etat.appels.portfolio++;
       if (q.get('frais') === '1' && jetonValide(q.get('jeton'))) etat.appels.frais++;
-      return { dossiers: etat.portfolio.dossiers };
+      return { racine: 'racine', dossiers: etat.portfolio.dossiers.map(publier) };
     }
     if (q.get('a') === 'galerie') {
       /* comme Code.gs : seulement un dossier déclaré par un onglet « drive » du contenu */
       const declare = ((etat.contenu.onglets || {}).perso || []).some((o) => o.type === 'drive' && o.dossierId === q.get('id'));
       const g = etat.galeries[q.get('id')];
-      return declare && g ? g : { erreur: 'entree' };
+      if (!declare || !g) return { erreur: 'entree' };
+      if (etat.proteges[q.get('id')]) return { protege: true, dossiers: [], fichiers: [] };
+      return { dossiers: g.dossiers.map(publier), fichiers: g.fichiers || [], liens: etat.liensDossiers[q.get('id')] || [] };
     }
     return { erreur: 'entree' };
   }
@@ -92,6 +114,48 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       etat.corbeille.push(d.id);
       return {};
     }
+    if (d.a === 'envoyerFichier') {
+      const cible = dossierDe(d.dossierId);
+      if (!cible || !d.type || typeof d.base64 !== 'string') return { erreur: 'entree' };
+      const id = 'fichier' + (++n);
+      etat.fichiersDrive[id] = { id, type: d.type, octets: Buffer.from(d.base64, 'base64') };
+      const f = { id, nom: d.nom, type: d.type, apercu: `${base}/media/${id}`, lien: `https://drive.google.com/file/d/${id}/view` };
+      if (cible.dossier) cible.dossier.fichiers.push(f); else if (cible.galerie) (cible.galerie.fichiers = cible.galerie.fichiers || []).push(f); else return { erreur: 'entree' };
+      return f;
+    }
+    if (d.a === 'creerDossier') {
+      const cible = dossierDe(d.parentId);
+      if (!cible || !cible.racine || !String(d.nom || '').trim()) return { erreur: 'entree' };
+      const dossier = { id: 'dossier' + (++n), nom: String(d.nom).trim(), fichiers: [] };
+      cible.enfants.push(dossier);
+      return { id: dossier.id, nom: dossier.nom };
+    }
+    if (d.a === 'renommerDossier' || d.a === 'supprimerDossier') {
+      const cible = dossierDe(d.id);
+      if (!cible || !cible.dossier) return { erreur: 'entree' };
+      if (d.a === 'supprimerDossier') { cible.parent.splice(cible.parent.indexOf(cible.dossier), 1); return {}; }
+      if (!String(d.nom || '').trim()) return { erreur: 'entree' };
+      cible.dossier.nom = String(d.nom).trim();
+      return { id: cible.dossier.id, nom: cible.dossier.nom };
+    }
+    if (d.a === 'supprimerFichier') {
+      const f = fichierDe(d.id);
+      if (!f) return { erreur: 'entree' };
+      f.liste.splice(f.i, 1);
+      return {};
+    }
+    if (d.a === 'protegerDossier') {
+      if (!dossierDe(d.id)) return { erreur: 'entree' };
+      if (!d.motDePasse) { delete etat.proteges[d.id]; return { protege: false }; }
+      if (String(d.motDePasse).length < 4) return { erreur: 'entree' };
+      etat.proteges[d.id] = d.motDePasse;
+      return { protege: true };
+    }
+    if (d.a === 'liensDossier') {
+      if (!dossierDe(d.id) || !Array.isArray(d.liens) || d.liens.some((l) => !/^https?:\/\//i.test(String(l && l.url)))) return { erreur: 'entree' };
+      etat.liensDossiers[d.id] = d.liens.map((l) => ({ titre: String(l.titre || l.url), url: l.url }));
+      return { liens: etat.liensDossiers[d.id] };
+    }
     if (d.a === 'apercuLien') {
       if (!/^https?:\/\//.test(String(d.url))) return { erreur: 'entree' };
       if (etat.apercus[d.url] === 'panne') return { erreur: 'interne' };
@@ -122,7 +186,7 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       if (etat.reglages.lent) setTimeout(fin, etat.reglages.lent); else fin();
     };
     if (url.pathname.startsWith('/media/')) {
-      const m = [...Object.values(etat.medias), ...etat.fichiersMedias].find((x) => x.id === url.pathname.slice(7));
+      const m = [...Object.values(etat.medias), ...etat.fichiersMedias, ...Object.values(etat.fichiersDrive)].find((x) => x.id === url.pathname.slice(7));
       res.writeHead(m ? 200 : 404, { 'Content-Type': m ? m.type : 'text/plain', 'Access-Control-Allow-Origin': '*' });
       res.end(m ? m.octets : '');
       return;

@@ -18,12 +18,13 @@ const FRISES = ['formation', 'experience'];
 const ICONES = {
   suite: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>',
   retour: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>',
+  lien: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
 };
 const nElements = (n) => `${n} élément${n > 1 ? 's' : ''}`;
 
 /* rangée horizontale : titre, nombre, bouton › vers Voir tout (si href), au plus 10 cartes puis « Voir tout (N) » */
 /* liste : chemin de la liste affichée (édition : « + Ajouter ») ; editTitre : chemin du titre modifiable */
-export function rangee({ titre, nombre, href = null, cartes, indice = 0, couleur = '--c-blue', liste = null, editTitre = null }) {
+export function rangee({ titre, nombre, href = null, cartes, indice = 0, couleur = '--c-blue', liste = null, editTitre = null, attrs = {} }) {
   const piste = el('div', { class: 'piste' }, cartes.slice(0, MAX_RANGEE),
     cartes.length > MAX_RANGEE && href ? el('a', { class: 'carte carte-plus', href }, `Voir tout (${cartes.length})`) : null);
   const fleche = (sens, libelle) => {
@@ -31,7 +32,7 @@ export function rangee({ titre, nombre, href = null, cartes, indice = 0, couleur
     b.addEventListener('click', () => piste.scrollBy({ left: (sens === 'avant' ? 1 : -1) * piste.clientWidth * 0.9, behavior: 'smooth' }));
     return b;
   };
-  return el('section', { class: 'rangee', style: `--i:${indice};--pc:var(${couleur})`, 'data-liste': liste, 'data-vide': cartes.length || !String(liste).startsWith('pages.') ? null : '' }, teteRangee(titre, nombre, href, editTitre),
+  return el('section', { ...attrs, class: ['rangee', attrs.class].filter(Boolean).join(' '), style: `--i:${indice};--pc:var(${couleur})`, 'data-liste': liste, 'data-vide': cartes.length || !String(liste).startsWith('pages.') ? null : '' }, teteRangee(titre, nombre, href, editTitre),
     el('div', { class: 'piste-cadre' }, fleche('arriere', `Précédent : ${titre}`), piste, fleche('avant', `Suivant : ${titre}`)));
 }
 
@@ -180,6 +181,14 @@ function titreModifiable(c, onglet, partie) {
   return perso && perso.type === 'rangees' ? `pages.${onglet}.rangees#${partie}.titre` : null;
 }
 
+/* dossier protégé par mot de passe : carte cadenas (les visiteurs l'ouvrent avec le mot de passe) */
+const VERROU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+const carteVerrou = (p) => el('button', { type: 'button', class: 'vignette doc verrou', 'data-protege': p.id, 'aria-label': `Ouvrir le dossier protégé ${p.titre}` },
+  el('i', { html: VERROU }), el('b', {}, 'Dossier protégé'), el('small', {}, 'Mot de passe requis'));
+/* lien ajouté à un dossier Drive */
+const carteLienDossier = (l) => el('a', { class: 'vignette doc lien-dossier', href: l.url, target: '_blank', rel: 'noopener noreferrer' },
+  el('i', { html: ICONES.lien }), el('b', {}, l.titre), el('small', {}, (() => { try { return new URL(l.url).hostname.replace(/^www\./, ''); } catch { return ''; } })()));
+
 /* titre et couleur d'un onglet, intégré ou créé dans l'admin */
 const titreOnglet = (c, onglet) => TITRES[onglet] || (ongletPerso(c, onglet) || {}).nom || '';
 const couleurOnglet = (c, onglet) => COULEURS[onglet] || ((ongletPerso(c, onglet) || {}).couleur || '').replace(/[^\w-]/g, '') || '--c-purple';
@@ -195,17 +204,24 @@ export function rendreVue(racine, c, { onglet, sous }, dossiers) {
     return;
   }
   const liste = parties(c, onglet, dossiers || (perso ? { dossiers: [], fichiers: [] } : []));
+  const racineDrive = drive ? (onglet === 'portfolio' ? (dossiers && dossiers.racine) || '' : perso.dossierId) : null;
   const n = sous ? liste.findIndex((x) => x.id === sous) : -1;
   if (n >= 0) { racine.replaceChildren(voirTout(onglet, liste[n], c, couleurPartie(onglet, sous, n))); return; }
   if (onglet === 'liens') { racine.replaceChildren(vueLiens(c, liste)); return; }
   const rangees = liste.map((x, i) => {
     const commun = { titre: x.titre, href: format({ onglet, sous: x.id }), indice: i + 1, couleur: couleurPartie(onglet, x.id, i) };
     const marques = { liste: listeDe(c, onglet, x.id), editTitre: titreModifiable(c, onglet, x.id) };
+    if (drive) {
+      /* dossier Drive : id (édition), cadenas s'il est protégé, liens du dossier après ses fichiers */
+      const cartes = x.protege ? [carteVerrou(x)] : [...x.items.map((item, k) => carte(item, { onglet, partie: x.id, c, indice: k })), ...(x.liens || []).map(carteLienDossier)];
+      return rangee({ ...commun, nombre: x.protege ? '🔒' : x.items.length, cartes,
+        attrs: { 'data-dossier': x.id === 'racine' ? racineDrive : x.id, class: x.protege ? 'protege' : null } });
+    }
     if (onglet === 'parcours' && FRISES.includes(x.id)) return rangeeFrise({ ...commun, ...marques, items: x.items, partie: x.id });
     return rangee({ ...commun, ...marques, nombre: x.items.length, cartes: x.items.map((item, k) => carte(item, { onglet, partie: x.id, c, indice: k })) });
   });
   const rangeesLibres = perso && perso.type === 'rangees' ? `pages.${onglet}.rangees` : null;
-  racine.replaceChildren(el('section', { class: `vt v-${onglet}`, style: `--tc:var(${couleurOnglet(c, onglet)})`, 'data-liste': rangeesLibres }, el('h1', {}, titreOnglet(c, onglet)),
+  racine.replaceChildren(el('section', { class: `vt v-${onglet}`, style: `--tc:var(${couleurOnglet(c, onglet)})`, 'data-liste': rangeesLibres, 'data-drive-racine': drive ? racineDrive : null, 'data-drive-onglet': drive ? onglet : null }, el('h1', {}, titreOnglet(c, onglet)),
     onglet === 'parcours' ? profil(c) : null,
     rangees.length ? rangees : el('p', { class: 'vide' }, VIDES[onglet] || 'Bientôt disponible.')));
 }

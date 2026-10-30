@@ -130,7 +130,7 @@ function carteBrute(x, { onglet, partie, c, indice = 0 }) {
       return el('button', { class: 'vignette', type: 'button', 'data-dossier': partie, 'data-fichier': x.id, 'aria-label': 'Agrandir ' + x.nom, style },
         el('img', { src: x.apercu, alt: sansExtension(x.nom), loading: 'lazy' }));
     }
-    return el(lienSur(x.lien) ? 'a' : 'div', { class: 'vignette doc', href: x.lien, target: '_blank', rel: 'noopener', style },
+    return el(lienSur(x.lien) ? 'a' : 'div', { class: 'vignette doc', href: x.lien, target: '_blank', rel: 'noopener', style, 'data-fichier': x.id },
       el('i', { html: FICHIER }), el('b', {}, x.nom), el('small', {}, 'Ouvrir dans Drive'));
   }
   if (DATEES.includes(partie)) {
