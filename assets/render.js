@@ -6,6 +6,7 @@ import { COULEURS } from './nav.js';
 import { el } from './dom.js';
 import { carte, carteDomaine, tuileLien, typeDominant, iconeType, mediaLien } from './cartes.js';
 import { carrousel } from './carrousel.js';
+import { avecImage } from './images-integrees.js';
 
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -58,7 +59,7 @@ function rangeeFrise({ titre, href, items, partie, indice, couleur, editTitre = 
 function vueAccueil(c) {
   const a = c.accueil;
   const visibles = (l) => l.filter((x) => x.visible !== false);
-  const reperes = visibles(a.reperes), domaines = visibles(a.domaines);
+  const reperes = visibles(a.reperes), domaines = visibles(a.domaines).map((x) => avecImage('accueil.domaines', x));
   const projet = a.projetPhare && c.liens.items.find((x) => x.id === a.projetPhare && x.visible !== false);
   const onglets = ongletsVisibles(c);
   const diapos = [
