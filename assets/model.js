@@ -228,16 +228,16 @@ export function parties(c, onglet, dossiersPortfolio = []) {
   if (perso && perso.type === 'drive') {
     /* dossiersPortfolio : réponse ?a=galerie { dossiers, fichiers } ; les fichiers de la racine forment la première rangée */
     const liste = dossiersPortfolio && !Array.isArray(dossiersPortfolio) ? dossiersPortfolio : { dossiers: dossiersPortfolio || [], fichiers: [] };
-    const racine = (liste.fichiers || []).length ? [{ id: 'racine', titre: perso.nom, items: liste.fichiers }] : [];
+    const racine = [{ id: 'racine', titre: perso.nom, items: liste.fichiers || [], liens: liste.liens || [] }];
     return racine.concat([...(liste.dossiers || [])].sort((a, b) => String(a.nom).localeCompare(String(b.nom), 'fr', { numeric: true }))
-      .map((d) => ({ id: d.id, titre: nomAffiche(d.nom), items: d.fichiers || [], protege: !!d.protege, liens: d.liens || [] })));
+      .map((d) => ({ id: d.id, nom: d.nom, titre: nomAffiche(d.nom), items: d.fichiers || [], protege: !!d.protege, liens: d.liens || [] })));
   }
   if (onglet === 'portfolio') {
     const reglages = c.portfolio.dossiers;
     return [...dossiersPortfolio]
       .filter((d) => !reglages[d.id] || reglages[d.id].visible !== false)
       .sort((a, b) => String(a.nom).localeCompare(String(b.nom), 'fr', { numeric: true }))
-      .map((d) => ({ id: d.id, titre: (reglages[d.id] && reglages[d.id].nom) || nomAffiche(d.nom), items: d.fichiers || [], protege: !!d.protege, liens: d.liens || [] }));
+      .map((d) => ({ id: d.id, nom: d.nom, titre: (reglages[d.id] && reglages[d.id].nom) || nomAffiche(d.nom), items: d.fichiers || [], protege: !!d.protege, liens: d.liens || [] }));
   }
   return [];
 }

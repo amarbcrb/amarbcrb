@@ -83,8 +83,10 @@ export function outilsDossiers(ctx) {
       const titre = r.querySelector('h2').textContent;
       const outils = el('span', { class: 'outils-edition outils-dossier', 'data-pour': id });
       if (!estRacine) outils.append(bouton('renommer', `Renommer : ${titre}`, () => {
-        const nom = prompt('Nouveau nom du dossier :', titre);
-        if (nom && nom.trim() && nom.trim() !== titre) operation(onglet, 'Renommage…', () => appeler('renommerDossier', { id, nom: nom.trim() }));
+        /* nom Drive complet : le numéro d'ordre (« 2 - ») reste proposé */
+        const brut = r.dataset.nom || titre;
+        const nom = prompt('Nouveau nom du dossier :', brut);
+        if (nom && nom.trim() && nom.trim() !== brut) operation(onglet, 'Renommage…', () => appeler('renommerDossier', { id, nom: nom.trim() }));
       }));
       outils.append(bouton('liens', `Liens : ${titre}`, () => editerLiens(onglet, id, [...r.querySelectorAll('a.lien-dossier')].map((a) => ({ titre: a.querySelector('b').textContent, url: a.href })))));
       outils.append(bouton('proteger', `Protéger : ${titre}`, () => {

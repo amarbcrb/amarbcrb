@@ -41,6 +41,8 @@ export function activer(site) {
         const chemin = x.dataset.edit;
         const valeur = multiligne ? x.innerText.replace(/\n{3,}/g, '\n\n').trim() : x.textContent.replace(/\s+/g, ' ').trim();
         if (valeur === (lireChemin(b.contenu, chemin) ?? '')) return;
+        /* texte affiché par défaut (champ vide) laissé tel quel : rien à enregistrer */
+        if (x.dataset.repli !== undefined && valeur === x.dataset.repli && !lireChemin(b.contenu, chemin)) return;
         if (ecrireChemin(b.contenu, chemin, valeur)) noter(chemin);
       });
     });
@@ -70,7 +72,8 @@ export function activer(site) {
         barre.conflit({
           onRecharger: async () => {
             if (!confirm('Abandonner tes modifications et charger la version en ligne ?')) return;
-            const frais = await lireContenuFrais();
+            let frais;
+            try { frais = await lireContenuFrais(); } catch { barre.dire('Connexion impossible : tes modifications sont gardées. Réessaie.'); return; }
             site.apresPublication(cloner(frais.contenu));
             effacerBrouillon();
             b = { versionDeBase: frais.version, contenu: cloner(frais.contenu), chemins: [] };
