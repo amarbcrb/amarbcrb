@@ -2,7 +2,8 @@
 import { lienSur } from './model.js';
 
 const hrefSur = (v) => lienSur(v) || /^#/.test(v) || /^mailto:[^\s]+$/.test(v);
-const srcSur = (v) => lienSur(v) || /^\/(?!\/)/.test(v) || /^data:image\//.test(v);
+/* blob: : adresses créées par la page elle-même (fichiers de dossiers protégés) */
+const srcSur = (v) => lienSur(v) || /^\/(?!\/)/.test(v) || /^data:image\//.test(v) || /^blob:/.test(v);
 
 /* crée un élément : attrs (class, href, src… filtrés), enfants = nœuds ou textes */
 export function el(tag, attrs = {}, ...enfants) {

@@ -203,6 +203,12 @@ export function rendreVue(racine, c, { onglet, sous }, dossiers) {
       el('p', { class: 'vide' }, dossiers === null ? `${titreOnglet(c, onglet)} momentanément indisponible.` : `Chargement…`)));
     return;
   }
+  if (drive && dossiers && dossiers.protege) {
+    /* galerie Drive entièrement protégée : un seul cadenas */
+    racine.replaceChildren(el('section', { class: `vt v-${onglet}`, style: `--tc:var(${couleurOnglet(c, onglet)})` }, el('h1', {}, titreOnglet(c, onglet)),
+      el('div', { class: 'rangee protege' }, el('div', { class: 'piste' }, carteVerrou({ id: perso.dossierId, titre: perso.nom })))));
+    return;
+  }
   const liste = parties(c, onglet, dossiers || (perso ? { dossiers: [], fichiers: [] } : []));
   const racineDrive = drive ? (onglet === 'portfolio' ? (dossiers && dossiers.racine) || '' : perso.dossierId) : null;
   const n = sous ? liste.findIndex((x) => x.id === sous) : -1;

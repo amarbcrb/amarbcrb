@@ -71,7 +71,7 @@ function doPost(e) {
     try { d = JSON.parse(e.postData.contents); } catch (_) { throw new ErreurEntree('entree'); }
     if (!d || typeof d !== 'object') throw new ErreurEntree('entree');
     if (d.a === 'connexion') return connexion(d.motDePasse);
-    if (d.a === 'ouvrirDossier') return ouvrirDossier(d.id, d.motDePasse);
+    if (d.a === 'ouvrirDossier') return ouvrirDossier(d.id, d.motDePasse, d.cle);
     if (d.a === 'fichierProtege') return fichierProtege(d.id, d.cle, d.taille);
     if (!verifierJeton(d.jeton)) throw new ErreurEntree('jeton');
     if (d.a === 'enregistrer') return enregistrer(d.versionDeBase, d.contenu);
@@ -583,7 +583,12 @@ function verifierCle(id, cle) {
   return signerCle(id, Number(exp)) === cle;
 }
 
-function ouvrirDossier(id, mdp) {
+/* mot de passe du dossier, ou clé déjà reçue (le visiteur n'a pas à le retaper pendant 30 jours) */
+function ouvrirDossier(id, mdp, cle) {
+  if (cle !== undefined && cle !== null) {
+    if (!verifierCle(String(id), cle)) throw new ErreurEntree('cle');
+    return contenuProtege(dossierParId(id), Number(String(cle).split('.')[0]), cle);
+  }
   const cache = CacheService.getScriptCache();
   const cleEchecs = 'echecs:' + id;
   const echecs = Number(cache.get(cleEchecs) || 0);
@@ -596,10 +601,14 @@ function ouvrirDossier(id, mdp) {
   }
   cache.remove(cleEchecs);
   const dossier = dossierParId(id);
-  const nus = (d) => fichiersBruts(d).map((f) => ({ id: f.getId(), nom: f.getName(), type: f.getMimeType() }));
   const expire = Date.now() + DUREE_JETON_MS;
+  return contenuProtege(dossier, expire, signerCle(dossier.getId(), expire));
+}
+
+function contenuProtege(dossier, expire, cle) {
+  const nus = (d) => fichiersBruts(d).map((f) => ({ id: f.getId(), nom: f.getName(), type: f.getMimeType() }));
   return {
-    cle: signerCle(dossier.getId(), expire), expire: expire,
+    cle: cle, expire: expire,
     dossier: {
       id: dossier.getId(), nom: dossier.getName(), fichiers: nus(dossier), liens: liensDe(dossier.getId()),
       dossiers: sousDossiers(dossier).map((d) => ({ id: d.getId(), nom: d.getName(), fichiers: nus(d), liens: liensDe(d.getId()) })),

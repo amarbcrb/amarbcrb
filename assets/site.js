@@ -289,6 +289,14 @@ document.addEventListener('click', (e) => {
   ouvrirVisionneuse(images, Math.max(0, images.findIndex((f) => f.id === v.dataset.fichier)), v);
 });
 
+/* dossier protégé : le code de déverrouillage n'est chargé qu'au toucher du cadenas */
+document.addEventListener('click', async (e) => {
+  const v = e.target.closest('[data-protege]');
+  if (!v || document.body.classList.contains('edition')) return;
+  const titre = (v.closest('.rangee') && v.closest('.rangee').querySelector('h2').textContent) || '';
+  (await import('./protege.js')).ouvrirProtege(v.dataset.protege, titre);
+});
+
 /* appui sur une carte : petite vibration là où elle existe */
 document.addEventListener('pointerdown', (e) => { if (e.target.closest('.carte, .vignette')) { try { navigator.vibrate && navigator.vibrate(8); } catch { /* sans vibreur */ } } });
 

@@ -562,3 +562,13 @@ test('portfolio : la liste donne l\'id de la racine (pour y créer un dossier de
   const g = installe();
   assert.equal(g.get({ a: 'portfolio' }).racine, g.props.get('ID_PORTFOLIO'));
 });
+
+test('ouvrirDossier avec la clé (sans mot de passe) : rouvre le dossier ; clé périmée par un nouveau mot de passe → cle', () => {
+  const g = installe();
+  const jeton = connecte(g);
+  const { prive } = portfolioProtege(g, jeton);
+  const { cle } = g.post({ a: 'ouvrirDossier', id: prive.getId(), motDePasse: 'clients2026' });
+  assert.deepEqual(g.post({ a: 'ouvrirDossier', id: prive.getId(), cle }).dossier.fichiers.map((f) => f.nom), ['devis.pdf', 'maquette.png']);
+  g.post({ a: 'protegerDossier', jeton, id: prive.getId(), motDePasse: 'autre-mdp' });
+  assert.equal(g.post({ a: 'ouvrirDossier', id: prive.getId(), cle }).erreur, 'cle');
+});

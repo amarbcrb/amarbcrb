@@ -8,7 +8,7 @@ const MAX = { cv: 10 * 1024 * 1024, image: 10 * 1024 * 1024 };
 export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' } = {}) {
   const etat = {
     version: contenu.version || 1, contenu, motDePasse, echecs: 0, medias: {}, fichiersMedias: [], corbeille: [], racineId: '',
-    portfolio: { dossiers: [] }, galeries: {}, proteges: {}, liensDossiers: {}, fichiersDrive: {}, apercus: {}, envoyes: [], appels: { contenu: 0, portfolio: 0, frais: 0, enregistrer: 0 },
+    portfolio: { dossiers: [] }, galeries: {}, proteges: {}, echecsDossiers: {}, liensDossiers: {}, fichiersDrive: {}, apercus: {}, envoyes: [], appels: { contenu: 0, portfolio: 0, frais: 0, enregistrer: 0 },
     reglages: { lent: 0, panne: false, html: false },
   };
   let n = 0;
@@ -53,6 +53,30 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
   }
 
   function actionPost(d) {
+    /* dossiers protégés : sans jeton ; clé = « cle-<dossier>-<mot de passe> » (un nouveau mot de passe l'invalide) */
+    if (d.a === 'ouvrirDossier') {
+      const mdp = etat.proteges[d.id];
+      if (!mdp) return { erreur: 'entree' };
+      const cle = `cle-${d.id}-${mdp}`;
+      if (d.cle !== undefined) { if (d.cle !== cle) return { erreur: 'cle' }; }
+      else {
+        if ((etat.echecsDossiers[d.id] || 0) >= 5) return { erreur: 'bloque' };
+        if (d.motDePasse !== mdp) { etat.echecsDossiers[d.id] = (etat.echecsDossiers[d.id] || 0) + 1; return { erreur: 'mot_de_passe' }; }
+      }
+      const cible = dossierDe(d.id);
+      const dossier = cible.dossier || { id: d.id, nom: 'Galerie', fichiers: (cible.galerie && cible.galerie.fichiers) || [] };
+      const nus = (x) => (x.fichiers || []).map((f) => ({ id: f.id, nom: f.nom, type: f.type }));
+      return { cle, expire: Date.now() + 30 * 864e5,
+        dossier: { id: d.id, nom: dossier.nom, fichiers: nus(dossier), liens: etat.liensDossiers[d.id] || [], dossiers: cible.galerie ? cible.galerie.dossiers.map((x) => ({ id: x.id, nom: x.nom, fichiers: nus(x), liens: [] })) : [] } };
+    }
+    if (d.a === 'fichierProtege') {
+      const tous = [...etat.portfolio.dossiers.map((x) => [x.id, x]), ...Object.entries(etat.galeries).flatMap(([gid, g]) => [[gid, { fichiers: g.fichiers || [] }], ...g.dossiers.map((x) => [gid, x])])];
+      const trouve = tous.find(([, x]) => (x.fichiers || []).some((f) => f.id === d.id));
+      if (!trouve || !etat.proteges[trouve[0]] || d.cle !== `cle-${trouve[0]}-${etat.proteges[trouve[0]]}`) return { erreur: 'cle' };
+      const f = trouve[1].fichiers.find((x) => x.id === d.id);
+      const octets = f.type.startsWith('image/') ? readFileSync(new URL('../favicon-512x512.png', import.meta.url)) : Buffer.from('%PDF-1.4 faux');
+      return { type: f.type.startsWith('image/') ? 'image/png' : f.type, base64: octets.toString('base64') };
+    }
     if (d.a === 'connexion') {
       if (etat.echecs >= 5) return { erreur: 'bloque' };
       if (d.motDePasse !== etat.motDePasse) { etat.echecs++; return { erreur: 'mot_de_passe' }; }
