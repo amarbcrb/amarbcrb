@@ -15,6 +15,14 @@
 <link rel="icon" id="favicon" type="image/png" sizes="512x512" href="/favicon-512x512.png">
 <link rel="apple-touch-icon" href="/favicon-512x512.png">
 <link rel="preload" href="/assets/fonts/inter-tight-latin.woff2" as="font" type="font/woff2" crossorigin>
+<!-- contenu : la page demande le contenu au script Google tout de suite, avant de charger son code (assets/api.js réutilise cette requête) -->
+<meta name="script-url" content="https://script.google.com/macros/s/AKfycbwwKligwXdqy6He3f1FSPIuKgK9U4DReUuavFR6LEfb7CrhYWdtkHkuqM-A-oisEdK-/exec">
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
+<script>(function () {
+  var m = document.querySelector('meta[name="script-url"]'), u = m && m.content;
+  if (u) window.__contenu = fetch(u + '?a=contenu', { redirect: 'follow' }).then(function (r) { return r.json(); });
+})();</script>
 <!-- Open Graph -->
 <meta property="og:type" content="profile">
 <meta property="og:site_name" content="Amar Bouchareb">
@@ -52,7 +60,13 @@ document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme: li
 <a class="skip" href="#vue">Aller au contenu</a>
 <div class="amb" aria-hidden="true"><span></span><span></span><span></span></div>
 
-<div id="chargement" role="status"><p><span aria-hidden="true"></span>Chargement…</p></div>
+<!-- squelette affiché avant tout code : il disparaît dès que le contenu arrive -->
+<div id="chargement" class="squelette" role="status" aria-label="Chargement du site">
+  <div class="sq-tete"><span class="sq-rond"></span><span class="sq-barre"></span></div>
+  <div class="sq-banniere"></div>
+  <span class="sq-titre"></span><span class="sq-ligne"></span><span class="sq-ligne courte"></span>
+  <div class="sq-rangee"><span class="sq-carte"></span><span class="sq-carte"></span><span class="sq-carte"></span></div>
+</div>
 
 <div id="maintenance" hidden>
   <div><img id="maintenanceLogo" src="/favicon-512x512.png" width="72" height="72" alt="">

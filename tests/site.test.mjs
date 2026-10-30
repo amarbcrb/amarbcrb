@@ -92,13 +92,45 @@ test('maintenance avec jeton valide → site visible + bandeau', async () => {
   assert.equal(await p.isVisible('.barre'), true);
 });
 
-test('première visite, script lent → #chargement visible puis contenu', async () => {
+test('première visite, script lent → squelette de cartes tout de suite, puis contenu', async () => {
   reinit();
   env.faux.regler({ lent: 1500 });
   const p = await env.page({ attendre: false });
-  await p.waitForSelector('#chargement', { state: 'visible' });
+  await p.waitForSelector('#chargement.squelette', { state: 'visible', timeout: 1000 });
+  assert.ok(await p.locator('#chargement .sq-carte').count() >= 3);
+  assert.equal(await p.locator('#chargement:has-text("Chargement…")').count(), 0);
   await p.waitForSelector('.nav .nb', { timeout: 5000 });
   assert.equal(await p.isVisible('#chargement'), false);
+});
+
+/* requête du contenu lancée par la page elle-même, avant le code du site, puis réutilisée (un seul appel) */
+async function requetesAuChargement(stockage) {
+  reinit();
+  const appels = env.faux.etat.appels.contenu;
+  const p = await env.page({ chemin: null, stockage });
+  const ordre = [];
+  p.on('request', (r) => { const u = r.url(); if (u.includes('a=contenu')) ordre.push('contenu'); else if (u.endsWith('/assets/api.js')) ordre.push('api'); });
+  await p.goto(env.site.url + '/', { waitUntil: 'networkidle' });
+  return { ordre, appels: env.faux.etat.appels.contenu - appels };
+}
+
+test('requête anticipée du contenu : avant le code, un seul appel (première visite et visite suivante)', async () => {
+  let r = await requetesAuChargement({});
+  assert.deepEqual(r.ordre, ['contenu', 'api']);
+  assert.equal(r.appels, 1);
+  r = await requetesAuChargement({ 'ab-contenu': JSON.stringify({ version: 1, contenu: DEFAUT() }) });
+  assert.deepEqual(r.ordre, ['contenu', 'api']);
+  assert.equal(r.appels, 1);
+});
+
+test('index.html : balise script-url identique à SCRIPT_URL, préconnexion à Google', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const config = readFileSync(new URL('../assets/config.js', import.meta.url), 'utf8');
+  const meta = /<meta name="script-url" content="([^"]*)">/.exec(html);
+  assert.ok(meta, 'balise script-url absente');
+  assert.equal(meta[1], /SCRIPT_URL = "([^"]*)"/.exec(config)[1]);
+  assert.match(html, /<link rel="preconnect" href="https:\/\/script\.google\.com"/);
+  assert.match(html, /<link rel="preconnect" href="https:\/\/script\.googleusercontent\.com"/);
 });
 
 test('pas de bouton EN, en-tête sans grand titre', async () => {
