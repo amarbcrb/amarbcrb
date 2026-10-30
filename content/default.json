@@ -111,7 +111,7 @@
    {
     "id": "d2",
     "titre": "Graphisme",
-    "texte": "Je fais des affiches, des infographies, des posters scientifiques et des identités visuelles, en freelance depuis six ans.",
+    "texte": "Affiches, logos, identités visuelles et infographies pour tous types de projets, pas seulement scientifiques. En freelance depuis six ans.",
     "image": null,
     "lien": "#portfolio",
     "visible": true
@@ -228,11 +228,11 @@
    {
     "id": "e5",
     "titre": "Serveur, restauration à forte affluence",
-    "lieu": "",
+    "lieu": "Étretat",
     "debut": "2025",
     "fin": "2026",
     "enCours": false,
-    "description": "Service en salle aux heures de pointe, en équipe, face aux clients.",
+    "description": "Serveur dans un restaurant très fréquenté d'Étretat : beaucoup de monde, et des clients de nationalités et de mentalités très différentes.",
     "visible": true
    }
   ],
@@ -541,14 +541,14 @@
    {
     "id": "i2",
     "titre": "Cartomagie",
-    "texte": "Je pratique la cartomagie : des tours de cartes qui demandent beaucoup d'entraînement.",
+    "texte": "Je pratique la cartomagie pour son côté artistique : chaque tour se travaille comme un petit spectacle, avec beaucoup d'entraînement.",
     "image": null,
     "visible": true
    },
    {
     "id": "i3",
     "titre": "Design",
-    "texte": "Je dessine depuis six ans : affiches, logos, supports de cours. C'est aussi comme ça que j'ai construit BioStudy.",
+    "texte": "Je fais du design depuis six ans, dans tous les domaines : affiches, logos, identités visuelles. BioStudy n'est qu'un de mes projets.",
     "image": null,
     "visible": true
    }
@@ -732,7 +732,7 @@
    {
     "id": "o2",
     "titre": "Graphisme",
-    "detail": "Affiches, infographies, identité visuelle",
+    "detail": "Affiches, logos, identité visuelle, tous domaines",
     "visible": true
    },
    {
