@@ -44,8 +44,8 @@ Le site relit Drive au plus tard 5 minutes après un ajout. Le bouton **Relire D
 
 - [ ] Ouvrir `<URL>/exec?a=contenu` dans le navigateur affiche du texte qui commence par `{"ok":true,"version":1`.
 - [ ] Connexion à `/admin/` avec ton mot de passe.
-- [ ] Modifier la phrase de l'accueil, enregistrer, recharger le site : la nouvelle phrase s'affiche.
-- [ ] Envoyer une photo dans **Médias** : elle s'affiche dans l'en-tête du site.
+- [ ] Modifier la salutation de l'Accueil, enregistrer, recharger le site : la nouvelle phrase s'affiche.
+- [ ] Envoyer un logo dans **Médias** : il s'affiche dans l'en-tête du site, à côté de ton nom.
 - [ ] Coller un lien dans **Liens** : le titre et la description se remplissent seuls.
 - [ ] Un fichier déposé dans un sous-dossier du Portfolio apparaît sur le site après **Relire Drive**, y compris dans une fenêtre de navigation privée (sans être connecté à Google).
 - [ ] L'image du portfolio s'affiche avec l'adresse `https://drive.google.com/thumbnail?id=…`. Si elle reste vide, prévenir : on passera à `https://lh3.googleusercontent.com/d/…`.
