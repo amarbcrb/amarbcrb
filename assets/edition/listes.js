@@ -127,6 +127,13 @@ export function outilsListes(ctx) {
       if (!schema) return;
       const item = objet ? null : (tableau(liste) || []).find((y) => y.id === id);
       const nom = objet ? 'coordonnées' : nomDe(item);
+      /* coordonnées : un bouton écrit en tête de liste (une icône posée sur la ligne E-mail ne disait pas qu'elle change aussi LinkedIn) */
+      if (objet) {
+        const b = bouton('modifier', `Modifier : ${nom}`, () => modifier(cle));
+        b.append(' Modifier l\'e-mail et le lien LinkedIn');
+        x.prepend(el('li', { class: 'ajout-li' }, el('span', { class: 'outils-edition outils-texte', 'data-pour': cle }, b)));
+        return;
+      }
       const barre = el('span', { class: 'outils-edition', 'data-pour': cle }, bouton('modifier', `Modifier : ${nom}`, () => modifier(cle)));
       if (!objet) {
         if (!schema.trie) barre.append(bouton('avancer', `Avancer : ${nom}`, () => deplacer(cle, -1)), bouton('reculer', `Reculer : ${nom}`, () => deplacer(cle, 1)));

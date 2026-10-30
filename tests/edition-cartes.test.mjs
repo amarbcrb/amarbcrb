@@ -134,6 +134,21 @@ test('contact : coordonnées et « Ouvert à » modifiables dans la fiche', asyn
   assert.equal(c.contact.ouvertA.at(-1).titre, 'Photographie');
 });
 
+test('contact : un bouton écrit « Modifier l\'e-mail et le lien LinkedIn », au-dessus des lignes, change LinkedIn', async () => {
+  reinit();
+  const p = await editer('/');
+  await p.click('#contactBtn');
+  const b = p.locator('#ficheCorps button:has-text("Modifier l\'e-mail et le lien LinkedIn")');
+  await b.waitFor();
+  const [hb, he] = await Promise.all([b.boundingBox(), p.locator('#ficheCorps li.row:has-text("E-mail")').boundingBox()]);
+  assert.ok(hb.y + hb.height <= he.y + 1, 'le bouton ne couvre pas la ligne E-mail');
+  await b.click();
+  await p.fill('#ficheCorps [name="linkedin"]', 'https://www.linkedin.com/in/amar-nouveau');
+  await valider(p);
+  await p.waitForSelector('#ficheCorps a[href="https://www.linkedin.com/in/amar-nouveau"]');
+  assert.equal((await brouillon(p)).contact.linkedin, 'https://www.linkedin.com/in/amar-nouveau');
+});
+
 test('coller : texte brut seulement ; lien dangereux refusé sur le champ', async () => {
   reinit();
   const p = await editer('/');
