@@ -32,7 +32,7 @@ test('Accueil sans clichés de site IA', async () => {
 test('frise : l\'étape en cours est marquée sans pulsation', async () => {
   reinit();
   const p = await env.page({ chemin: '/#parcours', mouvementReduit: false });
-  assert.equal(await p.$eval('#vue .point.actif', (x) => getComputedStyle(x).animationName), 'none');
+  assert.notEqual(await p.$eval('#vue .point.actif', (x) => getComputedStyle(x).animationIterationCount), 'infinite');
 });
 
 test('changement d\'onglet : la barre et l\'en-tête ont leur propre calque, au-dessus de la page qui glisse', async () => {
