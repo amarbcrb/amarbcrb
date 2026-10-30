@@ -103,7 +103,7 @@
    {
     "id": "d1",
     "titre": "Microbiologie",
-    "texte": "Préparation d'échantillons, colorations, microscopie et identification : l'expérience concrète du laboratoire hospitalier.",
+    "texte": "J'ai préparé des échantillons, fait des colorations, de la microscopie et des identifications en laboratoire hospitalier.",
     "image": null,
     "lien": "#parcours/competences",
     "visible": true
@@ -111,7 +111,7 @@
    {
     "id": "d2",
     "titre": "Graphisme",
-    "texte": "Affiches, infographies, posters scientifiques et identités visuelles, en freelance depuis six ans.",
+    "texte": "Je fais des affiches, des infographies, des posters scientifiques et des identités visuelles, en freelance depuis six ans.",
     "image": null,
     "lien": "#portfolio",
     "visible": true
@@ -232,7 +232,7 @@
     "debut": "2025",
     "fin": "2026",
     "enCours": false,
-    "description": "Gestion du stress, travail d'équipe, relation client.",
+    "description": "Service en salle aux heures de pointe, en équipe, face aux clients.",
     "visible": true
    }
   ],
@@ -276,7 +276,7 @@
    {
     "id": "c2",
     "domaine": "Biologie moléculaire",
-    "resume": "De l'extraction des acides nucléiques à leur amplification.",
+    "resume": "Extraire l'ADN et l'ARN, puis les amplifier par PCR.",
     "techniques": [
      "Extraction ADN/ARN",
      "Clonage",
@@ -541,14 +541,14 @@
    {
     "id": "i2",
     "titre": "Cartomagie",
-    "texte": "Je maîtrise des tours de cartes qui demandent précision, sens de l'observation et beaucoup de pratique.",
+    "texte": "Je pratique la cartomagie : des tours de cartes qui demandent beaucoup d'entraînement.",
     "image": null,
     "visible": true
    },
    {
     "id": "i3",
     "titre": "Design",
-    "texte": "Le fil rouge : transformer une idée en expérience.",
+    "texte": "Je dessine depuis six ans : affiches, logos, supports de cours. C'est aussi comme ça que j'ai construit BioStudy.",
     "image": null,
     "visible": true
    }
@@ -582,7 +582,7 @@
     "id": "u1",
     "url": "https://www.biostudy.xyz/",
     "titre": "BioStudy",
-    "description": "Plateforme fondée en 2022 : cours de biologie classés par université et outils de laboratoire dont chaque résultat affiche la relation utilisée. Conçue, développée et pilotée seul.",
+    "description": "Plateforme lancée en 2022 : des cours de biologie classés par université et des outils de laboratoire qui affichent la formule utilisée pour chaque résultat. Je l'ai conçue et développée seul.",
     "image": "",
     "categorie": "projets",
     "date": "2026-10-29",

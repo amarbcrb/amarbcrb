@@ -181,7 +181,7 @@ test('default.json est déjà normalisé et valide', () => {
   assert.equal(brut.parcours.langues.length, 5);
   assert.ok(brut.parcours.formation.some((x) => x.titre === 'Master 1 Microbiologie' && x.enCours));
   assert.equal(brut.parcours.interets.find((x) => x.titre === 'Astronomie').texte, "Membre d'un club d'astronomie, j'ai participé à plusieurs observations d'occultations stellaires.");
-  assert.equal(brut.parcours.interets.find((x) => x.titre === 'Cartomagie').texte, 'Je maîtrise des tours de cartes qui demandent précision, sens de l\'observation et beaucoup de pratique.');
+  assert.equal(brut.parcours.interets.find((x) => x.titre === 'Cartomagie').texte, "Je pratique la cartomagie : des tours de cartes qui demandent beaucoup d'entraînement.");
   assert.ok(brut.parcours.interets.every((x) => x.image === null));
   assert.ok(brut.parcours.certifications.every((x) => x.url === ''));
   assert.ok(brut.liens.items.every((x) => x.bouton === ''));
