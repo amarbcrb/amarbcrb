@@ -194,7 +194,8 @@ footer b{color:var(--tx2);font-weight:600}
 .carrousel-piste::-webkit-scrollbar{display:none}
 .diapo{position:relative;flex:0 0 100%;scroll-snap-align:start;min-height:min(60vh,500px);display:flex;align-items:flex-end;overflow:hidden;color:#fff;
   background:radial-gradient(120% 90% at 15% 10%,color-mix(in srgb,var(--dc) 75%,#000),transparent 60%),radial-gradient(90% 80% at 90% 85%,color-mix(in srgb,var(--dc2) 65%,#000),transparent 60%),#060606}
-.diapo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:lent 18s ease-in-out infinite alternate}
+.diapo-visuel{position:absolute!important;inset:0;margin:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important}
+.diapo-visuel>img:not(.flou),.diapo-visuel>video{animation:lent 18s ease-in-out infinite alternate}
 @keyframes lent{to{transform:scale(1.08)}}
 .diapo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 30%,rgba(0,0,0,.82));pointer-events:none}
 .diapo-texte{position:relative;z-index:1;padding:0 22px 58px;max-width:640px}
@@ -270,7 +271,7 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 .recents-tete .tout{min-height:44px;display:inline-flex;align-items:center;font-size:15px;font-weight:600}
 .tuile{flex:0 0 auto;width:min(40vw,160px);display:flex;flex-direction:column;gap:2px;min-width:0}
 .tuile-visuel{position:relative;display:block;aspect-ratio:1;border-radius:20px;overflow:hidden;background:#111;margin-bottom:6px;box-shadow:inset 0 0 0 .75px var(--line)}
-.tuile-visuel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
 .tuile-repli{position:absolute;inset:0;display:grid;place-items:center;color:#fff;
   background:radial-gradient(110% 80% at 20% 0%,color-mix(in srgb,var(--a) 70%,#000),transparent 65%),radial-gradient(90% 90% at 100% 100%,color-mix(in srgb,var(--b) 60%,#000),transparent 60%),#0a0a0a}
 .tuile-repli .type-icone{width:44px;height:44px;stroke-width:1.5}
@@ -279,12 +280,17 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 /* ===== Affiches façon Nuvio : visuel arrondi, texte dessous, pas de boîte autour ===== */
 .carte-cert,.carte-comp,.carte-interet,.carte-domaine{padding:0;gap:4px;background:none;border:0;box-shadow:none;overflow:visible;border-radius:0}
 .visuel{position:relative;display:block;overflow:hidden;border-radius:18px;background:#111;margin-bottom:8px;box-shadow:inset 0 0 0 .75px var(--line)}
-.visuel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
+/* visuel (assets/media.js) : image, GIF, vidéo ou miniature YouTube ; cadrage auto (contain sur fond flouté) */
+.visuel img,.visuel video,.tuile-visuel img,.tuile-visuel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
+[data-cadrage="contain"]>img:not(.flou),[data-cadrage="contain"]>video{object-fit:contain}
+.flou{position:absolute;inset:-12%!important;width:124%!important;height:124%!important;object-fit:cover;filter:blur(22px) saturate(1.25);opacity:.75;transform:none!important}
+.lecture{position:absolute;left:50%;top:50%;translate:-50% -50%;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.25)}
+.lecture svg{width:24px;height:24px;fill:#fff;stroke:none;margin-left:3px}
 .affiche-repli{position:absolute;inset:0;display:flex;align-items:flex-end;padding:14px 14px 16px;color:#fff;
   background:radial-gradient(110% 80% at 20% 0%,color-mix(in srgb,var(--a) 70%,#000),transparent 65%),radial-gradient(90% 90% at 100% 100%,color-mix(in srgb,var(--b) 60%,#000),transparent 60%),#0a0a0a}
 .affiche-repli span{font-family:var(--titre);font-weight:800;font-size:clamp(20px,5.4vw,26px);letter-spacing:-.025em;line-height:1.05;overflow-wrap:break-word;hyphens:auto}
-@media(hover:hover){.carte:hover .visuel img{transform:scale(1.05)}}
-.carte-cert{width:min(40vw,168px)}.carte-cert .visuel{aspect-ratio:2/3}
+@media(hover:hover){.carte:hover .visuel>img:not(.flou),.carte:hover .visuel>video{transform:scale(1.05)}}
+.carte-cert{width:min(44vw,188px)}.carte-cert .visuel{aspect-ratio:3/4}
 .carte-comp,.carte-interet,.carte-domaine{width:min(74vw,290px)}
 .carte-comp .visuel,.carte-interet .visuel,.carte-domaine .visuel{aspect-ratio:16/10}
 .carte-cert b,.carte-comp>b,.carte-interet b,.carte-domaine b{font-size:16px;font-weight:600;line-height:1.3}
@@ -304,7 +310,8 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 .badge-type{position:absolute;top:10px;left:10px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:5px 10px 5px 8px;border-radius:999px;font-size:12px;font-weight:600;color:#fff;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .badge-type .type-icone{width:15px;height:15px;stroke-width:2}
 .carte-lien{width:min(78vw,300px);padding:0}
-.carte-lien img,.carte-lien .degrade{width:100%;aspect-ratio:16/9;object-fit:cover}.carte-lien img{background:var(--fill)}
+.carte-lien .degrade,.lien-visuel{width:100%;aspect-ratio:16/9}
+.lien-visuel{margin:0;border-radius:0;box-shadow:none;background:var(--fill)}
 .carte-corps{display:flex;flex-direction:column;gap:4px;padding:14px 16px 16px;flex:1}
 .carte-corps p{font-size:14px;color:var(--tx2);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .carte-corps small{color:var(--tx3);font-size:12.5px}
@@ -431,5 +438,5 @@ a.etape .en-cours{align-self:flex-start;margin-top:4px;padding:3px 10px;border-r
 .vt-voir .frise{margin-top:18px}
 @supports(animation-timeline:view()){li.etape{animation:revele linear both;animation-timeline:view();animation-range:entry 0% entry 70%}}
 @keyframes revele{from{opacity:0;translate:-14px 0}}
-@media(prefers-reduced-motion:reduce){*,::before,::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}.barre,li.etape,.point.actif,.diapo img{animation:none}}
+@media(prefers-reduced-motion:reduce){*,::before,::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}.barre,li.etape,.point.actif,.diapo-visuel>img,.diapo-visuel>video{animation:none}}
 @media(min-width:1024px) and (min-height:600px){:root{--top:84px;--gx:32px}.hin{padding:16px 32px}.tools{height:56px}.tb{width:48px;height:48px}}
