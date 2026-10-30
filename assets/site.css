@@ -552,6 +552,9 @@ body.edition .grille>.carte-edition>*{width:100%}
 .outil svg{width:18px;height:18px}
 body.edition .ajout{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:44px;min-width:140px;padding:0 16px;border-radius:18px;border:1.5px dashed var(--line2);font-size:14px;font-weight:600;color:var(--tx2);background:transparent}
 body.edition .ajout-li{display:block;list-style:none;padding:8px 0}
+body.edition .outils-texte{position:static;display:block;padding:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+body.edition .outils-texte .outil{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;padding:0 16px;border-radius:14px;border:1.5px dashed var(--line2);font-size:14px;font-weight:600;color:var(--tx)}
+body.edition .outils-texte .outil svg{width:18px;height:18px}
 .edition-form{display:flex;flex-direction:column;gap:14px;padding-bottom:12px}
 .edition-form .champ{display:flex;flex-direction:column;gap:6px}
 .edition-form label{font-size:14px;font-weight:600}
