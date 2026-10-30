@@ -31,14 +31,38 @@ img{display:block;max-width:100%}
 .skip{position:fixed;left:12px;top:-80px;z-index:100;min-height:44px;display:inline-flex;align-items:center;padding:10px 18px;border-radius:999px;background:var(--acc);color:var(--on-acc);font-weight:600;font-size:14px;transition:top .3s var(--ease)}.skip:focus{top:12px}
 ::selection{background:color-mix(in srgb,var(--acc) 30%,transparent)}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}}
-/* ===== Fond ambiant : halos flous qui dérivent lentement (Nuvio) ===== */
-.amb{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.amb span{position:absolute;width:60vmax;height:60vmax;border-radius:50%;filter:blur(90px);opacity:.22;mix-blend-mode:screen;animation:drift 28s var(--ease) infinite alternate}
-.amb span:nth-child(1){background:var(--acc);top:-30vmax;left:-20vmax;opacity:.1}
-.amb span:nth-child(2){background:#3a1c71;bottom:-35vmax;right:-25vmax;animation-delay:-9s}
-.amb span:nth-child(3){background:#0f4c75;top:30%;left:40%;width:40vmax;height:40vmax;animation-delay:-17s;opacity:.14}
-[data-theme=light] .amb span{mix-blend-mode:multiply;opacity:.08}[data-theme=light] .amb span:nth-child(1){opacity:0}
-@keyframes drift{50%{transform:translate3d(6vw,4vh,0) scale(1.1)}to{transform:translate3d(-4vw,8vh,0) scale(.95)}}
+/* ===== Fond : halo fixe de la couleur de l'onglet ouvert (un dégradé peint une fois : ni flou plein écran ni animation continue) ===== */
+@property --halo{syntax:'<color>';inherits:true;initial-value:#0a84ff}
+:root{--halo:var(--c-blue);transition:--halo .9s var(--ease)}
+.amb{position:fixed;inset:0;z-index:0;pointer-events:none;
+background:radial-gradient(140% 62% at 50% -14%,color-mix(in srgb,var(--halo) 40%,transparent),transparent 72%),radial-gradient(75% 50% at 108% 6%,color-mix(in srgb,var(--halo) 16%,transparent),transparent 70%)}
+[data-theme=light] .amb{opacity:.45}
+/* ===== Changement d'onglet : glissement avec flou (View Transitions) ; l'en-tête et la barre ne bougent pas ===== */
+#vue{view-transition-name:vue}
+::view-transition-old(root),::view-transition-new(root){animation:none}
+::view-transition-group(vue){animation:none}
+::view-transition-old(vue),::view-transition-new(vue){height:100%;object-fit:none;object-position:50% 0;mix-blend-mode:normal}
+::view-transition-old(vue){animation:vt-part .5s cubic-bezier(.4,0,.2,1) both}
+::view-transition-new(vue){animation:vt-vient .6s cubic-bezier(.22,1,.36,1) both}
+:root[data-sens=arriere]::view-transition-old(vue){animation-name:vt-part-d}
+:root[data-sens=arriere]::view-transition-new(vue){animation-name:vt-vient-g}
+@keyframes vt-part{to{opacity:0;transform:translateX(-56px);filter:blur(14px)}}
+@keyframes vt-part-d{to{opacity:0;transform:translateX(56px);filter:blur(14px)}}
+@keyframes vt-vient{from{opacity:0;transform:translateX(56px);filter:blur(14px)}}
+@keyframes vt-vient-g{from{opacity:0;transform:translateX(-56px);filter:blur(14px)}}
+/* ===== Icônes animées (coupées si mouvement réduit) ===== */
+@media (prefers-reduced-motion:no-preference){
+#themeBtn.tourne svg{animation:tourne-icone .6s var(--spring)}
+#contactBtn:hover svg,#contactBtn:active svg{animation:bulle .6s var(--spring)}
+.nav-search:active svg,.nav-search:hover svg{animation:loupe .5s var(--spring)}
+.carte-lien:hover .badge-type svg,.ligne-cat:hover .ico svg{animation:sautille .5s var(--spring)}
+.rangee-tete .voir svg,.ligne-cat i svg{transition:translate .3s var(--spring)}
+.rangee-tete .voir:hover svg,.ligne-cat:hover i svg{translate:3px 0}
+}
+@keyframes tourne-icone{from{rotate:-120deg;scale:.6;opacity:0}}
+@keyframes bulle{30%{rotate:-12deg;scale:1.15}60%{rotate:8deg}}
+@keyframes loupe{40%{rotate:-15deg;scale:1.12}}
+@keyframes sautille{40%{translate:0 -3px;scale:1.12}}
 /* ===== Verre givré Nuvio, reflet sous la souris ou le doigt ===== */
 .glass{position:relative;background:var(--glass-bg);-webkit-backdrop-filter:blur(24px) saturate(1.4);backdrop-filter:blur(24px) saturate(1.4);
 box-shadow:inset 0 0 0 .75px var(--glass-line),0 10px 30px var(--lg-sh)}
@@ -290,7 +314,10 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 /* visuel (assets/media.js) : image, GIF, vidéo ou miniature YouTube ; cadrage auto (contain sur fond flouté) */
 .visuel img,.visuel video,.tuile-visuel img,.tuile-visuel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
 [data-cadrage="contain"]>img:not(.flou),[data-cadrage="contain"]>video{object-fit:contain}
-.flou{position:absolute;inset:-12%!important;width:124%!important;height:124%!important;object-fit:cover;filter:blur(22px) saturate(1.25);opacity:.75;transform:none!important}
+.flou{position:absolute;inset:-25%!important;width:150%!important;height:150%!important;object-fit:cover;filter:blur(36px) saturate(1.3);opacity:.9;transform:none!important}
+/* bandes d'une image entière remplies par la couleur de son bord (assets/media.js) */
+[data-bord="haut-bas"]{background:linear-gradient(var(--bord-a) 50%,var(--bord-b) 50%)!important}
+[data-bord="cotes"]{background:linear-gradient(90deg,var(--bord-a) 50%,var(--bord-b) 50%)!important}
 .lecture{position:absolute;left:50%;top:50%;translate:-50% -50%;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.25)}
 .lecture svg{width:24px;height:24px;fill:#fff;stroke:none;margin-left:3px}
 .affiche-repli{position:absolute;inset:0;display:flex;align-items:flex-end;padding:14px 14px 16px;color:#fff;
@@ -518,3 +545,17 @@ body.edition .outils-dossier .outil{color:var(--tx)}
 body.edition label.ajout{cursor:pointer}
 .vignette.verrou{cursor:pointer}
 body.edition .nouveau-dossier{margin:12px 0 4px}
+
+/* ===== Partages : mon avis, post LinkedIn intégré ===== */
+.carte-lien .avis{font-style:italic;color:var(--tx)}
+.carte-lien .avis::before{content:"« "}.carte-lien .avis::after{content:" »"}
+blockquote.avis{margin:4px 0 16px;padding:14px 16px;border-radius:16px;background:var(--fill);border-left:3px solid var(--acc)}
+blockquote.avis small{display:block;font-size:12.5px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+blockquote.avis p{font-size:16px;font-style:italic}
+.lecteur-linkedin{display:block;width:100%;height:min(58vh,540px);border:0;border-radius:18px;background:var(--fill);margin-bottom:16px}
+
+/* ===== Phrase sous le titre d'un onglet ===== */
+.vt > .sous-titre{margin:6px 0 18px;max-width:620px;font-size:clamp(16px,4.2vw,18px);line-height:1.5;color:var(--tx2)}
+body:not(.edition) .vt > .sous-titre:empty{display:none}
+body.edition .vt > .sous-titre:empty::before{content:attr(data-vide);opacity:.6;font-style:italic}
+.accueil > .carrousel{margin-top:22px}

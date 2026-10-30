@@ -92,8 +92,8 @@ export function jellyNav({wrap,track,canvas,items,onSelect,active}){
       this.v=t+e*(d*co+pc*si);this.vel=e*(this.vel*co-vc*si)}});
   const dz=18/(2*Math.sqrt(216)),
     pos=spring(0,1000,1),vel=spring(0,300,.5),press=spring(0,1000,1),sx=spring(1,250,.6),sy=spring(1,250,.7),
-    panel=spring(0,300,1),ty=spring(0,240/.9,dz),tx=spring(1,240/.9,dz),tp=spring(1,240/.9,dz);
-  let W=0,H=0,dpr=1,target=0,pressT=0,shapeT=1,release=false,dragging=false,refract=false,downX=0,downY=0,startT=0,startP=0,startY=0,moved=0,originX=0,pid=null,cx0=0,cy0=0,near=0,raf=0,last=0;
+    panel=spring(0,300,1),hop=spring(0,420,.32),ty=spring(0,240/.9,dz),tx=spring(1,240/.9,dz),tp=spring(1,240/.9,dz);
+  let hopI=-1,W=0,H=0,dpr=1,target=0,pressT=0,shapeT=1,release=false,dragging=false,refract=false,downX=0,downY=0,startT=0,startP=0,startY=0,moved=0,originX=0,pid=null,cx0=0,cy0=0,near=0,raf=0,last=0;
   const tabW=()=>Math.max(0,(W-8)/N),maxI=N-1,at=x=>cl(Math.floor((x-4)/tabW()),0,maxI);
   const rubber=(d,dim)=>{if(!d||dim<=0)return 0;const r=(1-1/(Math.abs(d)*.14/dim+1))*dim;return d<0?-r:r};
   function panelOff(raw){if(W<=0||!raw)return 0;const fr=cl(raw/W,-1,1),x=Math.abs(fr);let lo=0,hi=1,p=x;
@@ -127,6 +127,8 @@ export function jellyNav({wrap,track,canvas,items,onSelect,active}){
   /* ---- rangée d'onglets : icône colorée + libellé ; version active agrandie pendant l'appui ---- */
   function drawRow(ctx,f,on){const tw=tabW(),is=24,colH=is+4+14,top=H/2-colH/2;
     items.forEach((b,i)=>{const cx=4+(i+.5)*tw,col=C.tabs[i];ctx.save();
+      /* petit rebond de l'icône de l'onglet choisi */
+      if(i===hopI&&hop.v)ctx.translate(0,hop.v);
       if(on){ctx.translate(cx,H/2);ctx.scale(f.scale,f.scale);ctx.translate(-cx,-H/2)}
       ctx.save();ctx.translate(cx-is/2,top);ctx.scale(is/icons[i].n,is/icons[i].n);
       ctx.lineWidth=2;ctx.lineCap=ctx.lineJoin='round';ctx.strokeStyle=css(col,on?1:.8);ctx.stroke(icons[i].p);ctx.restore();
@@ -226,13 +228,15 @@ void main(){
     if(!dragging)panel.step(0,s);
     if(release&&Math.abs(pos.v-target)<Math.max(1,maxI)*.025){release=false;pressT=0;shapeT=1}
     press.step(pressT,s);sx.step(shapeT,s);sy.step(shapeT,s);tp.step(dragging?1.025:1,s);
+    hop.step(0,s);
     if(!dragging){ty.step(0,s);tx.step(1,s);if(tx.rest(1))originX=W/2}
     render();
-    const busy=dragging||release||!pos.rest(target)||!vel.rest(0)||!press.rest(0)||!sx.rest(1)||!sy.rest(1)||!panel.rest(0)||!ty.rest(0)||!tx.rest(1)||!tp.rest(1);
+    const busy=dragging||release||!pos.rest(target)||!vel.rest(0)||!press.rest(0)||!sx.rest(1)||!sy.rest(1)||!panel.rest(0)||!ty.rest(0)||!tx.rest(1)||!tp.rest(1)||!hop.rest(0);
     if(busy)raf=requestAnimationFrame(tick);else last=0}
   const kick=()=>{if(!raf)raf=requestAnimationFrame(tick)};
-  function select(i,anim){dragging=false;refract=false;target=i;
+  function select(i,anim){const target0=target;dragging=false;refract=false;target=i;
     if(anim===false){pos.snap(i);vel.snap(0);render();return}
+    if(!RM&&i!==target0){hopI=i;hop.v=0;hop.vel=-140}
     release=true;pressT=0;shapeT=1;kick()}
   /* coordonnées dans la barre, corrigées de son échelle */
   const local=e=>{const r=track.getBoundingClientRect();return[(e.clientX-r.left)*W/(r.width||1),(e.clientY-r.top)*H/(r.height||1)]};
@@ -255,6 +259,7 @@ void main(){
   track.addEventListener('pointerup',e=>{
     if(e.pointerId!==pid)return;pid=null;
     const i=moved>=4?cl(Math.round(target),0,maxI):at(downX);
+    if(!RM&&i!==active()){hopI=i;hop.v=0;hop.vel=-140}
     dragging=false;refract=false;panel.vel=0;target=i;release=true;kick();
     onSelect(i)});
   const cancel=e=>{if(e.pointerId!==pid)return;pid=null;panel.vel=0;select(active())};

@@ -60,13 +60,16 @@
      "visible": true,
      "titre": "Intérêts"
     }
-   }
+   },
+   "sousTitre": "Ma formation, mes expériences et ce que je sais faire."
   },
   "portfolio": {
-   "visible": true
+   "visible": true,
+   "sousTitre": "Mes travaux en design, posters et montages vidéo."
   },
   "liens": {
-   "visible": true
+   "visible": true,
+   "sousTitre": "Mes projets, mes applis et les articles que je recommande."
   },
   "contact": {
    "visible": true
@@ -567,6 +570,11 @@
     "id": "articles",
     "nom": "Articles",
     "visible": true
+   },
+   {
+    "id": "alire",
+    "nom": "À lire",
+    "visible": true
    }
   ],
   "items": [
@@ -581,7 +589,8 @@
     "bouton": "",
     "type": "",
     "media": null,
-    "visible": true
+    "visible": true,
+    "avis": ""
    },
    {
     "id": "u2",
@@ -594,7 +603,8 @@
     "bouton": "",
     "type": "",
     "media": null,
-    "visible": true
+    "visible": true,
+    "avis": ""
    },
    {
     "id": "u3",
@@ -607,7 +617,8 @@
     "bouton": "",
     "type": "",
     "media": null,
-    "visible": true
+    "visible": true,
+    "avis": ""
    },
    {
     "id": "u4",
@@ -620,7 +631,8 @@
     "bouton": "",
     "type": "",
     "media": null,
-    "visible": true
+    "visible": true,
+    "avis": ""
    },
    {
     "id": "u5",
@@ -633,7 +645,8 @@
     "bouton": "",
     "type": "",
     "media": null,
-    "visible": true
+    "visible": true,
+    "avis": ""
    },
    {
     "id": "u6",
@@ -646,7 +659,8 @@
     "bouton": "",
     "type": "",
     "media": null,
-    "visible": true
+    "visible": true,
+    "avis": ""
    },
    {
     "id": "u7",
@@ -659,7 +673,8 @@
     "bouton": "",
     "type": "",
     "media": null,
-    "visible": true
+    "visible": true,
+    "avis": ""
    },
    {
     "id": "u8",
@@ -672,7 +687,8 @@
     "bouton": "",
     "type": "",
     "media": null,
-    "visible": true
+    "visible": true,
+    "avis": ""
    },
    {
     "id": "u9",
@@ -685,9 +701,11 @@
     "bouton": "",
     "type": "",
     "media": null,
-    "visible": true
+    "visible": true,
+    "avis": ""
    }
-  ]
+  ],
+  "alireAjoute": true
  },
  "portfolio": {
   "dossierRacineId": "",

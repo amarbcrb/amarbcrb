@@ -58,7 +58,7 @@ document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme: li
 </head>
 <body>
 <a class="skip" href="#vue">Aller au contenu</a>
-<div class="amb" aria-hidden="true"><span></span><span></span><span></span></div>
+<div class="amb" aria-hidden="true"></div>
 
 <!-- squelette affiché avant tout code : il disparaît dès que le contenu arrive -->
 <div id="chargement" class="squelette" role="status" aria-label="Chargement du site">
@@ -79,7 +79,7 @@ document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme: li
     <a class="brand" href="#accueil"><img id="logo" src="/favicon-512x512.png" width="34" height="34" alt=""><span class="nom" id="nomSite"></span></a>
     <div class="tools glass" role="group" aria-label="Préférences">
       <button class="tb" id="themeBtn" type="button" aria-label="Changer de thème" title="Thème"></button>
-      <button class="tb tb-texte" id="contactBtn" type="button" hidden>Contact</button>
+      <button class="tb" id="contactBtn" type="button" aria-label="Contact" title="Contact" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></button>
     </div>
   </div>
 </header>

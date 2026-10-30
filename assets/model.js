@@ -30,10 +30,10 @@ const ITEMS = {
   'liens.categories': { nom: '' },
   'accueil.reperes': { valeur: '', libelle: '' },
   'accueil.domaines': { titre: '', texte: '', image: null, lien: '' },
-  'onglets.perso': { nom: '', icone: 'etoile', couleur: '--c-purple', type: 'rangees', dossierId: '' },
+  'onglets.perso': { nom: '', icone: 'etoile', couleur: '--c-purple', type: 'rangees', dossierId: '', sousTitre: '' },
   'pages.rangees': { titre: '', cartes: [] },
   cartes: { titre: '', texte: '', media: null, lien: '', bouton: '' },
-  'liens.items': { url: '', titre: '', description: '', image: '', categorie: '', date: '', bouton: '', type: '', media: null },
+  'liens.items': { url: '', titre: '', description: '', image: '', categorie: '', date: '', bouton: '', type: '', media: null, avis: '' },
   'contact.autres': { label: '', url: '' },
   'contact.ouvertA': { titre: '', detail: '' },
 };
@@ -52,15 +52,17 @@ function squelette() {
     site: { nom: 'Amar Bouchareb', surtitre: 'Microbiologie · Lyon 1', maintenance: { active: false, message: 'Le site revient très vite.' } },
     medias: { photo: { url: IMAGE_DEFAUT }, logo: { url: IMAGE_DEFAUT }, favicon: { url: IMAGE_DEFAUT }, cv: null },
     onglets: {
-      accueil: { visible: true }, parcours: { visible: true, sous }, portfolio: { visible: true },
-      liens: { visible: true }, contact: { visible: true }, perso: [],
+      /* sousTitre : la phrase sous le titre de l'onglet, pour qu'un visiteur sache ce qu'il y trouve */
+      accueil: { visible: true }, parcours: { visible: true, sous, sousTitre: 'Ma formation, mes expériences et ce que je sais faire.' },
+      portfolio: { visible: true, sousTitre: 'Mes travaux en design, posters et montages vidéo.' },
+      liens: { visible: true, sousTitre: 'Mes projets, mes applis et les articles que je recommande.' }, contact: { visible: true }, perso: [],
     },
     accueil: { salutation: '', intro: '', reperes: [], domaines: [], projetPhare: '' },
     parcours: {
       profil: { titre: '', texte: '' },
       formation: [], experience: [], engagement: [], competences: [], langues: [], certifications: [], interets: [],
     },
-    liens: { categories: [], items: [] },
+    liens: { categories: [], items: [], alireAjoute: false },
     portfolio: { dossierRacineId: '', dossiers: {} },
     pages: {},
     contact: { email: '', linkedin: '', autres: [], ouvertA: [] },
@@ -119,6 +121,11 @@ export function normaliser(brut) {
     pages[id] = { rangees: fusionner([], estObjet(pg) ? pg.rangees : [], 'pages.rangees') };
   });
   c.pages = pages;
+  /* catégorie « À lire » (partages) ajoutée une seule fois : supprimée ensuite, elle ne revient pas */
+  if (!c.liens.alireAjoute) {
+    if (!c.liens.categories.some((x) => x.id === 'alire')) c.liens.categories.push({ id: 'alire', nom: 'À lire', visible: true });
+    c.liens.alireAjoute = true;
+  }
   return c;
 }
 
@@ -182,6 +189,8 @@ export const contactVisible = (c) => !(c.onglets.contact && c.onglets.contact.vi
 
 /* seules les parties de Parcours ouvrent une fiche détaillée ; langues et intérêts montrent tout sur leur carte */
 export const aFiche = (onglet, partie, c = null) => {
+  /* liens : fiche ouverte depuis un partage (post LinkedIn intégré, mon avis) */
+  if (onglet === 'liens') return partie !== 'tous';
   if (onglet === 'parcours') return PARTIES_PARCOURS.includes(partie) && partie !== 'langues' && partie !== 'interets';
   /* cartes des onglets libres : fiche avec texte, lecteur vidéo et bouton du lien */
   const o = c && ongletPerso(c, onglet);
@@ -248,7 +257,7 @@ export function echapper(s) {
 }
 
 /* nature d'un lien : choisie dans l'admin, sinon déduite de l'adresse (extension d'abord, puis site) */
-export const TYPES_LIEN = { web: 'Site web', video: 'Vidéo', image: 'Image', appli: 'Appli', document: 'Document', code: 'Code', article: 'Article' };
+export const TYPES_LIEN = { web: 'Site web', video: 'Vidéo', image: 'Image', appli: 'Appli', document: 'Document', code: 'Code', article: 'Article', linkedin: 'Post LinkedIn' };
 const EXTENSIONS = [
   [/\.(jpe?g|png|webp|gif|avif|svg)$/, 'image'], [/\.(mp4|webm|mov)$/, 'video'],
   [/\.apk$/, 'appli'], [/\.(pdf|docx?|pptx?|xlsx?)$/, 'document'],
@@ -265,11 +274,24 @@ export function typeLien(item, c = null) {
   let u;
   try { u = new URL(item.url); } catch { return 'web'; }
   const chemin = u.pathname.toLowerCase(), hote = u.hostname.toLowerCase().replace(/^www\./, '');
+  if (/(^|\.)linkedin\.com$/.test(hote)) {
+    if (/^\/(posts|feed\/update)\//.test(chemin)) return 'linkedin';
+    if (/^\/pulse\//.test(chemin)) return 'article';
+  }
   const trouve = EXTENSIONS.find(([re]) => re.test(chemin)) || SITES.find(([re]) => re.test(hote));
   if (trouve) return trouve[1];
   if (/\/(blog|articles?)\//.test(chemin)) return 'article';
   const cat = c && c.liens.categories.find((x) => x.id === item.categorie);
   return cat && /article/i.test(cat.nom) ? 'article' : 'web';
+}
+
+/* post LinkedIn public → adresse de son intégration (linkedin.com/embed/…), sinon null */
+export function urlIntegrationLinkedin(url) {
+  let u;
+  try { u = new URL(url); } catch { return null; }
+  if (u.protocol !== 'https:' || !/(^|\.)linkedin\.com$/i.test(u.hostname)) return null;
+  const m = /\/feed\/update\/urn:li:(activity|share|ugcPost):(\d+)/.exec(u.pathname) || /^\/posts\/.*-(activity|share|ugcPost)-(\d+)/.exec(u.pathname);
+  return m ? `https://www.linkedin.com/embed/feed/update/urn:li:${m[1]}:${m[2]}` : null;
 }
 
 /* nature d'un média (image, GIF, vidéo, YouTube) : type donné, sinon déduit de l'adresse */

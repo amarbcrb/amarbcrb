@@ -4,7 +4,7 @@ import { el } from './dom.js';
 import { ongletsVisibles, contactVisible, parties, couleurPartie, ongletPerso } from './model.js';
 import { parse, format } from './router.js';
 import { monterBarre } from './nav.js';
-import { rendreVue } from './render.js';
+import { rendreVue, couleurOnglet } from './render.js';
 import { construireIndex, chercher } from './search.js';
 import { ouvrirFiche, fermerFiche, ficheOuverte } from './fiche.js';
 import { corpsContact, corpsFiche, titreFiche, fondFiche } from './cartes.js';
@@ -33,7 +33,9 @@ function appliquerTheme(t) {
 }
 function themeMemorise() { try { return localStorage.getItem('ab-theme'); } catch { return null; } }
 appliquerTheme(root.dataset.theme || 'dark');
+$('themeBtn').addEventListener('animationend', () => $('themeBtn').classList.remove('tourne'));
 $('themeBtn').addEventListener('click', () => {
+  $('themeBtn').classList.add('tourne');
   const t = root.dataset.theme === 'dark' ? 'light' : 'dark';
   try { localStorage.setItem('ab-theme', t); } catch { /* navigation privée */ }
   appliquerTheme(t);
@@ -171,6 +173,7 @@ const cle = (cible) => (cible.contact ? '#contact' : format(cible));
 /* page de l'onglet (ou Voir tout) ; elle n'est redessinée que si elle change, pour garder le focus sous une fiche */
 function dessinerPage(base, anim) {
   etat.barre.select(base.onglet, anim);
+  document.documentElement.style.setProperty('--halo', `var(${couleurOnglet(etat.contenu, base.onglet)})`);
   const k = format(base);
   if (k === etat.cleBase) return;
   const avant = etat.base;
@@ -188,6 +191,14 @@ function dessinerPage(base, anim) {
   if (!anim || RM || !avant || !vue.animate) { dessiner(); return; }
   const ordre = ongletsVisibles(etat.contenu);
   const sens = ordre.indexOf(base.onglet) >= ordre.indexOf(avant.onglet) ? 1 : -1;
+  /* l'ancienne page glisse et se floute vers un côté, la nouvelle arrive de l'autre (View Transitions) ; sinon, entrée seule */
+  if (document.startViewTransition) {
+    const racine = document.documentElement;
+    racine.dataset.sens = sens > 0 ? 'avant' : 'arriere';
+    const t = document.startViewTransition(dessiner);
+    t.finished.finally(() => { if (etat.cleBase === k) delete racine.dataset.sens; });
+    return;
+  }
   dessiner();
   vue.animate([{ opacity: 0, transform: `translateX(${sens * 34}px)`, filter: 'blur(8px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }],
     { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' });
@@ -225,7 +236,7 @@ function afficher(anim = true) {
   const n = liste.findIndex((p) => p.id === cible.sous);
   const item = cible.element && liste[n].items.find((x) => x.id === cible.element);
   if (cible.contact) surcouche('Contact', corpsContact(c), direct, meme);
-  else if (item) surcouche(titreFiche(item), corpsFiche(item, cible.sous, ongletPerso(c, cible.onglet)), direct, meme, couleurPartie(cible.onglet, cible.sous, n), fondFiche(item));
+  else if (item) surcouche(titreFiche(item), corpsFiche(item, cible.sous, ongletPerso(c, cible.onglet), cible.onglet), direct, meme, couleurPartie(cible.onglet, cible.sous, n), fondFiche(item));
   else fermerFiche({ silencieux: true });
 }
 

@@ -82,7 +82,8 @@ test('aFiche', () => {
   assert.equal(aFiche('parcours', 'certifications'), true);
   assert.equal(aFiche('parcours', 'langues'), false);
   assert.equal(aFiche('parcours', 'interets'), false);
-  assert.equal(aFiche('liens', 'projets'), false);
+  assert.equal(aFiche('liens', 'projets'), true);
+  assert.equal(aFiche('liens', 'tous'), false);
   assert.equal(aFiche('portfolio', 'd1'), false);
 });
 
@@ -221,7 +222,7 @@ test('typeLien : catégorie « Articles » et type forcé', () => {
   assert.equal(typeLien({ url: 'https://exemple.fr/x', type: '', categorie: 'p' }, c), 'web');
   assert.equal(typeLien({ url: 'https://youtu.be/x', type: 'image', categorie: 'p' }, c), 'image');
   assert.equal(typeLien({ url: 'https://youtu.be/x', type: 'inconnu', categorie: 'p' }, c), 'video');
-  assert.deepEqual(Object.keys(TYPES_LIEN), ['web', 'video', 'image', 'appli', 'document', 'code', 'article']);
+  assert.deepEqual(Object.keys(TYPES_LIEN), ['web', 'video', 'image', 'appli', 'document', 'code', 'article', 'linkedin']);
   assert.equal(TYPES_LIEN.video, 'Vidéo');
 });
 

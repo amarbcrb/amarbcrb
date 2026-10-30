@@ -34,9 +34,10 @@ test('parse : élément inconnu', () => {
   assert.deepEqual(parse('#parcours/experience/e1', masque), page('parcours', 'experience'));
 });
 
-test('parse : pas de fiche pour les langues, les liens ni le portfolio', () => {
+test('parse : pas de fiche pour les langues ni le portfolio ; un lien a sa fiche (partages), sauf depuis « tous »', () => {
   assert.deepEqual(parse('#parcours/langues/l1', c), page('parcours', 'langues'));
-  assert.deepEqual(parse('#liens/projets/u1', c), page('liens', 'projets'));
+  assert.deepEqual(parse('#liens/projets/u1', c), page('liens', 'projets', 'u1'));
+  assert.deepEqual(parse('#liens/tous/u1', c), page('liens', 'tous'));
   assert.deepEqual(parse('#portfolio/d1/f1', c, dossiers), page('portfolio', 'd1'));
 });
 
