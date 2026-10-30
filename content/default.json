@@ -78,7 +78,7 @@
  },
  "accueil": {
   "salutation": "Bonjour, je suis Amar",
-  "intro": "Étudiant en Master 1 de microbiologie à l'Université Claude Bernard Lyon 1, je m'intéresse à la sécurité des aliments, à la santé publique et au contrôle qualité. Designer depuis six ans, j'ai créé BioStudy pour rendre la biologie plus claire et plus accessible.",
+  "intro": "Étudiant en Master 1 de microbiologie à l'Université Claude Bernard Lyon 1. L'an prochain, je vise le M2 MAABE ou MMPEM. Je fais aussi du design depuis six ans, et j'ai créé BioStudy, un site pour apprendre la biologie.",
   "reperes": [
    {
     "id": "r1",
@@ -129,8 +129,8 @@
  },
  "parcours": {
   "profil": {
-   "titre": "Une formation de microbiologiste, un réflexe de bâtisseur.",
-   "texte": "La microbiologie me passionne pour ce qu'elle protège et ce qu'elle permet : des aliments plus sûrs, des soins plus fiables, des procédés plus efficaces.\n\nMaster 1 Microbiologie à l'Université Claude Bernard Lyon 1, après une licence en biologie cellulaire et un parcours en parasitologie. J'ai l'expérience concrète du laboratoire hospitalier : préparation d'échantillons, colorations, microscopie, identification, bonnes pratiques de laboratoire et biosécurité.\n\nAu-delà de la science, six ans de design freelance et la création de BioStudy témoignent de mon autonomie, de mon sens de l'initiative et de ma capacité à expliquer clairement des sujets complexes."
+   "titre": "Ce que j'étudie, et la suite",
+   "texte": "J'ai choisi la microbiologie parce qu'elle sert tous les jours : dans un aliment contrôlé avant d'arriver en rayon, dans un prélèvement identifié à l'hôpital.\n\nJe suis en Master 1 Microbiologie à l'Université Claude Bernard Lyon 1. Avant, j'ai fait un Master 1 de parasitologie à Tizi-Ouzou puis une licence de biologie cellulaire à Clermont-Ferrand. Au laboratoire hospitalier, j'ai préparé des échantillons, fait des colorations, de la microscopie et des identifications, en suivant les règles de biosécurité.\n\nPour le M2, je vise un des deux parcours de Lyon 1. MAABE (Microbiologie appliquée à l'agroalimentaire, au biomédical et à l'environnement) forme à la maîtrise des risques microbiens et à l'hygiène, avec un stage de cinq mois en laboratoire ou en entreprise : c'est la voie vers l'industrie et le contrôle qualité. MMPEM (Microbiologie moléculaire, pathogénie, écologie microbienne) est tourné vers la recherche, sur les mécanismes des pathogènes et les interactions entre microbes et hôtes, et mène souvent à une thèse.\n\nÀ côté, je fais du design depuis six ans et j'ai créé BioStudy, un site de cours et d'outils de biologie."
   },
   "formation": [
    {
