@@ -236,7 +236,7 @@ function afficher(anim = true) {
   const n = liste.findIndex((p) => p.id === cible.sous);
   const item = cible.element && liste[n].items.find((x) => x.id === cible.element);
   if (cible.contact) surcouche('Contact', corpsContact(c), direct, meme);
-  else if (item) surcouche(titreFiche(item), corpsFiche(item, cible.sous, ongletPerso(c, cible.onglet)), direct, meme, couleurPartie(cible.onglet, cible.sous, n), fondFiche(item));
+  else if (item) surcouche(titreFiche(item), corpsFiche(item, cible.sous, ongletPerso(c, cible.onglet), cible.onglet), direct, meme, couleurPartie(cible.onglet, cible.sous, n), fondFiche(item));
   else fermerFiche({ silencieux: true });
 }
 

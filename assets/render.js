@@ -69,11 +69,16 @@ function vueAccueil(c) {
   /* rangées d'images : ce que je fais, projets, certifications, passions */
   const parcours = onglets.includes('parcours') ? parties(c, 'parcours') : [];
   const partie = (id) => parcours.find((p) => p.id === id);
-  const liens = onglets.includes('liens') ? parties(c, 'liens').filter((p) => p.id !== 'tous').flatMap((p) => p.items.map((x) => [x, p.id])) : [];
+  const parLiens = onglets.includes('liens') ? parties(c, 'liens') : [];
+  /* partages « À lire » : à part, les 3 plus récents */
+  const liens = parLiens.filter((p) => p.id !== 'tous' && p.id !== 'alire').flatMap((p) => p.items.map((x) => [x, p.id]));
+  const alire = ((parLiens.find((p) => p.id === 'alire') || {}).items || []).slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
   const rangees = [
     domaines.length && rangee({ titre: 'Ce que je fais', nombre: null, cartes: domaines.map((x, i) => carteDomaine(x, i)), couleur: '--c-teal', liste: 'accueil.domaines' }),
     liens.length && rangee({ titre: 'Projets', nombre: liens.length, href: '#liens', couleur: '--c-pink',
       cartes: liens.map(([x, cat], k) => carte(x, { onglet: 'liens', partie: cat, c, indice: k })) }),
+    alire.length && rangee({ titre: 'À lire', nombre: alire.length, href: format({ onglet: 'liens', sous: 'alire' }), couleur: '--c-blue',
+      cartes: alire.slice(0, 3).map((x, k) => carte(x, { onglet: 'liens', partie: 'alire', c, indice: k })) }),
     ...[['certifications', 'Certifications'], ['interets', 'Passions']].map(([id, titre]) => partie(id) && rangee({
       titre, nombre: partie(id).items.length, href: format({ onglet: 'parcours', sous: id }), couleur: couleurPartie('parcours', id, 0),
       cartes: partie(id).items.map((x, k) => carte(x, { onglet: 'parcours', partie: id, c, indice: k })) })),

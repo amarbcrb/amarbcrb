@@ -1,5 +1,5 @@
 /* Cartes des rangées et contenu des fiches (feuille qui monte du bas). */
-import { lienSur, periode, duree, typeLien, TYPES_LIEN, drapeauLangue, typeMedia, idYoutube, ongletPerso } from './model.js';
+import { lienSur, periode, duree, typeLien, TYPES_LIEN, drapeauLangue, typeMedia, idYoutube, ongletPerso, urlIntegrationLinkedin } from './model.js';
 import { visuel as visuelMedia, urlMedia, lecteurYoutube } from './media.js';
 import { drapeauSvg } from './drapeaux.js';
 import { format } from './router.js';
@@ -40,6 +40,7 @@ const TRACES = {
   appli: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
   document: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h8M8 17h5"/>',
   code: '<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>',
+  linkedin: '<rect x="2" y="2" width="20" height="20" rx="4"/><path d="M7 10v7"/><path d="M7 7v.01"/><path d="M11 17v-7"/><path d="M11 13a3 3 0 0 1 6 0v4"/>',
   article: '<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/>',
 };
 const icone = (type) => `<svg class="type-icone" viewBox="0 0 24 24" aria-hidden="true">${TRACES[type]}</svg>`;
@@ -114,10 +115,14 @@ function carteBrute(x, { onglet, partie, c, indice = 0 }) {
     const media = mediaLien(x);
     const badge = media ? el('span', { class: 'badge-type', html: icone(type) }, TYPES_LIEN[type]) : null;
     /* média introuvable : le dégradé porte déjà le pictogramme, le badge devient inutile */
-    return el(lienSur(x.url) ? 'a' : 'div', { class: 'carte carte-lien', href: x.url, target: '_blank', rel: 'noopener noreferrer', style, 'data-type': type },
+    /* post LinkedIn : sa fiche (post intégré, mon avis) ; autres liens : le site directement */
+    const integre = type === 'linkedin';
+    const attrs = integre ? { href: format({ onglet: 'liens', sous: x.categorie, element: x.id }) } : { href: x.url, target: '_blank', rel: 'noopener noreferrer' };
+    return el(integre || lienSur(x.url) ? 'a' : 'div', { class: 'carte carte-lien', ...attrs, style, 'data-type': type },
       visuelMedia(media, { classe: 'visuel lien-visuel', repli: () => { if (badge) badge.remove(); return degrade(); } }), badge,
-      el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.description ? el('p', {}, x.description) : null, site ? el('small', {}, site) : null,
-        el('span', { class: 'btn' }, x.bouton || 'Ouvrir')));
+      el('span', { class: 'carte-corps' }, el('b', {}, x.titre),
+        x.avis ? el('p', { class: 'avis' }, x.avis) : x.description ? el('p', {}, x.description) : null, site ? el('small', {}, site) : null,
+        el('span', { class: 'btn' }, x.bouton || (integre ? 'Lire' : 'Ouvrir'))));
   }
   const perso = c ? ongletPerso(c, onglet) : null;
   if (perso && perso.type === 'rangees') {
@@ -166,7 +171,7 @@ export const fondFiche = (x) => { const m = x.image || x.media; return typeMedia
 
 /* contenu complet de la fiche d'un élément de Parcours, façon page détail de Nuvio :
    bannière, description, puis « Détails » en lignes libellé / valeur */
-export function corpsFiche(x, partie, perso = null) {
+export function corpsFiche(x, partie, perso = null, onglet = null) {
   const paragraphes = (t) => String(t || '').split(/\n\s*\n/).filter((p) => p.trim()).map((p) => el('p', {}, p.trim()));
   /* une vidéo YouTube se lit dans la fiche, avec le son */
   const banniere = (media, texte) => el('div', { class: 'fiche-banniere' }, (typeMedia(media) === 'youtube' && lecteurYoutube(media)) || visuel(media, texte));
@@ -174,6 +179,17 @@ export function corpsFiche(x, partie, perso = null) {
     const l = lignes.filter(([, v]) => v);
     return l.length ? [el('h3', { class: 'fiche-sous-titre' }, 'Détails'), el('dl', { class: 'details' }, l.map(([k, v]) => el('div', {}, el('dt', {}, k), el('dd', {}, v))))] : [];
   };
+  if (onglet === 'liens') {
+    /* partage : post LinkedIn intégré (sinon l'image du lien), mon avis, la description, le lien d'origine */
+    const linkedin = typeLien(x) === 'linkedin';
+    const integration = linkedin ? urlIntegrationLinkedin(x.url) : null;
+    return el('div', { class: 'fiche-contenu' },
+      x.avis ? el('blockquote', { class: 'avis' }, el('small', {}, 'Mon avis'), el('p', {}, x.avis)) : null,
+      integration ? el('iframe', { class: 'lecteur-linkedin', src: integration, title: `Post LinkedIn : ${x.titre}`, loading: 'lazy', allowfullscreen: true })
+        : el('div', { class: 'fiche-banniere' }, visuel(mediaLien(x), x.titre)),
+      paragraphes(x.description),
+      lienSur(x.url) ? el('a', { class: 'btn pri', href: x.url, target: '_blank', rel: 'noopener noreferrer' }, linkedin ? 'Voir sur LinkedIn' : x.bouton || 'Ouvrir') : null);
+  }
   if (perso && perso.type === 'rangees') {
     const externe = lienSur(x.lien);
     return el('div', { class: 'fiche-contenu' }, banniere(x.media, x.titre), paragraphes(x.texte),
