@@ -246,11 +246,11 @@ test('ambiance Nuvio : noir pur en sombre, titres de rangée soulignés, recherc
   await p.close();
 });
 
-test('bouton « Contact » entier, sur téléphone comme sur ordinateur', async () => {
+test('bouton Contact (icône) dans l\'écran, 44 px au moins, sur téléphone comme sur ordinateur', async () => {
   for (const largeur of [390, 1366]) {
     const p = await env.page({ viewport: { width: largeur, height: 850 } });
-    const [contenu, visible, droite] = await p.$eval('#contactBtn', (b) => [b.scrollWidth, b.clientWidth, b.closest('.tools').getBoundingClientRect().right]);
-    assert.ok(contenu <= visible, `${largeur} px : texte de ${contenu} px dans un bouton de ${visible} px`);
+    const [l, h, droite] = await p.$eval('#contactBtn', (b) => [b.getBoundingClientRect().width, b.getBoundingClientRect().height, b.closest('.tools').getBoundingClientRect().right]);
+    assert.ok(l >= 44 && h >= 44, `${largeur} px : bouton de ${l}×${h} px`);
     assert.ok(droite <= largeur, `${largeur} px : pastille qui dépasse (${droite} px)`);
     await p.close();
   }

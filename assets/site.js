@@ -4,7 +4,7 @@ import { el } from './dom.js';
 import { ongletsVisibles, contactVisible, parties, couleurPartie, ongletPerso } from './model.js';
 import { parse, format } from './router.js';
 import { monterBarre } from './nav.js';
-import { rendreVue } from './render.js';
+import { rendreVue, couleurOnglet } from './render.js';
 import { construireIndex, chercher } from './search.js';
 import { ouvrirFiche, fermerFiche, ficheOuverte } from './fiche.js';
 import { corpsContact, corpsFiche, titreFiche, fondFiche } from './cartes.js';
@@ -33,7 +33,9 @@ function appliquerTheme(t) {
 }
 function themeMemorise() { try { return localStorage.getItem('ab-theme'); } catch { return null; } }
 appliquerTheme(root.dataset.theme || 'dark');
+$('themeBtn').addEventListener('animationend', () => $('themeBtn').classList.remove('tourne'));
 $('themeBtn').addEventListener('click', () => {
+  $('themeBtn').classList.add('tourne');
   const t = root.dataset.theme === 'dark' ? 'light' : 'dark';
   try { localStorage.setItem('ab-theme', t); } catch { /* navigation privée */ }
   appliquerTheme(t);
@@ -171,6 +173,7 @@ const cle = (cible) => (cible.contact ? '#contact' : format(cible));
 /* page de l'onglet (ou Voir tout) ; elle n'est redessinée que si elle change, pour garder le focus sous une fiche */
 function dessinerPage(base, anim) {
   etat.barre.select(base.onglet, anim);
+  document.documentElement.style.setProperty('--halo', `var(${couleurOnglet(etat.contenu, base.onglet)})`);
   const k = format(base);
   if (k === etat.cleBase) return;
   const avant = etat.base;

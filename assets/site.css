@@ -31,14 +31,25 @@ img{display:block;max-width:100%}
 .skip{position:fixed;left:12px;top:-80px;z-index:100;min-height:44px;display:inline-flex;align-items:center;padding:10px 18px;border-radius:999px;background:var(--acc);color:var(--on-acc);font-weight:600;font-size:14px;transition:top .3s var(--ease)}.skip:focus{top:12px}
 ::selection{background:color-mix(in srgb,var(--acc) 30%,transparent)}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}}
-/* ===== Fond ambiant : halos flous qui dérivent lentement (Nuvio) ===== */
-.amb{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.amb span{position:absolute;width:60vmax;height:60vmax;border-radius:50%;filter:blur(90px);opacity:.22;mix-blend-mode:screen;animation:drift 28s var(--ease) infinite alternate}
-.amb span:nth-child(1){background:var(--acc);top:-30vmax;left:-20vmax;opacity:.1}
-.amb span:nth-child(2){background:#3a1c71;bottom:-35vmax;right:-25vmax;animation-delay:-9s}
-.amb span:nth-child(3){background:#0f4c75;top:30%;left:40%;width:40vmax;height:40vmax;animation-delay:-17s;opacity:.14}
-[data-theme=light] .amb span{mix-blend-mode:multiply;opacity:.08}[data-theme=light] .amb span:nth-child(1){opacity:0}
-@keyframes drift{50%{transform:translate3d(6vw,4vh,0) scale(1.1)}to{transform:translate3d(-4vw,8vh,0) scale(.95)}}
+/* ===== Fond : halo fixe de la couleur de l'onglet ouvert (un dégradé peint une fois : ni flou plein écran ni animation continue) ===== */
+@property --halo{syntax:'<color>';inherits:true;initial-value:#0a84ff}
+:root{--halo:var(--c-blue);transition:--halo .9s var(--ease)}
+.amb{position:fixed;inset:0;z-index:0;pointer-events:none;
+background:radial-gradient(140% 62% at 50% -14%,color-mix(in srgb,var(--halo) 40%,transparent),transparent 72%),radial-gradient(75% 50% at 108% 6%,color-mix(in srgb,var(--halo) 16%,transparent),transparent 70%)}
+[data-theme=light] .amb{opacity:.45}
+/* ===== Icônes animées (coupées si mouvement réduit) ===== */
+@media (prefers-reduced-motion:no-preference){
+#themeBtn.tourne svg{animation:tourne-icone .6s var(--spring)}
+#contactBtn:hover svg,#contactBtn:active svg{animation:bulle .6s var(--spring)}
+.nav-search:active svg,.nav-search:hover svg{animation:loupe .5s var(--spring)}
+.carte-lien:hover .badge-type svg,.ligne-cat:hover .ico svg{animation:sautille .5s var(--spring)}
+.rangee-tete .voir svg,.ligne-cat i svg{transition:translate .3s var(--spring)}
+.rangee-tete .voir:hover svg,.ligne-cat:hover i svg{translate:3px 0}
+}
+@keyframes tourne-icone{from{rotate:-120deg;scale:.6;opacity:0}}
+@keyframes bulle{30%{rotate:-12deg;scale:1.15}60%{rotate:8deg}}
+@keyframes loupe{40%{rotate:-15deg;scale:1.12}}
+@keyframes sautille{40%{translate:0 -3px;scale:1.12}}
 /* ===== Verre givré Nuvio, reflet sous la souris ou le doigt ===== */
 .glass{position:relative;background:var(--glass-bg);-webkit-backdrop-filter:blur(24px) saturate(1.4);backdrop-filter:blur(24px) saturate(1.4);
 box-shadow:inset 0 0 0 .75px var(--glass-line),0 10px 30px var(--lg-sh)}

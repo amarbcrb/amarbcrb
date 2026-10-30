@@ -191,7 +191,7 @@ const carteLienDossier = (l) => el('a', { class: 'vignette doc lien-dossier', hr
 
 /* titre et couleur d'un onglet, intégré ou créé dans l'admin */
 const titreOnglet = (c, onglet) => TITRES[onglet] || (ongletPerso(c, onglet) || {}).nom || '';
-const couleurOnglet = (c, onglet) => COULEURS[onglet] || ((ongletPerso(c, onglet) || {}).couleur || '').replace(/[^\w-]/g, '') || '--c-purple';
+export const couleurOnglet = (c, onglet) => COULEURS[onglet] || ((ongletPerso(c, onglet) || {}).couleur || '').replace(/[^\w-]/g, '') || '--c-purple';
 
 /* dossiers : données Drive (portfolio, galerie), null si le script est en panne, undefined tant qu'elles ne sont pas lues */
 export function rendreVue(racine, c, { onglet, sous }, dossiers) {
