@@ -71,11 +71,7 @@ function appliquer(c) {
     $('maintenanceMail').href = 'mailto:' + c.contact.email;
     return false;
   }
-  /* nom en Instrument Serif, prénom en italique */
-  const [prenom, ...reste] = String(c.site.nom).trim().split(/\s+/);
-  const italique = document.createElement('i');
-  italique.textContent = prenom;
-  $('nomSite').replaceChildren(italique, reste.length ? ' ' + reste.join(' ') : '');
+  $('nomSite').textContent = String(c.site.nom).trim();
   $('logo').src = logo;
   $('contactBtn').hidden = !contactVisible(c);
   if (c.medias.favicon && c.medias.favicon.url) $('favicon').href = c.medias.favicon.url;

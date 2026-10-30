@@ -106,14 +106,18 @@ test('pas de bouton EN, en-tête sans grand titre', async () => {
   const p = await env.page();
   assert.equal(await p.locator('#langBtn').count(), 0);
   assert.equal(await p.locator('[data-en]').count(), 0);
-  /* la salutation de l'Accueil (serif fin) peut aller jusqu'à 52 px ; les autres titres restent à 40 px au plus */
+  /* la salutation de l'Accueil peut aller jusqu'à 52 px ; les autres titres restent à 40 px au plus */
   const tailles = await p.$$eval('h1:not(.salut), h2', (hs) => hs.map((h) => parseFloat(getComputedStyle(h).fontSize)));
   tailles.forEach((t) => assert.ok(t <= 40, `titre de ${t}px`));
   assert.ok(await p.$eval('h1.salut', (h) => parseFloat(getComputedStyle(h).fontSize)) <= 52);
   assert.equal(await p.textContent('.brand .nom'), 'Amar Bouchareb');
-  assert.equal(await p.textContent('.brand .nom i'), 'Amar');
-  assert.match(await p.$eval('.brand .nom', (x) => getComputedStyle(x).fontFamily), /^"Instrument Serif"/);
-  assert.ok(await p.evaluate(() => document.fonts.check('24px "Instrument Serif"')));
+  /* police Inter Tight (sans serif) pour le nom et les titres ; plus aucun serif */
+  assert.equal(await p.locator('.brand .nom i').count(), 0);
+  assert.match(await p.$eval('.brand .nom', (x) => getComputedStyle(x).fontFamily), /^"Inter Tight"/);
+  assert.match(await p.$eval('h1.salut', (x) => getComputedStyle(x).fontFamily), /^"Inter Tight"/);
+  await p.evaluate(() => document.fonts.ready);
+  assert.ok(await p.evaluate(() => document.fonts.check('700 24px "Inter Tight"')));
+  assert.equal(await p.evaluate(() => [...document.styleSheets].flatMap((f) => [...f.cssRules]).some((r) => /Instrument Serif|serif"?\s*[;,)]/.test(r.cssText) && !/sans-serif/.test(r.cssText))), false);
   assert.equal(await p.locator('.brand small').count(), 0);
 });
 

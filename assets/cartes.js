@@ -55,7 +55,7 @@ const imageOuRepli = (src, repli = null) => {
   i.addEventListener('error', () => (repli ? i.replaceWith(repli()) : i.remove()), { once: true });
   return i;
 };
-/* visuel d'une carte : l'image, sinon une affiche dessinée (dégradé tiré du texte, texte en Instrument Serif) */
+/* visuel d'une carte : l'image, sinon une affiche dessinée (dégradé tiré du texte, texte en Inter Tight) */
 const TEINTES = [['--c-indigo', '--c-blue'], ['--c-purple', '--c-pink'], ['--c-teal', '--c-green'], ['--c-orange', '--c-red'], ['--c-blue', '--c-cyan'], ['--c-pink', '--c-orange']];
 const teinte = (texte) => { let h = 0; for (const ch of String(texte)) h = (h * 31 + ch.codePointAt(0)) >>> 0; return TEINTES[h % TEINTES.length]; };
 function visuel(image, texte) {
