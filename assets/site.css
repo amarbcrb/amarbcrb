@@ -479,6 +479,24 @@ a.etape .en-cours{align-self:flex-start;margin-top:4px;padding:3px 10px;border-r
 .vt-voir .frise{margin-top:18px}
 @supports(animation-timeline:view()){li.etape{animation:revele linear both;animation-timeline:view();animation-range:entry 0% entry 70%}}
 @keyframes revele{from{opacity:0;translate:-14px 0}}
+/* Parcours animé (mouvement non réduit) : la ligne de la frise se trace au défilement et allume chaque point,
+   les cartes des rangées grossissent en entrant par la droite et rapetissent en sortant, le profil s'ouvre en douceur */
+@media (prefers-reduced-motion:no-preference){
+@supports(animation-timeline:view()){
+.v-parcours li.etape,.vt-voir li.etape{view-timeline:--etape}
+.v-parcours li.etape::before,.vt-voir li.etape::before{transform-origin:top;animation:trait linear both;animation-timeline:--etape;animation-range:entry 10% cover 45%}
+.v-parcours .point,.vt-voir .point{animation:allume linear both;animation-timeline:--etape;animation-range:entry 40% entry 100%}
+.v-parcours .piste>.carte{animation:carte-entre linear both,carte-sort linear both;animation-timeline:view(inline),view(inline);animation-range:entry,exit}
+}
+.profil-texte:not(.replie) p+p{animation:deplie .5s var(--ease) both}
+.profil-texte:not(.replie) p+p+p{animation-delay:.08s}
+.profil-texte:not(.replie) p+p+p+p{animation-delay:.16s}
+}
+@keyframes trait{from{transform:scaleY(0)}}
+@keyframes allume{from{transform:scale(.3);border-width:1px}}
+@keyframes carte-entre{from{transform:scale(.88) translateX(18px)}}
+@keyframes carte-sort{to{transform:scale(.88) translateX(-18px)}}
+@keyframes deplie{from{opacity:0;translate:0 8px}}
 @media(prefers-reduced-motion:reduce){*,::before,::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}.barre,li.etape,.point.actif,.diapo-visuel>img,.diapo-visuel>video,#chargement *{animation:none}}
 @media(min-width:1024px) and (min-height:600px){:root{--top:84px;--gx:32px}.hin{padding:16px 32px}.tools{height:56px}.tb{width:48px;height:48px}}
 /* ===== Champ média et médiathèque (admin et édition sur le site) ===== */
