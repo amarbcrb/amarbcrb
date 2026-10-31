@@ -556,6 +556,7 @@ dialog.mediatheque::backdrop{background:rgba(0,0,0,.55);-webkit-backdrop-filter:
 /* ===== Édition sur le site (propriétaire) ===== */
 .brand{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .pastille-modifier{position:fixed;z-index:31;right:16px;bottom:calc(env(safe-area-inset-bottom) + var(--navh) + 30px);min-height:44px;padding:0 18px;font-size:14px;box-shadow:0 8px 24px var(--lg-sh)}
+.pastille-visiteur{position:fixed;z-index:31;right:16px;bottom:calc(env(safe-area-inset-bottom) + var(--navh) + 84px);min-height:44px;padding:0 16px;font-size:13px;box-shadow:0 8px 24px var(--lg-sh)}
 .connexion-site{display:flex;flex-direction:column;gap:10px;padding-bottom:8px}
 .connexion-site label{font-weight:600}
 .connexion-site input{min-height:48px;padding:0 14px;border-radius:12px;border:.75px solid var(--line2);background:var(--fill);color:var(--tx);font:inherit;font-size:17px}
@@ -572,7 +573,7 @@ body.edition [data-edit]:focus{outline:2px solid var(--acc)}
 .barre-edition .statut:empty{display:none}
 .conflit-edition{padding:8px;font-size:14px}
 .conflit-edition .acts{display:flex;gap:8px;margin-top:8px}
-body.edition .pastille-modifier{display:none}
+body.edition :is(.pastille-modifier,.pastille-visiteur){display:none}
 /* outils de l'édition : sur chaque carte, et « + Ajouter » en fin de liste */
 .outils-edition,.ajout,.ajout-li{display:none}
 body.edition .outils-edition{position:absolute;z-index:5;top:6px;right:6px;display:flex;gap:4px;padding:3px;border-radius:999px;background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
