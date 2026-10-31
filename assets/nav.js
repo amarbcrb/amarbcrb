@@ -205,7 +205,7 @@ void main(){
     track.style.transform=`translate(${panelOff(panel.v)}px,${ty.v}px) scaleX(${tx.v})`;draw()}
 
   /* ---- réfraction des bords de la barre (backdrop-filter SVG, Chromium seulement) ---- */
-  const chromium=!!(navigator.userAgentData&&navigator.userAgentData.brands&&navigator.userAgentData.brands.some(b=>/Chromium/.test(b.brand)))&&!matchMedia('(prefers-reduced-transparency: reduce)').matches&&!document.documentElement.classList.contains('leger'),
+  const chromium=!!(navigator.userAgentData&&navigator.userAgentData.brands&&navigator.userAgentData.brands.some(b=>/Chromium/.test(b.brand)))&&!matchMedia('(prefers-reduced-transparency: reduce)').matches&&!document.documentElement.classList.contains('leger')&&matchMedia('(pointer: fine)').matches,
     barMap=document.getElementById('navMap');let mapKey='',mapTm=0;
   function sdRR(px,py,hx,hy,r){const qx=Math.abs(px)-(hx-r),qy=Math.abs(py)-(hy-r);return Math.hypot(Math.max(qx,0),Math.max(qy,0))-r+Math.min(Math.max(qx,qy),0)}
   function gradRR(px,py,hx,hy,r){const qx=Math.abs(px)-(hx-r),qy=Math.abs(py)-(hy-r),sx=px>=0?1:-1,sy=py>=0?1:-1;
