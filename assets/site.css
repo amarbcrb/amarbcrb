@@ -46,6 +46,8 @@ background:radial-gradient(140% 62% at 50% -14%,color-mix(in srgb,var(--halo) 40
 /* pendant le glissement, le verre est redonné au calque de la barre (le flou du fond n'est pas dans sa capture) */
 ::view-transition-group(nav),::view-transition-group(loupe){border-radius:999px;-webkit-backdrop-filter:blur(18px) saturate(1.8);backdrop-filter:blur(18px) saturate(1.8)}
 ::view-transition-group(entete){-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);-webkit-mask-image:linear-gradient(#000 62%,transparent);mask-image:linear-gradient(#000 62%,transparent)}
+/* pendant l'animation, les clics passent à la vraie page : on peut changer d'onglet sans attendre la fin */
+::view-transition{pointer-events:none}
 ::view-transition-old(root),::view-transition-new(root){animation:none}
 ::view-transition-group(vue){animation:none}
 ::view-transition-old(vue),::view-transition-new(vue){height:100%;object-fit:none;object-position:50% 0;mix-blend-mode:normal}

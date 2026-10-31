@@ -172,6 +172,8 @@ void main(){
     float ha=0.5*uPress*inten*hl;inCol=over(inCol,vec4(vec3(ha),ha));}
   float e=1.0-0.5*uPress;inCol=over(inCol,vec4(uSurface*0.52*e,0.52*e));inCol=over(inCol,vec4(uAccent*0.2*e,0.2*e));
   float rimA=mix(0.6,0.15,clamp(p.y/uTrack.y,0.0,1.0))*clamp(lsd*s+1.5,0.0,1.0)*e;inCol=over(inCol,vec4(uAccent*rimA,rimA));
+  float bord=clamp(lsd*s+1.6,0.0,1.0)*clamp(-lsd*s+0.2,0.0,1.0);float spec=abs(dot(gradRR(lc,uPillHalf,min(uPillR*1.5,min(uPillHalf.x,uPillHalf.y))),vec2(0.70710678)));
+  float bA=bord*(0.35+0.5*spec);inCol=over(inCol,vec4(vec3(bA),bA));
   inCol=over(inCol,icons(uRefract>0.5?src:p));
   gl_FragColor=mix(outCol,inCol,pillCov);}`;
   function initGL(){let gl=null;try{gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false})}catch(_){}if(!gl)return null;
@@ -199,7 +201,7 @@ void main(){
     /* sans WebGL : pastille pleine teintée de la couleur de l'onglet */
     c2.setTransform(1,0,0,1,0,0);c2.clearRect(0,0,canvas.width,canvas.height);c2.setTransform(dpr,0,0,dpr,MX*dpr,MY*dpr);
     const pill=pillPath(g),out=new Path2D();c2.fillStyle=css(C.sf,.6);c2.fill(pill);c2.fillStyle=css(acc,.2);c2.fill(pill);
-    c2.strokeStyle=css(acc,.5);c2.lineWidth=1;c2.stroke(pill);out.rect(-MX,-MY,W+MX*2,H+MY*2);out.addPath(pill);
+    c2.strokeStyle='rgba(255,255,255,.55)';c2.lineWidth=1;c2.stroke(pill);out.rect(-MX,-MY,W+MX*2,H+MY*2);out.addPath(pill);
     c2.save();c2.clip(out,'evenodd');drawRow(c2,f,false);c2.restore();c2.save();c2.clip(pill);drawRow(c2,f,true);c2.restore()}
   function render(){wrap.style.transform=`scale(${tp.v})`;track.style.transformOrigin=`${originX}px 50%`;
     track.style.transform=`translate(${panelOff(panel.v)}px,${ty.v}px) scaleX(${tx.v})`;draw()}
