@@ -74,11 +74,12 @@ export function outilsListes(ctx) {
     ouvrirFiche({ titre: nouveau ? `Ajouter ${schema.libelle}` : `Modifier ${objet ? schema.libelle : nomDe(cible)}`, corps: form, onFerme: () => { retablir(); ctx.rendre(); } });
   }
 
-  function ajouter(liste) {
+  /* categorie : rangée d'une catégorie de ressources où l'on a cliqué « + Ajouter » */
+  function ajouter(liste, categorie = '') {
     const schema = schemaDe(liste);
     if (!schema) return;
     const element = { id: nouvelId(schema.prefixe), ...JSON.parse(JSON.stringify(schema.nouveau)), visible: true };
-    if (liste === 'liens.items') { element.categorie = (ctx.contenu().liens.categories[0] || {}).id || ''; element.date = aujourdhui(); }
+    if (liste === 'liens.items') { element.categorie = categorie || (ctx.contenu().liens.categories[0] || {}).id || ''; element.date = aujourdhui(); }
     modifier(null, { nouveau: true, liste, element });
   }
 
@@ -153,7 +154,7 @@ export function outilsListes(ctx) {
       if (!schema) return;
       /* data-ajout : le bouton porte data-liste (pour les tests et l'accessibilité) sans être lui-même une liste */
       const b = el('button', { type: 'button', class: 'ajout', 'data-liste': x.dataset.liste, 'data-ajout': '1' }, `+ Ajouter ${schema.libelle}`);
-      b.addEventListener('click', (e) => { e.preventDefault(); ajouter(x.dataset.liste); });
+      b.addEventListener('click', (e) => { e.preventDefault(); ajouter(x.dataset.liste, x.dataset.categorie); });
       const piste = x.querySelector(':scope > .piste-cadre > .piste, :scope > .piste, :scope > .frise') || x;
       if (/^(UL|OL)$/.test(piste.tagName)) piste.append(el('li', { class: 'ajout-li' }, b)); else piste.append(b);
     });

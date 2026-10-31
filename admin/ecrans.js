@@ -241,7 +241,7 @@ function ecranMedias(racine, etat, modifier) {
   }));
 }
 
-const TITRES_ONGLETS = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Liens', contact: 'Fiche Contact' };
+const TITRES_ONGLETS = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Ressources', contact: 'Fiche Contact' };
 const ICONES_LIBELLES = { etoile: 'Étoile', appareil: 'Appareil photo', carte: 'Carte', livre: 'Livre', musique: 'Musique', globe: 'Globe', pinceau: 'Pinceau', flacon: 'Flacon' };
 const COULEURS_ONGLET = { '--c-blue': 'Bleu', '--c-indigo': 'Indigo', '--c-purple': 'Violet', '--c-pink': 'Rose', '--c-red': 'Rouge', '--c-orange': 'Orange',
   '--c-yellow': 'Jaune', '--c-green': 'Vert', '--c-teal': 'Turquoise', '--c-cyan': 'Cyan' };

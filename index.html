@@ -59,6 +59,8 @@ document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme: li
 /* animations : Windows les coupe souvent pour tout l'ordinateur sans que la personne l'ait choisi pour ce site,
    on les garde donc ; seuls les tests automatiques qui demandent « mouvement réduit » les coupent (classe calme) */
 if(navigator.webdriver&&matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('calme');
+/* téléphone peu puissant (4 cœurs ou 4 Go au plus) : animations sans flou ni verre dépoli, plus légères à dessiner */
+if(matchMedia('(pointer: coarse)').matches&&((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4))document.documentElement.classList.add('leger');
 </script>
 <link rel="stylesheet" href="/assets/site.css">
 <script type="module" src="/assets/site.js"></script>

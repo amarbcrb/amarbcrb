@@ -8,7 +8,7 @@ import { visuel, urlMedia } from './media.js';
 
 const FERMER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
 const MOTS = { accueil: 'Accueil', domaines: 'Ce que je fais', reperes: 'Repères', parcours: 'Parcours', interets: 'Intérêts', certifications: 'Certifications',
-  competences: 'Compétences', formation: 'Formation', experience: 'Expérience', engagement: 'Engagement', liens: 'Liens', items: '', pages: 'Onglets',
+  competences: 'Compétences', formation: 'Formation', experience: 'Expérience', engagement: 'Engagement', liens: 'Ressources', items: '', pages: 'Onglets',
   medias: 'Médias du site', photo: 'Photo', logo: 'Logo', favicon: 'Favicon', cv: 'CV' };
 
 /* « parcours.interets.0.image » → « Intérêts n°1 » */

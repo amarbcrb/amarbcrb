@@ -84,18 +84,27 @@
     "id": "r1",
     "valeur": "Master 1",
     "libelle": "Microbiologie, Lyon 1",
+    "image": null,
+    "lien": "",
+    "bouton": "",
     "visible": true
    },
    {
     "id": "r2",
     "valeur": "2022",
     "libelle": "Création de BioStudy",
+    "image": null,
+    "lien": "",
+    "bouton": "",
     "visible": true
    },
    {
     "id": "r3",
     "valeur": "6 ans",
     "libelle": "de design freelance",
+    "image": null,
+    "lien": "",
+    "bouton": "",
     "visible": true
    }
   ],

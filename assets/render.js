@@ -4,12 +4,13 @@ import { parties, contactVisible, couleurPartie, periode, ongletsVisibles, lienS
 import { format } from './router.js';
 import { COULEURS } from './nav.js';
 import { el } from './dom.js';
-import { carte, carteDomaine, tuileLien, typeDominant, iconeType, mediaLien } from './cartes.js';
+import { carte, carteDomaine, typeDominant, iconeType, mediaLien } from './cartes.js';
 import { carrousel } from './carrousel.js';
+import { visuel, urlMedia } from './media.js';
 
 
-const TITRES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Liens' };
-const VIDES = { parcours: 'Parcours bientôt disponible.', liens: 'Aucun lien pour le moment.', portfolio: 'Portfolio bientôt disponible.' };
+const TITRES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Ressources' };
+const VIDES = { parcours: 'Parcours bientôt disponible.', liens: 'Aucune ressource pour le moment.', portfolio: 'Portfolio bientôt disponible.' };
 const MAX_RANGEE = 10;
 const MAX_FRISE = 4;
 /* rubriques datées affichées en frise chronologique plutôt qu'en rangée de cartes */
@@ -106,7 +107,10 @@ function vueAccueil(c) {
     a.intro ? el('p', { class: 'intro', 'data-edit': 'accueil.intro', 'data-multiligne': '' }, a.intro) : null,
     actions.length ? el('div', { class: 'acts' }, actions) : null,
     diapos.length ? carrousel(diapos) : null,
-    reperes.length ? el('ul', { class: 'reperes', 'data-liste': 'accueil.reperes' }, reperes.map((x) => el('li', { 'data-element': `accueil.reperes#${x.id}` }, el('b', {}, x.valeur), el('span', {}, x.libelle)))) : null,
+    reperes.length ? el('ul', { class: 'reperes', 'data-liste': 'accueil.reperes' }, reperes.map((x) => el('li', { 'data-element': `accueil.reperes#${x.id}`, class: urlMedia(x.image) ? 'avec-image' : null },
+      urlMedia(x.image) ? visuel(x.image, { classe: 'visuel repere-visuel' }) : null,
+      el('div', { class: 'repere-texte' }, el('b', {}, x.valeur), el('span', {}, x.libelle)),
+      lienSur(x.lien) || /^#/.test(x.lien || '') ? el('a', { class: 'btn repere-btn', href: x.lien, target: lienSur(x.lien) ? '_blank' : null, rel: lienSur(x.lien) ? 'noopener' : null }, x.bouton || 'Voir') : null))) : null,
     rangees);
 }
 
@@ -144,30 +148,19 @@ function voirTout(onglet, p, c, couleur) {
 /* ---------- Liens, façon Bibliothèque ---------- */
 function vueLiens(c, liste) {
   const cats = liste.filter((p) => p.id !== 'tous');
-  const tous = liste.find((p) => p.id === 'tous');
   const section = (...enfants) => el('section', { class: 'vt v-liens', style: `--tc:var(${COULEURS.liens})` }, enTete(c, 'liens'), enfants);
-  /* catégories encore vides : visibles seulement en mode Modifier (sinon une catégorie ajoutée n'apparaissait pas) */
+  /* catégories encore vides : visibles seulement en mode Modifier (on peut y ajouter une ressource) */
   const vides = c.liens.categories.filter((x) => x.visible !== false && !cats.some((p) => p.id === x.id)).map((x) => ({ id: x.id, titre: x.nom, items: [], vide: true }));
-  const couleur = (cat) => couleurPartie('liens', cat, Math.max(0, cats.findIndex((p) => p.id === cat)));
-  const listeCats = el('ul', { class: 'liste-categories', 'data-liste': 'liens.categories' }, [...cats, ...vides].map((p) => el('li', { 'data-vide': p.vide ? '' : null }, el('a', { class: 'ligne-cat', href: format({ onglet: 'liens', sous: p.id }), style: `--pc:var(${couleur(p.id)})`, 'data-element': `liens.categories#${p.id}` },
+  const toutes = [...cats, ...vides];
+  const couleur = (cat) => couleurPartie('liens', cat, Math.max(0, toutes.findIndex((p) => p.id === cat)));
+  /* gestion des catégories (ajouter, renommer, supprimer, ordre) : mode Modifier seulement */
+  const listeCats = el('ul', { class: 'liste-categories', 'data-liste': 'liens.categories' }, toutes.map((p) => el('li', { 'data-vide': p.vide ? '' : null }, el('a', { class: 'ligne-cat', href: format({ onglet: 'liens', sous: p.id }), style: `--pc:var(${couleur(p.id)})`, 'data-element': `liens.categories#${p.id}` },
     el('span', { class: 'ico', html: iconeType(typeDominant(p.items, c)) }), el('b', {}, p.titre), el('small', {}, String(p.items.length)), el('i', { html: ICONES.suite })))));
-  if (!tous) return section(el('p', { class: 'vide' }, VIDES.liens), listeCats);
-  const total = tous.items.length;
-  const resume = el('article', { class: 'carte carte-resume' },
-    el('span', { class: 'lbl' }, 'Mes liens'), el('span', { class: 'icone-resume', html: iconeType('web') }),
-    el('span', { class: 'chiffre' }, el('b', {}, String(total)), el('span', {}, total > 1 ? 'liens partagés' : 'lien partagé')),
-    el('small', {}, cats.map((p) => `${p.items.length} ${p.titre.toLowerCase()}`).join(' · ')));
-  const une = tous.items.slice(0, 3).map((x, k) => {
-    const e = carte(x, { onglet: 'liens', partie: x.categorie, c, indice: k + 1 });
-    e.style.setProperty('--pc', `var(${couleur(x.categorie)})`);
-    return e;
-  });
-  return section(
-    el('div', { class: 'piste liens-une' }, resume, une),
-    listeCats,
-    el('section', { class: 'recents', 'data-liste': 'liens.items' },
-      el('div', { class: 'recents-tete' }, el('h2', {}, 'Récents'), el('a', { class: 'tout', href: format({ onglet: 'liens', sous: 'tous' }) }, 'Tout afficher')),
-      el('div', { class: 'piste tuiles' }, tous.items.slice(0, 10).map((x, k) => tuileLien(x, c, k)))));
+  /* une rangée par catégorie, avec « + Ajouter » qui range la nouvelle ressource dans cette catégorie */
+  const rangees = toutes.map((p, i) => rangee({ titre: p.titre, nombre: p.items.length, href: p.items.length ? format({ onglet: 'liens', sous: p.id }) : null, indice: i, couleur: couleur(p.id),
+    liste: 'liens.items', editTitre: `liens.categories#${p.id}.nom`, attrs: { 'data-categorie': p.id, 'data-vide': p.items.length ? null : '' },
+    cartes: p.items.map((x, k) => carte(x, { onglet: 'liens', partie: p.id, c, indice: k })) }));
+  return section(!cats.length ? el('p', { class: 'vide' }, VIDES.liens) : null, ...rangees, el('h2', { class: 'titre-categories' }, 'Catégories'), listeCats);
 }
 
 /* édition : chemin de la liste d'une partie, et chemin de son titre modifiable */

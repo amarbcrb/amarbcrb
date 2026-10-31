@@ -21,7 +21,7 @@ test('onglet libre : bouton dans la barre, rangée de cartes, fiche avec texte, 
   reinit(ASTRO);
   const p = await env.page();
   assert.deepEqual(await p.$$eval('.nav .nb', (bs) => bs.map((b) => [b.dataset.v, b.textContent.trim()])),
-    [['accueil', 'Accueil'], ['parcours', 'Parcours'], ['portfolio', 'Portfolio'], ['liens', 'Liens'], ['tabastro', 'Astronomie']]);
+    [['accueil', 'Accueil'], ['parcours', 'Parcours'], ['portfolio', 'Portfolio'], ['liens', 'Ressources'], ['tabastro', 'Astronomie']]);
   assert.equal(await p.locator('.nav .nb[data-v="tabastro"] svg path').count() > 0, true);
   await p.click('.nav .nb[data-v="tabastro"]');
   await p.waitForFunction(() => location.hash === '#tabastro');

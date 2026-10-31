@@ -28,7 +28,7 @@ const ITEMS = {
   'parcours.certifications': { titre: '', organisme: '', annee: '', url: '', image: null },
   'parcours.interets': { titre: '', texte: '', image: null },
   'liens.categories': { nom: '' },
-  'accueil.reperes': { valeur: '', libelle: '' },
+  'accueil.reperes': { valeur: '', libelle: '', image: null, lien: '', bouton: '' },
   'accueil.domaines': { titre: '', texte: '', image: null, lien: '' },
   'onglets.perso': { nom: '', icone: 'etoile', couleur: '--c-purple', type: 'rangees', dossierId: '', sousTitre: '' },
   'pages.rangees': { titre: '', cartes: [] },
@@ -216,8 +216,8 @@ export function parties(c, onglet, dossiersPortfolio = []) {
     const cats = visibles(c.liens.categories)
       .map((cat) => ({ id: cat.id, titre: cat.nom, items: items.filter((x) => x.categorie === cat.id) }))
       .filter((p) => p.items.length);
-    /* « Tous les liens » : page Voir tout de l'onglet entier (lien « Tout afficher ») */
-    return cats.length ? [...cats, { id: 'tous', titre: 'Tous les liens', items: cats.flatMap((p) => p.items).sort((a, b) => items.indexOf(a) - items.indexOf(b)) }] : [];
+    /* « Toutes les ressources » : page Voir tout de l'onglet entier (lien « Tout afficher ») */
+    return cats.length ? [...cats, { id: 'tous', titre: 'Toutes les ressources', items: cats.flatMap((p) => p.items).sort((a, b) => items.indexOf(a) - items.indexOf(b)) }] : [];
   }
   const perso = ongletPerso(c, onglet);
   if (perso && perso.type === 'rangees') {
