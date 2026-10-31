@@ -188,6 +188,10 @@ function enTete(c, onglet) {
   const texte = (perso ? perso.sousTitre : (c.onglets[onglet] || {}).sousTitre) || '';
   return [el('h1', {}, titreOnglet(c, onglet)), el('p', { class: 'sous-titre', 'data-edit': chemin, 'data-vide': 'Une phrase qui dit ce qu\'on trouve ici' }, texte)];
 }
+/* formes grises qui annoncent les rangées pendant que les dossiers Drive arrivent */
+const squelette = () => el('div', { class: 'squelette', 'aria-busy': 'true', 'aria-label': 'Chargement' },
+  [0, 1].map(() => el('div', { class: 'sq-rangee' }, el('span', { class: 'sq sq-barre' }),
+    el('div', { class: 'sq-piste' }, [0, 1, 2, 3].map(() => el('span', { class: 'sq sq-carte' }))))));
 export const couleurOnglet = (c, onglet) => COULEURS[onglet] || ((ongletPerso(c, onglet) || {}).couleur || '').replace(/[^\w-]/g, '') || '--c-purple';
 
 /* dossiers : données Drive (portfolio, galerie), null si le script est en panne, undefined tant qu'elles ne sont pas lues */
@@ -196,8 +200,8 @@ export function rendreVue(racine, c, { onglet, sous }, dossiers) {
   const perso = ongletPerso(c, onglet);
   const drive = onglet === 'portfolio' || (perso && perso.type === 'drive');
   if (drive && (dossiers === undefined || dossiers === null)) {
-    racine.replaceChildren(el('section', { class: 'vt' }, el('h1', {}, titreOnglet(c, onglet)),
-      el('p', { class: 'vide' }, dossiers === null ? `${titreOnglet(c, onglet)} momentanément indisponible.` : `Chargement…`)));
+    racine.replaceChildren(el('section', { class: 'vt' }, enTete(c, onglet),
+      dossiers === null ? el('p', { class: 'vide' }, `${titreOnglet(c, onglet)} momentanément indisponible.`) : squelette()));
     return;
   }
   if (drive && dossiers && dossiers.protege) {

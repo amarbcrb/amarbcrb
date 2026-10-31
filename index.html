@@ -22,6 +22,10 @@
 <script>(function () {
   var m = document.querySelector('meta[name="script-url"]'), u = m && m.content;
   if (u) window.__contenu = fetch(u + '?a=contenu', { redirect: 'follow' }).then(function (r) { return r.json(); });
+  /* puis tout le code de départ d'un coup (sinon chaque fichier n'est découvert qu'après le précédent) */
+  ['site', 'api', 'config', 'model', 'dom', 'router', 'nav', 'render', 'cartes', 'media', 'drapeaux', 'carrousel', 'search', 'fiche', 'apparition'].forEach(function (n) {
+    var l = document.createElement('link'); l.rel = 'modulepreload'; l.href = '/assets/' + n + '.js'; document.head.appendChild(l);
+  });
 })();</script>
 <!-- Open Graph -->
 <meta property="og:type" content="profile">
