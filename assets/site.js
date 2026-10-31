@@ -1,6 +1,6 @@
 /* Démarrage du site : thème, contenu, maintenance, en-tête, barre d'onglets et vues. */
 import { RM } from './mouvement.js';
-import { chargerContenu, lireJeton, lirePortfolio, lireGalerie, appeler, ecrireJeton, memoriserContenu } from './api.js';
+import { chargerContenu, lireJeton, lirePortfolio, lireGalerie, appeler, ecrireJeton, effacerJeton, memoriserContenu } from './api.js';
 import { el } from './dom.js';
 import { ongletsVisibles, contactVisible, parties, couleurPartie, ongletPerso } from './model.js';
 import { parse, format } from './router.js';
@@ -326,7 +326,7 @@ document.addEventListener('click', async (e) => {
 
 /* ---------- Édition sur le site (propriétaire) ----------
    Appui long (1 s) sur le nom : connexion. Connecté : pastille « Modifier ». Le code d'édition n'est chargé qu'à ce moment. */
-const majPastille = () => { $('modifier').hidden = !lireJeton() || !!etat.edition; };
+const majPastille = () => { $('modifier').hidden = $('visiteur').hidden = !lireJeton() || !!etat.edition; };
 const siteEdition = {
   publie: () => ({ contenu: etat.publie, version: etat.publie.version }),
   afficher(c) { etat.contenu = c; etat.index = null; etat.cleBase = null; if (appliquer(c)) afficher(false); },
@@ -349,6 +349,12 @@ async function ouvrirEdition() {
   majPastille();
 }
 $('modifier').addEventListener('click', ouvrirEdition);
+/* quitter le mode admin : on oublie la connexion et on continue comme un visiteur (appui long sur le nom pour revenir) */
+$('visiteur').addEventListener('click', () => {
+  effacerJeton();
+  majPastille();
+  toast('Mode visiteur. Appui long sur ton nom pour revenir.');
+});
 
 const ERREURS_CONNEXION = { mot_de_passe: 'Mot de passe incorrect.', bloque: 'Trop d\'essais. Réessaie dans 15 minutes.', reseau: 'Connexion impossible. Vérifie ta connexion internet.' };
 function ouvrirConnexion() {

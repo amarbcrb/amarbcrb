@@ -183,3 +183,12 @@ test('titres : rubrique de Parcours renommée sur place', async () => {
   await p.keyboard.press('Enter');
   assert.equal((await brouillon(p)).onglets.parcours.sous.formation.titre, 'Études');
 });
+
+test('mode visiteur : « Mode visiteur » oublie la connexion, plus de bouton Modifier', async () => {
+  reinit();
+  const p = await env.page({ stockage: { 'ab-jeton': jeton() } });
+  await p.click('#visiteur');
+  assert.equal(await p.isVisible('#modifier'), false);
+  assert.equal(await p.isVisible('#visiteur'), false);
+  assert.equal(await p.evaluate(() => localStorage.getItem('ab-jeton')), null);
+});
