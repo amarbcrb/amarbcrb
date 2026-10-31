@@ -206,6 +206,11 @@ footer b{color:var(--tx2);font-weight:600}
 .nav-search{flex:none;width:var(--navh);height:var(--navh);border-radius:50%;display:grid;place-items:center;color:var(--tx);transition:transform .35s var(--spring)}
 .nav-search:active{transform:scale(.9)}
 .nav-search svg{width:24px;height:24px;position:relative;z-index:1}
+.nav-in{cursor:grab}.nav-in.dragging{cursor:grabbing}
+/* clavier ouvert sur téléphone : barre masquée (comme BioStudy) */
+body.kb .barre{visibility:hidden}
+/* PC : barre en haut au centre, entre le nom et les boutons, comme sur BioStudy ; libellés à côté des icônes */
+@keyframes navin-d{from{opacity:0;translate:0 -30px;scale:.94}}
 /* ===== Coquille : chargement, maintenance, bandeau admin, vue ===== */
 /* squelette : formes grises qui annoncent la page pendant que le contenu arrive */
 #chargement{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;gap:12px;padding:calc(env(safe-area-inset-top) + 18px) 20px 0;max-width:var(--max);margin-inline:auto;background:var(--bg);overflow:hidden}
@@ -622,3 +627,14 @@ blockquote.avis p{font-size:16px;font-style:italic}
 body:not(.edition) .vt > .sous-titre:empty{display:none}
 body.edition .vt > .sous-titre:empty::before{content:attr(data-vide);opacity:.6;font-style:italic}
 .accueil > .carrousel{margin-top:22px}
+/* PC : barre en haut au centre (fin du fichier : passe après les positions du bas) */
+@media(min-width:1024px) and (min-height:600px){
+.barre{--navh:56px;top:calc(env(safe-area-inset-top) + 14px);bottom:auto;width:min(600px,calc(100vw - 580px));animation-name:navin-d}
+.shell{padding-bottom:calc(48px + env(safe-area-inset-bottom))}
+#toast{bottom:calc(28px + env(safe-area-inset-bottom))}
+.pastille-modifier{bottom:calc(env(safe-area-inset-bottom) + 24px)}
+.pastille-visiteur{bottom:calc(env(safe-area-inset-bottom) + 78px)}
+.barre-edition{bottom:calc(env(safe-area-inset-bottom) + 20px)}
+#bandeauAdmin{top:calc(env(safe-area-inset-top) + 84px)}
+#recherche{padding-bottom:40px}
+}
