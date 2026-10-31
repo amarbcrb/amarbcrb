@@ -31,8 +31,11 @@ export function rangee({ titre, nombre, href = null, cartes, indice = 0, couleur
     b.addEventListener('click', () => piste.scrollBy({ left: (sens === 'avant' ? 1 : -1) * piste.clientWidth * 0.9, behavior: 'smooth' }));
     return b;
   };
-  return el('section', { ...attrs, class: ['rangee', attrs.class].filter(Boolean).join(' '), style: `--i:${indice};--pc:var(${couleur})`, 'data-liste': liste, 'data-vide': cartes.length || !(String(liste).startsWith('pages.') || attrs['data-vide'] === '') ? null : '' }, teteRangee(titre, nombre, href, editTitre),
-    el('div', { class: 'piste-cadre' }, fleche('arriere', `Précédent : ${titre}`), piste, fleche('avant', `Suivant : ${titre}`)));
+  /* flèches (PC) dans l'en-tête de la rangée, à côté de « Voir tout » : elles ne cachent jamais une carte */
+  const tete = teteRangee(titre, nombre, href, editTitre);
+  tete.insertBefore(el('span', { class: 'fleches' }, fleche('arriere', `Précédent : ${titre}`), fleche('avant', `Suivant : ${titre}`)), tete.querySelector('.voir'));
+  return el('section', { ...attrs, class: ['rangee', attrs.class].filter(Boolean).join(' '), style: `--i:${indice};--pc:var(${couleur})`, 'data-liste': liste, 'data-vide': cartes.length || !(String(liste).startsWith('pages.') || attrs['data-vide'] === '') ? null : '' }, tete,
+    el('div', { class: 'piste-cadre' }, piste));
 }
 
 const teteRangee = (titre, nombre, href, editTitre = null) => el('div', { class: 'rangee-tete' }, el('h2', { 'data-edit': editTitre }, titre), nombre === null ? null : el('small', {}, String(nombre)),

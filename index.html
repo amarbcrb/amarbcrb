@@ -23,7 +23,7 @@
   var m = document.querySelector('meta[name="script-url"]'), u = m && m.content;
   if (u) window.__contenu = fetch(u + '?a=contenu', { redirect: 'follow' }).then(function (r) { return r.json(); });
   /* puis tout le code de départ d'un coup (sinon chaque fichier n'est découvert qu'après le précédent) */
-  ['site', 'api', 'config', 'model', 'dom', 'router', 'nav', 'render', 'cartes', 'media', 'drapeaux', 'carrousel', 'search', 'fiche', 'apparition'].forEach(function (n) {
+  ['site', 'api', 'config', 'model', 'dom', 'router', 'nav', 'render', 'cartes', 'media', 'drapeaux', 'carrousel', 'search', 'fiche', 'apparition', 'mouvement'].forEach(function (n) {
     var l = document.createElement('link'); l.rel = 'modulepreload'; l.href = '/assets/' + n + '.js'; document.head.appendChild(l);
   });
 })();</script>
@@ -56,6 +56,9 @@
 /* thème avant le premier rendu : choix mémorisé, sinon celui du système */
 (()=>{let t=null;try{t=localStorage.getItem('ab-theme')}catch(e){}
 document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')})();
+/* animations : Windows les coupe souvent pour tout l'ordinateur sans que la personne l'ait choisi pour ce site,
+   on les garde donc ; seuls les tests automatiques qui demandent « mouvement réduit » les coupent (classe calme) */
+if(navigator.webdriver&&matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('calme');
 </script>
 <link rel="stylesheet" href="/assets/site.css">
 <script type="module" src="/assets/site.js"></script>

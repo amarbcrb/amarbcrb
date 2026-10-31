@@ -1,8 +1,8 @@
 /* Fiche : feuille en verre qui monte du bas, par-dessus la page.
    Se ferme par le bouton, Échap, un clic sur le fond ou un glisser vers le bas ; le focus revient à l'élément d'origine. */
 
+import { RM } from './mouvement.js';
 const $ = (id) => document.getElementById(id);
-const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const etat = { ouverte: false, onFerme: null, retour: null, minuteur: 0 };
 
 export const ficheOuverte = () => etat.ouverte;

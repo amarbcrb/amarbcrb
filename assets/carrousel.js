@@ -1,10 +1,10 @@
 /* Carrousel « À la une » de l'Accueil : grandes bannières glissables, points, défilement automatique toutes les 5 s.
    Le défilement s'arrête quand le doigt, la souris ou le focus est dedans, quand l'onglet est caché,
    et n'existe pas si l'utilisateur a demandé moins d'animations. */
+import { RM } from './mouvement.js';
 import { el } from './dom.js';
 import { visuel, urlMedia } from './media.js';
 
-const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const DELAI = 5000;
 /* fond de repli de chaque diapo tant qu'elle n'a pas d'image */
 const TEINTES = [['--c-teal', '--c-blue'], ['--c-purple', '--c-pink'], ['--c-orange', '--c-red'], ['--c-blue', '--c-indigo'], ['--c-green', '--c-teal']];
@@ -20,7 +20,15 @@ export function carrousel(diapos) {
   el('div', { class: 'diapo-texte' }, el('h2', {}, d.titre), d.texte ? el('p', {}, d.texte) : null,
     d.lien ? el('a', { class: 'btn pri', href: d.lien, target: d.externe ? '_blank' : null, rel: d.externe ? 'noopener' : null }, d.bouton || 'Découvrir') : null))));
   const points = el('div', { class: 'points' }, diapos.map((d, i) => el('button', { type: 'button', 'aria-label': `Diapositive ${i + 1} : ${d.titre}` })));
-  const racine = el('section', { class: 'carrousel', 'aria-roledescription': 'carrousel', 'aria-label': 'À la une' }, piste, n > 1 ? points : null);
+  /* flèches (PC à la souris) de part et d'autre des diapos */
+  const fleche = (sens) => {
+    const b = el('button', { type: 'button', class: `piste-fleche ${sens}`, 'aria-label': sens === 'avant' ? 'Diapositive suivante' : 'Diapositive précédente',
+      html: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${sens === 'avant' ? 'm9 18 6-6-6-6' : 'm15 18-6-6 6-6'}"/></svg>` });
+    b.addEventListener('click', () => { aller(Math.min(n - 1, Math.max(0, actuel + (sens === 'avant' ? 1 : -1)))); pause(8000); });
+    return b;
+  };
+  const racine = el('section', { class: 'carrousel', 'aria-roledescription': 'carrousel', 'aria-label': 'À la une' },
+    n > 1 ? fleche('arriere') : null, piste, n > 1 ? fleche('avant') : null, n > 1 ? points : null);
 
   let actuel = -1;
   const marquer = (i) => {

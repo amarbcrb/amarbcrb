@@ -1,4 +1,5 @@
 /* Démarrage du site : thème, contenu, maintenance, en-tête, barre d'onglets et vues. */
+import { RM } from './mouvement.js';
 import { chargerContenu, lireJeton, lirePortfolio, lireGalerie, appeler, ecrireJeton, memoriserContenu } from './api.js';
 import { el } from './dom.js';
 import { ongletsVisibles, contactVisible, parties, couleurPartie, ongletPerso } from './model.js';
@@ -12,7 +13,6 @@ import { apparitions } from './apparition.js';
 
 const $ = (id) => document.getElementById(id);
 const root = document.documentElement;
-const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* drive[onglet] : données Drive du Portfolio ou d'une galerie ; undefined tant qu'elles ne sont pas lues, null si le script est en panne */
 /* base : page affichée sous une éventuelle fiche ; empilee : la fiche a sa propre entrée d'historique */
 /* publie : contenu en ligne ; edition : mode édition ouvert (module chargé à la demande) */
@@ -320,7 +320,8 @@ document.querySelector('.skip').addEventListener('click', (e) => { e.preventDefa
 document.addEventListener('click', async (e) => {
   const b = e.target.closest('[data-copier]');
   if (!b) return;
-  try { await navigator.clipboard.writeText(b.dataset.copier); toast('E-mail copié'); } catch { location.href = 'mailto:' + b.dataset.copier; }
+  const lien = /^https?:/.test(b.dataset.copier);
+  try { await navigator.clipboard.writeText(b.dataset.copier); toast(lien ? 'Lien copié' : 'E-mail copié'); } catch { if (!lien) location.href = 'mailto:' + b.dataset.copier; }
 });
 
 /* ---------- Édition sur le site (propriétaire) ----------

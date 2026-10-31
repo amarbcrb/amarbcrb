@@ -1,10 +1,10 @@
 /* Rendu d'un média (image, GIF, vidéo, YouTube) dans un cadre, avec cadrage automatique :
    si la forme du média s'écarte de plus de 25 % de celle du cadre (logo, image large), il est affiché entier,
    centré sur une copie floutée de lui-même ; sinon il remplit le cadre. */
+import { RM } from './mouvement.js';
 import { el } from './dom.js';
 import { lienSur, typeMedia, idYoutube } from './model.js';
 
-const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const ECART = 1.25;
 const LECTURE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
 

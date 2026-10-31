@@ -9,17 +9,33 @@ const CHEVRON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-
 const visibles = (l) => l.filter((x) => x.visible !== false);
 const domaine = (url) => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return ''; } };
 
+/* téléphone : on ouvre les applications. E-mail : mailto (l'appli de messagerie, Gmail sur Android) ; sur PC, Gmail dans le navigateur.
+   LinkedIn sur Android : lien d'application (intent) qui ouvre l'appli LinkedIn, sinon la page web ; ailleurs, l'adresse du profil. */
+const MOBILE = matchMedia('(pointer: coarse)').matches;
+const ANDROID = /Android/i.test(navigator.userAgent);
+const lienEmail = (e) => (MOBILE ? `mailto:${e}` : `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(e)}`);
+function lienLinkedin(url) {
+  if (!ANDROID) return url;
+  const u = new URL(url);
+  return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;package=com.linkedin.android;S.browser_fallback_url=${encodeURIComponent(url)};end`;
+}
+const ICONES_CT = {
+  copier: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>',
+  ecrire: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>',
+  ouvrir: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>',
+};
+
 /* fiche Contact : coordonnées, CV, « Ouvert à » */
 export function corpsContact(c) {
   const k = c.contact;
   const lignes = [
-    /* e-mail et LinkedIn : copier, ou ouvrir directement (Gmail, LinkedIn) */
-    k.email && el('li', { class: 'row' }, el('span', { class: 't' }, el('b', {}, 'E-mail'), el('small', {}, k.email)),
-      el('span', { class: 'cps' }, el('button', { class: 'cp', type: 'button', 'data-copier': k.email }, 'Copier'),
-        el('a', { class: 'cp', href: `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(k.email)}`, target: '_blank', rel: 'noopener' }, 'Gmail'))),
-    lienSur(k.linkedin) && el('li', { class: 'row' }, el('span', { class: 't' }, el('b', {}, 'LinkedIn'), el('small', {}, k.linkedin.replace(/^https?:\/\/(www\.)?/, ''))),
-      el('span', { class: 'cps' }, el('button', { class: 'cp', type: 'button', 'data-copier': k.linkedin, 'aria-label': 'Copier le lien LinkedIn' }, 'Copier le lien'),
-        el('a', { class: 'cp', href: k.linkedin, target: '_blank', rel: 'noopener' }, 'Ouvrir'))),
+    /* e-mail et LinkedIn : texte en haut, boutons en dessous (copier, ou ouvrir directement l'application) */
+    k.email && el('li', { class: 'row ligne-contact' }, el('span', { class: 't' }, el('b', {}, 'E-mail'), el('small', {}, k.email)),
+      el('span', { class: 'cps' }, el('button', { class: 'cp', type: 'button', 'data-copier': k.email, html: ICONES_CT.copier + 'Copier' }),
+        el('a', { class: 'cp', href: lienEmail(k.email), target: MOBILE ? null : '_blank', rel: 'noopener', html: ICONES_CT.ecrire + 'Écrire' }))),
+    lienSur(k.linkedin) && el('li', { class: 'row ligne-contact' }, el('span', { class: 't' }, el('b', {}, 'LinkedIn'), el('small', {}, k.linkedin.replace(/^https?:\/\/(www\.)?/, ''))),
+      el('span', { class: 'cps' }, el('button', { class: 'cp', type: 'button', 'data-copier': k.linkedin, 'aria-label': 'Copier le lien LinkedIn', html: ICONES_CT.copier + 'Copier le lien' }),
+        el('a', { class: 'cp', href: lienLinkedin(k.linkedin), target: MOBILE ? null : '_blank', rel: 'noopener', html: ICONES_CT.ouvrir + 'Ouvrir' }))),
     ...visibles(k.autres).filter((x) => lienSur(x.url)).map((x) => el('li', { 'data-element': `contact.autres#${x.id}` }, el('a', { class: 'row', href: x.url, target: '_blank', rel: 'noopener' },
       el('span', { class: 't' }, el('b', {}, x.label), el('small', {}, domaine(x.url))), el('i', { html: CHEVRON })))),
   ].filter(Boolean);

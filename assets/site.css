@@ -58,7 +58,7 @@ background:radial-gradient(140% 62% at 50% -14%,color-mix(in srgb,var(--halo) 40
 @keyframes vt-vient{from{opacity:0;transform:translateX(56px);filter:blur(14px)}}
 @keyframes vt-vient-g{from{opacity:0;transform:translateX(-56px);filter:blur(14px)}}
 /* ===== Icônes animées (coupées si mouvement réduit) ===== */
-@media (prefers-reduced-motion:no-preference){
+:root:not(.calme){
 #themeBtn.tourne svg{animation:tourne-icone .6s var(--spring)}
 #contactBtn:hover svg,#contactBtn:active svg{animation:bulle .6s var(--spring)}
 .nav-search:active svg,.nav-search:hover svg{animation:loupe .5s var(--spring)}
@@ -173,7 +173,8 @@ a.row,button.row{width:100%;text-align:left;transition:background .25s}
 .ct{margin-top:36px}.ct .row{min-height:66px}
 .ct .cp{flex-shrink:0;min-height:44px;padding:0 14px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;background:var(--fill);transition:transform .35s var(--spring),background .25s}
 .ct .cp:active{transform:scale(.94)}.ct .cp svg{width:16px;height:16px}
-.ct .cps{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;flex-shrink:0}
+.ct .ligne-contact{flex-direction:column;align-items:stretch;gap:10px}
+.ct .cps{display:flex;gap:8px}.ct .cps .cp{flex:1;justify-content:center}
 @media(hover:hover){.ct .cp:hover{background:color-mix(in srgb,var(--tx) 12%,transparent)}}
 .note{margin:14px 20px 0;font-size:14px;color:var(--tx3);line-height:1.5}
 /* pied de page */
@@ -270,9 +271,13 @@ footer b{color:var(--tx2);font-weight:600}
 .piste>*{scroll-snap-align:start}
 .piste-fleche{display:none}
 @media(hover:hover) and (pointer:fine){
-.piste-fleche{display:grid;place-items:center;position:absolute;top:50%;translate:0 -50%;z-index:2;width:44px;height:44px;border-radius:50%;background:var(--glass-bg);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:inset 0 0 0 .75px var(--glass-line),0 6px 18px var(--lg-sh);opacity:0;transition:opacity .2s}
-.piste-fleche.arriere{left:-8px}.piste-fleche.avant{right:-8px}
-.piste-cadre:hover .piste-fleche{opacity:1}}
+.piste-fleche{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--fill);transition:background .2s,transform .3s var(--spring)}
+.piste-fleche:hover{background:color-mix(in srgb,var(--tx) 14%,transparent)}.piste-fleche:active{transform:scale(.92)}
+.piste-fleche svg{width:20px;height:20px}
+.fleches{display:flex;gap:6px;margin-left:auto}.fleches+.voir{margin-left:6px}
+/* carrousel : flèches posées sur les bords, au milieu de la hauteur des diapos */
+.carrousel>.piste-fleche{position:absolute;z-index:3;top:calc(50% - 44px);width:48px;height:48px;color:#fff;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.carrousel>.piste-fleche.arriere{left:10px}.carrousel>.piste-fleche.avant{right:10px}}
 /* cartes */
 .carte{position:relative;flex:0 0 auto;display:flex;flex-direction:column;gap:4px;border-radius:22px;background:var(--card);border:.75px solid var(--line);box-shadow:var(--shadow);overflow:hidden;transition:transform .35s var(--spring),border-color .2s,box-shadow .3s;animation:monte .45s var(--ease) both;animation-delay:calc(var(--k,0)*35ms)}
 a.carte:active,.vignette:active{transform:scale(.97)}
@@ -481,7 +486,7 @@ a.etape .en-cours{align-self:flex-start;margin-top:4px;padding:3px 10px;border-r
 @keyframes revele{from{opacity:0;translate:-14px 0}}
 /* Parcours animé (mouvement non réduit) : la ligne de la frise se trace au défilement et allume chaque point,
    les cartes des rangées grossissent en entrant par la droite et rapetissent en sortant, le profil s'ouvre en douceur */
-@media (prefers-reduced-motion:no-preference){
+:root:not(.calme){
 @supports(animation-timeline:view()){
 .v-parcours li.etape,.vt-voir li.etape{view-timeline:--etape}
 .v-parcours li.etape::before,.vt-voir li.etape::before{transform-origin:top;animation:trait linear both;animation-timeline:--etape;animation-range:entry 10% cover 45%}
@@ -499,7 +504,7 @@ a.etape .en-cours{align-self:flex-start;margin-top:4px;padding:3px 10px;border-r
 @keyframes deplie{from{opacity:0;translate:0 8px}}
 /* apparition au défilement : chaque bloc glisse doucement du côté en se défloutant, petit à petit avec le défilement
    (navigateurs sans animation liée au défilement : même effet déclenché par assets/apparition.js) */
-@media (prefers-reduced-motion:no-preference){
+:root:not(.calme){
 @supports(animation-timeline:view()){
 .rangee,.profil,.reperes,.carrousel,.grille>*{animation:apparait linear both;animation-timeline:view();animation-range:entry 0% entry 80%}
 }
@@ -507,7 +512,8 @@ a.etape .en-cours{align-self:flex-start;margin-top:4px;padding:3px 10px;border-r
 .apparition.vu{opacity:1;translate:0 0;filter:none}
 }
 @keyframes apparait{from{opacity:0;translate:36px 0;filter:blur(10px)}}
-@media(prefers-reduced-motion:reduce){*,::before,::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}.barre,li.etape,.point.actif,.sq,#chargement *{animation:none}}
+.calme *,.calme ::before,.calme ::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}
+.calme :is(.barre,li.etape,.point.actif,.sq),.calme #chargement *{animation:none}
 @media(min-width:1024px) and (min-height:600px){:root{--top:84px;--gx:32px}.hin{padding:16px 32px}.tools{height:56px}.tb{width:48px;height:48px}}
 /* ===== Champ média et médiathèque (admin et édition sur le site) ===== */
 .invisible{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
