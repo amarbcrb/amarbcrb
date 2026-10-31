@@ -244,27 +244,29 @@ void main(){
     glisser(i);release=true;pressT=0;shapeT=1;kick()}
   /* coordonnées dans la barre, corrigées de son échelle */
   const local=e=>{const r=track.getBoundingClientRect();return[(e.clientX-r.left)*W/(r.width||1),(e.clientY-r.top)*H/(r.height||1)]};
+  /* appui : rien ne bouge tant que le doigt ne glisse pas. Glisser (4 px) : la pastille gonfle en lentille et suit le doigt.
+     Simple appui : elle glisse en douceur jusqu'à l'onglet touché, sans gonfler. */
   track.addEventListener('pointerdown',e=>{
     if(pid!==null||!e.isPrimary||e.button!==0)return;
     pid=e.pointerId;cx0=e.clientX;cy0=e.clientY;[downX,downY]=local(e);downY=cl(downY,0,H);
-    originX=cl(downX,0,W);startY=ty.v;moved=0;target=at(downX);near=target;startT=target;startP=panel.v;
-    dragging=true;refract=false;release=false;pressT=1;shapeT=1.3;panel.vel=0;
-    try{track.setPointerCapture(pid)}catch(_){}
-    kick()});
+    startY=ty.v;moved=0;startP=panel.v;panel.vel=0;
+    try{track.setPointerCapture(pid)}catch(_){}});
   track.addEventListener('pointermove',e=>{
-    if(e.pointerId!==pid||!dragging)return;
+    if(e.pointerId!==pid)return;
     const dx=e.clientX-cx0,dy=e.clientY-cy0,tw=tabW();if(tw<=0)return;
-    if(Math.abs(dx)>=4)refract=true;
+    moved=Math.max(moved,Math.abs(dx),Math.abs(dy));
+    if(!dragging){if(moved<4)return;
+      glide=null;dragging=true;refract=true;release=false;pressT=1;shapeT=1.3;startT=pos.v;near=Math.round(pos.v);originX=cl(downX,0,W)}
     target=cl(startT+dx/tw,0,maxI);panel.snap(startP+dx);
     ty.snap(startY+rubber(dy,H)*.25);tx.snap(1-Math.min(Math.abs(dy)/700,1)*.08);
-    originX=cl(downX+dx,0,W);moved=Math.max(moved,Math.abs(dx),Math.abs(dy));
+    originX=cl(downX+dx,0,W);
     const n=Math.round(target);if(n!==near){near=n;buzz(4)}
     kick()});
   track.addEventListener('pointerup',e=>{
     if(e.pointerId!==pid)return;pid=null;
-    const i=moved>=4?cl(Math.round(target),0,maxI):at(downX);
+    const glisse=dragging,i=glisse?cl(Math.round(target),0,maxI):at(downX);
     dragging=false;refract=false;panel.vel=0;target=i;release=true;
-    if(moved<4)glisser(i);kick();
+    if(!glisse){pressT=0;shapeT=1;glisser(i)}kick();
     /* la page change à l'image suivante : la pastille a déjà commencé à glisser */
     requestAnimationFrame(()=>onSelect(i))});
   const cancel=e=>{if(e.pointerId!==pid)return;pid=null;panel.vel=0;select(active())};
