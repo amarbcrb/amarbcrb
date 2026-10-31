@@ -194,8 +194,8 @@ test('accueil : carrousel (domaines puis projet phare), salutation, compteurs, r
   assert.match(await p.innerText('#vue .intro'), /Master 1 de microbiologie[\s\S]*BioStudy/);
   assert.equal(await p.locator('#vue .reperes li').count(), 3);
   assert.match(await p.innerText('#vue .reperes li >> nth=2'), /6 ans\s+de design freelance/);
-  assert.deepEqual(await titres(p, '#vue .accueil .rangee-tete h2'), ['Ce que je fais', 'Projets', 'Certifications', 'Passions']);
-  assert.equal(await p.getAttribute('#vue .rangee:has(h2:text-is("Certifications")) a.voir', 'href'), '#parcours/certifications');
+  assert.deepEqual(await titres(p, '#vue .accueil .rangee-tete h2'), ['Ce que je fais', 'Projets']);
+  assert.equal(await p.locator('#vue .accueil .rangee:has(h2:text-is("Certifications"))').count(), 0);
   assert.equal(await p.locator('#vue .rangee:has(h2:text-is("Ce que je fais")) a.voir').count(), 0);
   assert.match(await p.innerText('#vue .carte-domaine >> nth=2'), /Montage vidéo[\s\S]*Vidéos courtes/);
   assert.equal(await p.getAttribute('#vue .accueil .acts a:has-text("Me contacter")', 'href'), '#contact');
@@ -225,7 +225,7 @@ test('accueil : domaine avec image, repère masqué, projet absent, listes vides
   p = await env.page();
   assert.equal(await p.locator('#vue .carrousel').count(), 0);
   assert.equal(await p.locator('#vue .reperes').count(), 0);
-  assert.deepEqual(await titres(p, '#vue .accueil .rangee-tete h2'), ['Projets', 'Certifications', 'Passions']);
+  assert.deepEqual(await titres(p, '#vue .accueil .rangee-tete h2'), ['Projets']);
 });
 
 test('echappe le HTML', async () => {
