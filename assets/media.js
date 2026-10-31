@@ -89,16 +89,18 @@ const ecran = 'IntersectionObserver' in window ? new IntersectionObserver((entre
 }), { threshold: 0.2 }) : null;
 
 /* media : { url, type? } ou adresse ; repli : () => Node affiché à la place (absent, cassé ou interdit) */
-export function visuel(media, { repli, classe = 'visuel', prioritaire = false } = {}) {
+/* remplir : toujours en plein cadre (bannière du carrousel), sans copie floue */
+export function visuel(media, { repli, classe = 'visuel', prioritaire = false, remplir = false } = {}) {
   const cadre = el('span', { class: classe, 'aria-hidden': 'true' });
   const url = urlMedia(media);
   const type = url ? typeMedia(typeof media === 'object' ? { ...media, url } : url) : null;
+  const poser = (l, h, fond, image) => (remplir ? (cadre.dataset.cadrage = 'cover') : cadrer(cadre, l, h, fond, image));
   const echec = () => { delete cadre.dataset.cadrage; cadre.replaceChildren(repli ? repli() : ''); };
   if (!type) { cadre.append(repli ? repli() : ''); return cadre; }
   if (type === 'video') {
     const v = el('video', { src: url, muted: true, loop: true, playsinline: true, preload: RM ? 'metadata' : 'auto', autoplay: !RM });
     v.muted = true;
-    v.addEventListener('loadedmetadata', () => cadrer(cadre, v.videoWidth, v.videoHeight, null), { once: true });
+    v.addEventListener('loadedmetadata', () => poser(v.videoWidth, v.videoHeight, null), { once: true });
     v.addEventListener('error', echec, { once: true });
     if (!RM && ecran) ecran.observe(v);
     cadre.append(v);
@@ -106,7 +108,9 @@ export function visuel(media, { repli, classe = 'visuel', prioritaire = false } 
   }
   const src = type === 'youtube' ? `https://i.ytimg.com/vi/${idYoutube(url)}/hqdefault.jpg` : url;
   const img = el('img', { src, alt: '', loading: prioritaire ? 'eager' : 'lazy', decoding: 'async', fetchpriority: prioritaire ? 'high' : null });
-  img.addEventListener('load', () => cadrer(cadre, img.naturalWidth, img.naturalHeight, () => el('img', { class: 'flou', src, alt: '' }), img), { once: true });
+  /* GIF : pas de copie floue (deux GIF animés à décoder, et un flou recalculé à chaque image) */
+  const flou = /\.gif(\?|$)/i.test(src) || (typeof media === 'object' && /gif/.test(media.type || '')) ? null : () => el('img', { class: 'flou', src, alt: '' });
+  img.addEventListener('load', () => poser(img.naturalWidth, img.naturalHeight, flou, img), { once: true });
   img.addEventListener('error', echec, { once: true });
   cadre.append(img);
   if (type === 'youtube') cadre.append(el('span', { class: 'lecture', html: LECTURE }));

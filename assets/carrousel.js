@@ -16,7 +16,7 @@ export function carrousel(diapos) {
     class: 'diapo', 'aria-roledescription': 'diapositive', 'aria-label': `${i + 1} sur ${n}`,
     style: `--dc:var(${TEINTES[i % TEINTES.length][0]});--dc2:var(${TEINTES[i % TEINTES.length][1]})`,
   },
-  urlMedia(d.image) ? visuel(d.image, { classe: 'visuel diapo-visuel', prioritaire: i === 0, repli: () => '' }) : null,
+  urlMedia(d.image) ? visuel(d.image, { classe: 'visuel diapo-visuel', prioritaire: i === 0, repli: () => '', remplir: true }) : null,
   el('div', { class: 'diapo-texte' }, el('h2', {}, d.titre), d.texte ? el('p', {}, d.texte) : null,
     d.lien ? el('a', { class: 'btn pri', href: d.lien, target: d.externe ? '_blank' : null, rel: d.externe ? 'noopener' : null }, d.bouton || 'Découvrir') : null))));
   const points = el('div', { class: 'points' }, diapos.map((d, i) => el('button', { type: 'button', 'aria-label': `Diapositive ${i + 1} : ${d.titre}` })));
@@ -28,11 +28,19 @@ export function carrousel(diapos) {
     actuel = i;
     [...points.children].forEach((b, k) => b.setAttribute('aria-current', String(k === i)));
   };
-  const aller = (i) => piste.scrollTo({ left: i * piste.clientWidth, behavior: RM ? 'auto' : 'smooth' });
+  /* les diapos sont moins larges que la piste (la suivante dépasse) : on se repère sur leur position */
+  const diapo = (i) => piste.children[i];
+  const aller = (i) => piste.scrollTo({ left: diapo(i).offsetLeft - diapo(0).offsetLeft, behavior: RM ? 'auto' : 'smooth' });
+  const proche = () => {
+    const x = piste.scrollLeft + diapo(0).offsetLeft;
+    let k = 0;
+    [...piste.children].forEach((d, j) => { if (Math.abs(d.offsetLeft - x) < Math.abs(diapo(k).offsetLeft - x)) k = j; });
+    return k;
+  };
   let image = 0;
   piste.addEventListener('scroll', () => {
     cancelAnimationFrame(image);
-    image = requestAnimationFrame(() => marquer(Math.round(piste.scrollLeft / Math.max(1, piste.clientWidth))));
+    image = requestAnimationFrame(() => marquer(proche()));
   }, { passive: true });
   points.addEventListener('click', (e) => {
     const b = e.target.closest('button');

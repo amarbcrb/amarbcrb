@@ -68,9 +68,13 @@ export function monterBarre({ conteneur, onglets, infos = {}, onSelect, onRecher
   const jelly = jellyNav({ wrap: nav, track: piste, canvas, items: boutons, active: () => courant,
     onSelect: (i) => { buzz(); marquer(i); onSelect(onglets[i]); } });
   marquer(0);
+  /* une fois par visite, après un court repos */
+  let vu = true;
+  try { vu = sessionStorage.getItem('ab-demo-barre') === '1'; sessionStorage.setItem('ab-demo-barre', '1'); } catch { vu = false; }
+  const demoTm = vu || RM ? 0 : setTimeout(() => jelly.demo(), 1500);
   return {
     select(id, anim = true) { const i = onglets.indexOf(id); if (i < 0) return; marquer(i); jelly.select(i, anim); },
-    detruire() { jelly.detruire(); barre.remove(); },
+    detruire() { clearTimeout(demoTm); jelly.detruire(); barre.remove(); },
     recherche,
   };
 }
@@ -264,6 +268,14 @@ void main(){
     onSelect(i)});
   const cancel=e=>{if(e.pointerId!==pid)return;pid=null;panel.vel=0;select(active())};
   track.addEventListener('pointercancel',cancel);track.addEventListener('lostpointercapture',cancel);
+  /* démonstration : au repos, la pastille glisse seule vers l'onglet voisin puis revient, en lentille, pour montrer
+     qu'on peut la faire glisser (une fois par visite, annulée dès que l'utilisateur touche la barre) */
+  let touche=false,demoTm=0;
+  track.addEventListener('pointerdown',()=>{touche=true;clearTimeout(demoTm)},{capture:true});
+  function demo(){if(RM||touche||dragging||!W)return;const a=active(),dir=a<maxI?1:-1;
+    track.dataset.demo='1';refract=true;release=false;pressT=1;shapeT=1.3;target=a+dir*.62;kick();
+    demoTm=setTimeout(()=>{if(touche)return;target=a;release=true;kick();
+      demoTm=setTimeout(()=>{refract=false;delete track.dataset.demo;draw()},700)},650)}
   /* clavier : Entrée / Espace déclenchent click sans pointeur */
   items.forEach((b,i)=>b.addEventListener('click',e=>{if(e.detail===0){select(i);onSelect(i)}}));
   /* redessine quand le thème ou la langue change */
@@ -271,4 +283,4 @@ void main(){
   const ro=new ResizeObserver(()=>{measure();render()});ro.observe(track);
   colors();measure();render();
   if(document.fonts)document.fonts.ready.then(draw);
-  return{select,detruire(){mo.disconnect();ro.disconnect();cancelAnimationFrame(raf)}}}
+  return{select,demo,detruire(){mo.disconnect();ro.disconnect();cancelAnimationFrame(raf);clearTimeout(demoTm)}}}

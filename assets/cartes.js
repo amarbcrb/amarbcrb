@@ -13,10 +13,13 @@ const domaine = (url) => { try { return new URL(url).hostname.replace(/^www\./, 
 export function corpsContact(c) {
   const k = c.contact;
   const lignes = [
+    /* e-mail et LinkedIn : copier, ou ouvrir directement (Gmail, LinkedIn) */
     k.email && el('li', { class: 'row' }, el('span', { class: 't' }, el('b', {}, 'E-mail'), el('small', {}, k.email)),
-      el('button', { class: 'cp', type: 'button', 'data-copier': k.email }, 'Copier')),
-    lienSur(k.linkedin) && el('li', {}, el('a', { class: 'row', href: k.linkedin, target: '_blank', rel: 'noopener' },
-      el('span', { class: 't' }, el('b', {}, 'LinkedIn'), el('small', {}, k.linkedin.replace(/^https?:\/\/(www\.)?/, ''))), el('i', { html: CHEVRON }))),
+      el('span', { class: 'cps' }, el('button', { class: 'cp', type: 'button', 'data-copier': k.email }, 'Copier'),
+        el('a', { class: 'cp', href: `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(k.email)}`, target: '_blank', rel: 'noopener' }, 'Gmail'))),
+    lienSur(k.linkedin) && el('li', { class: 'row' }, el('span', { class: 't' }, el('b', {}, 'LinkedIn'), el('small', {}, k.linkedin.replace(/^https?:\/\/(www\.)?/, ''))),
+      el('span', { class: 'cps' }, el('button', { class: 'cp', type: 'button', 'data-copier': k.linkedin, 'aria-label': 'Copier le lien LinkedIn' }, 'Copier le lien'),
+        el('a', { class: 'cp', href: k.linkedin, target: '_blank', rel: 'noopener' }, 'Ouvrir'))),
     ...visibles(k.autres).filter((x) => lienSur(x.url)).map((x) => el('li', { 'data-element': `contact.autres#${x.id}` }, el('a', { class: 'row', href: x.url, target: '_blank', rel: 'noopener' },
       el('span', { class: 't' }, el('b', {}, x.label), el('small', {}, domaine(x.url))), el('i', { html: CHEVRON })))),
   ].filter(Boolean);

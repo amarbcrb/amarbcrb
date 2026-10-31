@@ -2,7 +2,7 @@
    Formulaires qui lisent et modifient etat.contenu par chemin (« site.nom »). */
 import { SOUS_PARCOURS, nouvelId, periode, nomAffiche, ICONES_ONGLET, MAX_ONGLETS, ongletsVisibles } from '../assets/model.js';
 import { appeler, lirePortfolio } from '../assets/api.js';
-import { reduireImage, enBase64 } from './images.js';
+import { reduireImage, enBase64 } from '../assets/images.js';
 import { el } from '../assets/dom.js';
 import { champMedia } from '../assets/champ-media.js';
 

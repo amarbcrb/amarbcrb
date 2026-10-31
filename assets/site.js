@@ -8,6 +8,7 @@ import { rendreVue, couleurOnglet } from './render.js';
 import { construireIndex, chercher } from './search.js';
 import { ouvrirFiche, fermerFiche, ficheOuverte } from './fiche.js';
 import { corpsContact, corpsFiche, titreFiche, fondFiche } from './cartes.js';
+import { apparitions } from './apparition.js';
 
 const $ = (id) => document.getElementById(id);
 const root = document.documentElement;
@@ -187,7 +188,7 @@ function dessinerPage(base, anim) {
     const versRangees = avant && avant.onglet === base.onglet && avant.sous !== null && base.sous === null;
     scrollTo({ top: versRangees ? etat.positions[k] || 0 : 0, behavior: 'instant' });
   };
-  const dessiner = () => { rendreVue(vue, etat.contenu, base, etat.drive[base.onglet]); reflet(vue); defiler(); };
+  const dessiner = () => { rendreVue(vue, etat.contenu, base, etat.drive[base.onglet]); reflet(vue); apparitions(vue); defiler(); };
   if (!anim || RM || !avant || !vue.animate) { dessiner(); return; }
   const ordre = ongletsVisibles(etat.contenu);
   const sens = ordre.indexOf(base.onglet) >= ordre.indexOf(avant.onglet) ? 1 : -1;
