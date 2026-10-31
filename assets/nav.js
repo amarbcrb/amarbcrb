@@ -113,15 +113,16 @@ export function jellyNav({wrap,track,canvas,items,onSelect,active}){
       if(this.z===1){const e=Math.exp(-f*s),c=this.vel+f*d;this.v=t+(d+c*s)*e;this.vel=(this.vel-f*c*s)*e;return}
       const dm=this.z*f,w=f*Math.sqrt(1-this.z*this.z),e=Math.exp(-dm*s),co=Math.cos(w*s),si=Math.sin(w*s),pc=(this.vel+dm*d)/w,vc=(dm*this.vel+this.k*d)/w;
       this.v=t+e*(d*co+pc*si);this.vel=e*(this.vel*co-vc*si)}});
-  const dz=18/(2*Math.sqrt(216)),
-    pos=spring(0,1000,1),vel=spring(0,300,.5),press=spring(0,1000,1),sx=spring(1,250,.6),sy=spring(1,250,.7),
+  /* retours sans rebond (amortissement critique) : seule la goutte, pendant le glissement du doigt, est souple */
+  const dz=1,
+    pos=spring(0,1000,1),vel=spring(0,300,.5),press=spring(0,1000,1),sx=spring(1,250,1),sy=spring(1,250,1),
     panel=spring(0,300,1),ty=spring(0,240/.9,dz),tx=spring(1,240/.9,dz),tp=spring(1,240/.9,dz);
   let glide=null,W=0,H=0,dpr=1,target=0,pressT=0,sxT=1,syT=1,release=false,dragging=false,refract=false,downX=0,downY=0,startT=0,startP=0,startY=0,moved=0,originX=0,pid=null,cx0=0,cy0=0,near=0,raf=0,last=0;
   /* forme visée de la pastille (largeur, hauteur) ; appui façon BioStudy : 1,06 × 1,12 */
-  const forme=(x,y=x)=>{sxT=x;syT=y},APPUI=[1.06,1.12];
-  /* courbe « ressort » de BioStudy (cubic-bezier(.34,1.45,.64,1)) : dépasse un peu puis se cale */
-  const ressort=x=>{if(x<=0)return 0;if(x>=1)return 1;const b=(t,a,c)=>3*a*t*(1-t)*(1-t)+3*c*t*t*(1-t)+t*t*t;let lo=0,hi=1,t=x;
-    for(let i=0;i<22;i++){b(t,.34,.64)<x?lo=t:hi=t;t=(lo+hi)/2}return b(t,1.45,1)};
+  const forme=(x,y=x)=>{sxT=x;syT=y};
+  /* courbe douce cubic-bezier(.45,0,.2,1) : démarre en douceur, freine longuement, ne dépasse jamais l'onglet */
+  const douce=x=>{if(x<=0)return 0;if(x>=1)return 1;const b=(t,a,c)=>3*a*t*(1-t)*(1-t)+3*c*t*t*(1-t)+t*t*t;let lo=0,hi=1,t=x;
+    for(let i=0;i<22;i++){b(t,.45,.2)<x?lo=t:hi=t;t=(lo+hi)/2}return b(t,0,1)};
   const tabW=()=>Math.max(0,(W-8)/N),maxI=N-1,at=x=>cl(Math.floor((x-4)/tabW()),0,maxI);
   const rubber=(d,dim)=>{if(!d||dim<=0)return 0;const r=(1-1/(Math.abs(d)*.14/dim+1))*dim;return d<0?-r:r};
   function panelOff(raw){if(W<=0||!raw)return 0;const fr=cl(raw/W,-1,1),x=Math.abs(fr);let lo=0,hi=1,p=x;
@@ -259,12 +260,11 @@ void main(){
   function tick(now){
     raf=0;const s=RM?1:cl(last?(now-last)/1000:0,0,.064);last=now;
     target=cl(target,0,maxI);
-    /* clic : glissement à durée fixe (340 ms, accéléré puis freiné), en temps réel même si des images sautent */
-    if(glide){const k=cl((performance.now()-glide.t0)/glide.d,0,1);pos.v=cl(glide.de+(glide.vers-glide.de)*ressort(k),-.08,maxI+.08);pos.vel=0;
-      /* comme BioStudy : la pastille reste un peu gonflée 420 ms, puis reprend sa taille en rebondissant */
-      if(k*glide.d>=420){pressT=0;forme(1)}if(k>=1){pos.snap(glide.vers);glide=null;refract=false}}
+    /* clic : glissement souple à durée fixe (420 ms), sans gonfler ni rebondir, en temps réel même si des images sautent */
+    if(glide){const k=cl((performance.now()-glide.t0)/glide.d,0,1);pos.v=glide.de+(glide.vers-glide.de)*douce(k);pos.vel=0;
+      if(k>=1){pos.snap(glide.vers);glide=null}}
     else pos.step(target,s);
-    vel.step(dragging&&maxI>0?pos.vel/maxI:0,s);
+    vel.z=dragging?.5:1;vel.step(dragging&&maxI>0?pos.vel/maxI:0,s);
     if(!dragging)panel.step(0,s);
     if(release&&!glide&&Math.abs(pos.v-target)<Math.max(1,maxI)*.025){release=false;pressT=0;forme(1)}
     press.step(pressT,s);sx.step(sxT,s);sy.step(syT,s);tp.step(dragging?1.025:1,s);
@@ -274,20 +274,18 @@ void main(){
     if(busy)raf=requestAnimationFrame(tick);else last=0}
   const kick=()=>{if(!raf)raf=requestAnimationFrame(tick)};
   /* pendant le glissement la pastille grossit un peu en loupe et déforme les icônes qu'elle traverse, puis se repose */
-  const glisser=i=>{if(RM||Math.abs(pos.v-i)<1e-3){glide=null;return}if(glide&&glide.vers===i)return;glide={de:pos.v,vers:i,t0:performance.now(),d:600};refract=true;pressT=.3;forme(...APPUI)};
+  const glisser=i=>{if(RM||Math.abs(pos.v-i)<1e-3){glide=null;return}if(glide&&glide.vers===i)return;glide={de:pos.v,vers:i,t0:performance.now(),d:420};refract=false;pressT=0;forme(1)};
   function select(i,anim){dragging=false;refract=false;target=i;
     if(anim===false){glide=null;pos.snap(i);vel.snap(0);render();return}
     release=true;pressT=0;forme(1);glisser(i);kick()}
   /* coordonnées dans la barre, corrigées de son échelle */
   const local=e=>{const r=track.getBoundingClientRect();return[(e.clientX-r.left)*W/(r.width||1),(e.clientY-r.top)*H/(r.height||1)]};
-  /* comportement de la barre BioStudy (liquid-glass.js) : appui → la pastille gonfle un peu sur place ; glisser (6 px) →
-     elle gonfle en lentille et suit le doigt ; relâcher → elle file vers l'onglet avec un léger rebond. */
+  /* appui ou clic : la pastille glisse en douceur jusqu'à l'onglet, sans effet. Glisser le doigt ou la souris (6 px) :
+     elle devient une goutte (lentille) qui suit et déforme les icônes, puis se cale sans rebond. */
   function down(e){
     if(pid!==null||!e.isPrimary||e.button!==0)return;
     pid=e.pointerId;cx0=e.clientX;cy0=e.clientY;[downX,downY]=local(e);downY=cl(downY,0,H);
     startY=ty.v;moved=0;startP=panel.v;panel.vel=0;
-    /* appui (comme BioStudy) : la pastille gonfle un peu tout de suite, sans quitter son onglet */
-    if(!glide){pressT=.3;forme(...APPUI);kick()}
     try{track.setPointerCapture(pid)}catch(_){}}
   track.addEventListener('pointerdown',down);
   /* pendant l'animation de changement de page (View Transitions), Chrome envoie les clics à <html> et plus à la barre :
