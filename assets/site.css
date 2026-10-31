@@ -255,6 +255,11 @@ footer b{color:var(--tx2);font-weight:600}
 /* téléphone : une ligne par repère, chiffre à gauche, libellé à droite */
 @media(max-width:559px){.reperes{grid-template-columns:1fr;gap:8px}.reperes li{flex-direction:row;align-items:baseline;gap:14px;padding:12px 16px}.reperes b{flex:none;min-width:5.6ch;white-space:nowrap;font-size:26px}.reperes span{font-size:14px}}
 .accueil>.rangee{margin-top:34px}
+.repere-texte{display:flex;flex-direction:column;gap:4px;min-width:0}
+.reperes li.avec-image{flex-direction:column;align-items:stretch;padding-top:0;overflow:hidden}
+.reperes .repere-visuel{aspect-ratio:16/9;margin:0 -14px 8px;border-radius:0}
+.repere-btn{align-self:flex-start;min-height:44px;margin-top:8px;padding:0 16px;font-size:14px}
+@media(max-width:559px){.reperes .repere-texte{flex-direction:row;align-items:baseline;gap:14px}.reperes li{flex-wrap:wrap}.reperes li.avec-image .repere-visuel{margin:0 -16px 8px}}
 .accueil>.acts{margin-top:30px}
 @media(max-width:559px){.accueil>.acts .btn{flex:1 1 auto;padding:0 20px}}
 /* rangée */
@@ -512,6 +517,17 @@ a.etape .en-cours{align-self:flex-start;margin-top:4px;padding:3px 10px;border-r
 .apparition.vu{opacity:1;translate:0 0;filter:none}
 }
 @keyframes apparait{from{opacity:0;translate:28px 0;filter:blur(6px)}}
+/* téléphones peu puissants (classe leger, posée dans index.html) : mêmes glissements, sans flou (le flou coûte cher) */
+@keyframes apparait-leger{from{opacity:0;translate:28px 0}}
+.leger :is(.rangee,.profil,.reperes,.carrousel,.grille>*){animation-name:apparait-leger}
+.leger .apparition{filter:none}
+.leger .btn,.leger .top::before,.leger .nav-in.glass,.leger .nav-search.glass{-webkit-backdrop-filter:none;backdrop-filter:none}
+.leger .nav-in.glass,.leger .nav-search.glass{background:color-mix(in srgb,var(--bg) 88%,transparent)}
+@keyframes vt-part-l{to{opacity:0;transform:translateX(-56px)}}@keyframes vt-part-dl{to{opacity:0;transform:translateX(56px)}}
+@keyframes vt-vient-l{from{opacity:0;transform:translateX(56px)}}@keyframes vt-vient-gl{from{opacity:0;transform:translateX(-56px)}}
+:root.leger::view-transition-old(vue){animation-name:vt-part-l}:root.leger::view-transition-new(vue){animation-name:vt-vient-l}
+:root.leger[data-sens=arriere]::view-transition-old(vue){animation-name:vt-part-dl}:root.leger[data-sens=arriere]::view-transition-new(vue){animation-name:vt-vient-gl}
+:root.leger::view-transition-group(nav),:root.leger::view-transition-group(loupe),:root.leger::view-transition-group(entete){-webkit-backdrop-filter:none;backdrop-filter:none}
 .calme *,.calme ::before,.calme ::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}
 .calme :is(.barre,li.etape,.point.actif,.sq),.calme #chargement *{animation:none}
 @media(min-width:1024px) and (min-height:600px){:root{--top:84px;--gx:32px}.hin{padding:16px 32px}.tools{height:56px}.tb{width:48px;height:48px}}
@@ -581,7 +597,8 @@ body.edition .outils-texte .outil svg{width:18px;height:18px}
 .edition-form .erreur{color:var(--c-red);font-size:13px}
 .edition-form .erreur:empty{display:none}
 .edition-form .acts{display:flex;gap:8px}
-body:not(.edition) .rangee[data-vide],body:not(.edition) .liste-categories>li[data-vide]{display:none}
+body:not(.edition) .rangee[data-vide],body:not(.edition) :is(.v-liens .liste-categories,.v-liens .titre-categories){display:none}
+.titre-categories{margin-top:40px}
 body.edition .rangee-tete:has(.outils-dossier){flex-wrap:wrap}
 body.edition .outils-dossier{position:static;margin-left:8px;background:var(--fill);flex-wrap:wrap;max-width:100%}
 @media (max-width:600px){body.edition .outils-dossier{margin-left:0;flex-basis:100%;justify-content:flex-start;width:max-content}}

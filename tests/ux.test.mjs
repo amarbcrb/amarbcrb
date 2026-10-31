@@ -176,7 +176,7 @@ for (const theme of THEMES) {
     }));
     assert.ok(degrades.length > 0);
     degrades.forEach((r) => assert.ok(r >= 4.5, `contraste du dégradé ${r.toFixed(2)}`));
-    const hauts = await p.$$eval('#vue .liens-une .carte-lien .btn', (xs) => xs.slice(0, 4).map((x) => Math.round(x.getBoundingClientRect().top)));
+    const hauts = await p.$$eval('#vue .rangee:first-of-type .carte-lien .btn', (xs) => xs.slice(0, 4).map((x) => Math.round(x.getBoundingClientRect().top)));
     assert.equal(new Set(hauts).size, 1, `boutons Ouvrir à des hauteurs différentes : ${hauts}`);
     await ouvrirPage(p, '#accueil');
     const lbl = await p.$$eval('#vue .carte-domaine b', (xs) => xs.map((x) => Math.round(x.getBoundingClientRect().top)));

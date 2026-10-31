@@ -103,7 +103,7 @@ test('lien : image, titre, description, bouton (texte réglé ou « Ouvrir »), 
     Object.assign(c.liens.items[0], { image: `${env.site.url}/favicon-512x512.png?a`, bouton: 'Visiter BioStudy', date: '2026-12-01' });
   });
   const p = await env.page({ chemin: '/#liens' });
-  const premiere = p.locator('#vue .liens-une a.carte-lien >> nth=0');
+  const premiere = p.locator('#vue .rangee a.carte-lien >> nth=0');
   assert.equal(await premiere.getAttribute('href'), 'https://www.biostudy.xyz/');
   assert.equal(await premiere.getAttribute('target'), '_blank');
   assert.match(await premiere.getAttribute('rel'), /noopener/);
@@ -248,7 +248,7 @@ test('parties vides', async () => {
   assert.ok(!(await titres(p, '#vue .rangee h2')).includes('Engagement'));
   await p.goto(env.site.url + '/#liens');
   await p.waitForSelector('#vue .vide');
-  assert.equal(await p.innerText('#vue .vide'), 'Aucun lien pour le moment.');
+  assert.equal(await p.innerText('#vue .vide'), 'Aucune ressource pour le moment.');
 });
 
 test('aucune erreur console', async () => {
@@ -395,23 +395,15 @@ test('fiche façon Nuvio : bannière, description, « Détails » en lignes libe
   assert.equal((await details()).find((d) => d[0] === 'Statut')[1], 'En cours');
 });
 
-test('liens façon Bibliothèque : carte résumé + liens à la une, une ligne par catégorie, récents en tuiles', async () => {
+test('ressources : une rangée par catégorie (titre, nombre, Voir tout), page Toutes les ressources', async () => {
   reinit((c) => { c.liens.items[1].categorie = 'android'; c.liens.items[1].date = '2026-12-01'; });
   const p = await env.page({ chemin: '/#liens' });
-  assert.match(await p.innerText('#vue .liens-une .carte-resume'), /Mes liens[\s\S]*9\s+liens partagés[\s\S]*8 projets · 1 applis android/i);
-  assert.equal(await p.locator('#vue .liens-une a.carte-lien').count(), 3);
-  assert.equal(await p.getAttribute('#vue .liens-une a.carte-lien >> nth=0', 'href'), 'https://www.biostudy.xyz/BioCampus/');
-  const lignes = await p.$$eval('#vue .liste-categories li:not([data-vide]) a', (xs) => xs.map((x) => [x.querySelector('b').textContent, x.querySelector('small').textContent, x.getAttribute('href')]));
-  assert.deepEqual(lignes, [['Projets', '8', '#liens/projets'], ['Applis Android', '1', '#liens/android']]);
-  assert.equal(await p.locator('#vue .liste-categories a >> nth=0 >> svg').count() >= 1, true);
-  assert.equal(await p.innerText('#vue .recents h2'), 'Récents');
-  assert.equal(await p.getAttribute('#vue .recents a.tout', 'href'), '#liens/tous');
-  assert.equal(await p.locator('#vue .recents a.tuile').count(), 9);
-  assert.equal(await p.getAttribute('#vue .recents a.tuile >> nth=0', 'target'), '_blank');
-  assert.equal(await p.innerText('#vue .recents a.tuile >> nth=0 >> b'), 'BioCampus');
-  assert.equal(await p.locator('#vue .recents a.tuile >> nth=0 >> .tuile-visuel').count(), 1);
-  await p.click('#vue .recents a.tout');
-  await p.waitForFunction(() => location.hash === '#liens/tous');
-  assert.equal(await p.innerText('#vue .vt-tete h1'), 'Tous les liens');
+  const rangees = await p.$$eval('#vue .rangee:not([data-vide])', (xs) => xs.map((x) => [x.querySelector('h2').textContent, x.querySelector('.rangee-tete small').textContent, x.querySelector('.voir').getAttribute('href')]));
+  assert.deepEqual(rangees.slice(0, 2), [['Projets', '8', '#liens/projets'], ['Applis Android', '1', '#liens/android']]);
+  assert.equal(await p.getAttribute('#vue .rangee[data-categorie="android"] a.carte-lien', 'href'), 'https://www.biostudy.xyz/BioCampus/');
+  assert.equal(await p.locator('#vue .liste-categories').isVisible(), false);
+  await p.evaluate(() => { location.hash = '#liens/tous'; });
+  await p.waitForSelector('#vue .vt-tete h1');
+  assert.equal(await p.innerText('#vue .vt-tete h1'), 'Toutes les ressources');
   assert.equal(await p.locator('#vue .grille > .carte-lien').count(), 9);
 });

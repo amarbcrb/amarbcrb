@@ -15,7 +15,7 @@ test('affiche 5 onglets et le bouton recherche', async () => {
   reinit();
   const p = await env.page();
   const libelles = await p.$$eval('.nav .nb', (bs) => bs.map((b) => b.textContent.trim()));
-  assert.deepEqual(libelles, ['Accueil', 'Parcours', 'Portfolio', 'Liens']);
+  assert.deepEqual(libelles, ['Accueil', 'Parcours', 'Portfolio', 'Ressources']);
   assert.equal(await p.locator('.nav-search').count(), 1);
   assert.equal(await p.getAttribute('.nav-search', 'aria-label'), 'Rechercher');
   const [nav, rech] = await Promise.all([p.locator('.nav').boundingBox(), p.locator('.nav-search').boundingBox()]);

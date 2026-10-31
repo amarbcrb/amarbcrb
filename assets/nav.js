@@ -20,7 +20,7 @@ export const ICONES_PERSO = {
   pinceau: '<path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/>',
   flacon: '<path d="M9 3h6M10 3v6.5L4.5 19a1.5 1.5 0 0 0 1.3 2h12.4a1.5 1.5 0 0 0 1.3-2L14 9.5V3"/><path d="M7.5 15h9"/>',
 };
-const LIBELLES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Liens' };
+const LIBELLES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Ressources' };
 export const COULEURS = { accueil: '--c-blue', parcours: '--c-teal', portfolio: '--c-orange', liens: '--c-pink' };
 const LOUPE = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
 
@@ -205,7 +205,7 @@ void main(){
     track.style.transform=`translate(${panelOff(panel.v)}px,${ty.v}px) scaleX(${tx.v})`;draw()}
 
   /* ---- réfraction des bords de la barre (backdrop-filter SVG, Chromium seulement) ---- */
-  const chromium=!!(navigator.userAgentData&&navigator.userAgentData.brands&&navigator.userAgentData.brands.some(b=>/Chromium/.test(b.brand)))&&!matchMedia('(prefers-reduced-transparency: reduce)').matches,
+  const chromium=!!(navigator.userAgentData&&navigator.userAgentData.brands&&navigator.userAgentData.brands.some(b=>/Chromium/.test(b.brand)))&&!matchMedia('(prefers-reduced-transparency: reduce)').matches&&!document.documentElement.classList.contains('leger'),
     barMap=document.getElementById('navMap');let mapKey='',mapTm=0;
   function sdRR(px,py,hx,hy,r){const qx=Math.abs(px)-(hx-r),qy=Math.abs(py)-(hy-r);return Math.hypot(Math.max(qx,0),Math.max(qy,0))-r+Math.min(Math.max(qx,qy),0)}
   function gradRR(px,py,hx,hy,r){const qx=Math.abs(px)-(hx-r),qy=Math.abs(py)-(hy-r),sx=px>=0?1:-1,sy=py>=0?1:-1;
@@ -246,7 +246,7 @@ void main(){
     glisser(i);release=true;pressT=0;shapeT=1;kick()}
   /* coordonnées dans la barre, corrigées de son échelle */
   const local=e=>{const r=track.getBoundingClientRect();return[(e.clientX-r.left)*W/(r.width||1),(e.clientY-r.top)*H/(r.height||1)]};
-  /* appui : rien ne bouge tant que le doigt ne glisse pas. Glisser (4 px) : la pastille gonfle en lentille et suit le doigt.
+  /* appui : rien ne bouge tant que le doigt ne glisse pas. Glisser (10 px) : la pastille gonfle en lentille et suit le doigt.
      Simple appui : elle glisse en douceur jusqu'à l'onglet touché, sans gonfler. */
   track.addEventListener('pointerdown',e=>{
     if(pid!==null||!e.isPrimary||e.button!==0)return;
@@ -257,9 +257,11 @@ void main(){
     if(e.pointerId!==pid)return;
     const dx=e.clientX-cx0,dy=e.clientY-cy0,tw=tabW();if(tw<=0)return;
     moved=Math.max(moved,Math.abs(dx),Math.abs(dy));
-    if(!dragging){if(moved<4)return;
-      glide=null;dragging=true;refract=true;release=false;pressT=1;shapeT=1.3;startT=pos.v;near=Math.round(pos.v);originX=cl(downX,0,W)}
-    target=cl(startT+dx/tw,0,maxI);panel.snap(startP+dx);
+    /* un doigt bouge toujours un peu pendant un appui : en dessous de 10 px, c'est un appui, pas un glissement */
+    if(!dragging){if(moved<10)return;
+      glide=null;dragging=true;refract=true;release=false;pressT=1;shapeT=1.3;near=at(downX);originX=cl(downX,0,W)}
+    /* la pastille se place sous le doigt et le suit */
+    target=cl((downX+dx-4)/tw-.5,0,maxI);panel.snap(startP+dx);
     ty.snap(startY+rubber(dy,H)*.25);tx.snap(1-Math.min(Math.abs(dy)/700,1)*.08);
     originX=cl(downX+dx,0,W);
     const n=Math.round(target);if(n!==near){near=n;buzz(4)}

@@ -114,7 +114,7 @@ test('parties liens : catégories non vides, plus récents d\'abord', () => {
       { url: 'https://b.fr', titre: 'B', categorie: 'android', visible: false }, { url: 'https://c.fr', titre: 'C', categorie: 'cache' }],
   } });
   const r = parties(c, 'liens');
-  assert.deepEqual(r.map((x) => [x.id, x.titre]), [['projets', 'Projets'], ['tous', 'Tous les liens']]);
+  assert.deepEqual(r.map((x) => [x.id, x.titre]), [['projets', 'Projets'], ['tous', 'Toutes les ressources']]);
   assert.deepEqual(r[0].items.map((x) => x.id), ['u2', 'u1']);
   assert.deepEqual(r[1].items.map((x) => x.id), ['u2', 'u1']);
 });
@@ -300,10 +300,10 @@ test('duree : mois inclus, années, en cours jusqu\'à aujourd\'hui', () => {
   assert.equal(duree({ debut: '', fin: '2020' }, ref), '');
 });
 
-test('parties(liens) : « Tous les liens » en dernier quand il y a des liens', () => {
+test('parties(liens) : « Toutes les ressources » en dernier quand il y a des liens', () => {
   const c = normaliser(JSON.parse(readFileSync(new URL('../content/default.json', import.meta.url), 'utf8')));
   const l = parties(c, 'liens');
-  assert.deepEqual(l.map((p) => [p.id, p.titre, p.items.length]), [['projets', 'Projets', 9], ['tous', 'Tous les liens', 9]]);
+  assert.deepEqual(l.map((p) => [p.id, p.titre, p.items.length]), [['projets', 'Projets', 9], ['tous', 'Toutes les ressources', 9]]);
   c.liens.items.forEach((x) => { x.visible = false; });
   assert.deepEqual(parties(c, 'liens'), []);
 });
