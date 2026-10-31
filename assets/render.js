@@ -31,11 +31,17 @@ export function rangee({ titre, nombre, href = null, cartes, indice = 0, couleur
     b.addEventListener('click', () => piste.scrollBy({ left: (sens === 'avant' ? 1 : -1) * piste.clientWidth * 0.9, behavior: 'smooth' }));
     return b;
   };
-  /* flèches (PC) dans l'en-tête de la rangée, à côté de « Voir tout » : elles ne cachent jamais une carte */
-  const tete = teteRangee(titre, nombre, href, editTitre);
-  tete.insertBefore(el('span', { class: 'fleches' }, fleche('arriere', `Précédent : ${titre}`), fleche('avant', `Suivant : ${titre}`)), tete.querySelector('.voir'));
-  return el('section', { ...attrs, class: ['rangee', attrs.class].filter(Boolean).join(' '), style: `--i:${indice};--pc:var(${couleur})`, 'data-liste': liste, 'data-vide': cartes.length || !(String(liste).startsWith('pages.') || attrs['data-vide'] === '') ? null : '' }, tete,
-    el('div', { class: 'piste-cadre' }, piste));
+  /* flèches (PC) sous les cartes : elles n'en cachent jamais une */
+  return el('section', { ...attrs, class: ['rangee', attrs.class].filter(Boolean).join(' '), style: `--i:${indice};--pc:var(${couleur})`, 'data-liste': liste, 'data-vide': cartes.length || !(String(liste).startsWith('pages.') || attrs['data-vide'] === '') ? null : '' }, teteRangee(titre, nombre, href, editTitre),
+    el('div', { class: 'piste-cadre' }, piste), el('div', { class: 'fleches' }, fleche('arriere', `Précédent : ${titre}`), fleche('avant', `Suivant : ${titre}`)));
+}
+
+/* flèches seulement quand il y a des cartes à faire défiler */
+export function reglerFleches(racine) {
+  racine.querySelectorAll('.rangee').forEach((r) => {
+    const piste = r.querySelector('.piste'), f = r.querySelector(':scope > .fleches');
+    if (piste && f) f.hidden = piste.scrollWidth <= piste.clientWidth + 2;
+  });
 }
 
 const teteRangee = (titre, nombre, href, editTitre = null) => el('div', { class: 'rangee-tete' }, el('h2', { 'data-edit': editTitre }, titre), nombre === null ? null : el('small', {}, String(nombre)),
@@ -140,9 +146,13 @@ function vueLiens(c, liste) {
   const cats = liste.filter((p) => p.id !== 'tous');
   const tous = liste.find((p) => p.id === 'tous');
   const section = (...enfants) => el('section', { class: 'vt v-liens', style: `--tc:var(${COULEURS.liens})` }, enTete(c, 'liens'), enfants);
-  if (!tous) return section(el('p', { class: 'vide' }, VIDES.liens));
+  /* catégories encore vides : visibles seulement en mode Modifier (sinon une catégorie ajoutée n'apparaissait pas) */
+  const vides = c.liens.categories.filter((x) => x.visible !== false && !cats.some((p) => p.id === x.id)).map((x) => ({ id: x.id, titre: x.nom, items: [], vide: true }));
+  const couleur = (cat) => couleurPartie('liens', cat, Math.max(0, cats.findIndex((p) => p.id === cat)));
+  const listeCats = el('ul', { class: 'liste-categories', 'data-liste': 'liens.categories' }, [...cats, ...vides].map((p) => el('li', { 'data-vide': p.vide ? '' : null }, el('a', { class: 'ligne-cat', href: format({ onglet: 'liens', sous: p.id }), style: `--pc:var(${couleur(p.id)})`, 'data-element': `liens.categories#${p.id}` },
+    el('span', { class: 'ico', html: iconeType(typeDominant(p.items, c)) }), el('b', {}, p.titre), el('small', {}, String(p.items.length)), el('i', { html: ICONES.suite })))));
+  if (!tous) return section(el('p', { class: 'vide' }, VIDES.liens), listeCats);
   const total = tous.items.length;
-  const couleur = (cat) => couleurPartie('liens', cat, cats.findIndex((p) => p.id === cat));
   const resume = el('article', { class: 'carte carte-resume' },
     el('span', { class: 'lbl' }, 'Mes liens'), el('span', { class: 'icone-resume', html: iconeType('web') }),
     el('span', { class: 'chiffre' }, el('b', {}, String(total)), el('span', {}, total > 1 ? 'liens partagés' : 'lien partagé')),
@@ -154,8 +164,7 @@ function vueLiens(c, liste) {
   });
   return section(
     el('div', { class: 'piste liens-une' }, resume, une),
-    el('ul', { class: 'liste-categories', 'data-liste': 'liens.categories' }, cats.map((p) => el('li', {}, el('a', { class: 'ligne-cat', href: format({ onglet: 'liens', sous: p.id }), style: `--pc:var(${couleur(p.id)})`, 'data-element': `liens.categories#${p.id}` },
-      el('span', { class: 'ico', html: iconeType(typeDominant(p.items, c)) }), el('b', {}, p.titre), el('small', {}, String(p.items.length)), el('i', { html: ICONES.suite }))))),
+    listeCats,
     el('section', { class: 'recents', 'data-liste': 'liens.items' },
       el('div', { class: 'recents-tete' }, el('h2', {}, 'Récents'), el('a', { class: 'tout', href: format({ onglet: 'liens', sous: 'tous' }) }, 'Tout afficher')),
       el('div', { class: 'piste tuiles' }, tous.items.slice(0, 10).map((x, k) => tuileLien(x, c, k)))));

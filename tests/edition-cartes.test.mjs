@@ -105,6 +105,8 @@ test('catégories : créer, renommer ; supprimer une catégorie non vide est ref
   await p.waitForSelector('#fiche', { state: 'hidden' });
   const cats = (await brouillon(p)).liens.categories;
   assert.equal(cats.at(-1).nom, 'Vidéos');
+  /* la catégorie encore vide s'affiche en mode Modifier */
+  await p.waitForSelector('#vue .liste-categories a:has-text("Vidéos")');
   await p.click(outil('liens.categories#projets', 'Modifier'));
   await p.fill('#ficheCorps [name="nom"]', 'Mes projets');
   await valider(p);

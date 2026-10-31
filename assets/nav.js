@@ -117,7 +117,7 @@ export function jellyNav({wrap,track,canvas,items,onSelect,active}){
     if(v[0]==='#')return[1,3,5].map(i=>parseInt(v.slice(i,i+2),16));return(v.match(/[\d.]+/g)||[0,0,0]).slice(0,3).map(Number)};
   let C={};
   function colors(){const cs=getComputedStyle(document.documentElement);
-    C={tabs:items.map(b=>rgb(getComputedStyle(b).getPropertyValue('--nc'))),mut:cs.getPropertyValue('--mut').trim(),
+    C={tabs:items.map(b=>rgb(getComputedStyle(b).getPropertyValue('--nc'))),mut:cs.getPropertyValue('--mut').trim(),neutre:rgb(cs.getPropertyValue('--mut')),
       sf:rgb(cs.getPropertyValue('--pill-sf')),bg:rgb(cs.getPropertyValue('--bg')),font:cs.getPropertyValue('--font')}}
   const css=(c,a)=>`rgba(${c.join(',')},${a})`;
   function accentAt(p){const i=cl(Math.floor(p),0,maxI),j=Math.min(i+1,maxI),t=cl(p-i,0,1);return C.tabs[i].map((v,k)=>v+(C.tabs[j][k]-v)*t)}
@@ -186,7 +186,9 @@ void main(){
       return{gl,u}}catch(err){console.warn('Barre : WebGL indisponible, pastille simple',err);return null}}
   const GL=initGL(),c2=GL?null:canvas.getContext('2d');
   track.classList.toggle('flat',!GL);
-  function draw(){if(!W)return;const f=frame(),g=pillGeo(f),acc=accentAt(f.pos);
+  /* pastille : même teinte neutre sur tous les onglets au repos ; elle prend la couleur des onglets seulement pendant qu'elle glisse */
+  function teinte(p){const d=Math.min(1,Math.abs(p-Math.round(p))*2.5),k=dragging?1:d,a=accentAt(p),n=C.neutre;return a.map((v,i)=>n[i]+(v-n[i])*k)}
+  function draw(){if(!W)return;const f=frame(),g=pillGeo(f),acc=teinte(f.pos);
     if(GL){drawIcons(ictx,f,g);const{gl,u}=GL,n=c=>c.map(v=>v/255);
       gl.viewport(0,0,canvas.width,canvas.height);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,iconCv);
       gl.uniform2f(u.uRes,canvas.width,canvas.height);gl.uniform1f(u.uDpr,canvas.width/(W+MX*2));gl.uniform2f(u.uMargin,MX,MY);gl.uniform2f(u.uTrack,W,H);
@@ -227,7 +229,7 @@ void main(){
     raf=0;const s=RM?1:cl(last?(now-last)/1000:0,0,.064);last=now;
     target=cl(target,0,maxI);
     /* clic : glissement à durée fixe (340 ms, accéléré puis freiné), en temps réel même si des images sautent */
-    if(glide){const k=Math.min(1,(now-glide.t0)/glide.d),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;pos.v=glide.de+(glide.vers-glide.de)*e;pos.vel=0;if(k>=1){pos.snap(glide.vers);glide=null}}
+    if(glide){const k=cl((performance.now()-glide.t0)/glide.d,0,1),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;pos.v=glide.de+(glide.vers-glide.de)*e;pos.vel=0;if(k>=1){pos.snap(glide.vers);glide=null}}
     else pos.step(target,s);
     vel.step(dragging&&maxI>0?pos.vel/maxI:0,s);
     if(!dragging)panel.step(0,s);
