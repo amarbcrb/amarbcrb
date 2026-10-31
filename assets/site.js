@@ -5,7 +5,7 @@ import { el } from './dom.js';
 import { ongletsVisibles, contactVisible, parties, couleurPartie, ongletPerso } from './model.js';
 import { parse, format } from './router.js';
 import { monterBarre } from './nav.js';
-import { rendreVue, couleurOnglet } from './render.js';
+import { rendreVue, couleurOnglet, reglerFleches } from './render.js';
 import { construireIndex, chercher } from './search.js';
 import { ouvrirFiche, fermerFiche, ficheOuverte } from './fiche.js';
 import { corpsContact, corpsFiche, titreFiche, fondFiche } from './cartes.js';
@@ -188,7 +188,7 @@ function dessinerPage(base, anim) {
     const versRangees = avant && avant.onglet === base.onglet && avant.sous !== null && base.sous === null;
     scrollTo({ top: versRangees ? etat.positions[k] || 0 : 0, behavior: 'instant' });
   };
-  const dessiner = () => { rendreVue(vue, etat.contenu, base, etat.drive[base.onglet]); reflet(vue); apparitions(vue); defiler(); };
+  const dessiner = () => { rendreVue(vue, etat.contenu, base, etat.drive[base.onglet]); reflet(vue); apparitions(vue); reglerFleches(vue); defiler(); };
   if (!anim || RM || !avant || !vue.animate) { dessiner(); return; }
   const ordre = ongletsVisibles(etat.contenu);
   const sens = ordre.indexOf(base.onglet) >= ordre.indexOf(avant.onglet) ? 1 : -1;
@@ -408,3 +408,5 @@ async function demarrer() {
   majPastille();
 }
 demarrer();
+
+addEventListener('resize', () => reglerFleches($('vue')), { passive: true });

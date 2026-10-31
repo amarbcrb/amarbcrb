@@ -401,7 +401,7 @@ test('liens façon Bibliothèque : carte résumé + liens à la une, une ligne p
   assert.match(await p.innerText('#vue .liens-une .carte-resume'), /Mes liens[\s\S]*9\s+liens partagés[\s\S]*8 projets · 1 applis android/i);
   assert.equal(await p.locator('#vue .liens-une a.carte-lien').count(), 3);
   assert.equal(await p.getAttribute('#vue .liens-une a.carte-lien >> nth=0', 'href'), 'https://www.biostudy.xyz/BioCampus/');
-  const lignes = await p.$$eval('#vue .liste-categories a', (xs) => xs.map((x) => [x.querySelector('b').textContent, x.querySelector('small').textContent, x.getAttribute('href')]));
+  const lignes = await p.$$eval('#vue .liste-categories li:not([data-vide]) a', (xs) => xs.map((x) => [x.querySelector('b').textContent, x.querySelector('small').textContent, x.getAttribute('href')]));
   assert.deepEqual(lignes, [['Projets', '8', '#liens/projets'], ['Applis Android', '1', '#liens/android']]);
   assert.equal(await p.locator('#vue .liste-categories a >> nth=0 >> svg').count() >= 1, true);
   assert.equal(await p.innerText('#vue .recents h2'), 'Récents');

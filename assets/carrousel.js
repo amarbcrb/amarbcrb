@@ -20,15 +20,16 @@ export function carrousel(diapos) {
   el('div', { class: 'diapo-texte' }, el('h2', {}, d.titre), d.texte ? el('p', {}, d.texte) : null,
     d.lien ? el('a', { class: 'btn pri', href: d.lien, target: d.externe ? '_blank' : null, rel: d.externe ? 'noopener' : null }, d.bouton || 'Découvrir') : null))));
   const points = el('div', { class: 'points' }, diapos.map((d, i) => el('button', { type: 'button', 'aria-label': `Diapositive ${i + 1} : ${d.titre}` })));
-  /* flèches (PC à la souris) de part et d'autre des diapos */
+  /* flèches (PC à la souris) */
   const fleche = (sens) => {
     const b = el('button', { type: 'button', class: `piste-fleche ${sens}`, 'aria-label': sens === 'avant' ? 'Diapositive suivante' : 'Diapositive précédente',
       html: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${sens === 'avant' ? 'm9 18 6-6-6-6' : 'm15 18-6-6 6-6'}"/></svg>` });
     b.addEventListener('click', () => { aller(Math.min(n - 1, Math.max(0, actuel + (sens === 'avant' ? 1 : -1)))); pause(8000); });
     return b;
   };
+  /* sous les diapos : flèche gauche, points, flèche droite */
   const racine = el('section', { class: 'carrousel', 'aria-roledescription': 'carrousel', 'aria-label': 'À la une' },
-    n > 1 ? fleche('arriere') : null, piste, n > 1 ? fleche('avant') : null, n > 1 ? points : null);
+    piste, n > 1 ? el('div', { class: 'carrousel-bas' }, fleche('arriere'), points, fleche('avant')) : null);
 
   let actuel = -1;
   const marquer = (i) => {

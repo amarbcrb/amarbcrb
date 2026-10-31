@@ -269,15 +269,14 @@ footer b{color:var(--tx2);font-weight:600}
 .piste{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--gx);padding:4px var(--gx) 10px;margin:0 calc(-1*var(--gx));scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 .piste::-webkit-scrollbar{display:none}
 .piste>*{scroll-snap-align:start}
-.piste-fleche{display:none}
+.piste-fleche,.fleches{display:none}
 @media(hover:hover) and (pointer:fine){
 .piste-fleche{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--fill);transition:background .2s,transform .3s var(--spring)}
 .piste-fleche:hover{background:color-mix(in srgb,var(--tx) 14%,transparent)}.piste-fleche:active{transform:scale(.92)}
 .piste-fleche svg{width:20px;height:20px}
-.fleches{display:flex;gap:6px;margin-left:auto}.fleches+.voir{margin-left:6px}
-/* carrousel : flèches posées sur les bords, au milieu de la hauteur des diapos */
-.carrousel>.piste-fleche{position:absolute;z-index:3;top:calc(50% - 44px);width:48px;height:48px;color:#fff;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-.carrousel>.piste-fleche.arriere{left:10px}.carrousel>.piste-fleche.avant{right:10px}}
+.fleches{display:flex;justify-content:center;gap:10px;margin-top:6px}
+.fleches[hidden]{display:none}}
+.carrousel-bas{display:flex;align-items:center;justify-content:center;gap:6px}
 /* cartes */
 .carte{position:relative;flex:0 0 auto;display:flex;flex-direction:column;gap:4px;border-radius:22px;background:var(--card);border:.75px solid var(--line);box-shadow:var(--shadow);overflow:hidden;transition:transform .35s var(--spring),border-color .2s,box-shadow .3s;animation:monte .45s var(--ease) both;animation-delay:calc(var(--k,0)*35ms)}
 a.carte:active,.vignette:active{transform:scale(.97)}
@@ -582,7 +581,7 @@ body.edition .outils-texte .outil svg{width:18px;height:18px}
 .edition-form .erreur{color:var(--c-red);font-size:13px}
 .edition-form .erreur:empty{display:none}
 .edition-form .acts{display:flex;gap:8px}
-body:not(.edition) .rangee[data-vide]{display:none}
+body:not(.edition) .rangee[data-vide],body:not(.edition) .liste-categories>li[data-vide]{display:none}
 body.edition .rangee-tete:has(.outils-dossier){flex-wrap:wrap}
 body.edition .outils-dossier{position:static;margin-left:8px;background:var(--fill);flex-wrap:wrap;max-width:100%}
 @media (max-width:600px){body.edition .outils-dossier{margin-left:0;flex-basis:100%;justify-content:flex-start;width:max-content}}
