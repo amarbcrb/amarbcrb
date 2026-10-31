@@ -58,6 +58,9 @@ export function monterBarre({ conteneur, onglets, infos = {}, onSelect, onRecher
   recherche.setAttribute('aria-label', 'Rechercher');
   recherche.innerHTML = LOUPE;
   recherche.addEventListener('click', () => { buzz(); onRecherche(); });
+  /* clic sur la loupe pendant une animation de changement de page (il arrive à <html>) */
+  const loupeRattrapee = (e) => { if (e.target === document.documentElement && jelly.dedans(e, recherche)) { buzz(); onRecherche(); } };
+  document.addEventListener('click', loupeRattrapee, true);
   barre.append(nav, recherche);
   conteneur.replaceChildren(barre);
   let courant = 0;
@@ -86,6 +89,7 @@ export function monterBarre({ conteneur, onglets, infos = {}, onSelect, onRecher
     select(id, anim = true) { const i = onglets.indexOf(id); if (i < 0) return; marquer(i); jelly.select(i, anim); },
     detruire() {
       clearTimeout(demoTm); jelly.detruire(); barre.remove();
+      document.removeEventListener('click', loupeRattrapee, true);
       if (vv) vv.removeEventListener('resize', clavier);
       removeEventListener('focusin', clavierPlusTard); removeEventListener('focusout', clavierPlusTard);
       document.body.classList.remove('kb');
@@ -278,13 +282,19 @@ void main(){
   const local=e=>{const r=track.getBoundingClientRect();return[(e.clientX-r.left)*W/(r.width||1),(e.clientY-r.top)*H/(r.height||1)]};
   /* comportement de la barre BioStudy (liquid-glass.js) : appui → la pastille gonfle un peu sur place ; glisser (6 px) →
      elle gonfle en lentille et suit le doigt ; relâcher → elle file vers l'onglet avec un léger rebond. */
-  track.addEventListener('pointerdown',e=>{
+  function down(e){
     if(pid!==null||!e.isPrimary||e.button!==0)return;
     pid=e.pointerId;cx0=e.clientX;cy0=e.clientY;[downX,downY]=local(e);downY=cl(downY,0,H);
     startY=ty.v;moved=0;startP=panel.v;panel.vel=0;
     /* appui (comme BioStudy) : la pastille gonfle un peu tout de suite, sans quitter son onglet */
     if(!glide){pressT=.3;forme(...APPUI);kick()}
-    try{track.setPointerCapture(pid)}catch(_){}});
+    try{track.setPointerCapture(pid)}catch(_){}}
+  track.addEventListener('pointerdown',down);
+  /* pendant l'animation de changement de page (View Transitions), Chrome envoie les clics à <html> et plus à la barre :
+     un appui dans la barre est rattrapé ici, pour pouvoir changer d'onglet aussi vite que sur BioStudy */
+  const dedans=(e,el)=>{const r=el.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom};
+  const rattraper=e=>{if(e.target===document.documentElement&&dedans(e,track)){touche=true;clearTimeout(demoTm);down(e)}};
+  document.addEventListener('pointerdown',rattraper,true);
   track.addEventListener('pointermove',e=>{
     if(e.pointerId!==pid)return;
     const dx=e.clientX-cx0,dy=e.clientY-cy0,tw=tabW();if(tw<=0)return;
@@ -323,4 +333,4 @@ void main(){
   const ro=new ResizeObserver(()=>{measure();render()});ro.observe(track);
   colors();measure();render();
   if(document.fonts)document.fonts.ready.then(draw);
-  return{select,demo,detruire(){mo.disconnect();ro.disconnect();cancelAnimationFrame(raf);clearTimeout(demoTm)}}}
+  return{select,demo,dedans,detruire(){document.removeEventListener('pointerdown',rattraper,true);mo.disconnect();ro.disconnect();cancelAnimationFrame(raf);clearTimeout(demoTm)}}}
