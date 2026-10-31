@@ -7,14 +7,14 @@
 --tx:#fff;--tx2:#969ca3;--tx3:#8b9198;--sep:rgba(255,255,255,.08);--hair:rgba(255,255,255,.08);--shadow:none;
 --card:#141414;
 --glass-bg:rgba(24,24,26,.6);--glass-line:rgba(255,255,255,.14);--lg-sh:rgba(0,0,0,.35);
---nav-bg:rgba(26,26,26,.4);--nav-rim1:rgba(255,255,255,.27);--nav-rim2:rgba(255,255,255,.02);--nav-sh:rgba(0,0,0,.1);--pill-sf:#141414;--mut:#969ca3;
+--nav-bg:rgba(120,120,128,.16);--nav-rim1:rgba(255,255,255,.27);--nav-rim2:rgba(255,255,255,.02);--nav-sh:rgba(0,0,0,.1);--pill-sf:#4a4a50;--mut:#969ca3;
 --acc:#f5f5f5;--acc-tx:#f5f5f5;--on-acc:#111;
 --c-blue:#0a84ff;--c-indigo:#5e5ce6;--c-purple:#bf5af2;--c-pink:#ff375f;--c-red:#ff453a;--c-orange:#ff9f0a;--c-yellow:#ffd60a;--c-green:#30d158;--c-teal:#40cbe0;--c-cyan:#64d2ff;--pc-k:80%;color-scheme:dark}
 [data-theme=light]{--bg:#f5f5f7;--sf:#fff;--sf2:#f5f5f7;--fill:rgba(0,0,0,.05);--line:rgba(0,0,0,.07);--line2:rgba(0,0,0,.12);
 --tx:#111;--tx2:#5f646b;--tx3:#63676d;--sep:rgba(0,0,0,.08);--hair:rgba(0,0,0,.09);--shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px -12px rgba(0,0,0,.08);
 --card:linear-gradient(160deg,rgba(255,255,255,.94),rgba(255,255,255,.72));
 --glass-bg:rgba(255,255,255,.6);--glass-line:rgba(0,0,0,.08);--lg-sh:rgba(0,0,0,.1);
---nav-bg:rgba(255,255,255,.55);--nav-rim1:rgba(255,255,255,.95);--nav-rim2:rgba(0,0,0,.06);--nav-sh:rgba(0,0,0,.1);--pill-sf:#fff;--mut:#7c8189;
+--nav-bg:rgba(255,255,255,.34);--nav-rim1:rgba(255,255,255,.95);--nav-rim2:rgba(0,0,0,.06);--nav-sh:rgba(0,0,0,.1);--pill-sf:#fff;--mut:#7c8189;
 --acc:#111;--acc-tx:#111;--on-acc:#fff;
 --c-blue:#007aff;--c-indigo:#5856d6;--c-purple:#af52de;--c-pink:#ff2d55;--c-red:#ff3b30;--c-orange:#ff9500;--c-yellow:#ffcc00;--c-green:#34c759;--c-teal:#30b0c7;--c-cyan:#32ade6;--pc-k:55%;color-scheme:light}
 @media(min-width:600px){:root{--gx:28px;--top:80px}}
@@ -44,7 +44,7 @@ background:radial-gradient(140% 62% at 50% -14%,color-mix(in srgb,var(--halo) 40
 ::view-transition-group(nav),::view-transition-group(loupe),::view-transition-group(entete),::view-transition-new(nav),::view-transition-new(loupe),::view-transition-new(entete){animation:none}
 ::view-transition-old(nav),::view-transition-old(loupe),::view-transition-old(entete){display:none}
 /* pendant le glissement, le verre est redonné au calque de la barre (le flou du fond n'est pas dans sa capture) */
-::view-transition-group(nav),::view-transition-group(loupe){border-radius:999px;-webkit-backdrop-filter:saturate(1.5) blur(10px);backdrop-filter:saturate(1.5) blur(10px)}
+::view-transition-group(nav),::view-transition-group(loupe){border-radius:999px;-webkit-backdrop-filter:blur(18px) saturate(1.8);backdrop-filter:blur(18px) saturate(1.8)}
 ::view-transition-group(entete){-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);-webkit-mask-image:linear-gradient(#000 62%,transparent);mask-image:linear-gradient(#000 62%,transparent)}
 ::view-transition-old(root),::view-transition-new(root){animation:none}
 ::view-transition-group(vue){animation:none}
@@ -191,7 +191,7 @@ footer b{color:var(--tx2);font-weight:600}
 @keyframes navin{from{opacity:0;translate:0 40px;scale:.94}}
 .nav{position:relative;flex:1;min-width:0;height:var(--navh);will-change:transform}
 .nav-in{height:100%;padding:0 4px;border-radius:999px;display:flex;touch-action:none;-webkit-user-select:none;user-select:none;will-change:transform}
-.nav-in.glass,.nav-search.glass{background:var(--nav-bg);-webkit-backdrop-filter:saturate(1.5) blur(10px);backdrop-filter:saturate(1.5) blur(10px);box-shadow:0 4px 24px var(--nav-sh)}
+.nav-in.glass,.nav-search.glass{background:var(--nav-bg);-webkit-backdrop-filter:blur(18px) saturate(1.8);backdrop-filter:blur(18px) saturate(1.8);box-shadow:0 4px 24px var(--nav-sh)}
 .nav-in.refract{-webkit-backdrop-filter:url(#navLens);backdrop-filter:url(#navLens)}
 /* liseré 0,75 px plus clair en haut (dessiné par WebGL dans la barre, en CSS ailleurs) */
 .nav-in.flat::before,.nav-search::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:.75px;pointer-events:none;background:linear-gradient(var(--nav-rim1),var(--nav-rim2));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
@@ -521,13 +521,12 @@ a.etape .en-cours{align-self:flex-start;margin-top:4px;padding:3px 10px;border-r
 @keyframes apparait-leger{from{opacity:0;translate:28px 0}}
 .leger :is(.rangee,.profil,.reperes,.carrousel,.grille>*){animation-name:apparait-leger}
 .leger .apparition{filter:none}
-.leger .btn,.leger .top::before,.leger .nav-in.glass,.leger .nav-search.glass{-webkit-backdrop-filter:none;backdrop-filter:none}
-.leger .nav-in.glass,.leger .nav-search.glass{background:color-mix(in srgb,var(--bg) 88%,transparent)}
+.leger .btn,.leger .top::before{-webkit-backdrop-filter:none;backdrop-filter:none}
 @keyframes vt-part-l{to{opacity:0;transform:translateX(-56px)}}@keyframes vt-part-dl{to{opacity:0;transform:translateX(56px)}}
 @keyframes vt-vient-l{from{opacity:0;transform:translateX(56px)}}@keyframes vt-vient-gl{from{opacity:0;transform:translateX(-56px)}}
 :root.leger::view-transition-old(vue){animation-name:vt-part-l}:root.leger::view-transition-new(vue){animation-name:vt-vient-l}
 :root.leger[data-sens=arriere]::view-transition-old(vue){animation-name:vt-part-dl}:root.leger[data-sens=arriere]::view-transition-new(vue){animation-name:vt-vient-gl}
-:root.leger::view-transition-group(nav),:root.leger::view-transition-group(loupe),:root.leger::view-transition-group(entete){-webkit-backdrop-filter:none;backdrop-filter:none}
+:root.leger::view-transition-group(entete){-webkit-backdrop-filter:none;backdrop-filter:none}
 .calme *,.calme ::before,.calme ::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}
 .calme :is(.barre,li.etape,.point.actif,.sq),.calme #chargement *{animation:none}
 @media(min-width:1024px) and (min-height:600px){:root{--top:84px;--gx:32px}.hin{padding:16px 32px}.tools{height:56px}.tb{width:48px;height:48px}}

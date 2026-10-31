@@ -97,7 +97,7 @@ if(matchMedia('(pointer: coarse)').matches&&((navigator.hardwareConcurrency||8)<
 
 <!-- Chromium : lentille de Kyant sur le fond de la barre (vibrance, flou 10 px, réfraction des bords) -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="navLens" color-interpolation-filters="sRGB">
-  <feColorMatrix in="SourceGraphic" type="saturate" values="1.5" result="vibrant"/><feGaussianBlur in="vibrant" stdDeviation="10" edgeMode="duplicate" result="blur"/>
+  <feColorMatrix in="SourceGraphic" type="saturate" values="1.8" result="vibrant"/><feGaussianBlur in="vibrant" stdDeviation="14" edgeMode="duplicate" result="blur"/>
   <feImage id="navMap" x="0" y="0" width="334" height="64" preserveAspectRatio="none" result="map"/><feDisplacementMap in="blur" in2="map" scale="48" xChannelSelector="R" yChannelSelector="G"/>
 </filter></svg>
 <button class="btn pastille-modifier" id="modifier" type="button" hidden>Modifier</button>
