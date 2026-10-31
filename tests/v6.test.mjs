@@ -66,15 +66,17 @@ test('barre : au repos, la pastille fait seule un petit glissement pour montrer 
   assert.equal(await r.locator('.nav-in[data-demo]').count(), 0);
 });
 
-test('contact : e-mail (Copier, Gmail) et LinkedIn (Copier le lien, Ouvrir)', async () => {
+test('contact : e-mail (Copier, Écrire avec Gmail sur PC) et LinkedIn (Copier le lien, Ouvrir), boutons sous le texte', async () => {
   reinit();
   const p = await env.page({ chemin: '/#contact' });
   await p.waitForSelector('#fiche', { state: 'visible' });
-  const mail = await p.getAttribute('#ficheCorps a.cp:has-text("Gmail")', 'href');
+  const mail = await p.getAttribute('#ficheCorps a.cp:has-text("Écrire")', 'href');
   assert.equal(mail, 'https://mail.google.com/mail/?view=cm&fs=1&to=amarxbcrb%40gmail.com');
   assert.equal(await p.getAttribute('#ficheCorps li.row:has-text("LinkedIn") button.cp', 'data-copier'), 'https://www.linkedin.com/in/amarbouchareb');
   assert.equal(await p.getAttribute('#ficheCorps li.row:has-text("LinkedIn") a.cp:has-text("Ouvrir")', 'href'), 'https://www.linkedin.com/in/amarbouchareb');
   assert.equal(await p.locator('#ficheCorps li.row:has-text("E-mail") button.cp[data-copier="amarxbcrb@gmail.com"]').count(), 1);
+  const [texte, bouton] = await Promise.all([p.locator('#ficheCorps li.row:has-text("LinkedIn") .t').boundingBox(), p.locator('#ficheCorps li.row:has-text("LinkedIn") .cps').boundingBox()]);
+  assert.ok(bouton.y >= texte.y + texte.height - 1, 'boutons sous le lien');
 });
 
 test('chargement : tout le code de départ est annoncé d\'un coup (modulepreload)', () => {

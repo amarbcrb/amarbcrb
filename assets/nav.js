@@ -1,6 +1,6 @@
 /* Barre d'onglets du site : construction des boutons et bouton Recherche, puis moteur « jelly » WebGL (jellyNav). */
 
-const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+import { RM } from './mouvement.js';
 function buzz(p = 10) { try { navigator.vibrate && navigator.vibrate(p); } catch (_) { /* pas de vibreur */ } }
 
 const ICONES = {
