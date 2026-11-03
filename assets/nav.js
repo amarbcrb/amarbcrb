@@ -1,7 +1,7 @@
 /* Barre d'onglets du site : construction des boutons et bouton Recherche, puis moteur « jelly » WebGL (jellyNav). */
 
 import { RM } from './mouvement.js';
-/* une seule petite vibration : quand on change vraiment d'onglet */
+/* petite vibration : changement d'onglet et bouton Recherche (les autres boutons : site.js) */
 function buzz(p = 10) { try { navigator.vibrate && navigator.vibrate(p); } catch (_) { /* pas de vibreur */ } }
 
 const ICONES = {
@@ -58,7 +58,7 @@ export function monterBarre({ conteneur, onglets, infos = {}, onSelect, onRecher
   recherche.className = 'nav-search glass';
   recherche.setAttribute('aria-label', 'Rechercher');
   recherche.innerHTML = LOUPE;
-  recherche.addEventListener('click', () => onRecherche());
+  recherche.addEventListener('click', () => { buzz(8); onRecherche(); });
   /* clic sur la loupe pendant une animation de changement de page (il arrive à <html>) */
   const loupeRattrapee = (e) => { if (e.target === document.documentElement && jelly.dedans(e, recherche)) { buzz(); onRecherche(); } };
   document.addEventListener('click', loupeRattrapee, true);
