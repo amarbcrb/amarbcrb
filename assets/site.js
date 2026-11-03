@@ -416,3 +416,10 @@ async function demarrer() {
 demarrer();
 
 addEventListener('resize', () => reglerFleches($('vue')), { passive: true });
+
+/* petite vibration au clic sur un bouton du site (la barre d'onglets a la sienne) */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('button, .btn');
+  if (!b || b.closest('.barre') || b.disabled) return;
+  try { navigator.vibrate && navigator.vibrate(8); } catch { /* pas de vibreur */ }
+}, { capture: true, passive: true });
