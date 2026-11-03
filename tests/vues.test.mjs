@@ -168,14 +168,16 @@ test('langues : drapeau devant chaque langue, deviné ou choisi', async () => {
   assert.notEqual(await p.$eval('#vue .carte-langue', (x) => getComputedStyle(x).borderRadius), '999px');
 });
 
-test('Lire la suite déplie le profil', async () => {
+test('profil en accordéon : une partie par paragraphe, une seule ouverte à la fois', async () => {
   reinit();
   const p = await env.page({ chemin: '/#parcours' });
-  const bouton = p.locator('#vue .profil button.lire');
-  assert.equal(await bouton.getAttribute('aria-expanded'), 'false');
-  await bouton.click();
-  assert.equal(await bouton.getAttribute('aria-expanded'), 'true');
-  assert.equal(await bouton.innerText(), 'Réduire');
+  const parties = p.locator('#vue .profil .accordeon details');
+  assert.ok(await parties.count() >= 3);
+  assert.equal(await p.locator('#vue .profil .accordeon details[open]').count(), 1);
+  assert.equal(await p.isVisible('#vue .profil-texte'), false);
+  await parties.nth(2).locator('summary').click();
+  assert.equal(await parties.nth(2).getAttribute('open'), '');
+  assert.equal(await p.locator('#vue .profil .accordeon details[open]').count(), 1);
   assert.equal(await hash(p), '#parcours');
 });
 

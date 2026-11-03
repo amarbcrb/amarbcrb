@@ -112,23 +112,28 @@ function vueAccueil(c) {
 
 
 /* ---------- Profil (en tête de Parcours) ---------- */
+/* profil en accordéon façon Apple : une partie par paragraphe, une seule ouverte à la fois.
+   Titre de chaque partie : une ligne « ## Mon titre » en tête du paragraphe, sinon sa première phrase. */
+export function partiesProfil(texte) {
+  return String(texte || '').split(/\n\s*\n/).map((x) => x.trim()).filter(Boolean).map((x) => {
+    const m = /^##\s*(.+)\n([\s\S]*)$/.exec(x) || /^##\s*(.+)$/.exec(x);
+    if (m) return { titre: m[1].trim(), corps: (m[2] || '').trim() };
+    const phrase = /^(.{12,110}?[.!?:])(\s+|$)([\s\S]*)$/.exec(x);
+    if (phrase && phrase[3].trim()) return { titre: phrase[1].replace(/[.:]$/, ''), corps: phrase[3].trim() };
+    return { titre: x.split(/\s+/).slice(0, 7).join(' ') + '…', corps: x };
+  });
+}
 function profil(c) {
   const { titre, texte } = c.parcours.profil;
   const reglage = c.onglets.parcours.sous.profil;
   if ((reglage && reglage.visible === false) || !String(texte || '').trim()) return null;
   const paragraphes = texte.split(/\n\s*\n/).filter((x) => x.trim()).map((x) => el('p', {}, x.trim()));
+  /* texte brut : modifié sur place en mode Modifier (caché aux visiteurs) */
   const corps = el('div', { class: 'profil-texte', id: 'profilTexte', 'data-edit': 'parcours.profil.texte', 'data-multiligne': '' }, paragraphes);
-  const long = paragraphes.length > 1 || texte.length > 220;
-  const bouton = long ? el('button', { type: 'button', class: 'lire', 'aria-expanded': 'false', 'aria-controls': 'profilTexte' }, 'Lire la suite') : null;
-  if (bouton) {
-    corps.classList.add('replie');
-    bouton.addEventListener('click', () => {
-      const ouvert = corps.classList.toggle('replie') === false;
-      bouton.setAttribute('aria-expanded', String(ouvert));
-      bouton.textContent = ouvert ? 'Réduire' : 'Lire la suite';
-    });
-  }
-  return el('div', { class: 'profil' }, titre ? el('h2', { 'data-edit': 'parcours.profil.titre' }, titre) : null, corps, bouton);
+  const accordeon = el('div', { class: 'accordeon' }, partiesProfil(texte).map((p, i) => el('details', { name: 'profil', open: i === 0 ? '' : null },
+    el('summary', {}, el('span', {}, p.titre), el('i', { 'aria-hidden': 'true', html: ICONES.suite })),
+    el('div', { class: 'accordeon-corps' }, p.corps.split(/\n/).filter((l) => l.trim()).map((l) => el('p', {}, l.trim()))))));
+  return el('div', { class: 'profil' }, titre ? el('h2', { 'data-edit': 'parcours.profil.titre' }, titre) : null, accordeon, corps);
 }
 
 /* ---------- Voir tout ---------- */

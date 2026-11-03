@@ -403,10 +403,21 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 .profil{margin-top:16px;max-width:720px}
 .profil h2{margin-top:0;font-size:clamp(20px,4.6vw,26px)}
 .profil-texte p{margin-top:12px;font-size:16px;color:var(--tx2);line-height:1.6}
-.profil-texte.replie{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.profil-texte.replie p{display:inline}
-.profil-texte.replie p+p::before{content:" "}
-.lire{margin-top:8px;min-height:44px;padding:0 2px;font-weight:600;color:var(--tx)}
+body:not(.edition) .profil-texte,body.edition .accordeon{display:none}
+/* accordéon façon Apple : panneau gris arrondi, titres avec flèche, le texte se déplie en douceur */
+.accordeon{margin-top:18px;padding:6px 22px;border-radius:26px;background:var(--fill);interpolate-size:allow-keywords}
+.accordeon details+details{border-top:1px solid var(--sep)}
+.accordeon summary{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:60px;padding:14px 0;list-style:none;cursor:pointer;font-size:17px;font-weight:600;letter-spacing:-.01em;line-height:1.3}
+.accordeon summary::-webkit-details-marker{display:none}
+.accordeon summary i{flex:none;display:grid;place-items:center;width:24px;height:24px;color:var(--tx2);transition:rotate .35s var(--ease)}
+.accordeon summary i svg{width:18px;height:18px;rotate:90deg}
+.accordeon details[open] summary i{rotate:180deg}
+.accordeon details::details-content{block-size:0;overflow:clip;transition:block-size .45s var(--ease),content-visibility .45s allow-discrete}
+.accordeon details[open]::details-content{block-size:auto}
+.accordeon-corps{padding:0 0 20px}
+.accordeon-corps p{font-size:16px;line-height:1.6;color:var(--tx2)}
+.accordeon-corps p+p{margin-top:10px}
+.accordeon details[open] .accordeon-corps{animation:deplie .5s var(--ease) both}
 /* fiche d'un élément */
 .fiche-contenu{display:flex;flex-direction:column;gap:10px}
 .fiche-banniere .visuel{aspect-ratio:16/9;margin-bottom:6px}
@@ -507,9 +518,6 @@ a.etape .en-cours{align-self:flex-start;margin-top:4px;padding:3px 10px;border-r
 .v-parcours .point,.vt-voir .point{animation:allume linear both;animation-timeline:--etape;animation-range:entry 40% entry 100%}
 .v-parcours .piste>.carte{animation:carte-entre linear both,carte-sort linear both;animation-timeline:view(inline),view(inline);animation-range:entry,exit}
 }
-.profil-texte:not(.replie) p+p{animation:deplie .5s var(--ease) both}
-.profil-texte:not(.replie) p+p+p{animation-delay:.08s}
-.profil-texte:not(.replie) p+p+p+p{animation-delay:.16s}
 }
 @keyframes trait{from{transform:scaleY(0)}}
 @keyframes allume{from{transform:scale(.3);border-width:1px}}
@@ -524,7 +532,7 @@ a.etape .en-cours{align-self:flex-start;margin-top:4px;padding:3px 10px;border-r
 .profil,.reperes,.carrousel,.grille>*{animation:apparait linear both;animation-timeline:view();animation-range:entry 0px entry 140px}
 .rangee{animation:none;view-timeline:--rg}
 .rangee>.rangee-tete{animation:titre-monte linear both;animation-timeline:--rg;animation-range:entry 0px entry 160px}
-.rangee .piste>*{animation:carte-arrive linear both;animation-timeline:--rg;animation-range:entry 20px entry 220px}
+.rangee>.piste-cadre{animation:carte-arrive linear both;animation-timeline:--rg;animation-range:entry 20px entry 240px}
 }
 .apparition{opacity:0;translate:28px 0;filter:blur(6px);transition:opacity .7s var(--ease),translate .8s var(--ease),filter .7s var(--ease)}
 .apparition.vu{opacity:1;translate:0 0;filter:none}
@@ -646,3 +654,23 @@ body.edition .vt > .sous-titre:empty::before{content:attr(data-vide);opacity:.6;
 #bandeauAdmin{top:calc(env(safe-area-inset-top) + 84px)}
 #recherche{padding-bottom:40px}
 }
+
+/* ===== Style Apple : le texte posé sur le fond de la page (pas de boîte blanche ou noire), images arrondies,
+   boutons secondaires en simple lien bleu, plus d'air ===== */
+.carte{background:none;border:0;box-shadow:none;overflow:visible;gap:6px}
+@media(hover:hover){a.carte:hover{transform:none}a.carte:hover b{color:var(--lien)}}
+.carte-texte,.carte-plus,.carte-resume{background:var(--fill);border-radius:22px}
+.carte-lien .degrade,.lien-visuel{border-radius:22px;overflow:hidden}
+.carte-corps{padding:12px 2px 0;gap:6px}
+.carte-corps p{line-height:1.5}
+.carte-corps .btn{min-height:44px;padding:0;margin-top:auto;background:none;border:0;-webkit-backdrop-filter:none;backdrop-filter:none;color:var(--lien);font-size:15px;font-weight:500}
+.carte-corps .btn::after{content:" ›"}
+.badge-type{color:var(--tx);background:color-mix(in srgb,var(--bg) 72%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.6);backdrop-filter:blur(14px) saturate(1.6)}
+.reperes{gap:22px 28px;margin-top:40px}
+.reperes li{padding:0;background:none;border:0;border-radius:0;gap:6px}
+.reperes b{color:var(--tx)}
+.reperes li.avec-image .repere-visuel{margin:0 0 10px;border-radius:18px}
+@media(max-width:559px){.reperes{gap:18px}.reperes li{padding:0}.reperes li.avec-image .repere-visuel{margin:0 0 10px}}
+.vt > .sous-titre{margin-bottom:34px}
+.accueil .intro{line-height:1.6}
+.accueil>.acts{margin-top:34px}
