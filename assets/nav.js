@@ -20,7 +20,7 @@ export const ICONES_PERSO = {
   pinceau: '<path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/>',
   flacon: '<path d="M9 3h6M10 3v6.5L4.5 19a1.5 1.5 0 0 0 1.3 2h12.4a1.5 1.5 0 0 0 1.3-2L14 9.5V3"/><path d="M7.5 15h9"/>',
 };
-const LIBELLES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Ressources' };
+const LIBELLES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Plus' };
 export const COULEURS = { accueil: '--c-blue', parcours: '--c-teal', portfolio: '--c-orange', liens: '--c-pink' };
 const LOUPE = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
 
@@ -58,6 +58,9 @@ export function monterBarre({ conteneur, onglets, infos = {}, onSelect, onRecher
   recherche.setAttribute('aria-label', 'Rechercher');
   recherche.innerHTML = LOUPE;
   recherche.addEventListener('click', () => { buzz(); onRecherche(); });
+  /* clic sur la loupe pendant une animation de changement de page (il arrive à <html>) */
+  const loupeRattrapee = (e) => { if (e.target === document.documentElement && jelly.dedans(e, recherche)) { buzz(); onRecherche(); } };
+  document.addEventListener('click', loupeRattrapee, true);
   barre.append(nav, recherche);
   conteneur.replaceChildren(barre);
   let courant = 0;
@@ -68,13 +71,29 @@ export function monterBarre({ conteneur, onglets, infos = {}, onSelect, onRecher
   const jelly = jellyNav({ wrap: nav, track: piste, canvas, items: boutons, active: () => courant,
     onSelect: (i) => { buzz(); marquer(i); onSelect(onglets[i]); } });
   marquer(0);
+  /* clavier ouvert (téléphone) : la barre se cache, comme sur BioStudy */
+  const vv = window.visualViewport;
+  const clavier = () => {
+    const a = document.activeElement;
+    document.body.classList.toggle('kb', !!vv && innerHeight - vv.height > 120 && !!a && a.matches('input,textarea,select,[contenteditable="true"]'));
+  };
+  const clavierPlusTard = () => setTimeout(clavier, 60);
+  if (vv) vv.addEventListener('resize', clavier);
+  addEventListener('focusin', clavierPlusTard);
+  addEventListener('focusout', clavierPlusTard);
   /* une fois par visite, après un court repos */
   let vu = true;
   try { vu = sessionStorage.getItem('ab-demo-barre') === '1'; sessionStorage.setItem('ab-demo-barre', '1'); } catch { vu = false; }
   const demoTm = vu || RM ? 0 : setTimeout(() => jelly.demo(), 1500);
   return {
     select(id, anim = true) { const i = onglets.indexOf(id); if (i < 0) return; marquer(i); jelly.select(i, anim); },
-    detruire() { clearTimeout(demoTm); jelly.detruire(); barre.remove(); },
+    detruire() {
+      clearTimeout(demoTm); jelly.detruire(); barre.remove();
+      document.removeEventListener('click', loupeRattrapee, true);
+      if (vv) vv.removeEventListener('resize', clavier);
+      removeEventListener('focusin', clavierPlusTard); removeEventListener('focusout', clavierPlusTard);
+      document.body.classList.remove('kb');
+    },
     recherche,
   };
 }
@@ -94,10 +113,16 @@ export function jellyNav({wrap,track,canvas,items,onSelect,active}){
       if(this.z===1){const e=Math.exp(-f*s),c=this.vel+f*d;this.v=t+(d+c*s)*e;this.vel=(this.vel-f*c*s)*e;return}
       const dm=this.z*f,w=f*Math.sqrt(1-this.z*this.z),e=Math.exp(-dm*s),co=Math.cos(w*s),si=Math.sin(w*s),pc=(this.vel+dm*d)/w,vc=(dm*this.vel+this.k*d)/w;
       this.v=t+e*(d*co+pc*si);this.vel=e*(this.vel*co-vc*si)}});
-  const dz=18/(2*Math.sqrt(216)),
-    pos=spring(0,1000,1),vel=spring(0,300,.5),press=spring(0,1000,1),sx=spring(1,250,.6),sy=spring(1,250,.7),
+  /* retours sans rebond (amortissement critique) : seule la goutte, pendant le glissement du doigt, est souple */
+  const dz=1,
+    pos=spring(0,1000,1),vel=spring(0,300,.5),press=spring(0,1000,1),sx=spring(1,250,1),sy=spring(1,250,1),
     panel=spring(0,300,1),ty=spring(0,240/.9,dz),tx=spring(1,240/.9,dz),tp=spring(1,240/.9,dz);
-  let glide=null,W=0,H=0,dpr=1,target=0,pressT=0,shapeT=1,release=false,dragging=false,refract=false,downX=0,downY=0,startT=0,startP=0,startY=0,moved=0,originX=0,pid=null,cx0=0,cy0=0,near=0,raf=0,last=0;
+  let glide=null,W=0,H=0,dpr=1,target=0,pressT=0,sxT=1,syT=1,release=false,dragging=false,refract=false,downX=0,downY=0,startT=0,startP=0,startY=0,moved=0,originX=0,pid=null,cx0=0,cy0=0,near=0,raf=0,last=0;
+  /* forme visée de la pastille (largeur, hauteur) ; appui façon BioStudy : 1,06 × 1,12 */
+  const forme=(x,y=x)=>{sxT=x;syT=y};
+  /* courbe douce cubic-bezier(.45,0,.2,1) : démarre en douceur, freine longuement, ne dépasse jamais l'onglet */
+  const douce=x=>{if(x<=0)return 0;if(x>=1)return 1;const b=(t,a,c)=>3*a*t*(1-t)*(1-t)+3*c*t*t*(1-t)+t*t*t;let lo=0,hi=1,t=x;
+    for(let i=0;i<22;i++){b(t,.45,.2)<x?lo=t:hi=t;t=(lo+hi)/2}return b(t,0,1)};
   const tabW=()=>Math.max(0,(W-8)/N),maxI=N-1,at=x=>cl(Math.floor((x-4)/tabW()),0,maxI);
   const rubber=(d,dim)=>{if(!d||dim<=0)return 0;const r=(1-1/(Math.abs(d)*.14/dim+1))*dim;return d<0?-r:r};
   function panelOff(raw){if(W<=0||!raw)return 0;const fr=cl(raw/W,-1,1),x=Math.abs(fr);let lo=0,hi=1,p=x;
@@ -129,13 +154,18 @@ export function jellyNav({wrap,track,canvas,items,onSelect,active}){
     p.moveTo(l+rx,t);p.lineTo(r-rx,t);p.ellipse(r-rx,t+ry,rx,ry,0,-Math.PI/2,0);p.lineTo(r,b-ry);p.ellipse(r-rx,b-ry,rx,ry,0,0,Math.PI/2);
     p.lineTo(l+rx,b);p.ellipse(l+rx,b-ry,rx,ry,0,Math.PI/2,Math.PI);p.lineTo(l,t+ry);p.ellipse(l+rx,t+ry,rx,ry,0,Math.PI,Math.PI*1.5);p.closePath();return p}
   /* ---- rangée d'onglets : icône colorée + libellé ; version active agrandie pendant l'appui ---- */
-  function drawRow(ctx,f,on){const tw=tabW(),is=24,colH=is+4+14,top=H/2-colH/2;
-    items.forEach((b,i)=>{const cx=4+(i+.5)*tw,col=C.tabs[i];ctx.save();
+  /* onglet assez large (PC, comme BioStudy) : icône et libellé côte à côte ; sinon libellé sous l'icône */
+  function drawRow(ctx,f,on){const tw=tabW(),row=tw>=112;
+    items.forEach((b,i)=>{const cx=4+(i+.5)*tw,col=C.tabs[i],txt=b.querySelector('span').textContent;ctx.save();
       if(on){ctx.translate(cx,H/2);ctx.scale(f.scale,f.scale);ctx.translate(-cx,-H/2)}
-      ctx.save();ctx.translate(cx-is/2,top);ctx.scale(is/icons[i].n,is/icons[i].n);
+      let is,ix,iy,tx,ty,mw;
+      if(row){is=19;ctx.font=`${on?700:500} 13px ${C.font}`;mw=Math.min(ctx.measureText(txt).width,tw-is-8-14);
+        ix=cx-(is+8+mw)/2;iy=H/2-is/2;tx=ix+is+8;ty=H/2;ctx.textAlign='left'}
+      else{is=24;const top=H/2-(is+4+14)/2;ctx.font=`${on?700:500} ${W/N<70?11:12}px ${C.font}`;mw=tw-6;
+        ix=cx-is/2;iy=top;tx=cx;ty=top+is+4+7;ctx.textAlign='center'}
+      ctx.save();ctx.translate(ix,iy);ctx.scale(is/icons[i].n,is/icons[i].n);
       ctx.lineWidth=2;ctx.lineCap=ctx.lineJoin='round';ctx.strokeStyle=css(col,on?1:.8);ctx.stroke(icons[i].p);ctx.restore();
-      ctx.fillStyle=on?css(col,1):C.mut;ctx.font=`${on?700:500} ${W/N<70?11:12}px ${C.font}`;ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText(b.querySelector('span').textContent,cx,top+is+4+7,tw-6);ctx.restore()})}
+      ctx.fillStyle=on?css(col,1):C.mut;ctx.textBaseline='middle';ctx.fillText(txt,tx,ty,mw);ctx.restore()})}
   const iconCv=document.createElement('canvas'),ictx=iconCv.getContext('2d');
   function drawIcons(ctx,f,g){ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,iconCv.width,iconCv.height);
     ctx.setTransform(dpr,0,0,dpr,MX*dpr,MY*dpr);const pill=pillPath(g),out=new Path2D();out.rect(-MX,-MY,W+MX*2,H+MY*2);out.addPath(pill);
@@ -230,39 +260,46 @@ void main(){
   function tick(now){
     raf=0;const s=RM?1:cl(last?(now-last)/1000:0,0,.064);last=now;
     target=cl(target,0,maxI);
-    /* clic : glissement à durée fixe (340 ms, accéléré puis freiné), en temps réel même si des images sautent */
-    if(glide){const k=cl((performance.now()-glide.t0)/glide.d,0,1),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;pos.v=glide.de+(glide.vers-glide.de)*e;pos.vel=0;if(k>=1){pos.snap(glide.vers);glide=null;pressT=0;refract=false}}
+    /* clic : glissement souple à durée fixe (420 ms), sans gonfler ni rebondir, en temps réel même si des images sautent */
+    if(glide){const k=cl((performance.now()-glide.t0)/glide.d,0,1);pos.v=glide.de+(glide.vers-glide.de)*douce(k);pos.vel=0;
+      if(k>=1){pos.snap(glide.vers);glide=null}}
     else pos.step(target,s);
-    vel.step(dragging&&maxI>0?pos.vel/maxI:0,s);
+    vel.z=dragging?.5:1;vel.step(dragging&&maxI>0?pos.vel/maxI:0,s);
     if(!dragging)panel.step(0,s);
-    if(release&&!glide&&Math.abs(pos.v-target)<Math.max(1,maxI)*.025){release=false;pressT=0;shapeT=1}
-    press.step(pressT,s);sx.step(shapeT,s);sy.step(shapeT,s);tp.step(dragging?1.025:1,s);
+    if(release&&!glide&&Math.abs(pos.v-target)<Math.max(1,maxI)*.025){release=false;pressT=0;forme(1)}
+    press.step(pressT,s);sx.step(sxT,s);sy.step(syT,s);tp.step(dragging?1.025:1,s);
     if(!dragging){ty.step(0,s);tx.step(1,s);if(tx.rest(1))originX=W/2}
     render();
-    const busy=dragging||release||!pos.rest(target)||!vel.rest(0)||!press.rest(0)||!sx.rest(1)||!sy.rest(1)||!panel.rest(0)||!ty.rest(0)||!tx.rest(1)||!tp.rest(1)||!!glide;
+    const busy=dragging||release||!pos.rest(target)||!vel.rest(0)||!press.rest(0)||!sx.rest(sxT)||!sy.rest(syT)||!panel.rest(0)||!ty.rest(0)||!tx.rest(1)||!tp.rest(1)||!!glide;
     if(busy)raf=requestAnimationFrame(tick);else last=0}
   const kick=()=>{if(!raf)raf=requestAnimationFrame(tick)};
   /* pendant le glissement la pastille grossit un peu en loupe et déforme les icônes qu'elle traverse, puis se repose */
-  const glisser=i=>{if(RM||Math.abs(pos.v-i)<1e-3){glide=null;return}if(glide&&glide.vers===i)return;glide={de:pos.v,vers:i,t0:performance.now(),d:320};refract=true;pressT=.6};
+  const glisser=i=>{if(RM||Math.abs(pos.v-i)<1e-3){glide=null;return}if(glide&&glide.vers===i)return;glide={de:pos.v,vers:i,t0:performance.now(),d:420};refract=false;pressT=0;forme(1)};
   function select(i,anim){dragging=false;refract=false;target=i;
     if(anim===false){glide=null;pos.snap(i);vel.snap(0);render();return}
-    release=true;pressT=0;shapeT=1;glisser(i);kick()}
+    release=true;pressT=0;forme(1);glisser(i);kick()}
   /* coordonnées dans la barre, corrigées de son échelle */
   const local=e=>{const r=track.getBoundingClientRect();return[(e.clientX-r.left)*W/(r.width||1),(e.clientY-r.top)*H/(r.height||1)]};
-  /* appui : rien ne bouge tant que le doigt ne glisse pas. Glisser (10 px) : la pastille gonfle en lentille et suit le doigt.
-     Simple appui : elle glisse en douceur jusqu'à l'onglet touché, sans gonfler. */
-  track.addEventListener('pointerdown',e=>{
+  /* appui ou clic : la pastille glisse en douceur jusqu'à l'onglet, sans effet. Glisser le doigt ou la souris (6 px) :
+     elle devient une goutte (lentille) qui suit et déforme les icônes, puis se cale sans rebond. */
+  function down(e){
     if(pid!==null||!e.isPrimary||e.button!==0)return;
     pid=e.pointerId;cx0=e.clientX;cy0=e.clientY;[downX,downY]=local(e);downY=cl(downY,0,H);
     startY=ty.v;moved=0;startP=panel.v;panel.vel=0;
-    try{track.setPointerCapture(pid)}catch(_){}});
+    try{track.setPointerCapture(pid)}catch(_){}}
+  track.addEventListener('pointerdown',down);
+  /* pendant l'animation de changement de page (View Transitions), Chrome envoie les clics à <html> et plus à la barre :
+     un appui dans la barre est rattrapé ici, pour pouvoir changer d'onglet aussi vite que sur BioStudy */
+  const dedans=(e,el)=>{const r=el.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom};
+  const rattraper=e=>{if(e.target===document.documentElement&&dedans(e,track)){touche=true;clearTimeout(demoTm);down(e)}};
+  document.addEventListener('pointerdown',rattraper,true);
   track.addEventListener('pointermove',e=>{
     if(e.pointerId!==pid)return;
     const dx=e.clientX-cx0,dy=e.clientY-cy0,tw=tabW();if(tw<=0)return;
     moved=Math.max(moved,Math.abs(dx),Math.abs(dy));
-    /* un doigt bouge toujours un peu pendant un appui : en dessous de 10 px, c'est un appui, pas un glissement */
-    if(!dragging){if(moved<10)return;
-      glide=null;dragging=true;refract=true;release=false;pressT=1;shapeT=1.3;near=at(downX);originX=cl(downX,0,W)}
+    /* un doigt bouge toujours un peu pendant un appui : en dessous de 6 px (comme BioStudy), c'est un appui, pas un glissement */
+    if(!dragging){if(moved<6)return;
+      glide=null;dragging=true;refract=true;release=false;pressT=1;forme(1.3);near=at(downX);track.classList.add('dragging');originX=cl(downX,0,W)}
     /* la pastille se place sous le doigt et le suit */
     target=cl((downX+dx-4)/tw-.5,0,maxI);panel.snap(startP+dx);
     ty.snap(startY+rubber(dy,H)*.25);tx.snap(1-Math.min(Math.abs(dy)/700,1)*.08);
@@ -273,17 +310,18 @@ void main(){
     if(e.pointerId!==pid)return;pid=null;
     const glisse=dragging,i=glisse?cl(Math.round(target),0,maxI):at(downX);
     dragging=false;refract=false;panel.vel=0;target=i;release=true;
-    if(!glisse){pressT=0;shapeT=1;glisser(i)}kick();
+    track.classList.remove('dragging');
+    if(!glisse){pressT=0;forme(1);glisser(i)}kick();
     /* la page change à l'image suivante : la pastille a déjà commencé à glisser */
     requestAnimationFrame(()=>onSelect(i))});
-  const cancel=e=>{if(e.pointerId!==pid)return;pid=null;panel.vel=0;select(active())};
+  const cancel=e=>{if(e.pointerId!==pid)return;pid=null;track.classList.remove('dragging');panel.vel=0;select(active())};
   track.addEventListener('pointercancel',cancel);track.addEventListener('lostpointercapture',cancel);
   /* démonstration : au repos, la pastille glisse seule vers l'onglet voisin puis revient, en lentille, pour montrer
      qu'on peut la faire glisser (une fois par visite, annulée dès que l'utilisateur touche la barre) */
   let touche=false,demoTm=0;
   track.addEventListener('pointerdown',()=>{touche=true;clearTimeout(demoTm)},{capture:true});
   function demo(){if(RM||touche||dragging||!W)return;const a=active(),dir=a<maxI?1:-1;
-    track.dataset.demo='1';refract=true;release=false;pressT=1;shapeT=1.3;target=a+dir*.62;kick();
+    track.dataset.demo='1';refract=true;release=false;pressT=1;forme(1.3);target=a+dir*.62;kick();
     demoTm=setTimeout(()=>{if(touche)return;target=a;release=true;kick();
       demoTm=setTimeout(()=>{refract=false;delete track.dataset.demo;draw()},700)},650)}
   /* clavier : Entrée / Espace déclenchent click sans pointeur */
@@ -293,4 +331,4 @@ void main(){
   const ro=new ResizeObserver(()=>{measure();render()});ro.observe(track);
   colors();measure();render();
   if(document.fonts)document.fonts.ready.then(draw);
-  return{select,demo,detruire(){mo.disconnect();ro.disconnect();cancelAnimationFrame(raf);clearTimeout(demoTm)}}}
+  return{select,demo,dedans,detruire(){document.removeEventListener('pointerdown',rattraper,true);mo.disconnect();ro.disconnect();cancelAnimationFrame(raf);clearTimeout(demoTm)}}}

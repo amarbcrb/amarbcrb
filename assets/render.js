@@ -9,7 +9,7 @@ import { carrousel } from './carrousel.js';
 import { visuel, urlMedia } from './media.js';
 
 
-const TITRES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Ressources' };
+const TITRES = { accueil: 'Accueil', parcours: 'Parcours', portfolio: 'Portfolio', liens: 'Plus' };
 const VIDES = { parcours: 'Parcours bientôt disponible.', liens: 'Aucune ressource pour le moment.', portfolio: 'Portfolio bientôt disponible.' };
 const MAX_RANGEE = 10;
 const MAX_FRISE = 4;
