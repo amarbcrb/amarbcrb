@@ -46,7 +46,7 @@ export function reglerFleches(racine) {
 }
 
 const teteRangee = (titre, nombre, href, editTitre = null) => el('div', { class: 'rangee-tete' }, el('h2', { 'data-edit': editTitre }, titre), nombre === null ? null : el('small', {}, String(nombre)),
-  href ? el('a', { class: 'voir', href, 'aria-label': `Voir tout : ${titre}`, html: ICONES.suite }) : null);
+  href ? el('a', { class: 'voir', href, 'aria-label': `Voir tout : ${titre}`, html: `Tout voir${ICONES.suite}` }) : null);
 
 /* frise chronologique : un point par étape (plein si en cours), période, titre, lieu ; chaque étape ouvre sa fiche */
 export function frise(items, partie) {

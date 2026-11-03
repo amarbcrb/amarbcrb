@@ -38,10 +38,11 @@ test('carrousel : les points mènent à la bonne diapo malgré la largeur rédui
 test('défilement : les blocs apparaissent en glissant avec un flou (rien en mouvement réduit)', async () => {
   reinit();
   let p = await env.page({ chemin: '/#parcours', mouvementReduit: false });
-  assert.match(await p.$eval('#vue .rangee', (x) => getComputedStyle(x).animationName), /apparait/);
+  assert.match(await p.$eval('#vue .rangee > .rangee-tete', (x) => getComputedStyle(x).animationName), /titre-monte/);
+  assert.match(await p.$eval('#vue .profil', (x) => getComputedStyle(x).animationName), /apparait/);
   assert.match(CSS, /@keyframes apparait\{from\{[^}]*blur/);
   p = await env.page({ chemin: '/#parcours' });
-  assert.doesNotMatch(await p.$eval('#vue .rangee', (x) => getComputedStyle(x).animationName), /apparait/);
+  assert.doesNotMatch(await p.$eval('#vue .rangee > .rangee-tete', (x) => getComputedStyle(x).animationName), /titre-monte/);
 });
 
 test('portfolio : des formes grises animées pendant le chargement, pas « Chargement… »', async () => {

@@ -231,12 +231,13 @@ test('320 px : en-tête lisible, textes contenus dans leurs cartes', async () =>
   assert.deepEqual([...new Set(defauts)], []);
 });
 
-test('ambiance Nuvio : noir pur en sombre, titres de rangée soulignés, recherche sans cadre dans le champ', async () => {
+test('ambiance : noir pur en sombre, titres de rangée sans trait, recherche sans cadre dans le champ', async () => {
   const p = await env.page({ viewport: { width: 390, height: 844 }, stockage: { 'ab-theme': 'dark' } });
   await ouvrirPage(p, '#parcours');
   assert.equal(await p.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(0, 0, 0)');
   const souligne = await p.$eval('#vue .rangee-tete h2', (h) => { const a = getComputedStyle(h, '::after'); return [a.content, a.width, a.height, a.backgroundColor]; });
-  assert.deepEqual(souligne, ['""', '36px', '3px', 'rgb(255, 255, 255)']);
+  /* titres façon Apple : plus de trait sous le titre */
+  assert.equal(souligne[0], 'none');
   assert.equal(await p.$eval('#vue .rangee-tete h2', (h) => getComputedStyle(h, '::before').content), 'none');
   await ouvrirPage(p, 'recherche');
   await p.focus('#rechInput');
