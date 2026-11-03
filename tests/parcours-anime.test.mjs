@@ -19,8 +19,8 @@ test('Parcours : frise qui se trace, points qui s\'allument, cartes qui entrent'
   assert.match(a.trait, /trait/);
   assert.match(a.point, /allume/);
   assert.match(a.carte, /carte-entre/);
-  await p.click('#vue .profil .lire');
-  assert.match(await p.$eval('#vue .profil-texte p:nth-child(2)', (x) => getComputedStyle(x).animationName), /deplie/);
+  await p.click('#vue .profil .accordeon details:nth-child(2) summary');
+  assert.match(await p.$eval('#vue .profil .accordeon details:nth-child(2) .accordeon-corps', (x) => getComputedStyle(x).animationName), /deplie/);
   assert.deepEqual(p.erreurs, []);
 });
 

@@ -1,6 +1,7 @@
 /* Barre d'onglets du site : construction des boutons et bouton Recherche, puis moteur « jelly » WebGL (jellyNav). */
 
 import { RM } from './mouvement.js';
+/* une seule petite vibration : quand on change vraiment d'onglet */
 function buzz(p = 10) { try { navigator.vibrate && navigator.vibrate(p); } catch (_) { /* pas de vibreur */ } }
 
 const ICONES = {
@@ -57,7 +58,7 @@ export function monterBarre({ conteneur, onglets, infos = {}, onSelect, onRecher
   recherche.className = 'nav-search glass';
   recherche.setAttribute('aria-label', 'Rechercher');
   recherche.innerHTML = LOUPE;
-  recherche.addEventListener('click', () => { buzz(); onRecherche(); });
+  recherche.addEventListener('click', () => onRecherche());
   /* clic sur la loupe pendant une animation de changement de page (il arrive à <html>) */
   const loupeRattrapee = (e) => { if (e.target === document.documentElement && jelly.dedans(e, recherche)) { buzz(); onRecherche(); } };
   document.addEventListener('click', loupeRattrapee, true);
@@ -69,7 +70,7 @@ export function monterBarre({ conteneur, onglets, infos = {}, onSelect, onRecher
     boutons.forEach((b, k) => (k === i ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current')));
   };
   const jelly = jellyNav({ wrap: nav, track: piste, canvas, items: boutons, active: () => courant,
-    onSelect: (i) => { buzz(); marquer(i); onSelect(onglets[i]); } });
+    onSelect: (i) => { if (i !== courant) buzz(8); marquer(i); onSelect(onglets[i]); } });
   marquer(0);
   /* clavier ouvert (téléphone) : la barre se cache, comme sur BioStudy */
   const vv = window.visualViewport;
@@ -304,7 +305,6 @@ void main(){
     target=cl((downX+dx-4)/tw-.5,0,maxI);panel.snap(startP+dx);
     ty.snap(startY+rubber(dy,H)*.25);tx.snap(1-Math.min(Math.abs(dy)/700,1)*.08);
     originX=cl(downX+dx,0,W);
-    const n=Math.round(target);if(n!==near){near=n;buzz(4)}
     kick()});
   track.addEventListener('pointerup',e=>{
     if(e.pointerId!==pid)return;pid=null;

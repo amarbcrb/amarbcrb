@@ -67,7 +67,7 @@ test('profil : titre et texte (deux paragraphes) modifiés sur place', async () 
   assert.equal(env.faux.etat.contenu.parcours.profil.titre, 'Mon profil');
   assert.equal(env.faux.etat.contenu.parcours.profil.texte, 'Premier paragraphe.\n\nSecond paragraphe.');
   const v = await env.page({ chemin: '/#parcours' });
-  assert.equal(await v.locator('#vue .profil p').count(), 2);
+  assert.equal(await v.locator('#vue .profil .accordeon details').count(), 2);
 });
 
 test('intérêt : image envoyée depuis la feuille → carte avec l\'image ; puis lien d\'une vidéo collé', async () => {
