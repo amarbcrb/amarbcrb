@@ -137,13 +137,26 @@ function profil(c) {
 }
 
 /* ---------- Voir tout ---------- */
+/* dossier Drive : grandes vignettes, petites vignettes ou liste ; le choix est gardé sur l'appareil */
+const VUES = [
+  { id: 'grand', libelle: 'Grandes vignettes', icone: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>' },
+  { id: 'petit', libelle: 'Petites vignettes', icone: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="4.5" height="4.5" rx="1"/><rect x="9.75" y="3" width="4.5" height="4.5" rx="1"/><rect x="16.5" y="3" width="4.5" height="4.5" rx="1"/><rect x="3" y="9.75" width="4.5" height="4.5" rx="1"/><rect x="9.75" y="9.75" width="4.5" height="4.5" rx="1"/><rect x="16.5" y="9.75" width="4.5" height="4.5" rx="1"/><rect x="3" y="16.5" width="4.5" height="4.5" rx="1"/><rect x="9.75" y="16.5" width="4.5" height="4.5" rx="1"/><rect x="16.5" y="16.5" width="4.5" height="4.5" rx="1"/></svg>' },
+  { id: 'liste', libelle: 'Liste', icone: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="5" height="5" rx="1"/><rect x="3" y="15" width="5" height="5" rx="1"/><path d="M11 6.5h10M11 17.5h10"/></svg>' },
+];
+const vueFichiers = () => { let v = null; try { v = localStorage.getItem('ab-vue-fichiers'); } catch { /* stockage bloqué */ } return VUES.some((x) => x.id === v) ? v : 'grand'; };
+const choixVue = (actuelle) => el('div', { class: 'choix-vue', role: 'group', 'aria-label': 'Affichage des fichiers' },
+  VUES.map((v) => el('button', { type: 'button', 'data-vue': v.id, 'aria-pressed': String(v.id === actuelle), 'aria-label': v.libelle, title: v.libelle, html: v.icone })));
+
 function voirTout(onglet, p, c, couleur) {
+  const perso = ongletPerso(c, onglet);
+  const fichiers = onglet === 'portfolio' || (perso && perso.type === 'drive');
+  const vue = fichiers ? vueFichiers() : null;
   const contenu = onglet === 'parcours' && FRISES.includes(p.id) ? frise(p.items, p.id)
-    : el('div', { class: `grille grille-${onglet === 'parcours' ? p.id : onglet}`, 'data-liste': listeDe(c, onglet, p.id) }, p.items.map((x, i) => carte(x, { onglet, partie: p.id, c, indice: i })));
+    : el('div', { class: `grille grille-${onglet === 'parcours' ? p.id : onglet}${fichiers ? ' grille-fichiers' : ''}`, 'data-vue': vue, 'data-liste': listeDe(c, onglet, p.id) }, p.items.map((x, i) => carte(x, { onglet, partie: p.id, c, indice: i })));
   return el('section', { class: `vt vt-voir v-${onglet}`, style: `--tc:var(${couleurOnglet(c, onglet)});--pc:var(${couleur})` },
     el('header', { class: 'vt-tete' },
       el('a', { class: 'retour', href: format({ onglet }), 'aria-label': 'Retour', html: ICONES.retour }),
-      el('h1', {}, p.titre), el('small', {}, nElements(p.items.length))), contenu);
+      el('h1', {}, p.titre), el('small', {}, nElements(p.items.length)), fichiers ? choixVue(vue) : null), contenu);
 }
 
 /* ---------- Liens, façon Bibliothèque ---------- */

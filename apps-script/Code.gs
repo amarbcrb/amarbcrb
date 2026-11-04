@@ -3,7 +3,7 @@
    Stocke le contenu (contenu.json), les médias et le portfolio dans ton Google Drive.
    Installation : voir INSTALLATION.md.
 
-   Lecture  (GET)  : ?a=contenu | ?a=portfolio[&frais=1&jeton=…] | ?a=galerie&id=…
+   Lecture  (GET)  : ?a=contenu | ?a=portfolio[&frais=1&jeton=…] | ?a=galerie&id=…[&frais=1&jeton=…]
    Écriture (POST) : corps JSON { a, jeton, … } envoyé en text/plain
      connexion, enregistrer, envoyerMedia, listerMedias, supprimerMedia, apercuLien,
      dossierPortfolio, dossierGalerie, envoyerFichier, creerDossier, renommerDossier, supprimerDossier, supprimerFichier,
@@ -60,7 +60,7 @@ function doGet(e) {
     const q = (e && e.parameter) || {};
     if (q.a === 'contenu') return lireContenu();
     if (q.a === 'portfolio') return listerPortfolio(q.frais === '1' && verifierJeton(q.jeton));
-    if (q.a === 'galerie') return listerGalerie(q.id);
+    if (q.a === 'galerie') return listerGalerie(q.id, q.frais === '1' && verifierJeton(q.jeton));
     throw new ErreurEntree('entree');
   });
 }
@@ -465,9 +465,10 @@ function listerPortfolio(frais) {
   return enCacheOuLire('portfolio', frais, () => ({ racine: id, dossiers: lister(DriveApp.getFolderById(id)).dossiers }));
 }
 
-function listerGalerie(id) {
+/* frais : relu dans Drive tout de suite (bouton « Mettre à jour depuis Drive » de l'admin), sinon cache de 5 min */
+function listerGalerie(id, frais) {
   if (galeries().indexOf(String(id)) < 0) throw new ErreurEntree('entree');
-  return enCacheOuLire('galerie:' + id, false, () => lister(dossierParId(id)));
+  return enCacheOuLire('galerie:' + id, frais, () => lister(dossierParId(id)));
 }
 
 function envoyerFichier(d) {

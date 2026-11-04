@@ -13,6 +13,10 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
 input:focus,textarea:focus,select:focus{border-color:var(--acc)}
 .adm-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top) + 12px) var(--gx) 12px;background:color-mix(in srgb,var(--bg) 85%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 .adm-top b{flex:1;font-size:18px;font-weight:800}
+.adm-drive{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;margin:4px var(--gx) 12px;padding:14px 16px}
+.adm-drive p{flex:1 1 220px;margin:0;font-size:14px;line-height:1.4;color:var(--tx2)}
+.adm-drive p b{color:var(--tx);font-weight:600}
+.adm-drive .btn{min-height:44px;padding:0 18px;font-size:14px;white-space:nowrap}
 .adm-top .btn{min-height:44px;padding:0 16px;font-size:14px;white-space:nowrap}
 @media(max-width:359px){.adm-top{gap:6px}.adm-top .btn{padding:0 11px;font-size:13px}}
 .ecrans{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px var(--gx) 8px}
@@ -48,8 +52,8 @@ input:focus,textarea:focus,select:focus{border-color:var(--acc)}
 .dialogue p{margin-top:8px;color:var(--tx2)}
 .bientot{margin-top:16px;color:var(--tx3)}
 @media(min-width:900px){
-#app{display:grid;grid-template-columns:220px minmax(0,1fr);grid-template-rows:auto 1fr}
-.adm-top{grid-column:1/-1}
+#app{display:grid;grid-template-columns:220px minmax(0,1fr);grid-template-rows:auto auto 1fr}
+.adm-top,.adm-drive{grid-column:1/-1}
 .ecrans{flex-direction:column;overflow:visible;padding:16px 0 0 var(--gx);position:sticky;top:76px;align-self:start}
 .ecrans button{text-align:left}}
 .liste ul{list-style:none;display:flex;flex-direction:column;gap:8px}

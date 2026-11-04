@@ -122,3 +122,17 @@ test('photo PNG → envoyée en JPEG', async () => {
   assert.equal(env.faux.etat.medias.photo.type, 'image/jpeg');
 });
 
+
+test('« Mettre à jour depuis Drive » → Portfolio et galeries relus (frais=1), message dans la barre', async () => {
+  reinit();
+  const c = env.faux.etat.contenu;
+  c.onglets.perso = [...(c.onglets.perso || []), { id: 'galx', nom: 'Galerie', type: 'drive', dossierId: 'gx', icone: 'dossier', couleur: 'blue', visible: true }];
+  env.faux.etat.galeries.gx = { dossiers: [{ id: 'gx1', nom: 'A', fichiers: [{ id: 'f1', nom: 'a.jpg', type: 'image/jpeg', apercu: '/favicon-512x512.png', lien: 'https://drive.google.com/file/d/f1/view' }] }], fichiers: [] };
+  const p = await ecran('medias');
+  await p.click('#actualiserDrive');
+  await p.waitForSelector('#etat:has-text("Drive relu")');
+  assert.equal(env.faux.etat.appels.frais, 1);
+  assert.equal(env.faux.etat.appels.fraisGaleries, 1);
+  assert.match(await p.innerText('#etat'), /Le site est à jour\./);
+  assert.doesNotMatch(await p.innerText('#etat'), /Non relu/);
+});

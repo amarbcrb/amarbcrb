@@ -1,5 +1,5 @@
 /* Admin : connexion, écrans, brouillon local, enregistrement et conflit de version. */
-import { appeler, lireJeton, ecrireJeton, effacerJeton, lireContenuFrais } from '../assets/api.js';
+import { appeler, lireJeton, ecrireJeton, effacerJeton, lireContenuFrais, lirePortfolio, lireGalerie } from '../assets/api.js';
 import { normaliser, valider } from '../assets/model.js';
 import { ECRANS } from './ecrans.js';
 
@@ -160,6 +160,28 @@ $('conflitEcraser').addEventListener('click', () => {
   etat.versionDeBase = etat.versionDistante;
   enregistrer();
 });
+
+/* ---------- Drive : relire le Portfolio et les galeries sans attendre le cache du script (5 min) ---------- */
+const nbFichiers = (d) => (d.fichiers || []).length + (d.dossiers || []).reduce((n, x) => n + nbFichiers(x), 0);
+const pluriel = (n, mot) => `${n} ${mot}${n > 1 ? 's' : ''}`;
+async function actualiserDrive() {
+  const b = $('actualiserDrive');
+  b.disabled = true;
+  dire('Lecture de Drive…');
+  const galeries = ((etat.contenu.onglets || {}).perso || []).filter((o) => o && o.type === 'drive' && o.dossierId);
+  try {
+    const [portfolio, ...lues] = await Promise.all([lirePortfolio({ frais: true }), ...galeries.map((o) => lireGalerie(o.dossierId, { frais: true }))]);
+    if (!portfolio && lues.every((g) => !g)) { dire('Drive indisponible pour le moment. Réessaie.'); return; }
+    const fichiers = (portfolio ? nbFichiers({ dossiers: portfolio }) : 0) + lues.reduce((n, g) => n + (g ? nbFichiers(g) : 0), 0);
+    const ratees = galeries.filter((o, i) => !lues[i]).map((o) => o.nom);
+    dire(`Drive relu : ${pluriel(fichiers, 'fichier')} en ligne. Le site est à jour.`
+      + (!portfolio ? ' Portfolio non relu.' : '')
+      + (ratees.length ? ` Non relu : ${ratees.join(', ')} (enregistre d'abord l'onglet).` : ''));
+  } finally {
+    b.disabled = false;
+  }
+}
+$('actualiserDrive').addEventListener('click', actualiserDrive);
 
 addEventListener('beforeunload', (e) => { if (etat.sale) e.preventDefault(); });
 

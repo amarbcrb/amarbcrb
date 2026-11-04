@@ -97,10 +97,12 @@ export async function chargerContenu(onMaj) {
   }
 }
 
-/* galerie Drive d'un onglet : { dossiers, fichiers }, null si le script est en panne */
-export async function lireGalerie(id) {
+/* galerie Drive d'un onglet : { dossiers, fichiers }, null si le script est en panne ;
+   frais (admin connecté) : relue dans Drive sans attendre le cache du script */
+export async function lireGalerie(id, { frais = false } = {}) {
+  const jeton = lireJeton();
   try {
-    const r = await lireScript('galerie', { id });
+    const r = await lireScript('galerie', frais && jeton ? { id, frais: '1', jeton } : { id });
     return { dossiers: Array.isArray(r.dossiers) ? r.dossiers : [], fichiers: Array.isArray(r.fichiers) ? r.fichiers : [], protege: !!r.protege };
   } catch {
     return null;
