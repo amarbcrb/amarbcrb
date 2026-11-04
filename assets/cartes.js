@@ -60,8 +60,89 @@ const TRACES = {
 const icone = (type) => `<svg class="type-icone" viewBox="0 0 24 24" aria-hidden="true">${TRACES[type]}</svg>`;
 export const iconeType = icone;
 
-const FICHIER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>';
 const DATEES = ['formation', 'experience', 'engagement'];
+/* fichiers : famille (couleur, pictogramme, libellé) tirée de l'extension, sinon du type MIME.
+   Pictogrammes dessinés sur une grille de 24 (zone x 7-17, y 9-20), posés en blanc sur l'icône plate. */
+const extension = (nom) => ((/\.([a-z0-9]{1,8})$/i.exec(String(nom)) || [])[1] || '').toLowerCase();
+const FAMILLES = [
+  { id: 'pdf', libelle: 'PDF', ext: /^pdf$/, mime: /pdf/, couleur: '#e5322d', apercu: true,
+    dessin: '<path d="M8.4 19.2c1.4-.9 2.7-2.9 3.6-5.2.9-2.4 1.1-4.4.6-4.6-.6-.2-.9 1.8-.2 4.2.6 2.1 2.2 3.8 4.4 4.3 1 .2 1.4-.5.3-.8-2.3-.6-5.4-.1-7.6 1.3-1.4.9-1.9 1.9-1.1.8Z"/>' },
+  { id: 'tableur', libelle: 'Tableur', ext: /^(xlsx?|xlsm|ods|csv|tsv|numbers)$/, mime: /spreadsheet|excel|csv/, couleur: '#1f9d55', apercu: true,
+    dessin: '<rect x="7" y="9.5" width="10" height="10" rx="1.2"/><path d="M7 12.8h10M7 16.2h10M10.8 9.5v10"/>' },
+  { id: 'texte', libelle: 'Document', ext: /^(docx?|odt|rtf|txt|md|pages)$/, mime: /document|msword|text\/plain|rtf/, couleur: '#2f6fe0', apercu: true,
+    dessin: '<path d="M7.5 10.5h9M7.5 13.5h9M7.5 16.5h9M7.5 19.5h5.5"/>' },
+  { id: 'presentation', libelle: 'Présentation', ext: /^(pptx?|odp|key)$/, mime: /presentation|powerpoint/, couleur: '#e8572a', apercu: true,
+    dessin: '<rect x="7" y="9.5" width="10" height="7" rx="1"/><path d="M12 16.5v3M10 19.5h4M9.5 14l2-2 1.5 1.5 2-2"/>' },
+  { id: 'sequence', libelle: 'Séquence ADN', ext: /^(dna|gbk|gb|gbff|genbank|fasta|fa|fna|faa|ffn|ab1|abi|ape|sbd|seq|embl|xdna|clc)$/, mime: /genbank|fasta|x-dna/, couleur: '#7c4ddb', apercu: false,
+    dessin: '<path d="M9 9c0 2.8 6 3.2 6 5.6S9 17.6 9 20.4"/><path d="M15 9c0 2.8-6 3.2-6 5.6s6 3 6 5.8"/><path d="M10 10.6h4M10.4 18.8h3.2"/>' },
+  { id: 'archive', libelle: 'Archive', ext: /^(zip|rar|7z|gz|tgz|tar|bz2)$/, mime: /zip|compressed|archive|tar/, couleur: '#f2a516', apercu: false,
+    dessin: '<path d="M11 8.5h2M11 10.5h2M11 12.5h2"/><rect x="10" y="14.5" width="4" height="5" rx="1"/>' },
+  { id: 'video', libelle: 'Vidéo', ext: /^(mp4|mov|webm|avi|mkv|m4v)$/, mime: /^video\//, couleur: '#8e44ad', apercu: true,
+    dessin: '<circle cx="12" cy="14.5" r="5"/><path d="m11 12.5 3 2-3 2z"/>' },
+  { id: 'audio', libelle: 'Audio', ext: /^(mp3|wav|m4a|aac|ogg|flac)$/, mime: /^audio\//, couleur: '#d6336c', apercu: true,
+    dessin: '<path d="M10.6 18V11l5-1.3V16.6"/><circle cx="9.2" cy="18" r="1.5"/><circle cx="14.2" cy="16.6" r="1.5"/>' },
+  { id: 'image', libelle: 'Image', ext: /^(png|jpe?g|gif|webp|svg|tiff?|bmp|heic|raw)$/, mime: /^image\//, couleur: '#12a4a4', apercu: true,
+    dessin: '<rect x="7" y="9.5" width="10" height="10" rx="1.5"/><circle cx="10" cy="12.5" r="1"/><path d="m17 17-3-3-6 5.5"/>' },
+  { id: 'code', libelle: 'Code', ext: /^(py|r|rmd|js|ts|html|css|json|xml|ipynb|sh|c|cpp|java|m|php)$/, mime: /json|javascript|x-python|html|xml/, couleur: '#f26b21', apercu: true,
+    dessin: '<path d="m10 11.5-2.5 3 2.5 3M14 11.5l2.5 3-2.5 3"/>' },
+];
+const AUTRE = { id: 'fichier', libelle: 'Fichier', couleur: '#64748b', apercu: true, dessin: '<path d="M8 11h8M8 14.5h8M8 18h5"/>' };
+export function familleFichier(f) {
+  const ext = extension(f.nom), mime = String(f.type || '');
+  return (ext && FAMILLES.find((x) => x.ext.test(ext))) || FAMILLES.find((x) => x.mime.test(mime)) || AUTRE;
+}
+/* icône plate : feuille colorée au coin plié, pictogramme blanc, extension en bas (sans extension : pas d'étiquette) */
+function iconePlate(fam, ext = '') {
+  const t = ext.toUpperCase().slice(0, 5);
+  const taille = t.length <= 3 ? 11 : t.length === 4 ? 9.4 : 8;
+  return `<svg class="icone-plate" viewBox="0 0 48 56" aria-hidden="true">`
+    + `<path d="M9 2h21l14 14v34a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4Z" fill="${fam.couleur}"/>`
+    + `<path d="M30 2v10a4 4 0 0 0 4 4h10Z" fill="#000" fill-opacity=".2"/>`
+    + `<g transform="translate(5.3 ${t ? 0.4 : 4.6}) scale(1.6)" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${fam.dessin}</g>`
+    + (t ? `<text x="24.5" y="47.5" text-anchor="middle" font-size="${taille}" font-weight="800" fill="#fff" letter-spacing=".2" font-family="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">${t}</text>` : '')
+    + '</svg>';
+}
+/* « Tableur · XLSX », « PDF », « Séquence ADN · GBK » */
+export const descriptionFichier = (f) => {
+  const fam = familleFichier(f), ext = extension(f.nom).toUpperCase();
+  return fam.id === 'pdf' || !ext ? fam.libelle : `${fam.libelle} · ${ext}`;
+};
+/* aperçu d'un fichier non image : miniature Drive (première page d'un PDF, d'un tableur...),
+   sinon son icône plate sur un fond teinté de sa couleur */
+export function apercuFichier(f, url) {
+  const fam = familleFichier(f);
+  const repli = () => el('span', { class: 'doc-repli', 'data-famille': fam.id, style: `--a:${fam.couleur}`, html: iconePlate(fam, extension(f.nom)) });
+  return visuelMedia(url, { classe: 'doc-apercu', repli, remplir: true });
+}
+/* petite icône de la famille, posée sur la miniature Drive (masquée quand l'icône plate est déjà affichée) */
+export const pastilleFichier = (f) => el('span', { class: 'doc-pastille', 'aria-hidden': 'true', html: iconePlate(familleFichier(f)) });
+
+/* identifiant Drive sûr (lettres, chiffres, - et _) */
+const idDrive = (id) => (/^[\w-]+$/.test(String(id || '')) ? String(id) : null);
+/* contenu de la feuille « aperçu » d'un fichier Drive : lecteur Drive intégré quand Drive sait l'afficher,
+   sinon la grande icône ; boutons Ouvrir dans Drive et Télécharger */
+export const urlTelechargement = (f) => { const id = idDrive(f.id); return id ? `https://drive.google.com/uc?export=download&id=${id}` : null; };
+export function corpsApercuFichier(f) {
+  const fam = familleFichier(f), id = idDrive(f.id);
+  const lecteur = id && fam.apercu
+    ? el('iframe', { class: 'apercu-fichier', src: `https://drive.google.com/file/d/${id}/preview`, title: 'Aperçu de ' + f.nom, allow: 'autoplay; fullscreen', allowfullscreen: true, loading: 'lazy' })
+    : el('div', { class: 'apercu-indispo', style: `--a:${fam.couleur}` }, el('i', { html: iconePlate(fam, extension(f.nom)) }),
+      el('p', {}, fam.id === 'sequence' ? 'Pas d’aperçu pour ce fichier de séquence : télécharge-le et ouvre-le avec SnapGene, Benchling ou ApE.'
+        : 'Pas d’aperçu pour ce type de fichier : télécharge-le pour l’ouvrir.'));
+  return el('div', { class: 'fiche-contenu apercu-corps' }, el('small', { class: 'apercu-type' }, descriptionFichier(f)), lecteur,
+    el('div', { class: 'acts' },
+      urlTelechargement(f) ? el('a', { class: 'btn pri', href: urlTelechargement(f), target: '_blank', rel: 'noopener' }, 'Télécharger') : null,
+      lienSur(f.lien) ? el('a', { class: 'btn', href: f.lien, target: '_blank', rel: 'noopener' }, 'Ouvrir dans Drive') : null));
+}
+/* boutons toujours visibles d'une carte de fichier : Voir (visionneuse ou aperçu) et Télécharger */
+const OEIL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+const TELECHARGER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
+function actionsFichier(f) {
+  const url = urlTelechargement(f);
+  return el('span', { class: 'doc-actions' },
+    el('button', { type: 'button', class: 'doc-action pri', 'data-voir': '', 'aria-label': `Voir ${f.nom}`, title: 'Voir', html: OEIL + '<span>Voir</span>' }),
+    url ? el('a', { class: 'doc-action', href: url, target: '_blank', rel: 'noopener', 'aria-label': `Télécharger ${f.nom}`, title: 'Télécharger', html: TELECHARGER + '<span>Télécharger</span>' }) : null);
+}
 const sansExtension = (nom) => String(nom).replace(/\.[^.]+$/, '');
 /* média d'un lien : envoyé ou choisi, sinon aperçu automatique, sinon miniature YouTube de l'adresse */
 export const mediaLien = (x) => (urlMedia(x.media) ? x.media : lienSur(x.image) ? { url: x.image } : idYoutube(x.url) ? { url: x.url, type: 'youtube' } : null);
@@ -145,12 +226,18 @@ function carteBrute(x, { onglet, partie, c, indice = 0 }) {
       el('span', { class: 'carte-corps' }, el('b', {}, x.titre), x.texte ? el('p', {}, x.texte) : null));
   }
   if (onglet === 'portfolio' || (perso && perso.type === 'drive')) {
+    /* carte : un bouton (image : visionneuse) ou un lien Drive (fichier : aperçu dans le site ; Ctrl-clic : Drive)
+       couvre la carte ; Voir et Télécharger, toujours visibles, en bas de la carte */
     if (String(x.type).startsWith('image/')) {
-      return el('button', { class: 'vignette', type: 'button', 'data-dossier': partie, 'data-fichier': x.id, 'aria-label': 'Agrandir ' + x.nom, style },
-        el('img', { src: x.apercu, alt: sansExtension(x.nom), loading: 'lazy' }));
+      return el('div', { class: 'vignette carte-fichier', 'data-dossier': partie, 'data-fichier': x.id, style },
+        el('img', { src: x.apercu, alt: sansExtension(x.nom), loading: 'lazy' }), el('span', { class: 'doc-legende nom-image' }, el('b', {}, x.nom), el('small', {}, 'Image')),
+        el('button', { class: 'vignette-ouvrir', type: 'button', 'data-voir': '', 'aria-label': 'Agrandir ' + x.nom }), actionsFichier(x));
     }
-    return el(lienSur(x.lien) ? 'a' : 'div', { class: 'vignette doc', href: x.lien, target: '_blank', rel: 'noopener', style, 'data-fichier': x.id },
-      el('i', { html: FICHIER }), el('b', {}, x.nom), el('small', {}, 'Ouvrir dans Drive'));
+    return el('div', { class: 'vignette doc fichier carte-fichier', style, 'data-fichier': x.id, 'data-apercu-dossier': partie },
+      apercuFichier(x, x.apercu), pastilleFichier(x), el('span', { class: 'doc-legende' }, el('b', {}, x.nom), el('small', {}, descriptionFichier(x))),
+      lienSur(x.lien) ? el('a', { class: 'vignette-ouvrir', href: x.lien, target: '_blank', rel: 'noopener', 'data-voir': '', 'aria-label': `Aperçu de ${x.nom}` })
+        : el('button', { class: 'vignette-ouvrir', type: 'button', 'data-voir': '', 'aria-label': `Aperçu de ${x.nom}` }),
+      actionsFichier(x));
   }
   if (DATEES.includes(partie)) {
     return el('a', { class: 'carte carte-texte', href: fiche, style },

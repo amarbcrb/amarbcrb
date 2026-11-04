@@ -46,6 +46,7 @@ export async function creerFauxScript({ contenu = DEFAUT(), motDePasse = 'test' 
       const declare = ((etat.contenu.onglets || {}).perso || []).some((o) => o.type === 'drive' && o.dossierId === q.get('id'));
       const g = etat.galeries[q.get('id')];
       if (!declare || !g) return { erreur: 'entree' };
+      if (q.get('frais') === '1' && jetonValide(q.get('jeton'))) etat.appels.fraisGaleries = (etat.appels.fraisGaleries || 0) + 1;
       if (etat.proteges[q.get('id')]) return { protege: true, dossiers: [], fichiers: [] };
       return { dossiers: g.dossiers.map(publier), fichiers: g.fichiers || [], liens: etat.liensDossiers[q.get('id')] || [] };
     }

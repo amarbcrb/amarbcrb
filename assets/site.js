@@ -8,7 +8,7 @@ import { monterBarre } from './nav.js';
 import { rendreVue, couleurOnglet, reglerFleches } from './render.js';
 import { construireIndex, chercher } from './search.js';
 import { ouvrirFiche, fermerFiche, ficheOuverte } from './fiche.js';
-import { corpsContact, corpsFiche, titreFiche, fondFiche } from './cartes.js';
+import { corpsContact, corpsFiche, titreFiche, fondFiche, corpsApercuFichier } from './cartes.js';
 import { apparitions } from './apparition.js';
 
 const $ = (id) => document.getElementById(id);
@@ -293,13 +293,39 @@ addEventListener('keydown', (e) => {
   else if (e.key === 'ArrowLeft') deplacer(-1);
 });
 document.addEventListener('click', (e) => {
-  const v = e.target.closest('.vignette[data-dossier]');
+  const voir = e.target.closest('[data-voir]');
+  const v = voir && voir.closest('.vignette[data-dossier]');
   if (!v) return;
   const onglet = etat.base && etat.base.onglet;
   const d = parties(etat.contenu, onglet, donneesDrive(onglet)).find((x) => x.id === v.dataset.dossier);
   if (!d) return;
   const images = d.items.filter((f) => String(f.type).startsWith('image/'));
-  ouvrirVisionneuse(images, Math.max(0, images.findIndex((f) => f.id === v.dataset.fichier)), v);
+  ouvrirVisionneuse(images, Math.max(0, images.findIndex((f) => f.id === v.dataset.fichier)), voir);
+});
+
+/* fichier non image du Portfolio ou d'une galerie : aperçu dans une feuille (lecteur Drive), au lieu de quitter le site.
+   Ctrl/Cmd-clic ou clic molette : le lien Drive s'ouvre dans un nouvel onglet, comme avant. */
+document.addEventListener('click', (e) => {
+  const voir = e.target.closest('[data-voir]');
+  const v = voir && voir.closest('.vignette[data-apercu-dossier]');
+  if (!v || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+  const onglet = etat.base && etat.base.onglet;
+  const d = parties(etat.contenu, onglet, donneesDrive(onglet)).find((x) => x.id === v.dataset.apercuDossier);
+  const f = d && d.items.find((x) => x.id === v.dataset.fichier);
+  if (!f) return;
+  e.preventDefault();
+  ouvrirFiche({ titre: f.nom, corps: corpsApercuFichier(f), retour: voir });
+});
+
+/* grille d'un dossier : grandes vignettes, petites vignettes ou liste (choix gardé sur cet appareil) */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('.choix-vue [data-vue]');
+  if (!b) return;
+  const grille = b.closest('.vt-voir') && b.closest('.vt-voir').querySelector('.grille[data-vue]');
+  if (!grille) return;
+  grille.dataset.vue = b.dataset.vue;
+  b.parentElement.querySelectorAll('[data-vue]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  try { localStorage.setItem('ab-vue-fichiers', b.dataset.vue); } catch { /* stockage bloqué */ }
 });
 
 /* dossier protégé : le code de déverrouillage n'est chargé qu'au toucher du cadenas */

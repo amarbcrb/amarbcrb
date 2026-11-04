@@ -385,6 +385,44 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 .vignette.doc i svg{width:28px;height:28px;color:var(--tx2)}
 .vignette.doc b{font-size:13.5px;font-weight:600;word-break:break-word}
 .vignette.doc small{font-size:12px;color:var(--tx3)}
+/* fichiers : aperçu en plein cadre (miniature Drive, sinon icône plate sur un fond teinté), nom en bas ;
+   un lien ou un bouton étiré couvre la carte, Voir et Télécharger restent par-dessus */
+.vignette.doc.fichier{display:block;padding:0;text-align:left}
+.vignette-ouvrir{position:absolute;inset:0;z-index:1;border-radius:inherit;background:none;cursor:pointer}
+.vignette-ouvrir:focus-visible{outline-offset:-3px}
+.icone-plate{display:block;height:auto;stroke:none}
+.doc-apercu{position:absolute;inset:0;display:block;overflow:hidden;background:#111}
+.doc-apercu>img:not(.flou){position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
+.doc-repli{position:absolute;inset:0;display:grid;place-items:center;padding:42px 0 58px;background:linear-gradient(160deg,color-mix(in srgb,var(--a) 26%,var(--sf)),color-mix(in srgb,var(--a) 8%,var(--sf)))}
+.doc-repli .icone-plate{width:74px;filter:drop-shadow(0 8px 16px color-mix(in srgb,var(--a) 38%,transparent))}
+.doc-pastille{position:absolute;top:9px;left:9px;z-index:2;pointer-events:none}
+.doc-pastille .icone-plate{width:26px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+.doc-apercu:has(.doc-repli)~.doc-pastille{display:none}
+.doc-legende{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:2px;padding:10px 12px 12px;color:#fff;background:rgba(0,0,0,.62);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4)}
+.vignette .doc-legende b{font-size:13.5px;font-weight:600;color:#fff;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vignette .doc-legende small{font-size:12px;color:rgba(255,255,255,.85)}
+/* sans miniature : le nom se pose directement sur le fond teinté */
+.vignette:has(.doc-repli) .doc-legende{background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.vignette:has(.doc-repli) .doc-legende b{color:var(--tx)}
+.vignette:has(.doc-repli) .doc-legende small{color:var(--tx2)}
+/* cartes de fichiers du Portfolio et des galeries : aperçu carré, nom et type, puis Voir et Télécharger en bas.
+   Carte étroite (téléphone) : icône au-dessus du libellé ; carte large : côte à côte */
+.vignette.carte-fichier,.vignette.doc.fichier.carte-fichier{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:0;aspect-ratio:auto;padding:0;text-align:left;cursor:pointer;container-type:inline-size}
+.carte-fichier>.doc-apercu,.carte-fichier>img{position:relative;inset:auto;flex:none;width:100%;height:auto;aspect-ratio:1;object-fit:cover}
+.carte-fichier>.doc-legende{position:static;flex:1;padding:10px 12px 8px;color:var(--tx);background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.vignette.carte-fichier .doc-legende b{color:var(--tx)}
+.vignette.carte-fichier .doc-legende small{color:var(--tx2)}
+.carte-fichier .doc-repli{padding:0}
+.doc-actions{position:relative;z-index:2;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px;padding:0 8px 8px}
+.doc-action.pri{padding-inline:12px}
+.doc-action{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:52px;padding:4px 2px;border-radius:12px;font-size:12px;font-weight:600;line-height:1.1;color:var(--tx);background:var(--fill);border:.75px solid var(--line);transition:background .2s,transform .2s var(--spring)}
+.doc-action.pri{color:color-mix(in srgb,var(--lien) 78%,var(--tx));background:color-mix(in srgb,var(--lien) 12%,transparent);border-color:color-mix(in srgb,var(--lien) 22%,transparent)}
+.doc-action:active{transform:scale(.95)}
+@media(hover:hover){.doc-action:not(.pri):hover{background:var(--line2)}.doc-action.pri:hover{background:color-mix(in srgb,var(--lien) 22%,transparent)}}
+.doc-action svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.doc-action span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@container (min-width:190px){.doc-actions{grid-template-columns:1fr 1fr}}
+@container (min-width:230px){.doc-action{flex-direction:row;gap:7px;min-height:44px;font-size:13.5px}}
 /* voir tout */
 .vt-voir{animation:glisse .42s var(--ease) both}
 @keyframes glisse{from{opacity:0;transform:translateX(40px)}}
@@ -392,6 +430,45 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 .vt-tete .retour{grid-row:1/3;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--fill);border:.75px solid var(--line)}
 .vt-tete h1{font-size:clamp(28px,7vw,40px)}
 .vt-tete small{color:var(--tx2);font-size:14px}
+/* choix d'affichage d'un dossier : grandes vignettes, petites, liste */
+.vt-tete:has(.choix-vue){grid-template-columns:auto minmax(0,1fr) auto}
+.choix-vue{grid-column:3;grid-row:1/3;display:flex;gap:2px;padding:3px;border-radius:14px;background:var(--fill);border:.75px solid var(--line)}
+.choix-vue button{width:44px;height:44px;display:grid;place-items:center;border-radius:11px;color:var(--tx2);transition:background .2s,color .2s}
+.choix-vue button svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.choix-vue button[aria-pressed=true]{color:var(--tx);background:var(--bg);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.grille-fichiers[data-vue=petit]{grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
+.grille-fichiers[data-vue=petit] .vignette{border-radius:14px}
+.grille-fichiers[data-vue=petit] .doc-legende{padding:6px 8px 8px}
+.grille-fichiers[data-vue=petit] .vignette .doc-legende b{font-size:11.5px}
+.grille-fichiers[data-vue=petit] .vignette .doc-legende small,.grille-fichiers[data-vue=petit] .doc-actions{display:none}
+.grille-fichiers[data-vue=petit] .doc-repli{padding:0 0 36px}
+.grille-fichiers[data-vue=petit] .doc-repli .icone-plate{width:46px}
+.grille-fichiers[data-vue=petit] .doc-pastille{top:6px;left:6px}
+.grille-fichiers[data-vue=petit] .doc-pastille .icone-plate{width:20px}
+/* liste : miniature, nom et type ; sur téléphone Voir et Télécharger sous le nom, sur grand écran à droite */
+.grille-fichiers[data-vue=liste]{grid-template-columns:1fr;gap:8px}
+.grille-fichiers[data-vue=liste] .vignette,.grille-fichiers[data-vue=liste] .vignette.doc.fichier.carte-fichier{aspect-ratio:auto;display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center;column-gap:14px;row-gap:8px;padding:10px;border-radius:16px;text-align:left}
+.grille-fichiers[data-vue=liste] .vignette>.doc-apercu,.grille-fichiers[data-vue=liste] .vignette>img{grid-row:1/3;width:64px;height:64px;border-radius:12px}
+.grille-fichiers[data-vue=liste] .vignette>.doc-legende{position:static;display:flex;min-width:0;padding:0;align-self:end;color:var(--tx);background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.grille-fichiers[data-vue=liste] .vignette .doc-legende b{color:var(--tx);font-size:15px;-webkit-line-clamp:1}
+.grille-fichiers[data-vue=liste] .vignette .doc-legende small{color:var(--tx2);font-size:13px}
+.grille-fichiers[data-vue=liste] .doc-repli{padding:0}
+.grille-fichiers[data-vue=liste] .doc-repli .icone-plate{width:36px;filter:none}
+.grille-fichiers[data-vue=liste] .doc-pastille{display:none}
+.grille-fichiers[data-vue=liste] .doc-actions{grid-column:2;display:flex;gap:8px;padding:0}
+.grille-fichiers[data-vue=liste] .vignette .doc-action{flex-direction:row;gap:7px;min-height:44px;padding:0 16px;border-radius:999px;font-size:13.5px}
+@media(min-width:560px){.grille-fichiers[data-vue=liste] .vignette,.grille-fichiers[data-vue=liste] .vignette.doc.fichier.carte-fichier{grid-template-columns:56px minmax(0,1fr) auto;padding:8px 10px 8px 8px}
+.grille-fichiers[data-vue=liste] .vignette>.doc-apercu,.grille-fichiers[data-vue=liste] .vignette>img{grid-row:auto;width:56px;height:56px;border-radius:10px}
+.grille-fichiers[data-vue=liste] .vignette>.doc-legende{align-self:center}
+.grille-fichiers[data-vue=liste] .doc-actions{grid-column:3}}
+@media(min-width:700px){.grille-fichiers[data-vue=petit]{grid-template-columns:repeat(auto-fill,minmax(124px,1fr))}}
+/* aperçu d'un fichier dans la feuille : lecteur Drive, sinon grande icône */
+.apercu-type{color:var(--tx2);font-size:13px}
+.apercu-fichier{width:100%;height:min(70vh,760px);border:0;border-radius:14px;background:#fff;box-shadow:inset 0 0 0 .75px var(--line)}
+.apercu-indispo{display:flex;flex-direction:column;align-items:center;gap:16px;padding:34px 22px;border-radius:18px;text-align:center;background:linear-gradient(160deg,color-mix(in srgb,var(--a) 24%,var(--sf)),color-mix(in srgb,var(--a) 8%,var(--sf)))}
+.apercu-indispo .icone-plate{width:92px;filter:drop-shadow(0 10px 20px color-mix(in srgb,var(--a) 35%,transparent))}
+.apercu-indispo p{max-width:36ch;font-size:15px;line-height:1.45;color:var(--tx)}
+.apercu-corps .acts{display:flex;flex-wrap:wrap;gap:10px}
 .grille{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
 .grille>*{width:auto;min-width:0}
 .grille-liens,.grille-langues{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))}
