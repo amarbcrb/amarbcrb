@@ -4,8 +4,8 @@ import { el } from './dom.js';
 import { appeler } from './api.js';
 import { lienSur } from './model.js';
 import { ouvrirFiche } from './fiche.js';
+import { apercuFichier } from './cartes.js';
 
-const FICHIER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>';
 const MESSAGES = { mot_de_passe: 'Mot de passe incorrect.', bloque: 'Trop d\'essais. Réessaie dans 15 minutes.', reseau: 'Connexion impossible. Vérifie ta connexion internet.' };
 
 const cleStockee = (id) => {
@@ -68,8 +68,8 @@ function montrer(id, titre, { cle, dossier }) {
   };
   const vignette = (f) => {
     const image = String(f.type).startsWith('image/');
-    const b = el('button', { type: 'button', class: image ? 'vignette' : 'vignette doc', 'aria-label': `Ouvrir ${f.nom}` },
-      image ? null : el('i', { html: FICHIER }), image ? null : el('b', {}, f.nom), image ? null : el('small', {}, 'Ouvrir'));
+    const b = el('button', { type: 'button', class: image ? 'vignette' : 'vignette doc fichier', 'aria-label': `Ouvrir ${f.nom}` },
+      image ? null : apercuFichier(f, null), image ? null : el('span', { class: 'doc-legende' }, el('b', {}, f.nom), el('small', {}, 'Ouvrir')));
     if (image) blob(f.id, cle, 'apercu').then((u) => { if (u && u.ouvrable) b.prepend(el('img', { src: u.url, alt: f.nom.replace(/\.[^.]+$/, '') })); }).catch(() => {});
     b.addEventListener('click', async () => {
       statut.textContent = '';

@@ -62,6 +62,21 @@ export const iconeType = icone;
 
 const FICHIER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>';
 const DATEES = ['formation', 'experience', 'engagement'];
+/* aperçu d'un fichier non image : miniature Drive (première page d'un PDF, d'un document...),
+   sinon une feuille aux couleurs de son extension (PDF rouge, tableur vert...) */
+const extension = (nom) => ((/\.([a-z0-9]{1,6})$/i.exec(String(nom)) || [])[1] || '').toLowerCase();
+const TEINTES_EXT = [
+  [/^pdf$/, ['--c-red', '--c-orange']], [/^(docx?|odt|rtf|txt|md)$/, ['--c-blue', '--c-indigo']],
+  [/^(xlsx?|ods|csv|tsv)$/, ['--c-green', '--c-teal']], [/^(pptx?|odp|key)$/, ['--c-orange', '--c-yellow']],
+  [/^(zip|rar|7z|gz|tar)$/, ['--c-indigo', '--c-purple']], [/^(mp4|mov|webm|avi|mkv)$/, ['--c-purple', '--c-pink']],
+];
+export function apercuFichier(f, url) {
+  const ext = extension(f.nom);
+  const [a, b] = (TEINTES_EXT.find(([r]) => r.test(ext)) || [null, teinte(ext || f.nom)])[1];
+  const repli = () => el('span', { class: 'doc-repli', style: `--a:var(${a});--b:var(${b})` },
+    el('i', { html: FICHIER }), ext ? el('em', {}, ext.toUpperCase()) : null);
+  return visuelMedia(url, { classe: 'doc-apercu', repli, remplir: true });
+}
 const sansExtension = (nom) => String(nom).replace(/\.[^.]+$/, '');
 /* média d'un lien : envoyé ou choisi, sinon aperçu automatique, sinon miniature YouTube de l'adresse */
 export const mediaLien = (x) => (urlMedia(x.media) ? x.media : lienSur(x.image) ? { url: x.image } : idYoutube(x.url) ? { url: x.url, type: 'youtube' } : null);
@@ -149,8 +164,8 @@ function carteBrute(x, { onglet, partie, c, indice = 0 }) {
       return el('button', { class: 'vignette', type: 'button', 'data-dossier': partie, 'data-fichier': x.id, 'aria-label': 'Agrandir ' + x.nom, style },
         el('img', { src: x.apercu, alt: sansExtension(x.nom), loading: 'lazy' }));
     }
-    return el(lienSur(x.lien) ? 'a' : 'div', { class: 'vignette doc', href: x.lien, target: '_blank', rel: 'noopener', style, 'data-fichier': x.id },
-      el('i', { html: FICHIER }), el('b', {}, x.nom), el('small', {}, 'Ouvrir dans Drive'));
+    return el(lienSur(x.lien) ? 'a' : 'div', { class: 'vignette doc fichier', href: x.lien, target: '_blank', rel: 'noopener', style, 'data-fichier': x.id },
+      apercuFichier(x, x.apercu), el('span', { class: 'doc-legende' }, el('b', {}, x.nom), el('small', {}, 'Ouvrir dans Drive')));
   }
   if (DATEES.includes(partie)) {
     return el('a', { class: 'carte carte-texte', href: fiche, style },

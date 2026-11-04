@@ -107,3 +107,14 @@ test('aucun dossier → message "Portfolio bientôt disponible"', async () => {
   assert.equal(await p.innerText('#vue .vide'), 'Portfolio bientôt disponible.');
   assert.deepEqual(p.erreurs, []);
 });
+
+test('fichier non image : miniature Drive en plein cadre, sinon feuille avec son extension', async () => {
+  const doc = (id, nom, apercu) => ({ id, nom, type: 'application/octet-stream', apercu, lien: `https://drive.google.com/file/d/${id}/view` });
+  reinit({ dossiers: [{ id: 'dt', nom: 'TP', fichiers: [doc('t1', 'TP Levures.pdf', '/favicon-512x512.png?t1'), doc('t2', 'TP Levures Cas9.gbk', '/introuvable.png')] }] });
+  const p = await ouvrir('#portfolio/dt');
+  await p.waitForSelector('#vue a.vignette.fichier >> nth=1');
+  assert.equal(await p.locator('#vue a.vignette >> nth=0 >> .doc-apercu img').getAttribute('src'), '/favicon-512x512.png?t1');
+  await p.waitForSelector('#vue a.vignette >> nth=1 >> .doc-repli');
+  assert.equal(await p.innerText('#vue a.vignette >> nth=1 >> .doc-repli em'), 'GBK');
+  assert.match(await p.innerText('#vue a.vignette >> nth=1 >> .doc-legende'), /TP Levures Cas9\.gbk/);
+});

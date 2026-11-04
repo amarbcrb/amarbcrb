@@ -385,6 +385,17 @@ a.carte:active,.vignette:active{transform:scale(.97)}
 .vignette.doc i svg{width:28px;height:28px;color:var(--tx2)}
 .vignette.doc b{font-size:13.5px;font-weight:600;word-break:break-word}
 .vignette.doc small{font-size:12px;color:var(--tx3)}
+/* fichier non image : aperçu en plein cadre (miniature Drive, sinon feuille colorée), nom en bas */
+.vignette.doc.fichier{display:block;padding:0;text-align:left}
+.doc-apercu{position:absolute;inset:0;display:block;overflow:hidden;background:#111}
+.doc-apercu>img:not(.flou){position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
+.doc-repli{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding-bottom:44px;color:#fff;
+  background:radial-gradient(110% 80% at 20% 0%,color-mix(in srgb,var(--a) 70%,#000),transparent 65%),radial-gradient(90% 90% at 100% 100%,color-mix(in srgb,var(--b) 60%,#000),transparent 60%),#0a0a0a}
+.vignette .doc-repli i svg{width:52px;height:52px;color:#fff;fill:rgba(255,255,255,.14);stroke:currentColor;stroke-width:1.4}
+.doc-repli em{font-style:normal;font-size:12px;font-weight:700;letter-spacing:.06em;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.18);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.doc-legende{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:2px;padding:34px 12px 12px;color:#fff;background:linear-gradient(to bottom,transparent,rgba(0,0,0,.55) 40%,rgba(0,0,0,.82))}
+.vignette .doc-legende b{font-size:13.5px;font-weight:600;color:#fff;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vignette .doc-legende small{font-size:12px;color:rgba(255,255,255,.72)}
 /* voir tout */
 .vt-voir{animation:glisse .42s var(--ease) both}
 @keyframes glisse{from{opacity:0;transform:translateX(40px)}}
