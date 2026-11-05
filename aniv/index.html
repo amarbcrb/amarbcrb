@@ -153,7 +153,9 @@ button:not(:disabled):active, .btn:active { transform: scale(0.97); }
   @keyframes nudge { 40% { transform: rotate(-10deg) scale(1.15); } }
 }
 button.secondary, .btn.secondary { background: var(--blue-soft); color: var(--blue); }
-button.danger { background: var(--red-soft); color: var(--red); }
+button.danger, .btn.danger-link { background: var(--red-soft); color: var(--red); }
+.btn.small { padding: 8px 12px; font-size: 0.85rem; border-radius: 12px; gap: 6px; }
+.btn.small .ico { width: 17px; height: 17px; }
 button.small { padding: 8px 12px; font-size: 0.85rem; border-radius: 12px; gap: 6px; }
 button.small .ico { width: 17px; height: 17px; }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -380,6 +382,7 @@ details[open] summary .chev { transform: rotate(180deg); }
     <div class="block" id="clientsBlock" style="display:flex;flex-direction:column;gap:14px">
       <div class="section-head"><h2><span class="ico-badge t-teal"><svg class="ico"><use href="#i-users"/></svg></span>Clients</h2><span class="count" id="ledgerCount"></span></div>
       <div class="panel">
+      <div id="blockHint" class="msg warn" hidden><svg class="ico"><use href="#i-lock"/></svg><span>Code <strong id="blockHintCode"></strong> copié. Sur la page GitHub qui s'ouvre, colle-le sur une nouvelle ligne puis appuie sur <strong>Commit changes</strong>. Le téléphone est bloqué à sa prochaine connexion (au plus 30 minutes s'il est ouvert). Pour débloquer, supprime la ligne.</span></div>
       <ul id="ledger" class="ledger"></ul>
       <p id="ledgerEmpty" class="empty"><svg class="ico"><use href="#i-sparkle"/></svg><span>Aucune licence pour l'instant. Chaque licence créée apparaît ici avec ses dates, pour savoir qui doit renouveler.</span></p>
       </div>
@@ -444,7 +447,10 @@ var LicenceCore = (function () {
     return crypto.subtle;
   }
   function toB64(bytes) { var s = ""; for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]); return btoa(s); }
-  function fromB64(text) { var s = atob(String(text).replace(/\s+/g, "")); var b = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) b[i] = s.charCodeAt(i); return b; }
+  // Garde seulement les caractères base64 : espaces, retours à la ligne, caractères invisibles
+  // ou guillemets ajoutés par une appli de notes ou une messagerie sont ignorés.
+  function cleanB64(text) { return String(text == null ? "" : text).replace(/-/g, "+").replace(/_/g, "/").replace(/[^A-Za-z0-9+\/=]/g, ""); }
+  function fromB64(text) { var s = atob(cleanB64(text)); var b = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) b[i] = s.charCodeAt(i); return b; }
 
   function normalize(text) {
     return String(text == null ? "" : text).toUpperCase()
@@ -542,6 +548,7 @@ var LicenceCore = (function () {
 
   return {
     dayFromInput: dayFromInput, dayToInput: dayToInput,
+    cleanB64: cleanB64, SECRET_CHARS: 184,
     normalize: normalize, encode: encode, decode: decode, isDeviceCode: isDeviceCode,
     formatDeviceCode: formatDeviceCode, today: today, loadSecret: loadSecret, createKeys: createKeys,
     importPublic: importPublic, createLicence: createLicence, readLicence: readLicence,
@@ -565,6 +572,7 @@ var LicenceCore = (function () {
   function dayToText(day) { return dateFmt.format(new Date(day * LicenceCore.DAY_MS)); }
 
   var keys = null, pending = null;
+  var BLOCKLIST_EDIT_URL = "https://github.com/amarbcrb/Nuvio-enhanced-/edit/main/licence/bloques.txt";
   function icon(id) { return '<svg class="ico"><use href="#' + id + '"/></svg>'; }
 
   // Thème : automatique (celui du système), clair ou sombre. Gardé dans ce navigateur.
@@ -673,9 +681,12 @@ var LicenceCore = (function () {
   $("importBtn").addEventListener("click", async function () {
     var msg = $("importMsg");
     try {
-      keys = await LicenceCore.loadSecret($("importSeed").value.trim());
+      keys = await LicenceCore.loadSecret($("importSeed").value);
     } catch (e) {
-      msg.textContent = "Ce texte n'est pas une clé secrète valable. Colle la sauvegarde complète, sans rien ajouter.";
+      var got = LicenceCore.cleanB64($("importSeed").value).length;
+      msg.textContent = got !== LicenceCore.SECRET_CHARS
+        ? "Ce texte n'est pas une clé secrète complète : " + got + " caractères au lieu de " + LicenceCore.SECRET_CHARS + ". Recopie toute la sauvegarde, du premier au dernier caractère."
+        : "La longueur est bonne (" + got + " caractères), mais au moins un caractère a changé. Recopie la sauvegarde d'origine par copier-coller, sans la retaper : les lettres O et I se confondent facilement avec les chiffres 0 et 1.";
       msg.hidden = false;
       return;
     }
@@ -790,7 +801,16 @@ var LicenceCore = (function () {
         $("genForm").scrollIntoView({ behavior: "smooth", block: "start" });
         $("duration").focus();
       });
-      act.append(pill, renew);
+      // Bloquer : copie le code et ouvre licence/bloques.txt sur GitHub pour l'y coller.
+      var block = document.createElement("a");
+      block.className = "btn small danger-link"; block.href = BLOCKLIST_EDIT_URL; block.target = "_blank"; block.rel = "noopener";
+      block.innerHTML = icon("i-lock") + "<span>Bloquer</span>";
+      block.addEventListener("click", function () {
+        try { navigator.clipboard.writeText(e.code).catch(function () {}); } catch (err) {}
+        $("blockHint").hidden = false;
+        $("blockHintCode").textContent = e.code;
+      });
+      act.append(pill, renew, block);
       if (e.key && left >= 0) {
         var again = document.createElement("button");
         again.type = "button"; again.className = "secondary small"; again.innerHTML = icon("i-eye") + "<span>Revoir la clé</span>";
