@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f2f7">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Calculs Coach : calculs de laboratoire en microbiologie et biologie moléculaire. Cours, 13 calculateurs, exercices et examens. Fonctionne hors ligne.">
+<title>Calculs Coach</title>
+<script>
+/* Applique le theme avant le premier rendu pour eviter un flash. */
+(function(){try{var d=JSON.parse(localStorage.getItem('labcalc-master-v1')||'null');var t=d&&d.theme?d.theme:(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(d&&d.prefs&&d.prefs.transparency==='reduced')document.documentElement.setAttribute('data-transparency','reduced');}catch(e){}})();
+</script>
+<style>
+/* =====================================================================
+   Calculs Coach - feuille de style
+   Direction : verre liquide translucide sur fond nacré (clair) ou
+   anthracite OLED (sombre). Accent bordeaux, second accent violet.
+   Mobile d'abord ; toutes les couleurs passent par des variables.
+   ===================================================================== */
+:root {
+  color-scheme: light;
+  --bg: #e9ebf1;
+  --bg-2: #f6f7fa;
+  --blob-1: rgba(98, 84, 214, .30);
+  --blob-2: rgba(140, 35, 80, .22);
+  --blob-3: rgba(38, 140, 150, .20);
+  --text: #16141d;
+  --text-2: #45414f;
+  --text-3: #625e70;
+  --accent: #8c2350;
+  --accent-hover: #741a41;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(140, 35, 80, .10);
+  --violet: #5446c9;
+  --violet-soft: rgba(84, 70, 201, .10);
+  --ok: #155e47; --ok-soft: rgba(21, 94, 71, .11);
+  --err: #a8233b; --err-soft: rgba(168, 35, 59, .10);
+  --warn: #774d08; --warn-soft: rgba(176, 118, 20, .12);
+  --glass: rgba(255, 255, 255, .56);
+  --glass-strong: rgba(255, 255, 255, .80);
+  --glass-solid: #fbfbfd;
+  --glass-border: rgba(255, 255, 255, .78);
+  --glass-edge: rgba(22, 20, 29, .07);
+  --hairline: rgba(22, 20, 29, .09);
+  --field: rgba(255, 255, 255, .72);
+  --field-border: rgba(22, 20, 29, .14);
+  --shine: linear-gradient(135deg, rgba(255, 255, 255, .85) 0%, rgba(255, 255, 255, 0) 42%);
+  --shadow: 0 1px 0 rgba(255, 255, 255, .7) inset, 0 18px 40px -22px rgba(42, 30, 92, .38), 0 2px 6px -2px rgba(42, 30, 92, .10);
+  --shadow-lift: 0 1px 0 rgba(255, 255, 255, .7) inset, 0 26px 50px -24px rgba(42, 30, 92, .45);
+  --blur: 20px;
+  --r-xl: 28px; --r-l: 22px; --r-m: 16px; --r-s: 12px; --pill: 999px;
+  --sidebar: 268px;
+  --maxw: 1240px;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", Inter, Roboto, sans-serif;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #050409;
+  --bg-2: #0b0a11;
+  --blob-1: rgba(96, 80, 220, .22);
+  --blob-2: rgba(150, 40, 92, .20);
+  --blob-3: rgba(30, 110, 130, .14);
+  --text: #eeecf4;
+  --text-2: #c3bfd1;
+  --text-3: #9d98ae;
+  --accent: #e08bb3;
+  --accent-hover: #ec9fc3;
+  --accent-ink: #1c0b14;
+  --accent-soft: rgba(224, 139, 179, .14);
+  --violet: #a79fff;
+  --violet-soft: rgba(167, 159, 255, .13);
+  --ok: #6fd3ac; --ok-soft: rgba(111, 211, 172, .12);
+  --err: #ff8c9e; --err-soft: rgba(255, 140, 158, .12);
+  --warn: #f0c070; --warn-soft: rgba(240, 192, 112, .12);
+  --glass: rgba(26, 24, 36, .54);
+  --glass-strong: rgba(32, 29, 44, .82);
+  --glass-solid: #15131d;
+  --glass-border: rgba(255, 255, 255, .09);
+  --glass-edge: rgba(0, 0, 0, .5);
+  --hairline: rgba(255, 255, 255, .08);
+  --field: rgba(10, 9, 15, .55);
+  --field-border: rgba(255, 255, 255, .14);
+  --shine: linear-gradient(135deg, rgba(255, 255, 255, .10) 0%, rgba(255, 255, 255, 0) 40%);
+  --shadow: 0 1px 0 rgba(255, 255, 255, .06) inset, 0 20px 44px -24px rgba(0, 0, 0, .9);
+  --shadow-lift: 0 1px 0 rgba(255, 255, 255, .08) inset, 0 28px 54px -24px rgba(0, 0, 0, .95);
+}
+/* Transparence reduite (preference utilisateur) ou flou non supporte */
+[data-transparency="reduced"] { --glass: var(--glass-solid); --glass-strong: var(--glass-solid); --blur: 0px; }
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  :root { --glass: var(--glass-solid); --glass-strong: var(--glass-solid); }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  font-family: var(--font); font-size: 16px; line-height: 1.55; color: var(--text); background: var(--bg);
+  -webkit-font-smoothing: antialiased; overflow-x: hidden; overflow-wrap: break-word;
+  transition: background-color .35s var(--ease), color .35s var(--ease);
+}
+img, svg { display: block; max-width: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--accent); text-underline-offset: 3px; }
+h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.18; margin: 0; letter-spacing: -.02em; }
+h1 { font-size: clamp(1.7rem, 1.25rem + 1.8vw, 2.45rem); font-weight: 700; }
+h2 { font-size: clamp(1.25rem, 1.08rem + .7vw, 1.55rem); font-weight: 680; }
+h3 { font-size: 1.06rem; font-weight: 650; letter-spacing: -.01em; }
+p { margin: 0 0 .8em; }
+sub, sup { font-size: .72em; line-height: 0; }
+.muted { color: var(--text-3); }
+.small { font-size: .875rem; }
+.num { font-variant-numeric: tabular-nums; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+:focus-visible { outline: 2.5px solid var(--violet); outline-offset: 2px; border-radius: 8px; }
+
+/* -------------------------------------------------------- fond vivant */
+.bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: radial-gradient(120% 90% at 10% 0%, var(--bg-2) 0%, var(--bg) 60%); }
+.blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 1; }
+.b1 { width: 52vmax; height: 52vmax; left: -14vmax; top: -18vmax; background: var(--blob-1); }
+.b2 { width: 44vmax; height: 44vmax; right: -16vmax; top: 8vmax; background: var(--blob-2); }
+.b3 { width: 40vmax; height: 40vmax; left: 18vmax; bottom: -22vmax; background: var(--blob-3); }
+
+/* -------------------------------------------------------------- verre */
+.glass {
+  position: relative; background: var(--glass); border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(170%); backdrop-filter: blur(var(--blur)) saturate(170%);
+  box-shadow: var(--shadow); border-radius: var(--r-l);
+}
+.glass::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--shine); pointer-events: none; opacity: .75; }
+.glass > * { position: relative; }
+
+/* ------------------------------------------------------------- squelette */
+.skip { position: absolute; left: 12px; top: -60px; z-index: 50; background: var(--accent); color: var(--accent-ink); padding: 10px 16px; border-radius: var(--pill); font-weight: 600; text-decoration: none; }
+.skip:focus { top: calc(10px + var(--safe-t)); }
+.shell { min-height: 100vh; min-height: 100dvh; }
+.topbar {
+  position: sticky; top: calc(8px + var(--safe-t)); z-index: 20; margin: calc(8px + var(--safe-t)) calc(10px + var(--safe-r)) 0 calc(10px + var(--safe-l));
+  display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 14px; border-radius: var(--pill);
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); min-width: 0; }
+.brand-mark { width: 32px; height: 32px; flex: 0 0 32px; }
+.brand-name { font-family: var(--font-display); font-weight: 700; letter-spacing: -.02em; font-size: 1.06rem; white-space: nowrap; }
+.brand-name span { color: var(--accent); font-weight: 700; }
+.topbar .spacer { flex: 1; }
+main { padding: 18px calc(14px + var(--safe-r)) calc(118px + var(--safe-b)) calc(14px + var(--safe-l)); outline: none; }
+.view { max-width: var(--maxw); margin: 0 auto; }
+.view-enter { animation: enter .38s var(--ease) both; }
+@keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* barre d'onglets flottante (mobile, tablette) */
+.tabbar {
+  position: fixed; z-index: 30; left: calc(10px + var(--safe-l)); right: calc(10px + var(--safe-r)); bottom: calc(10px + var(--safe-b));
+  display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px; border-radius: 26px; max-width: 640px; margin: 0 auto;
+  background: var(--glass-strong);
+}
+.tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 52px; border-radius: 20px; text-decoration: none; color: var(--text-3); font-size: .68rem; font-weight: 600; letter-spacing: .01em; transition: background-color .2s var(--ease), color .2s var(--ease); }
+.tab svg { width: 22px; height: 22px; }
+.tab[aria-current="page"] { color: var(--accent); background: var(--accent-soft); }
+@media (max-width: 359px) { .tab span { display: none; } .tab { min-height: 48px; } }
+
+/* barre laterale (ordinateur) */
+.sidebar { display: none; }
+@media (min-width: 1024px) {
+  .topbar, .tabbar { display: none; }
+  .shell { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); }
+  .sidebar {
+    display: flex; flex-direction: column; gap: 6px; position: sticky; top: 14px; height: calc(100vh - 28px); margin: 14px 0 14px 14px; padding: 18px 14px; border-radius: var(--r-xl); overflow-y: auto;
+  }
+  .sidebar .brand { padding: 4px 8px 18px; }
+  .side-link { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 14px; color: var(--text-2); text-decoration: none; font-weight: 560; transition: background-color .2s var(--ease), color .2s var(--ease); }
+  .side-link svg { width: 20px; height: 20px; flex: 0 0 20px; }
+  .side-link:hover { background: var(--hairline); color: var(--text); }
+  .side-link[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
+  .side-foot { margin-top: auto; display: grid; gap: 8px; padding-top: 12px; border-top: 1px solid var(--hairline); }
+  main { padding: 26px 32px 48px 26px; }
+}
+
+/* ----------------------------------------------------------- boutons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 18px; border-radius: var(--pill);
+  border: 1px solid transparent; font-weight: 620; font-size: .95rem; cursor: pointer; text-decoration: none; line-height: 1.2;
+  transition: background-color .2s var(--ease), border-color .2s var(--ease), transform .15s var(--ease), color .2s var(--ease);
+}
+.btn svg { width: 18px; height: 18px; flex: 0 0 18px; }
+.btn:active { transform: scale(.98); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); box-shadow: 0 10px 24px -14px var(--accent); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-ghost { background: var(--field); border-color: var(--field-border); color: var(--text); }
+.btn-ghost:hover { border-color: var(--accent); }
+.btn-quiet { background: transparent; color: var(--text-2); padding-inline: 12px; }
+.btn-quiet:hover { background: var(--hairline); }
+.btn-danger { background: var(--err-soft); color: var(--err); border-color: transparent; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.icon-btn { width: 44px; height: 44px; min-height: 44px; padding: 0; border-radius: 50%; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* theme */
+.theme-btn .moon { display: none; }
+[data-theme="dark"] .theme-btn .sun { display: none; }
+[data-theme="dark"] .theme-btn .moon { display: block; }
+
+/* -------------------------------------------------------- entetes de vue */
+.page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px; margin: 6px 4px 20px; }
+.page-head p { margin: 6px 0 0; color: var(--text-2); max-width: 64ch; }
+.crumb { display: inline-flex; align-items: center; gap: 6px; color: var(--text-3); text-decoration: none; font-size: .9rem; margin-bottom: 8px; }
+.crumb:hover { color: var(--accent); }
+.crumb svg { width: 16px; height: 16px; }
+
+/* ----------------------------------------------------------- grilles */
+.grid { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+.grid-2, .grid-3, .grid-4 { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) { .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid-3, .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.card { padding: 18px; border-radius: var(--r-l); }
+@media (min-width: 768px) { .card { padding: 22px; } }
+.card h2 + p, .card h3 + p { margin-top: 6px; }
+.stack > * + * { margin-top: 14px; }
+
+/* ----------------------------------------------------------- tableau de bord */
+.hero { display: grid; gap: 16px; padding: 22px; border-radius: var(--r-xl); }
+@media (min-width: 768px) { .hero { grid-template-columns: auto 1fr; align-items: center; padding: 28px; gap: 28px; } }
+.ring { width: 132px; height: 132px; position: relative; }
+.ring svg { width: 132px; height: 132px; transform: rotate(-90deg); }
+.ring .track { stroke: var(--hairline); }
+.ring .bar { stroke: url(#ringGrad); stroke-linecap: round; transition: stroke-dashoffset .9s var(--ease); }
+.ring-label { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.ring-label b { font-family: var(--font-display); font-size: 2rem; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.ring-label small { color: var(--text-3); font-size: .74rem; }
+.stat { padding: 16px 18px; border-radius: var(--r-m); }
+.stat b { display: block; font-family: var(--font-display); font-size: 1.7rem; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.stat span { color: var(--text-3); font-size: .86rem; }
+.stats { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hero > * { min-width: 0; }
+@media (min-width: 1100px) { .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.reco { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-top: 1px solid var(--hairline); }
+.reco:first-of-type { border-top: 0; }
+.reco .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); margin-top: 7px; flex: 0 0 10px; }
+.empty { padding: 14px; border-radius: var(--r-m); background: var(--hairline); color: var(--text-2); }
+
+/* tuiles de calculateurs */
+.tiles { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 359px) { .tiles { grid-template-columns: minmax(0, 1fr); } }
+@media (min-width: 640px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.tile { display: flex; flex-direction: column; gap: 10px; padding: 14px; min-height: 112px; border-radius: var(--r-m); text-decoration: none; color: var(--text); transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
+.tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.tile .ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.tile .ic svg { width: 21px; height: 21px; }
+.tile strong { font-size: .95rem; line-height: 1.25; }
+.tile small { color: var(--text-3); font-size: .8rem; line-height: 1.35; }
+
+/* ----------------------------------------------------------------- cours */
+.chap { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 16px; border-radius: var(--r-m); text-decoration: none; color: var(--text); }
+.chap .no { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-weight: 700; font-family: var(--font-display); background: var(--violet-soft); color: var(--violet); font-variant-numeric: tabular-nums; }
+.chap small { display: block; color: var(--text-3); }
+.meter { display: block; height: 6px; border-radius: 6px; background: var(--hairline); overflow: hidden; margin-top: 8px; }
+.meter i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--violet), var(--accent)); }
+.badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--pill); font-size: .78rem; font-weight: 650; background: var(--hairline); color: var(--text-2); white-space: nowrap; }
+.badge.ok { background: var(--ok-soft); color: var(--ok); }
+.badge.warn { background: var(--warn-soft); color: var(--warn); }
+.badge svg { width: 14px; height: 14px; }
+details.notion { border-radius: var(--r-l); }
+details.notion > summary { list-style: none; cursor: pointer; padding: 18px 52px 18px 18px; position: relative; display: flex; gap: 12px; align-items: baseline; }
+details.notion > summary::-webkit-details-marker { display: none; }
+details.notion > summary::after { content: ""; position: absolute; right: 22px; top: 50%; width: 10px; height: 10px; border-right: 2px solid var(--text-3); border-bottom: 2px solid var(--text-3); transform: translateY(-70%) rotate(45deg); transition: transform .25s var(--ease); }
+details.notion[open] > summary::after { transform: translateY(-30%) rotate(-135deg); }
+details.notion .code { color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; }
+.notion-body { padding: 0 18px 20px; display: grid; gap: 14px; }
+@media (min-width: 768px) { .notion-body { padding: 0 24px 24px; } }
+.lbl { font-size: .8rem; font-weight: 700; color: var(--accent); margin: 0 0 4px; letter-spacing: .01em; }
+.formula { padding: 14px 16px; border-radius: var(--r-m); background: var(--violet-soft); border: 1px solid var(--hairline); display: grid; gap: 6px; }
+.formula div { font-size: 1.06rem; font-weight: 560; text-align: center; overflow-wrap: anywhere; }
+.box { padding: 14px 16px; border-radius: var(--r-m); border-left: 3px solid; }
+.box.ex { background: var(--ok-soft); border-color: var(--ok); }
+.box.err { background: var(--err-soft); border-color: var(--err); }
+.box.chk { background: var(--violet-soft); border-color: var(--violet); }
+.box.warn { background: var(--warn-soft); border-color: var(--warn); }
+.box ol, .box ul { margin: 6px 0 0; padding-left: 1.25em; }
+.box li + li { margin-top: 4px; }
+.prose ol, .prose ul { margin: 4px 0 0; padding-left: 1.25em; }
+
+/* ------------------------------------------------------------ tableaux */
+.table-wrap { overflow-x: auto; border-radius: var(--r-m); border: 1px solid var(--hairline); -webkit-overflow-scrolling: touch; max-width: 100%; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+th { font-size: .8rem; color: var(--text-2); font-weight: 680; background: var(--hairline); }
+tr:last-child td { border-bottom: 0; }
+/* tableau de resultats empile sur petit ecran */
+@media (max-width: 599px) {
+  .rtable thead { display: none; }
+  .rtable, .rtable tbody, .rtable tr, .rtable td { display: block; width: 100%; }
+  .rtable tr { padding: 10px 12px; border-bottom: 1px solid var(--hairline); }
+  .rtable td { border: 0; padding: 3px 0; display: flex; justify-content: space-between; gap: 12px; }
+  .rtable td::before { content: attr(data-label); color: var(--text-3); font-size: .8rem; flex: 0 0 auto; max-width: 52%; }
+  .rtable td:first-child { font-weight: 650; }
+  .rtable td:first-child::before { content: none; }
+  .rtable td > span { text-align: right; }
+}
+
+/* --------------------------------------------------------- formulaires */
+.form { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+.form > *, .field, .control { min-width: 0; }
+.field label, .field .flabel { display: block; font-size: .88rem; font-weight: 620; color: var(--text-2); margin-bottom: 6px; }
+.control { display: flex; align-items: stretch; min-height: 48px; border-radius: 14px; background: var(--field); border: 1px solid var(--field-border); transition: border-color .2s var(--ease), box-shadow .2s var(--ease); overflow: hidden; }
+.control:focus-within { border-color: var(--violet); box-shadow: 0 0 0 4px var(--violet-soft); }
+.control input, .control select { flex: 1 1 auto; min-width: 0; border: 0; background: transparent; padding: 11px 14px; font-size: 16px; outline: none; font-variant-numeric: tabular-nums; }
+.control input:disabled { color: var(--text-3); }
+.control .unit { display: flex; align-items: center; padding: 0 14px; color: var(--text-3); font-size: .9rem; border-left: 1px solid var(--hairline); white-space: nowrap; }
+.control select.unit-sel { flex: 0 0 auto; max-width: 46%; border-left: 1px solid var(--hairline); padding: 0 30px 0 12px; color: var(--text-2); font-size: .92rem; cursor: pointer; appearance: none; -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%); background-position: calc(100% - 15px) 52%, calc(100% - 10px) 52%; background-size: 5px 5px; background-repeat: no-repeat; }
+.control select:not(.unit-sel) { appearance: none; -webkit-appearance: none; padding-right: 36px;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%); background-position: calc(100% - 19px) 52%, calc(100% - 14px) 52%; background-size: 5px 5px; background-repeat: no-repeat; }
+select option { background: var(--glass-solid); color: var(--text); }
+.field.is-unknown .control { border-style: dashed; background: transparent; }
+.field.is-unknown label::after { content: " (calculé)"; color: var(--accent); font-weight: 600; }
+.hint { font-size: .8rem; color: var(--text-3); margin-top: 5px; }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 22px; background: var(--hairline); width: fit-content; max-width: 100%; }
+.seg button { border: 0; background: transparent; border-radius: var(--pill); padding: 8px 14px; min-height: 38px; font-weight: 600; font-size: .88rem; color: var(--text-2); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--glass-strong); color: var(--text); box-shadow: 0 4px 14px -8px rgba(0, 0, 0, .4); }
+.check { display: inline-flex; align-items: center; gap: 8px; font-size: .9rem; color: var(--text-2); cursor: pointer; min-height: 44px; }
+.check input { width: 20px; height: 20px; accent-color: var(--accent); }
+
+/* ----------------------------------------------------------- calculateur */
+.calc-layout { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+.calc-layout > * { min-width: 0; }
+@media (min-width: 900px) { .calc-layout:not(.calc-wide) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); align-items: start; } .calc-layout:not(.calc-wide) .calc-out { position: sticky; top: 20px; } }
+.lens {
+  position: relative; overflow: hidden; border-radius: var(--r-xl); padding: 22px 22px 20px; min-height: 150px;
+  background: radial-gradient(130% 120% at 0% 0%, var(--accent-soft) 0%, transparent 55%), radial-gradient(120% 120% at 100% 100%, var(--violet-soft) 0%, transparent 60%), var(--glass-strong);
+}
+.lens::after { content: ""; position: absolute; width: 220px; height: 220px; right: -70px; top: -90px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 65%); opacity: .5; pointer-events: none; }
+[data-theme="dark"] .lens::after { opacity: .12; }
+.lens .k { font-size: .86rem; color: var(--text-2); font-weight: 600; }
+.lens .v { font-family: var(--font-display); font-size: clamp(2rem, 1.5rem + 2.6vw, 3.1rem); font-weight: 680; letter-spacing: -.035em; line-height: 1.08; margin: 6px 0 2px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.lens .v .u { font-size: .42em; font-weight: 600; color: var(--text-2); letter-spacing: 0; margin-left: .35em; }
+.lens .v sup { font-size: .5em; }
+.sec-results { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-top: 14px; }
+.sec-results div { padding: 10px 12px; border-radius: 14px; background: var(--hairline); }
+.sec-results span { display: block; font-size: .76rem; color: var(--text-3); }
+.sec-results b { font-variant-numeric: tabular-nums; font-size: 1rem; overflow-wrap: anywhere; }
+.lens.is-error { background: var(--err-soft); }
+.lens.is-error .v { font-size: 1.15rem; letter-spacing: 0; font-weight: 600; color: var(--err); }
+.steps { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; }
+.steps li::marker { color: var(--accent); font-weight: 700; }
+.msg { display: flex; gap: 10px; padding: 11px 14px; border-radius: 14px; font-size: .9rem; }
+.msg svg { width: 18px; height: 18px; flex: 0 0 18px; margin-top: 2px; }
+.msg.warn { background: var(--warn-soft); color: var(--warn); }
+.msg.note { background: var(--hairline); color: var(--text-2); }
+.msg.ok { background: var(--ok-soft); color: var(--ok); }
+.msg.err { background: var(--err-soft); color: var(--err); }
+.viz { padding: 10px 4px 0; }
+.viz svg { width: 100%; height: auto; }
+
+/* PCR */
+.pcr-rows { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }
+.pcr-row > * { min-width: 0; }
+.pcr-row { display: grid; gap: 8px; padding: 12px; border-radius: var(--r-m); background: var(--hairline); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 520px) { .pcr-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pcr-row .full { grid-column: 1 / -1; }
+.pcr-row .control { min-height: 44px; }
+.pcr-row .mini-label { font-size: .74rem; color: var(--text-3); margin-bottom: 3px; display: block; }
+@media (min-width: 1100px) {
+  .calc-wide .pcr-row { grid-template-columns: 1.6fr 1.1fr 1.15fr 1.15fr auto auto; align-items: end; }
+  .calc-wide .pcr-row .full { grid-column: auto; }
+}
+
+/* -------------------------------------------------------- exercices */
+.q-card { padding: 20px; border-radius: var(--r-xl); }
+.q-text { font-size: 1.08rem; line-height: 1.55; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+.answer-row .control { flex: 1 1 220px; }
+.feedback { padding: 14px 16px; border-radius: var(--r-m); display: grid; gap: 8px; }
+.feedback.ok { background: var(--ok-soft); }
+.feedback.ko { background: var(--err-soft); }
+.feedback h3 { display: flex; align-items: center; gap: 8px; }
+.feedback.ok h3 { color: var(--ok); } .feedback.ko h3 { color: var(--err); }
+.feedback h3 svg { width: 20px; height: 20px; }
+.exam-q { padding: 16px; border-radius: var(--r-m); background: var(--hairline); display: grid; gap: 10px; }
+.exam-q .qn { font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.exam-q.ok { background: var(--ok-soft); } .exam-q.ko { background: var(--err-soft); }
+.score { font-family: var(--font-display); font-size: clamp(2.6rem, 2rem + 3vw, 4rem); font-weight: 700; letter-spacing: -.04em; font-variant-numeric: tabular-nums; line-height: 1; }
+.score small { font-size: .4em; color: var(--text-3); letter-spacing: 0; }
+
+.exam-bar { position: sticky; bottom: calc(86px + var(--safe-b)); z-index: 5; background: var(--glass-strong); }
+@media (min-width: 1024px) { .exam-bar { bottom: 16px; } }
+
+/* formules */
+.search { max-width: 520px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--field-border); background: var(--field); color: var(--text-2); border-radius: var(--pill); padding: 8px 14px; min-height: 40px; font-weight: 600; font-size: .86rem; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.fcard { padding: 16px 18px; border-radius: var(--r-m); display: grid; gap: 8px; align-content: start; }
+.fcard .badge { justify-self: start; }
+.fcard .fx { font-size: 1.08rem; font-weight: 600; overflow-wrap: anywhere; }
+.fcard dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: .88rem; }
+.fcard dt { color: var(--text-3); }
+.fcard dd { margin: 0; color: var(--text-2); overflow-wrap: anywhere; }
+
+/* toast, dialogue */
+.toast { position: fixed; left: 50%; bottom: calc(96px + var(--safe-b)); transform: translateX(-50%) translateY(20px); opacity: 0; z-index: 60; padding: 12px 18px; border-radius: var(--pill); background: var(--glass-strong); pointer-events: none; transition: opacity .25s var(--ease), transform .25s var(--ease); font-weight: 600; max-width: calc(100vw - 32px); text-align: center; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+@media (min-width: 1024px) { .toast { bottom: 28px; } }
+dialog { border: 0; padding: 0; background: transparent; color: var(--text); max-width: min(440px, calc(100vw - 28px)); }
+dialog::backdrop { background: rgba(5, 4, 9, .45); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+dialog .card { background: var(--glass-solid); }
+.storage-banner { margin: 0 auto 14px; max-width: var(--maxw); }
+
+/* mouvement reduit */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+}
+@media print {
+  .bg, .tabbar, .topbar, .sidebar, .btn-row { display: none !important; }
+  .glass { background: #fff !important; box-shadow: none !important; border: 1px solid #ddd !important; }
+}
+
+
+/* ===== Exercices v2 : style BioDilu ===== */
+.ex-eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); margin: 18px 6px 8px; }
+.ex-chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 4px 10px; scroll-snap-type: x proximity; scrollbar-width: none; }
+.ex-chips::-webkit-scrollbar { display: none; }
+.ex-chip { flex: 0 0 auto; scroll-snap-align: start; border: 0; cursor: pointer; border-radius: var(--pill); padding: 10px 16px; min-height: 44px; font: inherit; font-weight: 650; font-size: .9rem; color: var(--text-2); background: var(--glass-strong); box-shadow: var(--shadow); }
+.ex-chip[aria-pressed="true"] { background: var(--violet); color: #fff; }
+.ex-lvl { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 6px; border-radius: 999px; background: var(--hairline); }
+.ex-lvl button { border: 0; background: transparent; border-radius: 999px; min-height: 52px; padding: 6px 4px; font: inherit; font-weight: 650; font-size: .85rem; color: var(--text-2); cursor: pointer; display: grid; place-items: center; line-height: 1.15; }
+.ex-lvl button[aria-pressed="true"] { background: var(--glass-solid); color: var(--text); box-shadow: 0 6px 16px -8px rgba(0,0,0,.45); }
+.ex-lvl b { font-size: 1.15rem; font-family: Georgia, 'Times New Roman', serif; font-style: italic; color: var(--violet); }
+.ex-prog { height: 8px; border-radius: 99px; background: var(--hairline); overflow: hidden; margin-top: 12px; }
+.ex-prog i { display: block; height: 100%; background: linear-gradient(90deg, var(--violet), var(--accent)); border-radius: 99px; transition: width .4s var(--ease); }
+.ex-stat { display: flex; justify-content: space-between; font-size: .85rem; color: var(--text-3); margin-top: 8px; }
+.q2 { padding: 22px 18px; border-radius: 28px; display: grid; gap: 16px; }
+.q2-top { display: flex; align-items: center; gap: 12px; }
+.q2-bubble { width: 44px; height: 44px; border-radius: 50%; background: var(--violet); color: #fff; display: grid; place-items: center; font: italic 700 1.1rem Georgia, serif; flex: none; }
+.q2-top small { display: block; color: var(--text-3); font-size: .8rem; }
+.q2-top strong { font-size: 1.02rem; }
+.q2-text { font-size: 1.15rem; line-height: 1.55; margin: 0; }
+.q2-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+.q2-input { border: 2px solid var(--field-border); background: var(--field); border-radius: 999px; min-height: 64px; padding: 0 24px; font: 600 1.7rem var(--font-display); text-align: right; color: var(--text); width: 100%; outline: none; font-variant-numeric: tabular-nums; }
+.q2-input:focus { border-color: var(--violet); box-shadow: 0 0 0 4px var(--violet-soft); }
+.q2-unit { min-height: 56px; padding: 0 20px; border-radius: 999px; background: var(--hairline); display: grid; place-items: center; font-weight: 650; color: var(--text-2); max-width: 40vw; overflow-wrap: anywhere; }
+.q2-actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+.q2-actions .btn { min-height: 54px; border-radius: 999px; font-size: 1rem; }
+.sol { display: grid; gap: 12px; animation: solIn .35s var(--ease); }
+@keyframes solIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.sol-head { border-radius: 22px; padding: 16px; display: flex; gap: 12px; align-items: center; }
+.sol-head.ok { background: var(--ok-soft); color: var(--ok); } .sol-head.ko { background: var(--err-soft); color: var(--err); } .sol-head.rv { background: var(--violet-soft); color: var(--violet); }
+.sol-head svg { width: 26px; height: 26px; flex: none; }
+.sol-head p { margin: 2px 0 0; color: var(--text); font-size: .92rem; }
+.sol-box { border-radius: 22px; padding: 16px; background: var(--glass-strong); box-shadow: var(--shadow); }
+.sol-box .tag { display: inline-flex; align-items: center; gap: 6px; font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 8px; }
+.sol-box.law .tag { color: var(--violet); } .sol-box.tip .tag { color: var(--warn); } .sol-box.stp .tag { color: var(--accent); }
+.sol-box.law p, .sol-box.tip p { margin: 0; font-size: 1.05rem; line-height: 1.5; }
+.sol-box.law p { font-weight: 650; }
+.sol-box.tip { background: var(--warn-soft); }
+
+/* ===== v3 : dark Apple AMOLED, unites colorees, animations ===== */
+html[data-theme="dark"] { color-scheme: dark; --bg:#000; --bg-2:#0b0b0d; --blob-1:rgba(120,120,255,.10); --blob-2:rgba(255,255,255,.04); --blob-3:rgba(120,120,128,.10);
+  --text:#f5f5f7; --text-2:#c7c7cc; --text-3:#8e8e93; --accent:#ff6b9a; --accent-hover:#ff86ac; --accent-ink:#000; --accent-soft:rgba(255,107,154,.14);
+  --violet:#7d7aff; --violet-soft:rgba(125,122,255,.18); --ok:#30d158; --ok-soft:rgba(48,209,88,.14); --err:#ff453a; --err-soft:rgba(255,69,58,.14); --warn:#ffd60a; --warn-soft:rgba(255,214,10,.10);
+  --glass:rgba(28,28,30,.72); --glass-strong:rgba(44,44,46,.82); --glass-solid:#1c1c1e; --glass-border:rgba(255,255,255,.07); --glass-edge:rgba(255,255,255,.06); --hairline:rgba(255,255,255,.09);
+  --field:rgba(44,44,46,.75); --field-border:rgba(255,255,255,.14); --shine:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,0) 40%);
+  --shadow:0 0 0 .5px rgba(255,255,255,.07) inset,0 18px 40px -24px #000; --shadow-lift:0 0 0 .5px rgba(255,255,255,.1) inset,0 26px 50px -24px #000; }
+html[data-theme="dark"] body { background: #000; }
+html[data-theme="dark"] .blob { opacity: .35; }
+:root { --u-m:#0a62c9; --u-v:#0a7f78; --u-k:#6b3fd1; --u-o:#c25a00; --u-p:#c2185b; --u-c:#2e7d32; --u-n:var(--text-2); }
+html[data-theme="dark"] { --u-m:#64b5ff; --u-v:#5ee6d8; --u-k:#b69cff; --u-o:#ffa24d; --u-p:#ff7aa8; --u-c:#6ee07a; }
+.u { font-weight: 650; color: var(--uc, inherit); white-space: nowrap; }
+.u-m { --uc: var(--u-m); } .u-v { --uc: var(--u-v); } .u-k { --uc: var(--u-k); } .u-o { --uc: var(--u-o); } .u-p { --uc: var(--u-p); } .u-c { --uc: var(--u-c); } .u-n { --uc: var(--u-n); }
+.q2-unit, .u-pill { color: var(--uc, var(--text-2)); background: color-mix(in srgb, var(--uc, var(--text-2)) 16%, transparent); }
+.u-pill { padding: 6px 14px; border-radius: 99px; font-weight: 700; font-size: 1rem; }
+.ex-lvl { grid-template-columns: repeat(5, 1fr); } .ex-lvl button { font-size: .76rem; padding-inline: 2px; }
+.ex-lvl button[data-lvl="4"] b { color: var(--warn); }
+.q2-reroll { justify-self: start; }
+.trap-badge { display: inline-block; margin-left: 6px; padding: 2px 9px; border-radius: 99px; background: var(--warn-soft); color: var(--warn); font-size: .75rem; font-weight: 700; }
+html:not([data-theme="dark"]) .trap-badge, html:not([data-theme="dark"]) .sol-box.trap .tag { color: #8a5a00; }
+.sol-val { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 22px 12px; border-radius: 26px; background: var(--glass-strong); box-shadow: var(--shadow); animation: pop .6s cubic-bezier(.34,1.56,.64,1) both; }
+.sol-val .lab { flex-basis: 100%; text-align: center; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+.sol-val .num { font: 700 clamp(2.2rem, 9vw, 3.4rem)/1 var(--font-display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+@keyframes pop { 0% { opacity: 0; transform: scale(.7); } 100% { opacity: 1; transform: none; } }
+.sol > * { animation: solIn .45s var(--ease) both; } .sol > :nth-child(2) { animation-name: pop; } .sol > :nth-child(3) { animation-delay: .15s; } .sol > :nth-child(4) { animation-delay: .28s; } .sol > :nth-child(5) { animation-delay: .4s; } .sol > :nth-child(6) { animation-delay: .5s; } .sol > :nth-child(7) { animation-delay: .6s; }
+.sol-head.ko { animation: shake .45s; }
+@keyframes shake { 20%,60% { transform: translateX(-6px); } 40%,80% { transform: translateX(6px); } }
+.sol-head { position: relative; }
+.burst { position: absolute; right: 28px; top: 50%; pointer-events: none; }
+.burst i { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: hsl(calc(var(--n) * 36) 90% 60%); animation: burst .9s ease-out forwards; }
+@keyframes burst { from { transform: rotate(var(--a)) translateY(0); opacity: 1; } to { transform: rotate(var(--a)) translateY(-70px) scale(.4); opacity: 0; } }
+.sol-box.trap { background: var(--warn-soft); } .sol-box.trap .tag { color: var(--warn); } .sol-box.trap p { margin: 0; line-height: 1.5; }
+.q2-actions .btn:active, .ex-chip:active { transform: scale(.96); }
+
+/* =====================================================================
+   Calculs Coach : design « Réglages iOS » (groupes blancs / noirs, capsules,
+   barre d'onglets en verre avec lentille, accent différent par section)
+   ===================================================================== */
+:root{--c-blue:#007aff;--c-indigo:#5856d6;--c-purple:#af52de;--c-pink:#ff2d55;--c-orange:#ff9500;--c-green:#34c759;--c-teal:#30b0c7;--c-cyan:#32ade6;--c-mint:#00c7be;
+--accent:var(--c-blue);--brand:#0064d2;--grp:#fff;--fill:rgba(118,118,128,.12);--thumb:#fff;
+--bg:#f2f2f7;--bg-2:#f2f2f7;--blob-1:rgba(10,132,255,.45);--blob-2:rgba(94,92,230,.25);--blob-3:rgba(142,142,147,.2);
+--text:#000;--text-2:#6c6c70;--text-3:#8a8a8e;--hairline:rgba(60,60,67,.14);--field:transparent;--field-border:rgba(60,60,67,.3);
+--glass:rgba(255,255,255,.68);--glass-strong:rgba(255,255,255,.88);--glass-solid:#fff;--glass-border:transparent;--shine:none;
+--shadow:inset 0 1px 0 #fff,0 0 0 .5px rgba(0,0,0,.09),0 12px 30px rgba(0,0,0,.12);--shadow-lift:0 14px 34px rgba(0,0,0,.14);
+--r-xl:26px;--r-l:22px;--r-m:18px;--maxw:1120px;--blur:22px;--spring:cubic-bezier(.34,1.45,.64,1);--ease:cubic-bezier(.22,1,.36,1)}
+html[data-theme="dark"]{--c-blue:#0a84ff;--c-indigo:#5e5ce6;--c-purple:#bf5af2;--c-pink:#ff375f;--c-orange:#ff9f0a;--c-green:#30d158;--c-teal:#40cbe0;--c-cyan:#64d2ff;--c-mint:#63e6e2;
+--accent:var(--c-blue);--brand:#4da3ff;--grp:#1c1c1e;--fill:#2c2c2e;--thumb:#636366;--bg:#000;--bg-2:#000;
+--text:#fff;--text-2:#a1a1a6;--text-3:#8e8e93;--hairline:rgba(120,120,128,.26);--field-border:rgba(235,235,245,.26);
+--glass:rgba(28,28,30,.66);--glass-strong:rgba(44,44,46,.88);--glass-solid:#1c1c1e;
+--shadow:inset 0 1px 0 rgba(255,255,255,.3),0 0 0 .5px rgba(255,255,255,.08),0 12px 30px rgba(0,0,0,.5);--shadow-lift:0 14px 34px rgba(0,0,0,.6)}
+:root,html[data-theme="dark"]{--acc-tx:color-mix(in srgb,var(--accent) 78%,#000);--accent-hover:color-mix(in srgb,var(--accent) 86%,#000);--accent-soft:color-mix(in srgb,var(--accent) 13%,transparent);--violet:var(--accent);--violet-soft:var(--accent-soft)}
+html[data-theme="dark"]{--acc-tx:color-mix(in srgb,var(--accent) 72%,#fff);--accent-ink:#000}
+html[data-theme="dark"] .blob{opacity:0}
+html{background:var(--bg);overscroll-behavior:none;overflow-x:clip}
+body{overflow-x:clip}
+a{color:var(--acc-tx)}
+h1{font-weight:800;letter-spacing:-.6px;font-size:clamp(1.65rem,1.2rem + 2vw,2.2rem)}
+h2{font-weight:750;letter-spacing:-.3px}
+
+/* en-tête : logo à gauche, outils en capsule de verre à droite */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:20;margin:0;padding:calc(12px + var(--safe-t)) calc(14px + var(--safe-r)) 0 calc(14px + var(--safe-l));display:flex;align-items:center;justify-content:space-between;gap:8px;pointer-events:none;animation:drop .7s var(--ease)}
+@keyframes drop{from{opacity:0;transform:translateY(-100%)}}
+.brand{pointer-events:auto;text-decoration:none;min-width:0}
+.logo{font-size:clamp(1.45rem,6.4vw,1.9rem);font-weight:800;letter-spacing:-.6px;line-height:1;white-space:nowrap;color:var(--text)}
+.logo i{font-style:normal;color:var(--brand)}
+.sub{display:none;margin-top:4px;font-size:.8rem;font-weight:600;color:var(--text-2)}
+.tools{pointer-events:auto;height:48px;padding:0 4px;border-radius:999px;display:flex;align-items:center;gap:2px}
+.tb{width:40px;height:40px;padding:0;border:0;border-radius:50%;background:none;color:var(--text);display:grid;place-items:center;cursor:pointer;text-decoration:none;transition:transform .35s var(--spring),background .3s}
+.tb svg{width:20px;height:20px}
+.tb:active{transform:scale(.86);background:var(--fill)}
+@media(hover:hover){.tb:hover{background:var(--fill)}}
+.tb[aria-current="page"]{color:var(--acc-tx);background:var(--fill)}
+.theme-btn .sun{display:none}.theme-btn .moon{display:block}
+html[data-theme="dark"] .theme-btn .sun{display:block}html[data-theme="dark"] .theme-btn .moon{display:none}
+.shell{display:block}
+main{padding:calc(78px + var(--safe-t)) calc(14px + var(--safe-r)) calc(116px + var(--safe-b)) calc(14px + var(--safe-l))}
+@media(min-width:600px){main{padding-inline:24px;padding-top:calc(88px + var(--safe-t))}}
+
+/* barre d'onglets : capsule de verre, lentille qui glisse sous l'onglet actif */
+.tabbar{position:fixed;z-index:30;left:12px;right:12px;bottom:max(12px,var(--safe-b));max-width:440px;height:60px;margin-inline:auto;padding:5px;display:grid;grid-template-columns:repeat(4,1fr);border-radius:999px;background:var(--glass);animation:navin .8s var(--ease) backwards .2s}
+@keyframes navin{from{opacity:0;translate:0 40px;scale:.94}}
+.tabbar .sl{position:absolute;top:5px;bottom:5px;left:0;width:60px;z-index:1;border-radius:999px;pointer-events:none;opacity:0;translate:5px 0;background:rgba(120,120,128,.16);border:1px solid rgba(255,255,255,.7);box-shadow:inset 0 1px 1px rgba(255,255,255,.5),0 4px 14px rgba(0,0,0,.14);transition:translate .6s var(--spring),width .3s var(--ease),opacity .3s}
+html[data-theme="dark"] .tabbar .sl{background:rgba(255,255,255,.17);border-color:rgba(255,255,255,.26)}
+.tab{position:relative;z-index:2;min-height:0;border-radius:999px;gap:2px;font-size:.64rem;font-weight:500;color:var(--text-2);background:none!important;transition:color .3s,transform .45s var(--spring)}
+.tab:active{transform:scale(.92)}
+.tab svg{width:20px;height:20px;color:var(--nc);opacity:.75;transition:opacity .3s}
+.tab[aria-current="page"]{color:var(--acc-tx);font-weight:600}
+.tab[aria-current="page"] svg{opacity:1}
+@media(max-width:389px){.tab{font-size:.58rem}}
+@media(min-width:1024px){
+.topbar{padding:16px 32px 0}
+.sub{display:block}
+.tabbar{display:grid;top:calc(var(--safe-t) + 14px);bottom:auto;left:0;right:0;width:min(720px,calc(100vw - 480px));max-width:none;height:56px;animation-name:navin-d}
+@keyframes navin-d{from{opacity:0;translate:0 -30px;scale:.94}}
+.tab{flex-direction:row;gap:8px;font-size:.78rem}
+.shell{display:block}
+main{padding:calc(96px + var(--safe-t)) 32px 56px}}
+@media(min-width:1024px) and (max-width:1279px){.sub{display:none}.tab{flex-direction:column;gap:2px;font-size:.68rem}}
+
+/* surfaces : groupes pleins façon Réglages (le verre reste pour les barres et menus) */
+main .glass{background:var(--grp);-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;border:0}
+main .glass::before{display:none}
+.tile:hover{box-shadow:var(--shadow-lift)}
+.page-head{margin:4px 4px 22px}
+.ex-eyebrow{margin:22px 16px 7px;font-size:13px;font-weight:600;letter-spacing:.4px;color:var(--text-2)}
+.lbl,.chap small b,details.notion .code,.exam-q .qn{color:var(--acc-tx)}
+.tile .ic{color:var(--acc-tx)}
+.chap .no{background:var(--accent-soft);color:var(--acc-tx)}
+.meter i,.ex-prog i{background:var(--accent)}
+.ring .bar{stroke:var(--accent)}
+.steps li::marker{color:var(--acc-tx)}
+.badge{background:var(--fill)}
+
+/* champs : capsules bordées, unités en capsules grises */
+.control{min-height:48px;border-radius:999px;background:transparent;border:1.5px solid var(--field-border)}
+.control:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.control input,.control select{padding:11px 18px;font-weight:600}
+.control select.unit-sel{margin:4px;border:0;border-radius:999px;background-color:var(--fill);padding:0 30px 0 14px;font-weight:600}
+.control .unit{border-left:0;margin:4px;padding:0 14px;border-radius:999px;background:var(--fill);font-weight:600}
+.field.is-unknown .control{border-style:dashed;border-color:var(--accent);background:var(--accent-soft)}
+.field.is-unknown label::after{color:var(--acc-tx)}
+.seg{border-radius:999px;background:var(--fill)}
+.seg button[aria-pressed="true"]{background:var(--thumb);box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.chip{background:var(--grp);border-color:transparent}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.btn{font-weight:650}
+.btn-primary{box-shadow:none}
+.btn-ghost{background:var(--fill);border-color:transparent}
+.btn-ghost:hover{border-color:var(--accent)}
+.ex-chip{background:var(--grp);box-shadow:none}
+.ex-chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.ex-lvl{background:var(--fill)}
+.ex-lvl button[aria-pressed="true"]{background:var(--thumb);box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.ex-lvl b{color:var(--acc-tx)}
+.q2-bubble{background:var(--accent);color:var(--accent-ink)}
+.q2-input{background:transparent;border-width:1.5px}
+.sol-box,.sol-val{background:var(--grp);box-shadow:none}
+
+/* résultat : grand nombre, unité en capsule */
+main .lens{text-align:center;padding:24px 18px 20px;background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 11%,transparent),transparent 75%),var(--grp)}
+.lens::after{display:none}
+.lens .k{font-size:.75rem;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--text-2)}
+.lens .v{font-weight:800;letter-spacing:-1px}
+.lens .v .u{display:inline-block;padding:3px 14px;border-radius:999px;background:var(--fill);color:var(--acc-tx);font-weight:700;vertical-align:middle}
+.sec-results div{background:var(--fill)}
+.toast{background:var(--glass)}
+html[data-transparency="reduced"]{--glass:var(--glass-solid);--glass-strong:var(--glass-solid);--blur:0px}
+
+/* ===== Menu en haut à droite (Cours, Formules) ===== */
+.menu-btn.on{color:var(--acc-tx);background:var(--fill)}
+.menu{position:fixed;z-index:25;top:calc(var(--safe-t) + 66px);right:calc(14px + var(--safe-r));min-width:210px;padding:6px;border-radius:24px;background:var(--glass-strong);-webkit-backdrop-filter:blur(var(--blur)) saturate(170%);backdrop-filter:blur(var(--blur)) saturate(170%);box-shadow:var(--shadow);border:1px solid var(--glass-border);display:grid;gap:2px;transform-origin:top right;animation:menuin .35s var(--spring)}
+@keyframes menuin{from{opacity:0;transform:scale(.88) translateY(-8px)}}
+.mi{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;color:var(--text);text-decoration:none;font-weight:600}
+.mi svg{width:20px;height:20px;color:var(--nc);flex:0 0 20px}
+.mi:active{background:var(--fill)}
+@media(hover:hover){.mi:hover{background:var(--fill)}}
+.mi[aria-current="page"]{background:var(--accent-soft);color:var(--acc-tx)}
+@media(min-width:1024px){.menu{top:calc(var(--safe-t) + 74px);right:32px}}
+
+/* ===== Calculatrice flottante ===== */
+:root{--lcd:#d6e4e2;--lcd-ink:#0d1414;--lcd-dim:rgba(13,20,20,.55);--cur:#e5372b}
+html[data-theme="dark"]{--lcd:#1b2727;--lcd-ink:#e9f3f1;--lcd-dim:rgba(233,243,241,.55)}
+.fab{position:fixed;z-index:35;right:calc(16px + var(--safe-r));bottom:calc(86px + var(--safe-b));width:56px;height:56px;border:0;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 26px -8px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .35s var(--spring),background .3s;animation:navin .8s var(--ease) backwards .4s;touch-action:manipulation}
+.fab svg{width:26px;height:26px}
+.fab:active{transform:scale(.88)}
+body:has(.exam-bar) .fab{bottom:calc(160px + var(--safe-b))}
+.cc{position:fixed;z-index:40;right:calc(12px + var(--safe-r));bottom:calc(84px + var(--safe-b));width:min(372px,calc(100vw - 24px - var(--safe-l) - var(--safe-r)));max-height:calc(100vh - 96px - var(--safe-t) - var(--safe-b));max-height:calc(100dvh - 96px - var(--safe-t) - var(--safe-b));overflow:auto;padding:10px;border-radius:30px;background:var(--glass-strong);-webkit-backdrop-filter:blur(var(--blur)) saturate(170%);backdrop-filter:blur(var(--blur)) saturate(170%);box-shadow:var(--shadow);border:1px solid var(--glass-border);display:flex;flex-direction:column;gap:10px;transform-origin:bottom right;animation:ccin .45s var(--spring)}
+@keyframes ccin{from{opacity:0;transform:translateY(24px) scale(.94)}}
+@media(min-width:1024px){.fab{right:24px;bottom:24px}body:has(.exam-bar) .fab{bottom:104px}.cc{right:24px;bottom:24px}}
+.cc-lcd{position:relative;display:flex;flex-direction:column;min-height:136px;padding:10px 14px 8px;border-radius:22px;background:var(--lcd);color:var(--lcd-ink);box-shadow:inset 0 2px 7px rgba(0,0,0,.2)}
+.cc-x{position:absolute;top:6px;right:6px;z-index:4;width:32px;height:32px;border:0;border-radius:50%;background:none;color:var(--lcd-dim);display:grid;place-items:center;cursor:pointer}
+.cc-x svg{width:18px;height:18px}
+.cc-expr{flex:1;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;white-space:nowrap;min-height:84px;padding:6px 30px 2px 0;font-size:2.05rem;line-height:1.25;cursor:text;scrollbar-width:none;font-variant-numeric:tabular-nums}
+.cc-expr::-webkit-scrollbar{display:none}
+.ce,.mfn,.mfd,.mp,.msa{display:inline-flex;align-items:center}
+.ce{min-width:max-content}
+.mc{display:inline-block}
+.mo{margin:0 .2em}
+.mf{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .1em;font-size:.92em}
+.mfn{border-bottom:2px solid currentColor;padding:0 .18em .04em}
+.mfd{padding:.04em .18em 0}
+.mp{align-self:flex-start;font-size:.64em;margin:-.05em 0 0 .06em}
+.mp .mo{margin:0 .06em}
+.ms{display:inline-flex;align-items:stretch}
+.msr{font-size:1.1em;padding-right:.04em}
+.msa{border-top:2px solid currentColor;padding:0 .15em;margin-top:.22em}
+.ph{display:inline-flex;align-items:center;justify-content:center;min-width:.72em;min-height:1.05em;border:1.5px dashed var(--lcd-dim);border-radius:3px;margin:0 .05em}
+.cur{display:inline-block;width:2px;height:1.15em;margin:0 1px;background:var(--cur);animation:blink 1s steps(1) infinite;flex:none}
+@keyframes blink{50%{opacity:0}}
+.cc-foot{display:flex;align-items:flex-end;gap:6px;min-height:44px}
+.cc-dots{width:34px;height:42px;border:0;border-radius:12px;background:none;color:var(--lcd-dim);display:grid;place-items:center;cursor:pointer;flex:none}
+.cc-dots svg{width:16px;height:22px}
+.cc-sci{border:1.5px solid var(--lcd-dim);background:none;color:var(--lcd-dim);border-radius:999px;font:700 .72rem var(--font);padding:3px 9px;margin-bottom:8px;cursor:pointer;flex:none}
+.cc-sci[aria-pressed="true"]{background:var(--lcd-ink);color:var(--lcd);border-color:var(--lcd-ink)}
+.cc-res{flex:1;min-width:0;border:0;background:none;color:var(--lcd-dim);font:600 1.3rem var(--font-display);font-variant-numeric:tabular-nums;text-align:right;overflow-x:auto;white-space:nowrap;cursor:pointer;padding:2px 4px;min-height:1.6em;scrollbar-width:none}
+.cc-res::-webkit-scrollbar{display:none}
+.cc-res.done{color:var(--lcd-ink);font-size:1.9rem;font-weight:700}
+.cc-res.err{color:#c62828;font-size:1.05rem}
+html[data-theme="dark"] .cc-res.err{color:#ff8a80}
+.cc-res sup{font-size:.55em}
+.cc-hist{position:absolute;inset:0;z-index:3;overflow:auto;padding:10px 10px 8px;border-radius:22px;background:var(--lcd);color:var(--lcd-ink);display:flex;flex-direction:column;gap:6px}
+.cc-hist .hh{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--lcd-dim);margin:0 30px 2px 4px}
+.hi{display:flex;flex-direction:column;align-items:flex-end;gap:2px;border:0;border-radius:14px;background:rgba(127,127,127,.12);color:inherit;padding:6px 10px;cursor:pointer;text-align:right;font-size:1.05rem;overflow-x:auto}
+.hi .hr{font-weight:700;white-space:nowrap}
+.hi sup{font-size:.6em}
+.hclr{align-self:flex-start;border:0;background:none;color:var(--lcd-dim);font:600 .82rem var(--font);cursor:pointer;padding:6px 4px;text-decoration:underline}
+.cc-keys{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.ck{min-height:46px;border:0;border-radius:16px;background:var(--fill);color:var(--text);font:600 1.15rem var(--font);display:grid;place-items:center;cursor:pointer;touch-action:manipulation;transition:transform .2s var(--spring),background .2s;padding:0}
+.ck:active{transform:scale(.9)}
+.ck svg{width:20px;height:20px}
+.ck sup{font-size:.62em;line-height:0}
+.ck.num{background:var(--grp)}
+.ck.fn{background:var(--accent-soft);color:var(--acc-tx);font-size:.95rem}
+.ck.op{color:var(--acc-tx);font-size:1.35rem}
+.ck.danger{color:var(--err);font-size:.95rem}
+.ck.eq{background:var(--accent);color:var(--accent-ink);font-size:1.5rem}
+.kfr{display:grid;gap:2px;width:15px}
+.kfr i{display:block;height:7px;border:1.6px solid currentColor;border-radius:2px}
+.kfr b{display:block;height:1.8px;background:currentColor}
+.kbx{display:inline-block;width:.55em;height:.7em;border:1.5px solid currentColor;border-radius:2px;margin-left:2px;vertical-align:-.05em}
+
+/* ===== Menu : interrupteur + lien BioStudy ===== */
+.menu{min-width:250px;animation:menuin .16s ease-out}
+@keyframes menuin{from{opacity:0;transform:translateY(-4px)}}
+.mi{width:100%;border:0;background:none;font:inherit;font-weight:600;text-align:left;cursor:pointer}
+.mi-t{display:flex;flex-direction:column;line-height:1.2}
+.mi-t small{font-size:.76rem;font-weight:500;color:var(--text-3);margin-top:2px}
+.mi-sep{height:1px;margin:4px 10px;background:var(--hairline)}
+.mi .ext{margin-left:auto;width:16px;height:16px;flex:0 0 16px;color:var(--text-3)}
+.mi .sw{margin-left:auto;position:relative;flex:0 0 40px;width:40px;height:24px;border-radius:999px;background:var(--fill);box-shadow:inset 0 0 0 1px var(--hairline);transition:background .18s ease}
+.mi .sw::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .18s ease}
+.mi[aria-checked="true"] .sw{background:var(--accent);box-shadow:none}
+.mi[aria-checked="true"] .sw::after{transform:translateX(16px)}
+
+/* ===== Calculatrice : style sobre et animations discrètes ===== */
+.fab{animation:fabin .22s ease-out;transition:transform .12s ease,box-shadow .12s ease;box-shadow:0 6px 18px -6px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.12) inset}
+@keyframes fabin{from{opacity:0;transform:scale(.9)}}
+.fab:active{transform:scale(.94)}
+.cc{animation:ccin .2s ease-out;padding:12px;gap:12px;border-radius:24px}
+@keyframes ccin{from{opacity:0;transform:translateY(8px)}}
+.cc-lcd{border-radius:16px;box-shadow:inset 0 1px 4px rgba(0,0,0,.22),0 0 0 1px rgba(0,0,0,.06)}
+.cc-hist{border-radius:16px}
+.cc-keys{gap:6px}
+.ck{min-height:48px;border-radius:12px;font:500 1.3rem var(--font);font-variant-numeric:tabular-nums;letter-spacing:-.01em;background:var(--fill);color:var(--text);box-shadow:inset 0 -1px 0 rgba(0,0,0,.07);transition:background-color .1s ease,transform .08s ease,color .1s ease}
+.ck:active{transform:scale(.97);filter:brightness(.92)}
+@media(hover:hover){.ck:hover{filter:brightness(.97)}}
+.ck.num{background:var(--grp);box-shadow:inset 0 0 0 1px var(--hairline)}
+.ck.fn{background:var(--fill);color:var(--text-2);font:600 .88rem var(--font);letter-spacing:.01em}
+.ck.op{background:var(--fill);color:var(--acc-tx);font:500 1.5rem var(--font)}
+.ck.danger{background:var(--fill);color:var(--err);font:600 .9rem var(--font)}
+.ck.eq{background:var(--accent);color:var(--accent-ink);font:500 1.6rem var(--font);box-shadow:none}
+.ck svg{width:20px;height:20px;stroke-width:1.9}
+.ck sup{font-size:.6em}
+html[data-theme="dark"] .ck{box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+html[data-theme="dark"] .ck.num{background:#3a3a3c;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+html[data-theme="dark"] .ck.fn,html[data-theme="dark"] .ck.op,html[data-theme="dark"] .ck.danger{background:#262628}
+html[data-theme="dark"] .ck.eq{box-shadow:none}
+.cc-sci{font-weight:600;letter-spacing:.03em}
+.cc-res.done{animation:none}
+
+/* ===== Touches façon calculatrice scientifique ===== */
+.cc-keys{grid-template-columns:repeat(6,1fr);gap:6px}
+.ck{min-height:46px}
+.ck.wide{grid-column:1/-1;min-height:48px}
+.ck.num{font-size:1.25rem}
+.kx{display:inline-flex;align-items:flex-start;font-family:Georgia,'Times New Roman',serif;font-size:1.1rem;line-height:1;white-space:nowrap;font-weight:600}
+.kx em{font-style:italic}
+.kx sup{font-size:.65em;line-height:1;margin-left:1px}
+.ksq{display:inline-block;width:.5em;height:.5em;background:currentColor;border-radius:1px;margin-left:2px;align-self:center}
+.ksq.kup{width:.34em;height:.34em;align-self:flex-start;margin-top:-.05em}
+.kfr{width:17px;gap:3px}
+.kfr i{height:8px;border-width:1.8px;border-radius:2px}
+.kfr b{height:1.8px}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<a class="skip" href="#main">Aller au contenu</a>
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="#/" aria-label="Calculs Coach, accueil"><div class="logo">Calculs<i>Coach</i></div><div class="sub">Calculs de laboratoire</div></a>
+    <div class="tools glass">
+      <a class="tb" data-nav="reglages" href="#/reglages" aria-label="Réglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></a>
+      <button type="button" class="tb theme-btn" aria-label="Changer de thème"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor" stroke="none"/></svg></button>
+      <button type="button" class="tb menu-btn" id="menu-btn" aria-label="Menu" aria-haspopup="true" aria-expanded="false" aria-controls="menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.7" fill="currentColor" stroke="none"/></svg></button>
+    </div>
+  </header>
+  <div id="menu" class="menu" role="menu" aria-label="Menu" hidden>
+    <a role="menuitem" class="mi" data-nav="cours" data-c="var(--c-cyan)" style="--nc:var(--c-cyan)" href="#/cours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h6a3 3 0 0 1 3 3v12a2.5 2.5 0 0 0-2.5-2.5H3zM21 5h-6a3 3 0 0 0-3 3v12a2.5 2.5 0 0 1 2.5-2.5H21z"/></svg>Cours</a>
+    <a role="menuitem" class="mi" data-nav="formules" data-c="var(--c-green)" style="--nc:var(--c-green)" href="#/formules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 5H6.5l6 7-6 7H18"/></svg>Formules</a>
+    <div class="mi-sep" role="separator"></div>
+    <button type="button" class="mi" id="calc-toggle" role="menuitemcheckbox" aria-checked="true" style="--nc:var(--c-orange)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg><span class="mi-t">Calculatrice<small>Bouton flottant</small></span><span class="sw" aria-hidden="true"></span></button>
+    <div class="mi-sep" role="separator"></div>
+    <a role="menuitem" class="mi" href="https://www.biostudy.xyz" target="_blank" rel="noopener noreferrer" style="--nc:var(--c-purple)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="mi-t">BioStudy<small>www.biostudy.xyz</small></span><svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+  </div>
+  <main id="main" tabindex="-1">
+    <div id="storage-banner" class="storage-banner msg warn" hidden>Stockage local indisponible : l'application fonctionne, mais la progression ne sera pas conservée.</div>
+    <div id="view" class="view"></div>
+  </main>
+  <nav class="tabbar glass" aria-label="Navigation"><span class="sl" aria-hidden="true"></span>
+    <a class="tab" data-nav="" data-c="var(--c-blue)" style="--nc:var(--c-blue)" href="#/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Accueil</span></a>
+    <a class="tab" data-nav="calc" data-c="var(--c-orange)" style="--nc:var(--c-orange)" href="#/calc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg><span>Calculs</span></a>
+    <a class="tab" data-nav="exos" data-c="var(--c-purple)" style="--nc:var(--c-purple)" href="#/exos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8" fill="currentColor"/></svg><span>Exercices</span></a>
+    <a class="tab" data-nav="examens" data-c="var(--c-pink)" style="--nc:var(--c-pink)" href="#/examens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="5.5"/><path d="M8.6 13.4 7.5 21l4.5-2.4 4.5 2.4-1.1-7.6"/></svg><span>Examens</span></a>
+  </nav>
+</div>
+<button type="button" class="fab" id="fab" aria-label="Ouvrir la calculatrice" aria-expanded="false" aria-controls="cc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg></button>
+<div id="cc" class="cc" role="dialog" aria-label="Calculatrice" hidden>
+  <div class="cc-lcd">
+    <button type="button" class="cc-x" id="cc-close" aria-label="Fermer la calculatrice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <div class="cc-expr" id="cc-expr" aria-label="Expression"></div>
+    <div class="cc-foot">
+      <button type="button" class="cc-dots" id="cc-dots" aria-label="Historique"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
+      <button type="button" class="cc-sci" id="cc-sci" aria-pressed="false" title="Notation scientifique">Sci</button>
+      <button type="button" class="cc-res" id="cc-res" aria-live="polite" title="Toucher pour copier"></button>
+    </div>
+    <div class="cc-hist" id="cc-hist" hidden></div>
+  </div>
+  <div class="cc-keys" id="cc-keys"></div>
+</div>
+<div id="toast" class="toast glass" role="status" aria-live="polite"></div>
+<dialog id="confirm" aria-labelledby="confirm-title" aria-describedby="confirm-text">
+  <div class="card glass"><h2 id="confirm-title">Confirmer</h2><p id="confirm-text" style="margin-top:8px"></p>
+  <div class="btn-row" style="justify-content:flex-end;margin-top:14px"><button type="button" class="btn btn-ghost" id="confirm-cancel">Annuler</button><button type="button" class="btn btn-primary" id="confirm-ok">Confirmer</button></div></div>
+</dialog>
+<noscript><p style="padding:20px">Calculs Coach nécessite JavaScript pour les calculateurs.</p></noscript>
+<script>
+/* =====================================================================
+   Calculs Coach - noyau de calcul (JavaScript)
+   Reprise fonction par fonction de core.py. Aucune evaluation de code dynamique.
+   Conventions : masse en g, volume en L, concentration massique en g/L,
+   concentration molaire en mol/L, sauf mention contraire.
+   ===================================================================== */
+(function (root) {
+  'use strict';
+
+  class LabError extends Error {
+    constructor(msg) { super(msg); this.name = 'LabError'; }
+  }
+
+  // ------------------------------------------------------------ unites
+  const MASS = { kg: 1e3, g: 1, mg: 1e-3, 'µg': 1e-6, ng: 1e-9, pg: 1e-12 };
+  const VOL = { L: 1, mL: 1e-3, 'µL': 1e-6, nL: 1e-9 };
+  const CMASS = { 'g/L': 1, 'mg/L': 1e-3, 'µg/L': 1e-6, 'mg/mL': 1, 'µg/mL': 1e-3, 'ng/mL': 1e-6, 'µg/µL': 1, 'ng/µL': 1e-3 };
+  const CMOL = { M: 1, mM: 1e-3, 'µM': 1e-6, nM: 1e-9 };
+  const TABLES = { masse: MASS, volume: VOL, 'concentration massique': CMASS, 'concentration molaire': CMOL };
+
+  function kindOf(u) {
+    for (const k in TABLES) if (Object.prototype.hasOwnProperty.call(TABLES[k], u)) return k;
+    return null;
+  }
+
+  function isNum(x) { return typeof x === 'number' && Number.isFinite(x); }
+
+  function pos(x, name, allowZero) {
+    if (!isNum(x)) throw new LabError(`${name} : valeur manquante ou invalide.`);
+    if (allowZero ? x < 0 : x <= 0) throw new LabError(`${name} doit être ${allowZero ? 'positif ou nul' : 'strictement positif'}.`);
+    return x;
+  }
+
+  function convert(v, from, to) {
+    const k1 = kindOf(from), k2 = kindOf(to);
+    if (!k1 || k1 !== k2) throw new LabError(`Conversion impossible de ${from} vers ${to} : grandeurs de nature différente.`);
+    if (!isNum(v)) throw new LabError('Valeur à convertir invalide.');
+    return v * TABLES[k1][from] / TABLES[k1][to];
+  }
+
+  // -------------------------------------------- masses et concentrations
+  const massFromConc = (c, v) => pos(c, 'Concentration') * pos(v, 'Volume');
+  const concFromMass = (m, v) => pos(m, 'Masse') / pos(v, 'Volume');
+  const volFromMass = (m, c) => pos(m, 'Masse') / pos(c, 'Concentration');
+  const moles = (m, M) => pos(m, 'Masse') / pos(M, 'Masse molaire');
+  function massFromMolar(c, v, M, purity) {
+    if (purity === undefined) purity = 1;
+    if (!(purity > 0 && purity <= 1)) throw new LabError('La pureté doit être comprise entre 0 et 100 %.');
+    return pos(c, 'Concentration') * pos(v, 'Volume') * pos(M, 'Masse molaire') / purity;
+  }
+  const percentToGL = p => 10 * p;
+
+  // ------------------------------------------------------------ dilution
+  function c1v1(o) {
+    const keys = ['C1', 'V1', 'C2', 'V2'];
+    const unknown = keys.filter(k => o[k] === null || o[k] === undefined);
+    if (unknown.length !== 1) throw new LabError('Laisser exactement une inconnue.');
+    keys.forEach(k => { if (!unknown.includes(k)) pos(o[k], k); });
+    const u = unknown[0];
+    let r;
+    if (u === 'C1') r = o.C2 * o.V2 / o.V1;
+    else if (u === 'V1') r = o.C2 * o.V2 / o.C1;
+    else if (u === 'C2') r = o.C1 * o.V1 / o.V2;
+    else r = o.C1 * o.V1 / o.C2;
+    const full = Object.assign({}, o, { [u]: r });
+    if (full.C2 > full.C1 * (1 + 1e-12)) throw new LabError('Une dilution ne peut pas augmenter la concentration (C2 > C1).');
+    if (full.V1 > full.V2 * (1 + 1e-12)) throw new LabError('Le volume prélevé ne peut pas dépasser le volume final (V1 > V2).');
+    return r;
+  }
+
+  function dilutionFactor(vt, vf) {
+    pos(vt, 'Volume transféré'); pos(vf, 'Volume final');
+    if (vt > vf) throw new LabError('Le volume transféré dépasse le volume final.');
+    return vf / vt;
+  }
+
+  function serial(c0, steps) {
+    pos(c0, 'Concentration initiale');
+    const out = []; let F = 1, c = c0;
+    steps.forEach((s, i) => {
+      pos(s[0], 'Volume transféré'); pos(s[1], 'Volume de diluant');
+      const f = (s[0] + s[1]) / s[0];
+      F *= f; c /= f;
+      out.push({ tube: i + 1, f, F, fraction: 1 / F, C: c });
+    });
+    return { tubes: out, F };
+  }
+
+  function tubesNeeded(c0, cTarget, f) {
+    pos(c0, 'C0'); pos(cTarget, 'Concentration cible');
+    if (!(f > 1)) throw new LabError('Le facteur par étape doit être supérieur à 1.');
+    if (cTarget >= c0) return 0;
+    const n = Math.log(c0 / cTarget) / Math.log(f);
+    return Math.ceil(Math.round(n * 1e9) / 1e9);
+  }
+
+  // -------------------------------------------------- tampons concentres
+  function bufferFromStock(xs, xf, vf) {
+    pos(xs, 'Concentration du stock'); pos(xf, 'Concentration finale'); pos(vf, 'Volume final');
+    if (xf > xs) throw new LabError('La concentration finale dépasse celle du stock.');
+    const vs = vf * xf / xs;
+    return { vs, water: vf - vs };
+  }
+  function dyeAddToSample(vs, xs, xf) {
+    if (xs === undefined) xs = 6; if (xf === undefined) xf = 1;
+    pos(vs, "Volume d'échantillon"); pos(xs, 'Concentration du tampon'); pos(xf, 'Concentration finale');
+    if (xs <= xf) throw new LabError('Le tampon de charge doit être plus concentré que la concentration finale.');
+    const vd = vs * xf / (xs - xf);
+    return { vd, vt: vs + vd };
+  }
+  function dyeFinalFixed(vf, xs, xf) {
+    if (xs === undefined) xs = 6; if (xf === undefined) xf = 1;
+    pos(vf, 'Volume final'); pos(xs, 'Concentration du tampon'); pos(xf, 'Concentration finale');
+    if (xs <= xf) throw new LabError('Le tampon de charge doit être plus concentré que la concentration finale.');
+    const vd = vf * xf / xs;
+    return { vd, rest: vf - vd };
+  }
+
+  // ---------------------------------------------------------- gels, milieux
+  const agaroseMass = (p, vmL) => pos(p, 'Pourcentage') * pos(vmL, 'Volume') / 100;
+  const mediumPowder = (cgL, vmL) => pos(cgL, 'Concentration') * pos(vmL, 'Volume') / 1000;
+  function platesPossible(vt, vp) { pos(vt, 'Volume total'); pos(vp, 'Volume par boîte'); return Math.floor(vt / vp + 1e-9); }
+  const volumeForPlates = (n, vp, margin) => n * vp * (1 + (margin || 0));
+
+  // ------------------------------------------------------------------- PCR
+  function pcrVolume(cf, cs, vr) {
+    pos(cf, 'Concentration finale'); pos(cs, 'Concentration du stock'); pos(vr, 'Volume réactionnel');
+    if (cf > cs) throw new LabError('Concentration finale supérieure à celle du stock.');
+    return cf * vr / cs;
+  }
+  function pcrMix(vr, comps, n, surplus) {
+    pos(vr, 'Volume réactionnel');
+    const rows = []; let tot = 0;
+    comps.forEach(c => {
+      let v;
+      if (c.kind === 'conc') v = pcrVolume(c.final, c.stock, vr);
+      else if (c.kind === 'units' || c.kind === 'amount') v = pos(c.final, c.name) / pos(c.stock, c.name);
+      else v = pos(c.final, c.name);
+      rows.push(Object.assign({}, c, { v }));
+      tot += v;
+    });
+    const water = vr - tot;
+    if (water < -1e-9) throw new LabError(`La somme des réactifs (${tot.toFixed(3)} µL) dépasse le volume réactionnel (${vr} µL).`);
+    return { rows, water, factor: (n || 1) * (1 + (surplus || 0)) };
+  }
+
+  // ---------------------------------------------------------- denombrement
+  function cfuSingle(C, V, d) {
+    pos(C, 'Nombre de colonies', true); pos(V, 'Volume ensemencé'); pos(d, 'Fraction de dilution');
+    if (d > 1) throw new LabError('La fraction de dilution doit être ≤ 1 (exemple : 10^-3), pas un facteur.');
+    return C / (V * d);
+  }
+  function cfuWeighted(sumC, V, n1, n2, d1) {
+    pos(V, 'Volume'); pos(d1, 'Fraction de dilution'); pos(sumC, 'Somme des colonies', true);
+    if (n1 < 1) throw new LabError('Au moins une boîte doit être retenue à la première dilution.');
+    if (d1 > 1) throw new LabError('La fraction de dilution doit être ≤ 1.');
+    return sumC / (V * (n1 + 0.1 * n2) * d1);
+  }
+  const lod = (V, d, n) => 1 / (pos(V, 'Volume') * pos(d, 'Fraction') * (n || 1));
+  function initialSuspensionFraction(m, vd) { pos(m, 'Masse'); pos(vd, 'Volume de diluant'); return m / (m + vd); }
+  function log10(x) { if (!(x > 0)) throw new LabError('log10 non défini pour une valeur nulle ou négative.'); return Math.log10(x); }
+
+  // ------------------------------------------------------------------ ADN
+  const A260_FACTOR = { ADNdb: 50, ARN: 40, ADNsb: 33 };
+  const dnaFromA260 = (a, factor, F) => pos(a, 'A260') * pos(factor, 'Facteur') * pos(F, 'Facteur de dilution');
+
+  // --------------------------------------------------------- complementaires
+  function mean(xs) { if (!xs.length) throw new LabError('Aucune valeur.'); return xs.reduce((a, b) => a + b, 0) / xs.length; }
+  function sd(xs) {
+    if (xs.length < 2) throw new LabError('Au moins deux valeurs pour un écart-type.');
+    const m = mean(xs);
+    return Math.sqrt(xs.reduce((a, x) => a + (x - m) * (x - m), 0) / (xs.length - 1));
+  }
+  const cv = xs => 100 * sd(xs) / mean(xs);
+  function generations(N0, Nt) {
+    pos(N0, 'N0'); pos(Nt, 'Nt');
+    if (Nt <= N0) throw new LabError('Nt doit être supérieur à N0 (phase de croissance).');
+    return (Math.log10(Nt) - Math.log10(N0)) / Math.log10(2);
+  }
+  const generationTime = (N0, Nt, t) => pos(t, 'Durée') / generations(N0, Nt);
+  const recovery = (meas, exp) => 100 * pos(meas, 'Valeur mesurée', true) / pos(exp, 'Valeur attendue');
+  function mixConc(pairs) {
+    const vt = pairs.reduce((a, p) => a + p[1], 0);
+    pos(vt, 'Volume total');
+    return pairs.reduce((a, p) => a + p[0] * p[1], 0) / vt;
+  }
+
+  // ------------------------------------------------------------ formatage
+  const NBSP = ' ';
+  function roundHalfUp(x, dec) {
+    const m = Math.pow(10, dec);
+    const s = Math.sign(x) || 1;
+    return s * Math.round(Math.abs(x) * m * (1 + 8 * Number.EPSILON)) / m;
+  }
+  function group(intStr) {
+    const neg = intStr[0] === '-'; let d = neg ? intStr.slice(1) : intStr;
+    if (d.length > 4) d = d.replace(/\B(?=(\d{3})+(?!\d))/g, NBSP);
+    return (neg ? '-' : '') + d;
+  }
+  function fixed(x, dec, keep) {
+    if (dec === undefined) dec = 2;
+    let s = roundHalfUp(x, dec).toFixed(dec);
+    if (!keep && s.includes('.')) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    if (s === '-0') s = '0';
+    const parts = s.split('.');
+    return group(parts[0]) + (parts[1] ? ',' + parts[1] : '');
+  }
+  function sigfig(x, n) {
+    if (x === 0) return '0';
+    const e = Math.floor(Math.log10(Math.abs(x)));
+    return fixed(roundHalfUp(x, n - 1 - e), Math.max(0, n - 1 - e));
+  }
+  function sciParts(x, n) {
+    if (x === 0) return { m: '0', e: 0 };
+    let e = Math.floor(Math.log10(Math.abs(x)));
+    let m = roundHalfUp(x / Math.pow(10, e), n - 1);
+    if (Math.abs(m) >= 10) { m /= 10; e += 1; }
+    return { m: fixed(m, n - 1, true), e };
+  }
+  function sci(x, n, opts) {
+    n = n || 2; opts = opts || {};
+    if (!isNum(x)) return '—';
+    if (x === 0) return '0';
+    const p = sciParts(x, n);
+    let m = p.m;
+    if (opts.trim && m.includes(',')) m = m.replace(/0+$/, '').replace(/,$/, '');
+    if (p.e === 0) return m;
+    return opts.text ? `${m} × 10^${p.e}` : `${m}${NBSP}×${NBSP}10<sup>${p.e}</sup>`;
+  }
+  function num(x, n, opts) {
+    n = n || 3; opts = opts || {};
+    if (!isNum(x)) return '—';
+    if (x === 0) return '0';
+    const a = Math.abs(x);
+    if (a >= 1e5 || a < 1e-3) return sci(x, n, Object.assign({ trim: true }, opts));
+    if (a < 100) return sigfig(x, n);
+    return fixed(x, Math.max(0, n - String(Math.floor(a)).length));
+  }
+  // nombre de decimales adapte au pipetage (µL) : 3 decimales max
+  const vol = (x, dec) => fixed(x, dec === undefined ? 3 : dec);
+  const toText = html => String(html).replace(/<sup>(.*?)<\/sup>/g, '^$1').replace(/<sub>(.*?)<\/sub>/g, '$1').replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+
+  /** Analyse une saisie numerique sans eval : 1,5 ; 1.5 ; 1 500 ; 1,6e7 ; 1,6x10^7 ; 1,6×10^-3 ; 10^-3 ; 1/10 */
+  function parseNum(str) {
+    if (typeof str === 'number') return str;
+    if (str === null || str === undefined) return NaN;
+    let s = String(str).trim().replace(/[\s  ]/g, '').replace(/,/g, '.').replace(/−/g, '-');
+    if (s === '') return NaN;
+    let m = s.match(/^([+-]?(?:\d+\.?\d*|\.\d+))(?:(?:[x×*·]10\^?)([+-]?\d+)|[eE]([+-]?\d+))?$/);
+    if (m) {
+      const base = parseFloat(m[1]);
+      const ex = m[2] !== undefined ? m[2] : m[3];
+      return ex !== undefined ? base * Math.pow(10, parseInt(ex, 10)) : base;
+    }
+    m = s.match(/^10\^([+-]?\d+)$/);
+    if (m) return Math.pow(10, parseInt(m[1], 10));
+    m = s.match(/^(\d+\.?\d*)\/(\d+\.?\d*)$/);
+    if (m) { const den = parseFloat(m[2]); return den === 0 ? NaN : parseFloat(m[1]) / den; }
+    return NaN;
+  }
+
+  /** Comparaison d'une reponse : tolerance relative ou arrondi a 2-3 chiffres significatifs accepte. */
+  function answerOk(given, expected, tol, absTol) {
+    if (!isNum(given) || !isNum(expected)) return false;
+    if (absTol !== undefined) return Math.abs(given - expected) <= absTol + 1e-12;
+    if (expected === 0) return Math.abs(given) < 1e-12;
+    const rel = Math.abs(given - expected) / Math.abs(expected);
+    if (rel <= (tol === undefined ? 0.02 : tol)) return true;
+    for (const n of [2, 3]) {
+      const e = Math.floor(Math.log10(Math.abs(expected)));
+      const r = roundHalfUp(expected, n - 1 - e);
+      if (Math.abs(given - r) <= 1e-9 * Math.abs(expected)) return true;
+    }
+    return false;
+  }
+
+  root.LabCore = {
+    LabError, MASS, VOL, CMASS, CMOL, TABLES, kindOf, convert, isNum,
+    massFromConc, concFromMass, volFromMass, moles, massFromMolar, percentToGL,
+    c1v1, dilutionFactor, serial, tubesNeeded,
+    bufferFromStock, dyeAddToSample, dyeFinalFixed,
+    agaroseMass, mediumPowder, platesPossible, volumeForPlates,
+    pcrVolume, pcrMix,
+    cfuSingle, cfuWeighted, lod, initialSuspensionFraction, log10,
+    A260_FACTOR, dnaFromA260,
+    mean, sd, cv, generations, generationTime, recovery, mixConc,
+    roundHalfUp, fixed, sigfig, sci, num, vol, toText, parseNum, answerOk, NBSP
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* =====================================================================
+   Calculs Coach - definitions des 13 calculateurs.
+   Chaque calculateur declare ses champs, une fonction compute() pure
+   (aucun acces au DOM) et des tests numeriques de reference.
+   ===================================================================== */
+(function (root) {
+  'use strict';
+  const K = root.LabCore;
+  const E = msg => new K.LabError(msg);
+  const n3 = x => K.num(x, 3);
+  const n4 = x => K.num(x, 4);
+  const sub = s => `<sub>${s}</sub>`;
+
+  const MASS_U = ['g', 'mg', 'µg', 'ng'];
+  const VOL_U = ['L', 'mL', 'µL'];
+  const CM_U = ['g/L', 'mg/mL', 'mg/L', 'µg/mL', 'ng/µL'];
+  const CMOL_U = ['M', 'mM', 'µM', 'nM'];
+  const ALL_U = [].concat(['kg'], MASS_U, ['pg'], VOL_U, ['nL'], CM_U, ['µg/L', 'ng/mL', 'µg/µL'], CMOL_U);
+  const CONC_ANY = CM_U.concat(CMOL_U, ['X', '%', 'UFC/mL', 'U/mL']);
+
+  /** Choix de pipette pour un volume en µL. */
+  function pipette(uL) {
+    if (!(uL > 0)) return '';
+    if (uL < 0.2) return 'volume trop petit pour être pipeté avec justesse : prévoir une dilution intermédiaire ou un master mix';
+    const P = [[2, 'P2'], [10, 'P10'], [20, 'P20'], [200, 'P200'], [1000, 'P1000'], [5000, 'P5000 ou pipette sérologique de 5 mL'], [10000, 'pipette sérologique de 10 mL'], [25000, 'pipette sérologique de 25 mL'], [50000, 'pipette sérologique de 50 mL']];
+    for (const [max, name] of P) if (uL <= max + 1e-9) return name;
+    return 'éprouvette graduée ou fiole jaugée';
+  }
+
+  /** Meilleure unite d'affichage pour une masse en g ou un volume en L. */
+  function bestMass(g) {
+    const a = Math.abs(g);
+    if (a >= 1) return [g, 'g']; if (a >= 1e-3) return [g * 1e3, 'mg']; if (a >= 1e-6) return [g * 1e6, 'µg']; return [g * 1e9, 'ng'];
+  }
+  function bestVol(L) {
+    const a = Math.abs(L);
+    if (a >= 1) return [L, 'L']; if (a >= 1e-3) return [L * 1e3, 'mL']; return [L * 1e6, 'µL'];
+  }
+  const fmtMass = g => { const [v, u] = bestMass(g); return `${n4(v)} ${u}`; };
+  const fmtVol = L => { const [v, u] = bestVol(L); return `${n4(v)} ${u}`; };
+
+  /** Concentration vers unite de base (g/L ou M) ; X, %, UFC/mL : identite. */
+  function concBase(v, u) {
+    if (u in K.CMASS) return { v: v * K.CMASS[u], kind: 'mass', base: 'g/L' };
+    if (u in K.CMOL) return { v: v * K.CMOL[u], kind: 'mol', base: 'M' };
+    return { v, kind: u, base: u };
+  }
+  function concFromBase(vb, u) {
+    if (u in K.CMASS) return vb / K.CMASS[u];
+    if (u in K.CMOL) return vb / K.CMOL[u];
+    return vb;
+  }
+
+  const COMPOUNDS = [
+    ['', 'Saisie libre', null], ['NaCl', 'NaCl', 58.44], ['KCl', 'KCl', 74.55], ['Tris', 'Tris base', 121.14],
+    ['EDTA', 'EDTA disodique ·2H₂O', 372.24], ['MgCl2a', 'MgCl₂ anhydre', 95.21], ['MgCl2h', 'MgCl₂ ·6H₂O', 203.30],
+    ['CaCl2a', 'CaCl₂ anhydre', 110.98], ['CaCl2h', 'CaCl₂ ·2H₂O', 147.01], ['Glc', 'Glucose', 180.16], ['Sac', 'Saccharose', 342.30],
+    ['KH2PO4', 'KH₂PO₄', 136.09], ['Na2HPO4', 'Na₂HPO₄ anhydre', 141.96]
+  ];
+
+  const BUF_PRESETS = [
+    ['', 'Saisie libre', null], ['tae', 'TAE 50X → 1X', [50, 1]], ['tbe105', 'TBE 10X → 0,5X', [10, 0.5]], ['tbe101', 'TBE 10X → 1X', [10, 1]],
+    ['tbe55', 'TBE 5X → 0,5X', [5, 0.5]], ['pbs', 'PBS 10X → 1X', [10, 1]], ['ssc', 'SSC 20X → 2X', [20, 2]]
+  ];
+
+  // ===================================================================
+  const CALCS = [];
+
+  // 1. Conversions ---------------------------------------------------
+  CALCS.push({
+    id: 'conv', ch: 'm1', icon: 'swap', title: "Conversions d'unités",
+    desc: 'Masses, volumes, concentrations massiques et molaires.',
+    fields: () => [
+      { id: 'v', label: 'Valeur', def: '250' },
+      { id: 'from', label: 'Unité de départ', type: 'select', options: ALL_U.map(u => [u, u]), def: 'µL' },
+      { id: 'to', label: "Unité d'arrivée", type: 'select', def: 'mL', dependsOn: 'from',
+        options: v => { const k = K.kindOf(v.from); return ALL_U.filter(u => K.kindOf(u) === k).map(u => [u, u]); } }
+    ],
+    compute(v) {
+      const r = K.convert(v.v, v.from, v.to);
+      const f = K.convert(1, v.from, v.to);
+      return {
+        formula: 'valeur (unité d\'arrivée) = valeur (unité de départ) × facteur',
+        steps: [`Grandeur : ${K.kindOf(v.from)}.`, `Facteur : 1 ${v.from} = ${n4(f)} ${v.to}.`, `${n4(v.v)} × ${n4(f)} = ${n4(r)} ${v.to}.`,
+          f > 1 ? "L'unité d'arrivée est plus petite : le nombre augmente." : (f < 1 ? "L'unité d'arrivée est plus grande : le nombre diminue." : 'Unités équivalentes : la valeur ne change pas.')],
+        result: [{ label: `${n4(v.v)} ${v.from} =`, value: n4(r), unit: v.to, main: true }],
+        values: { r }
+      };
+    },
+    tests: [
+      { in: { v: '250', from: 'µL', to: 'mL' }, out: { r: 0.25 } },
+      { in: { v: '100', from: 'mg/mL', to: 'µg/mL' }, out: { r: 1e5 } },
+      { in: { v: '45', from: 'ng/µL', to: 'µg/mL' }, out: { r: 45 } },
+      { in: { v: '0,2', from: 'mM', to: 'µM' }, out: { r: 200 } }
+    ]
+  });
+
+  // 2. Masse et concentration -----------------------------------------
+  CALCS.push({
+    id: 'masse', ch: 'm2', icon: 'scale', title: 'Masse à peser et concentration',
+    desc: 'm = Cm × V, avec % m/V, g/L, mg/mL…',
+    modes: [['m', 'Masse à peser'], ['c', 'Concentration'], ['v', 'Volume réalisable']],
+    fields: mode => {
+      const C = { id: 'C', label: 'Concentration massique', units: CM_U.concat(['% m/V']), unit: 'g/L', def: '8' };
+      const V = { id: 'V', label: 'Volume final', units: VOL_U, unit: 'mL', def: '350' };
+      const m = { id: 'm', label: 'Masse', units: MASS_U, unit: 'g', def: '2,8' };
+      return mode === 'm' ? [C, V] : mode === 'c' ? [m, V] : [m, C];
+    },
+    compute(v, mode) {
+      const cg = x => v.C_u === '% m/V' ? K.percentToGL(x) : x * K.CMASS[v.C_u];
+      const steps = [];
+      if (mode === 'm') {
+        const C = cg(v.C), V = v.V * K.VOL[v.V_u];
+        steps.push(v.C_u === '% m/V' ? `${n4(v.C)} % m/V = ${n4(v.C)} g pour 100 mL = ${n4(C)} g/L.` : `C<sub>m</sub> = ${n4(v.C)} ${v.C_u} = ${n4(C)} g/L.`);
+        steps.push(`V = ${n4(v.V)} ${v.V_u} = ${n4(V)} L.`);
+        const m = K.massFromConc(C, V);
+        steps.push(`m = ${n4(C)} g/L × ${n4(V)} L = ${n4(m)} g.`);
+        steps.push('Dissoudre dans un volume inférieur, puis compléter au volume final.');
+        return { formula: `m = C${sub('m')} × V`, steps, result: [{ label: 'Masse à peser', value: fmtMass(m).split(' ')[0], unit: fmtMass(m).split(' ')[1], main: true }, { label: 'En grammes', value: n4(m), unit: 'g' }], values: { m } };
+      }
+      if (mode === 'c') {
+        const m = v.m * K.MASS[v.m_u], V = v.V * K.VOL[v.V_u];
+        const c = K.concFromMass(m, V);
+        steps.push(`m = ${n4(m)} g ; V = ${n4(V)} L.`, `C${sub('m')} = ${n4(m)} / ${n4(V)} = ${n4(c)} g/L.`, `Équivalences : ${n4(c)} g/L = ${n4(c)} mg/mL = ${n4(c * 1000)} µg/mL = ${n4(c / 10)} % m/V.`);
+        return { formula: `C${sub('m')} = m / V`, steps, result: [{ label: 'Concentration', value: n4(c), unit: 'g/L', main: true }, { label: 'Soit', value: n4(c * 1000), unit: 'µg/mL' }, { label: 'Soit', value: n4(c / 10), unit: '% m/V' }], values: { c } };
+      }
+      const m = v.m * K.MASS[v.m_u], C = cg(v.C);
+      const V = K.volFromMass(m, C);
+      steps.push(`m = ${n4(m)} g ; C${sub('m')} = ${n4(C)} g/L.`, `V = ${n4(m)} / ${n4(C)} = ${n4(V)} L = ${n4(V * 1000)} mL.`);
+      return { formula: `V = m / C${sub('m')}`, steps, result: [{ label: 'Volume final réalisable', value: n4(V * 1000), unit: 'mL', main: true }], values: { V } };
+    },
+    tests: [
+      { mode: 'm', in: { C: '8', C_u: 'g/L', V: '350', V_u: 'mL' }, out: { m: 2.8 } },
+      { mode: 'm', in: { C: '20', C_u: '% m/V', V: '250', V_u: 'mL' }, out: { m: 50 } },
+      { mode: 'c', in: { m: '12', m_u: 'mg', V: '0,24', V_u: 'mL' }, out: { c: 50 } },
+      { mode: 'v', in: { m: '1,2', m_u: 'g', C: '4', C_u: 'g/L' }, out: { V: 0.3 } }
+    ]
+  });
+
+  // 3. Concentration molaire ------------------------------------------
+  CALCS.push({
+    id: 'molaire', ch: 'm2', icon: 'molecule', title: 'Concentration molaire',
+    desc: 'm = C × V × M, hydrates et pureté.',
+    modes: [['m', 'Masse à peser'], ['c', 'Concentration obtenue']],
+    fields: mode => {
+      const cmp = { id: 'cmp', label: 'Composé (remplit M)', type: 'select', options: COMPOUNDS.map(c => [c[0], c[1] + (c[2] ? ` (${K.fixed(c[2], 2)} g/mol)` : '')]), def: '',
+        onChange: (val, set) => { const c = COMPOUNDS.find(x => x[0] === val); if (c && c[2]) set('M', K.fixed(c[2], 2)); } };
+      const M = { id: 'M', label: 'Masse molaire M', unit: 'g/mol', def: '58,44' };
+      const V = { id: 'V', label: 'Volume final', units: VOL_U, unit: 'mL', def: '500' };
+      if (mode === 'm') return [cmp, { id: 'C', label: 'Concentration voulue', units: CMOL_U, unit: 'mM', def: '150' }, V, M, { id: 'p', label: 'Pureté', unit: '%', def: '100' }];
+      return [cmp, { id: 'm', label: 'Masse pesée', units: MASS_U, unit: 'g', def: '0,4382' }, V, M];
+    },
+    compute(v, mode) {
+      const V = v.V * K.VOL[v.V_u];
+      if (mode === 'm') {
+        const C = v.C * K.CMOL[v.C_u];
+        if (!(v.p > 0 && v.p <= 100)) throw E('La pureté doit être comprise entre 0 et 100 %.');
+        const pur = v.p / 100;
+        const m = K.massFromMolar(C, V, v.M, pur);
+        const steps = [`C = ${n4(v.C)} ${v.C_u} = ${n4(C)} mol/L ; V = ${n4(V)} L.`, `n = C × V = ${n4(C * V)} mol.`, `m = n × M = ${n4(C * V)} × ${n4(v.M)} = ${n4(C * V * v.M)} g.`];
+        if (pur < 1) steps.push(`Correction de pureté : ${n4(C * V * v.M)} / ${n4(pur)} = ${n4(m)} g.`);
+        return { formula: 'm = C × V × M / pureté', steps, result: [{ label: 'Masse à peser', value: n4(m), unit: 'g', main: true }, { label: 'Quantité de matière', value: n4(C * V * 1000), unit: 'mmol' }],
+          notes: ['Utiliser la masse molaire de la forme réellement pesée (sel hydraté ou anhydre).'], values: { m } };
+      }
+      const m = v.m * K.MASS[v.m_u];
+      const n = K.moles(m, v.M), C = n / V;
+      return { formula: 'C = n / V = m / (M × V)', steps: [`n = ${n4(m)} / ${n4(v.M)} = ${n4(n)} mol.`, `C = ${n4(n)} / ${n4(V)} = ${n4(C)} mol/L.`],
+        result: [{ label: 'Concentration', value: n4(C * 1000), unit: 'mM', main: true }, { label: 'Soit', value: n4(C), unit: 'M' }, { label: 'Concentration massique', value: n4(m / V), unit: 'g/L' }], values: { C } };
+    },
+    tests: [
+      { mode: 'm', in: { cmp: '', C: '150', C_u: 'mM', V: '500', V_u: 'mL', M: '58,44', p: '100' }, out: { m: 4.383 } },
+      { mode: 'm', in: { cmp: '', C: '0,2', C_u: 'M', V: '0,5', V_u: 'L', M: '147,01', p: '98' }, out: { m: 0.2 * 0.5 * 147.01 / 0.98 } },
+      { mode: 'c', in: { cmp: '', m: '0,4382', m_u: 'g', V: '50', V_u: 'mL', M: '58,44' }, out: { C: 0.4382 / 58.44 / 0.05 } }
+    ]
+  });
+
+  // 4. C1V1 = C2V2 -----------------------------------------------------
+  CALCS.push({
+    id: 'dilution', ch: 'm3', icon: 'drop', title: 'Dilution C₁V₁ = C₂V₂',
+    desc: 'Volume à prélever, diluant, facteur et fraction.',
+    fields: () => [
+      { id: 'unk', label: 'Inconnue', type: 'select', options: [['V1', 'V₁ volume à prélever'], ['C2', 'C₂ concentration finale'], ['V2', 'V₂ volume final'], ['C1', 'C₁ concentration du stock']], def: 'V1' },
+      { id: 'C1', label: 'C₁ concentration du stock', units: CONC_ANY, unit: 'mg/mL', def: '10', skipIf: v => v.unk === 'C1' },
+      { id: 'V1', label: 'V₁ volume prélevé', units: VOL_U, unit: 'mL', def: '0,1', skipIf: v => v.unk === 'V1' },
+      { id: 'C2', label: 'C₂ concentration finale', units: CONC_ANY, unit: 'µg/mL', def: '50', skipIf: v => v.unk === 'C2' },
+      { id: 'V2', label: 'V₂ volume final', units: VOL_U, unit: 'mL', def: '20', skipIf: v => v.unk === 'V2' }
+    ],
+    compute(v) {
+      const u = v.unk;
+      const c1 = concBase(1, v.C1_u), c2 = concBase(1, v.C2_u);
+      if (c1.kind !== c2.kind) throw E(`C₁ (${v.C1_u}) et C₂ (${v.C2_u}) ne sont pas des grandeurs compatibles. Utiliser des unités de même nature.`);
+      const o = { C1: u === 'C1' ? null : concBase(v.C1, v.C1_u).v, C2: u === 'C2' ? null : concBase(v.C2, v.C2_u).v,
+        V1: u === 'V1' ? null : v.V1 * K.VOL[v.V1_u], V2: u === 'V2' ? null : v.V2 * K.VOL[v.V2_u] };
+      const steps = [];
+      if (c1.kind === 'mass' || c1.kind === 'mol') steps.push(`Conversion des concentrations en ${c1.base} : ` + ['C1', 'C2'].filter(k => k !== u).map(k => `${k.replace('1', '₁').replace('2', '₂')} = ${n4(o[k])} ${c1.base}`).join(' ; ') + '.');
+      steps.push('Volumes convertis en L : ' + ['V1', 'V2'].filter(k => k !== u).map(k => `${k.replace('1', '₁').replace('2', '₂')} = ${n4(o[k])} L`).join(' ; ') + '.');
+      const r = K.c1v1(o);
+      const full = Object.assign({}, o, { [u]: r });
+      const F = full.C1 / full.C2, dil = full.V2 - full.V1;
+      const exprs = { V1: `V₁ = C₂ × V₂ / C₁ = ${n4(full.C2)} × ${n4(full.V2)} / ${n4(full.C1)}`, C2: `C₂ = C₁ × V₁ / V₂ = ${n4(full.C1)} × ${n4(full.V1)} / ${n4(full.V2)}`,
+        V2: `V₂ = C₁ × V₁ / C₂ = ${n4(full.C1)} × ${n4(full.V1)} / ${n4(full.C2)}`, C1: `C₁ = C₂ × V₂ / V₁ = ${n4(full.C2)} × ${n4(full.V2)} / ${n4(full.V1)}` };
+      let main;
+      if (u === 'V1' || u === 'V2') { const unit = v[u === 'V1' ? 'V2_u' : 'V1_u']; main = { label: u === 'V1' ? 'Volume à prélever V₁' : 'Volume final V₂', value: n4(r / K.VOL[unit]), unit, main: true }; steps.push(`${exprs[u]} = ${fmtVol(r)}.`); }
+      else { const unit = v[u === 'C1' ? 'C2_u' : 'C1_u']; const val = concFromBase(r, unit); main = { label: u === 'C2' ? 'Concentration finale C₂' : 'Concentration du stock C₁', value: n4(val), unit, main: true }; steps.push(`${exprs[u]} = ${n4(val)} ${unit}.`); }
+      steps.push(`Diluant = V₂ − V₁ = ${fmtVol(dil)}.`, `Facteur F = C₁/C₂ = V₂/V₁ = ${n4(F)} ; fraction d = 1/F = ${K.sci(1 / F, 3, { trim: true })}.`);
+      const warnings = [];
+      const v1uL = full.V1 * 1e6;
+      if (v1uL < 1) warnings.push(`V₁ = ${n4(v1uL)} µL : volume trop faible pour un pipetage fiable. Prévoir une dilution intermédiaire.`);
+      return { formula: 'C₁ × V₁ = C₂ × V₂', steps, warnings,
+        result: [main, { label: 'Volume de diluant', value: fmtVol(dil).split(' ')[0], unit: fmtVol(dil).split(' ')[1] }, { label: 'Facteur de dilution F', value: n4(F), unit: '' }, { label: 'Fraction d', value: K.sci(1 / F, 3, { trim: true }), unit: '' }],
+        notes: [`Pipette suggérée pour V₁ (${fmtVol(full.V1)}) : ${pipette(v1uL)}.`], values: { r, F, dil } };
+    },
+    tests: [
+      { in: { unk: 'V1', C1: '10', C1_u: 'mg/mL', C2: '50', C2_u: 'µg/mL', V2: '20', V2_u: 'mL' }, out: { r: 1e-4, F: 200 } },
+      { in: { unk: 'C2', C1: '25', C1_u: 'g/L', V1: '2', V1_u: 'mL', V2: '50', V2_u: 'mL' }, out: { r: 1 } },
+      { in: { unk: 'V2', C1: '1', C1_u: 'M', V1: '5', V1_u: 'mL', C2: '100', C2_u: 'mM' }, out: { r: 0.05 } },
+      { in: { unk: 'V1', C1: '50', C1_u: 'X', C2: '1', C2_u: 'X', V2: '500', V2_u: 'mL' }, out: { r: 0.01 } }
+    ]
+  });
+
+  // 5. Dilutions en serie ---------------------------------------------
+  CALCS.push({
+    id: 'serie', ch: 'm3', icon: 'tubes', title: 'Dilutions en série',
+    desc: 'Facteur global, concentration de chaque tube, nombre de tubes.',
+    fields: () => [
+      { id: 'C0', label: 'Concentration de départ C₀', units: ['UFC/mL', 'cellules/mL', 'µg/mL', 'mg/mL', 'ng/µL', 'g/L', 'mM', 'µM', 'copies/µL'], unit: 'UFC/mL', def: '2e8' },
+      { id: 'vt', label: 'Volume transféré par étape', units: ['µL', 'mL'], unit: 'mL', def: '1' },
+      { id: 'vd', label: 'Volume de diluant par tube', unit: '(même unité)', def: '9' },
+      { id: 'n', label: 'Nombre de tubes', unit: 'tubes', def: '6', int: true },
+      { id: 'ct', label: 'Concentration cible (facultatif)', unit: '(unité de C₀)', def: '', optional: true }
+    ],
+    compute(v) {
+      if (!(v.n >= 1 && v.n <= 15)) throw E('Le nombre de tubes doit être compris entre 1 et 15.');
+      const s = K.serial(v.C0, Array.from({ length: v.n }, () => [v.vt, v.vd]));
+      const f = (v.vt + v.vd) / v.vt;
+      const rows = s.tubes.map(t => [`Tube ${t.tube}`, K.sci(t.F, 3, { trim: true }), K.sci(t.fraction, 3, { trim: true }), `${K.sci(t.C, 3, { trim: true })} ${v.C0_u}`]);
+      const steps = [`Facteur par étape : f = (${n4(v.vt)} + ${n4(v.vd)}) / ${n4(v.vt)} = ${n4(f)}.`, `Facteur global après ${v.n} tubes : F = f<sup>${v.n}</sup> = ${K.sci(s.F, 3, { trim: true })}.`,
+        `Concentration du dernier tube : ${K.sci(v.C0, 3, { trim: true })} / ${K.sci(s.F, 3, { trim: true })} = ${K.sci(s.tubes[v.n - 1].C, 3, { trim: true })} ${v.C0_u}.`,
+        `Diluant total : ${v.n} × ${n4(v.vd)} = ${n4(v.n * v.vd)} ${v.vt_u} (prévoir une marge).`];
+      const result = [{ label: `Concentration du tube ${v.n}`, value: K.sci(s.tubes[v.n - 1].C, 3, { trim: true }), unit: v.C0_u, main: true }, { label: 'Facteur global', value: K.sci(s.F, 3, { trim: true }), unit: '' }, { label: 'Diluant total', value: n4(v.n * v.vd), unit: v.vt_u }];
+      const values = { F: s.F, Clast: s.tubes[v.n - 1].C };
+      if (v.ct !== null && v.ct !== undefined) {
+        const nt = K.tubesNeeded(v.C0, v.ct, f);
+        steps.push(`Tubes nécessaires pour atteindre au plus ${K.sci(v.ct, 3, { trim: true })} : n = ⌈log(C₀/C) / log f⌉ = ${nt}.`);
+        result.push({ label: 'Tubes nécessaires pour la cible', value: String(nt), unit: '' });
+        values.nt = nt;
+      }
+      return { formula: 'F = f<sup>n</sup> ; C<sub>n</sub> = C<sub>0</sub> / F', steps, result, values,
+        table: { head: ['Tube', 'Facteur cumulé F', 'Fraction d', 'Concentration'], rows }, viz: { type: 'tubes', n: v.n } };
+    },
+    tests: [
+      { in: { C0: '2e8', C0_u: 'UFC/mL', vt: '1', vt_u: 'mL', vd: '9', n: '6', ct: '' }, out: { F: 1e6, Clast: 200 } },
+      { in: { C0: '3e9', C0_u: 'UFC/mL', vt: '100', vt_u: 'µL', vd: '900', n: '6', ct: '3000' }, out: { nt: 6 } },
+      { in: { C0: '128', C0_u: 'µg/mL', vt: '1', vt_u: 'mL', vd: '1', n: '6', ct: '' }, out: { Clast: 2 } }
+    ]
+  });
+
+  // 6. Tampons concentres ---------------------------------------------
+  CALCS.push({
+    id: 'tampon', ch: 'm4', icon: 'flask', title: 'Tampons concentrés (X)',
+    desc: 'TAE, TBE, PBS, SSC : stock nX vers solution de travail.',
+    fields: () => [
+      { id: 'preset', label: 'Tampon courant', type: 'select', options: BUF_PRESETS.map(p => [p[0], p[1]]), def: 'tae',
+        onChange: (val, set) => { const p = BUF_PRESETS.find(x => x[0] === val); if (p && p[2]) { set('xs', K.fixed(p[2][0], 2)); set('xf', K.fixed(p[2][1], 2)); } } },
+      { id: 'xs', label: 'Concentration du stock', unit: 'X', def: '50' },
+      { id: 'xf', label: 'Concentration voulue', unit: 'X', def: '1' },
+      { id: 'vf', label: 'Volume final', units: ['mL', 'L', 'µL'], unit: 'mL', def: '500' }
+    ],
+    compute(v) {
+      const r = K.bufferFromStock(v.xs, v.xf, v.vf);
+      const F = v.xs / v.xf;
+      return { formula: 'V<sub>stock</sub> = V<sub>final</sub> × X<sub>final</sub> / X<sub>stock</sub>',
+        steps: [`Facteur de dilution : ${n4(v.xs)} / ${n4(v.xf)} = ${n4(F)}.`, `V<sub>stock</sub> = ${n4(v.vf)} / ${n4(F)} = ${n4(r.vs)} ${v.vf_u}.`, `V<sub>eau</sub> = ${n4(v.vf)} − ${n4(r.vs)} = ${n4(r.water)} ${
